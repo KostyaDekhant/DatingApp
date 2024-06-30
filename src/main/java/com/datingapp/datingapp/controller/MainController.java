@@ -42,7 +42,7 @@ public class MainController {
     @DeleteMapping("/api")
     public void deleteUser(@RequestParam int id)
     {
-        userRepo.deleteById(id);
+        userRepo.deleteById(id);//
     }
 
     @GetMapping("/api/specific")
@@ -51,8 +51,5 @@ public class MainController {
         User user = userRepo.findByName(name);
         return user != null ? ResponseEntity.ok(user) : ResponseEntity.notFound().build();
     }
-
-
-
 }
 
