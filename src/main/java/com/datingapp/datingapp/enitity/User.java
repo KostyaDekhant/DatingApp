@@ -27,9 +27,11 @@ public class User {
     private Timestamp last_online;
     private String gender;
     private String password;
+    private String description;
+    private String login;
 
     public User(String name, int age, int height, String gender, int pk_residence,
-                Boolean is_online, Timestamp last_online, String password) {
+                Boolean is_online, Timestamp last_online, String password, String description,String login) {
         //this.id = id;
         this.name = name;
         this.age = age;
@@ -39,18 +41,22 @@ public class User {
         this.is_online = is_online;
         this.last_online = last_online;
         this.password = password;
+        this.description = description;
+        this.login = login;
     }
 
     public User() {
-        this.pk_user = 20;
-        this.name = "lol";
-        this.age = 1;
-        this.height = 1;
-        this.gender = "p";
+        this.pk_user = -1;
+        this.name = "";
+        this.age = -1;
+        this.height = -1;
+        this.gender = "";
         this.pk_residence = 1;
-        this.is_online = true;
+        this.is_online = false;
         this.last_online = new Timestamp(1);
-        this.password = "password";
+        this.password = "";
+        this.description = "";
+        this.login = "";
     }
 
     @Override
@@ -65,6 +71,8 @@ public class User {
                 ", \"is_online\"=" + is_online +
                 ", \"last_online\"='" + last_online + '\'' +
                 ", \"password\"='" + password + '\'' +
+                ", \"description\"='" + description + '\'' +
+                ", \"login\"='" + login + '\'' +
                 '}';
     }
 }
