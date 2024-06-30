@@ -26,7 +26,7 @@
             android:layout_width="0dp"
             android:layout_height="19dp"
             android:layout_marginStart="8dp"
-            android:layout_marginBottom="150dp"
+            android:layout_marginBottom="175dp"
             android:text="ИМЯ ПОЛЬЗОВАТЕЛЯ,"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent" />
@@ -36,25 +36,30 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="5dp"
-            android:layout_marginBottom="150dp"
+            android:layout_marginBottom="175dp"
             android:text="ВОЗРАСТ"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toEndOf="@+id/name_label" />
 
-        <ImageButton
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/edit_button"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
             android:layout_width="0dp"
-            android:layout_height="35dp"
+            android:layout_height="50dp"
             android:layout_marginStart="96dp"
             android:layout_marginTop="7dp"
             android:layout_marginEnd="96dp"
-            android:background="#00FFFFFF"
-            android:src="@drawable/edit_button"
+            app:cornerRadius="100dp"
+            android:text="РЕДАКТИРОВАТЬ"
+            android:textColor="#262626"
+            android:textSize="14dp"
+            app:rippleColor="#21A038"
+            app:strokeColor="#262626"
+            app:strokeWidth="1dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/description_lable" />
-
     </androidx.constraintlayout.widget.ConstraintLayout>
 
 </FrameLayout>

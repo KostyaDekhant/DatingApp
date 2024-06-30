@@ -1,6 +1,7 @@
 package com.example.datingappclient;
 
 import android.os.Bundle;
+import android.widget.TextView;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -13,10 +14,22 @@ import com.example.datingappclient.fragments.ChatsContainer;
 import com.example.datingappclient.fragments.LikeFragment;
 import com.example.datingappclient.fragments.SearchFragment;
 import com.example.datingappclient.fragments.UserFragment;
+import com.example.datingappclient.retrofit.RetrofitService;
+import com.example.datingappclient.retrofit.ServerAPI;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.gson.JsonObject;
+
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class MainActivity extends AppCompatActivity {
 
+    RetrofitService retrofitService;
+    ServerAPI serverAPI;
     BottomNavigationView bottomNavigationView;
 
     @Override
@@ -33,29 +46,31 @@ public class MainActivity extends AppCompatActivity {
         bottomNavigationView = findViewById(R.id.bottom_nav_menu);
         bottomNavigationView.setOnNavigationItemSelectedListener(navListener);
 
-        /*RetrofitService retrofitService = new RetrofitService();
-        Test test = retrofitService.getRetrofit().create(Test.class);
-
-        test.getData()
-                .enqueue(new Callback<JsonObject>() {
-                    @Override
-                    public void onResponse(Call<JsonObject> call, Response<JsonObject> response) {
-                        Toast.makeText(MainActivity.this, "success", Toast.LENGTH_SHORT).show();
-                        Logger.getLogger(MainActivity.class.getName()).log(Level.INFO, "SUCCESS_GET " + response.body(), response.toString());
-                    }
-
-                    @Override
-                    public void onFailure(Call<JsonObject> call, Throwable throwable) {
-                        Toast.makeText(MainActivity.this, "error", Toast.LENGTH_SHORT).show();
-                        Logger.getLogger(MainActivity.class.getName()).log(Level.SEVERE, "Error occurred", throwable);
-                    }
-                });*/
+        retrofitService = new RetrofitService();
+        serverAPI = retrofitService.getRetrofit().create(ServerAPI.class);
     }
 
     private final BottomNavigationView.OnNavigationItemSelectedListener navListener = item -> {
         Fragment selectedFragment = null;
         int itemId = item.getItemId();
         if (itemId == R.id.user) {
+            String name, description;
+            int age;
+            serverAPI.getUser(24).enqueue(new Callback<JsonObject>() {
+                @Override
+                public void onResponse(Call<JsonObject> call, Response<JsonObject> response) {
+                    TextView desc = findViewById(R.id.description_lable), name = findViewById(R.id.name_label), age = findViewById(R.id.age_label);
+                    JsonObject userinfo = response.body();
+                    name.setText(userinfo.get("name").toString().replace("\"", ""));
+                    desc.setText(userinfo.get("description").toString());
+                    age.setText(userinfo.get("age").toString());
+                }
+
+                @Override
+                public void onFailure(Call<JsonObject> call, Throwable throwable) {
+                    Logger.getLogger(MainActivity.class.getName()).log(Level.SEVERE, "Error occurred", throwable);
+                }
+            });
             selectedFragment = new UserFragment();
         }
         else if (itemId == R.id.like) {
