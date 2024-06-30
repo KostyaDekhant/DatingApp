@@ -60,7 +60,7 @@ public class MainController {
         return "Данные обновлены успешно!";
     }
 
-
+    //Регистрация
     @PostMapping("/api/signup")
     public int signupUser(@RequestBody User user) { //String login, @RequestParam String pass
         // Обработка данных запроса
@@ -68,11 +68,12 @@ public class MainController {
         if(temp == null)
         {
             AddUser(user);
-            return userRepo.findByName(user.getName()).getPk_user();
+            return userRepo.findByLogin(user.getLogin()).getPk_user();
         }
         return -1;
     }
 
+    //Авторизация
     @PostMapping("/api/login")
     public int loginUser(@RequestBody User user) { //String login, @RequestParam String pass
         // Обработка данных запроса
