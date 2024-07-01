@@ -12,7 +12,8 @@ import androidx.fragment.app.Fragment;
 import com.example.datingappclient.R;
 
 public class LikeFragment extends Fragment {
-    public LikeFragment(){}
+    public LikeFragment() {
+    }
 
     @Nullable
     @Override

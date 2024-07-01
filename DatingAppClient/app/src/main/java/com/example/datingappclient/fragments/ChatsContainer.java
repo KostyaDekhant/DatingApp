@@ -12,7 +12,8 @@ import androidx.fragment.app.Fragment;
 import com.example.datingappclient.R;
 
 public class ChatsContainer extends Fragment {
-    public ChatsContainer() {}
+    public ChatsContainer() {
+    }
 
     @Nullable
     @Override

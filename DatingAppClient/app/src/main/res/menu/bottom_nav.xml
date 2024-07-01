@@ -3,17 +3,17 @@
     xmlns:android="http://schemas.android.com/apk/res/android">
     <item
         android:id="@+id/user"
-        android:icon="@drawable/user_icon"/>
+        android:icon="@drawable/user_icon" />
     <item
         android:id="@+id/like"
-        android:icon="@drawable/like_icon"/>
+        android:icon="@drawable/like_icon" />
     <item
         android:id="@+id/search"
-        android:icon="@drawable/search_menu"/>
+        android:icon="@drawable/search_menu" />
     <item
         android:id="@+id/chat"
-        android:icon="@drawable/chat_icon"/>
+        android:icon="@drawable/chat_icon" />
     <item
         android:id="@+id/slidemenu"
-        android:icon="@drawable/menu_icon"/>
+        android:icon="@drawable/menu_icon" />
 </menu>

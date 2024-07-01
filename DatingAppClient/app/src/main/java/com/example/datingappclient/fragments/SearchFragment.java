@@ -12,7 +12,8 @@ import androidx.fragment.app.Fragment;
 import com.example.datingappclient.R;
 
 public class SearchFragment extends Fragment {
-    public SearchFragment() {}
+    public SearchFragment() {
+    }
 
     @Nullable
     @Override

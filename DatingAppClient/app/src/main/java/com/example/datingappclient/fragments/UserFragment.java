@@ -1,5 +1,6 @@
 package com.example.datingappclient.fragments;
 
+import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -68,6 +69,7 @@ public class UserFragment extends Fragment implements View.OnClickListener {
                 user = new User(userID, name, description, age);
                 setUserinfo(view);
             }
+
             @Override
             public void onFailure(Call<JsonObject> call, Throwable throwable) {
                 Logger.getLogger(MainActivity.class.getName()).log(Level.SEVERE, "Error occurred", throwable);
@@ -75,10 +77,13 @@ public class UserFragment extends Fragment implements View.OnClickListener {
         });
     }
 
+    @SuppressLint("SetTextI18n")
     private void setUserinfo(View view) {
         TextView descLabel = view.findViewById(R.id.description_lable), nameLabel = view.findViewById(R.id.name_label), ageLabel = view.findViewById(R.id.age_label);
-        nameLabel.setText(user.getUsername());
+        nameLabel.setText(user.getUsername() + ",");
         descLabel.setText(user.getDesc());
         ageLabel.setText(user.getAge());
-    };
+    }
+
+    ;
 }

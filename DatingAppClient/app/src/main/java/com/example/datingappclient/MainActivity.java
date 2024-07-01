@@ -1,6 +1,7 @@
 package com.example.datingappclient;
 
 import android.os.Bundle;
+import android.view.MenuItem;
 import android.widget.TextView;
 
 import androidx.activity.EdgeToEdge;
@@ -62,17 +63,13 @@ public class MainActivity extends AppCompatActivity {
         int itemId = item.getItemId();
         if (itemId == R.id.user) {
             selectedFragment = new UserFragment(userID);
-        }
-        else if (itemId == R.id.like) {
+        } else if (itemId == R.id.like) {
             selectedFragment = new LikeFragment();
-        }
-        else if (itemId == R.id.search) {
+        } else if (itemId == R.id.search) {
             selectedFragment = new SearchFragment();
-        }
-        else if (itemId == R.id.chat) {
+        } else if (itemId == R.id.chat) {
             selectedFragment = new ChatsContainer();
-        }
-        else if (itemId == R.id.slidemenu) {
+        } else if (itemId == R.id.slidemenu) {
 
         }
         // It will help to replace the

@@ -1,6 +1,5 @@
 package com.example.datingappclient.fragments;
 
-import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
@@ -36,7 +35,7 @@ public class SigninFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        View activityView = inflater.inflate(R.layout.fragment_login, container, false);
+        View activityView = inflater.inflate(R.layout.fragment_signin, container, false);
 
         MaterialButton loginButton = activityView.findViewById(R.id.login_button);
         loginButton.setOnClickListener(new View.OnClickListener() {
@@ -68,7 +67,7 @@ public class SigninFragment extends Fragment {
 
                             @Override
                             public void onFailure(Call<Integer> call, Throwable throwable) {
-                                Toast.makeText(activityView.getContext(),"ERROR LOGIN", Toast.LENGTH_LONG).show();
+                                Toast.makeText(activityView.getContext(), "ERROR LOGIN", Toast.LENGTH_LONG).show();
                                 Logger.getLogger(MainActivity.class.getName()).log(Level.SEVERE, "ERROR LOGIN", throwable);
                             }
                         });
