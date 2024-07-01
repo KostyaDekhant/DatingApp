@@ -1,4 +1,4 @@
-package com.example.datingappclient;
+package com.example.datingappclient.model;
 
 public class User {
 

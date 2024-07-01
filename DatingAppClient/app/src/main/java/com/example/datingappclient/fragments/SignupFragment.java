@@ -53,7 +53,7 @@ public class SignupFragment extends Fragment {
 
                 JsonObject jsonObject = new JsonObject();
                 jsonObject.addProperty("login", login);
-                jsonObject.addProperty("pass", pass);
+                jsonObject.addProperty("password", pass);
 
                 serverAPI.signup(jsonObject).enqueue(new Callback<Integer>() {
                     @Override

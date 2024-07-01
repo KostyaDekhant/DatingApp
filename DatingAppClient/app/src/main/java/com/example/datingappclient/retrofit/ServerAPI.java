@@ -2,6 +2,8 @@ package com.example.datingappclient.retrofit;
 
 import com.google.gson.JsonObject;
 
+import java.util.List;
+
 import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.GET;
@@ -21,4 +23,7 @@ public interface ServerAPI {
 
     @POST("api/signup")
     Call<Integer> signup(@Body JsonObject jsonObject);
+
+    @GET("api/chat_users")
+    Call<List<String>> getChats(@Query("pk_user") int id);
 }

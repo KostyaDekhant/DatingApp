@@ -68,7 +68,7 @@ public class MainActivity extends AppCompatActivity {
         } else if (itemId == R.id.search) {
             selectedFragment = new SearchFragment();
         } else if (itemId == R.id.chat) {
-            selectedFragment = new ChatsContainer();
+            selectedFragment = new ChatsContainer(userID);
         } else if (itemId == R.id.slidemenu) {
 
         }

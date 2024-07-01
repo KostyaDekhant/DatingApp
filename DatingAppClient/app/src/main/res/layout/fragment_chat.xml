@@ -4,11 +4,11 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <TextView
-        android:id="@+id/textView2"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="chat"
-        tools:layout_editor_absoluteX="136dp"
-        tools:layout_editor_absoluteY="114dp" />
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/chatsList_recyclerView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        />
+
+
 </androidx.constraintlayout.widget.ConstraintLayout>

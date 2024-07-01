@@ -13,7 +13,7 @@ import android.widget.Toast;
 
 import com.example.datingappclient.MainActivity;
 import com.example.datingappclient.R;
-import com.example.datingappclient.User;
+import com.example.datingappclient.model.User;
 import com.example.datingappclient.retrofit.RetrofitService;
 import com.example.datingappclient.retrofit.ServerAPI;
 import com.google.android.material.button.MaterialButton;
@@ -66,9 +66,13 @@ public class UsereditFragment extends Fragment {
                 serverAPI.updateUser(jsonObject).enqueue(new Callback<Boolean>() {
                     @Override
                     public void onResponse(Call<Boolean> call, Response<Boolean> response) {
-                        Toast.makeText(activityView.getContext(), "SUCCESS SAVE", Toast.LENGTH_LONG).show();
-                        Logger.getLogger(MainActivity.class.getName()).log(Level.SEVERE, "SUCCESS SAVE", response.body());
-
+                        if (response.body()) {
+                            Toast.makeText(activityView.getContext(), "SUCCESS SAVE", Toast.LENGTH_LONG).show();
+                            Logger.getLogger(MainActivity.class.getName()).log(Level.SEVERE, "SUCCESS SAVE");
+                        }
+                        else {
+                            Toast.makeText(activityView.getContext(), "BAD ID. ERROR", Toast.LENGTH_LONG).show();
+                        }
                     }
 
                     @Override
