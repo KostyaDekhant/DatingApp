@@ -16,28 +16,27 @@ import java.sql.Timestamp;
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "pk_user")
     private int pk_user;
-
-    @Column(unique = true)
+    @Column(name = "name")
     private String name;
     private int age;
     private int height;
-    private int pk_residence;
     private Boolean is_online;
     private Timestamp last_online;
     private String gender;
     private String password;
     private String description;
+    @Column(unique = true)
     private String login;
 
-    public User(String name, int age, int height, String gender, int pk_residence,
-                Boolean is_online, Timestamp last_online, String password, String description,String login) {
-        //this.id = id;
+    public User(String name, int age, int height, String gender,
+                Boolean is_online, Timestamp last_online, String password,
+                String description, String login) {
         this.name = name;
         this.age = age;
         this.height = height;
         this.gender = gender;
-        this.pk_residence = pk_residence;
         this.is_online = is_online;
         this.last_online = last_online;
         this.password = password;
@@ -51,7 +50,6 @@ public class User {
         this.age = -1;
         this.height = -1;
         this.gender = "";
-        this.pk_residence = 1;
         this.is_online = false;
         this.last_online = new Timestamp(1);
         this.password = "";
@@ -67,7 +65,6 @@ public class User {
                 ", \"age\"=" + age +
                 ", \"height\"=" + height +
                 ", \"gender\"='" + gender + '\'' +
-                ", \"pk_residence\"='" + pk_residence + '\'' +
                 ", \"is_online\"=" + is_online +
                 ", \"last_online\"='" + last_online + '\'' +
                 ", \"password\"='" + password + '\'' +

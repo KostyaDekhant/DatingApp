@@ -1,7 +1,8 @@
 package com.datingapp.datingapp.controller;
 
 import com.datingapp.datingapp.enitity.User;
-import com.datingapp.datingapp.enitity.Cat;
+import com.datingapp.datingapp.enitity.Residence;
+import com.datingapp.datingapp.repository.ResidRepo;
 import com.datingapp.datingapp.repository.UserRepo;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.List;
+import java.util.Objects;
 
 import static java.time.Instant.*;
 
@@ -24,6 +26,7 @@ import static java.time.Instant.*;
 public class MainController {
 
     private final UserRepo userRepo;
+    private final ResidRepo residRepo;
     private final ObjectMapper objectMapper;
 
     //Добавление пользователя ()
@@ -50,15 +53,41 @@ public class MainController {
 
     //Обновление данных пользователя
     @PostMapping("/api/user")
-    public String updateUser(@RequestBody User user)
+    public boolean updateUser(@RequestBody User user)
     {
-        if(userRepo.findById(user.getPk_user()).isEmpty() == true)
+        if(userRepo.findById(user.getPk_user()).isEmpty()) //
         {
-            return "Попытка обновить данные несуществующего пользователя!";
+            return false;
         }
-        userRepo.save(user);
-        return "Данные обновлены успешно!";
+        User temp = userRepo.findById(user.getPk_user()).get();
+
+        userRepo.save(updateData(temp, user));
+        return true;
     }
+
+    private User updateData(User oldU, User newU)
+    {
+        if(!newU.getName().equals(oldU.getName()) && !newU.getName().equals(""))
+            oldU.setName(newU.getName());
+        if(newU.getAge() != oldU.getAge() && newU.getAge() != 0)
+            oldU.setAge(newU.getAge());
+        if(!newU.getGender().equals(oldU.getGender()) && !newU.getGender().equals(""))
+            oldU.setGender(newU.getGender());
+        if(newU.getHeight() != oldU.getHeight() && newU.getHeight() != 0)
+            oldU.setHeight(newU.getHeight());
+        if(newU.getIs_online() != oldU.getIs_online())
+            oldU.setIs_online(newU.getIs_online());
+        if(newU.getLast_online() != oldU.getLast_online() && !newU.getLast_online().equals(""))
+            oldU.setLast_online(newU.getLast_online());
+        if(!newU.getPassword().equals(oldU.getPassword()) && !newU.getPassword().equals(""))
+            oldU.setPassword(newU.getPassword());
+        if(!newU.getDescription().equals(oldU.getDescription()) && !newU.getDescription().equals(""))
+            oldU.setDescription(newU.getDescription());
+        if(!newU.getLogin().equals(oldU.getLogin()) && !newU.getLogin().equals(""))
+            oldU.setLogin(newU.getLogin());
+        return oldU;
+    }
+
 
     //Регистрация
     @PostMapping("/api/signup")
@@ -98,5 +127,41 @@ public class MainController {
         User user = userRepo.findByName(name);
         return user != null ? ResponseEntity.ok(user) : ResponseEntity.notFound().build();
     }
+
+    @PostMapping("/api/residence")
+    public int setResidence(@RequestBody Residence resid)
+    {
+        int user_id = resid.getPk_user();
+        if(!userRepo.findById(user_id).isEmpty())
+        {
+            Residence temp = residRepo.findByPk_user(resid.getPk_user());
+            if(temp != null)
+            {
+                int id = temp.getPk_residence();
+                resid.setPk_residence(id);
+                log.info("update resid info: " + residRepo.save(resid));
+                return 2;
+            }
+            else{
+                log.info("new resid info: " + residRepo.save(resid));
+                return 1;
+            }
+        }
+        log.info("Пользователь с данным id отсутствует!");
+        return -1;
+    }
+
+    @GetMapping("/api/residence")
+    public Residence getResidence(@RequestParam int pk_user) {
+       return residRepo.findByPk_user(pk_user);
+    }
+
+
+    @GetMapping("/api/chat_users")
+    public List<String> findChat_users(@RequestParam int pk_user)
+    {
+        return userRepo.findUsers(pk_user);
+    }
+
 }
 
