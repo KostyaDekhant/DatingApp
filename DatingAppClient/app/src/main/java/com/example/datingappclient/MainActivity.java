@@ -28,6 +28,7 @@ import retrofit2.Response;
 
 public class MainActivity extends AppCompatActivity {
 
+    private int userID;
     RetrofitService retrofitService;
     ServerAPI serverAPI;
     BottomNavigationView bottomNavigationView;
@@ -43,6 +44,12 @@ public class MainActivity extends AppCompatActivity {
             return insets;
         });
 
+        // Get pk_user from auth activity
+        Bundle arguments = getIntent().getExtras();
+        userID = arguments.getInt("pk_user");
+
+        getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new UserFragment(userID)).commit();
+
         bottomNavigationView = findViewById(R.id.bottom_nav_menu);
         bottomNavigationView.setOnNavigationItemSelectedListener(navListener);
 
@@ -54,24 +61,7 @@ public class MainActivity extends AppCompatActivity {
         Fragment selectedFragment = null;
         int itemId = item.getItemId();
         if (itemId == R.id.user) {
-            String name, description;
-            int age;
-            serverAPI.getUser(24).enqueue(new Callback<JsonObject>() {
-                @Override
-                public void onResponse(Call<JsonObject> call, Response<JsonObject> response) {
-                    TextView desc = findViewById(R.id.description_lable), name = findViewById(R.id.name_label), age = findViewById(R.id.age_label);
-                    JsonObject userinfo = response.body();
-                    name.setText(userinfo.get("name").toString().replace("\"", ""));
-                    desc.setText(userinfo.get("description").toString());
-                    age.setText(userinfo.get("age").toString());
-                }
-
-                @Override
-                public void onFailure(Call<JsonObject> call, Throwable throwable) {
-                    Logger.getLogger(MainActivity.class.getName()).log(Level.SEVERE, "Error occurred", throwable);
-                }
-            });
-            selectedFragment = new UserFragment();
+            selectedFragment = new UserFragment(userID);
         }
         else if (itemId == R.id.like) {
             selectedFragment = new LikeFragment();

@@ -2,15 +2,20 @@ package com.example.datingappclient;
 
 public class User {
 
-    public User(int id, String username, String desc) {
+    public User(int id) {
+        this.id = id;
+    }
+    public User(int id, String username, String desc, String age) {
         this.id = id;
         this.username = username;
         this.desc = desc;
+        this.age = age;
     }
 
     private int id;
     private String username;
     private String desc;
+    private String age;
 
     public int getId() {
         return id;
@@ -34,5 +39,13 @@ public class User {
 
     public void setDesc(String desc) {
         this.desc = desc;
+    }
+
+    public String getAge() {
+        return age;
+    }
+
+    public void setAge(String age) {
+        this.age = age;
     }
 }

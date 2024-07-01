@@ -15,4 +15,7 @@ public interface ServerAPI {
 
     @POST("api/user")
     Call<Boolean> updateUser(@Body JsonObject jsonObject);
+
+    @POST("api/login")
+    Call<Integer> login(@Body JsonObject jsonObject);
 }
