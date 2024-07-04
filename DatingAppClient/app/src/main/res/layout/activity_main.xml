@@ -12,14 +12,17 @@
     <FrameLayout
         android:id="@+id/fragment_container"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_above="@id/bottom_nav_menu" />
+        android:layout_height="0dp"
+        android:layout_above="@id/bottom_nav_menu"
+        app:layout_constraintBottom_toTopOf="@+id/bottom_nav_menu"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/bottom_nav_menu"
         android:layout_width="409dp"
         android:layout_height="0dp"
         android:background="@drawable/border_top"
+        android:layout_below="@id/fragment_container"
         app:itemIconSize="40dp"
         app:labelVisibilityMode="unlabeled"
         app:layout_constraintBottom_toBottomOf="parent"

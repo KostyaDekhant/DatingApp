@@ -95,7 +95,7 @@
                 android:id="@+id/age_inputEdit"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:inputType="number"
+                android:inputType="date"
                 android:paddingStart="20dp" />
 
         </com.google.android.material.textfield.TextInputLayout>

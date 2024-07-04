@@ -2,8 +2,10 @@ package com.example.datingappclient.fragments;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -23,38 +25,33 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class ChatsContainer extends Fragment {
+public class ChatListFragment extends Fragment {
 
     private int userID;
     RecyclerView recyclerView;
 
-    public ChatsContainer(int userID) {
+    public ChatListFragment(int userID) {
         this.userID = userID;
     }
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View activityView = inflater.inflate(R.layout.fragment_chat, container, false);
+        View activityView = inflater.inflate(R.layout.fragment_chatlist, container, false);
         recyclerView = activityView.findViewById(R.id.chatsList_recyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(activityView.getContext()));
-
-        List<String> test = new ArrayList<String>();
-        test.add("Georgiy");
-        test.add("Sergey");
-
 
         RetrofitService retrofitService = new RetrofitService();
         ServerAPI serverAPI = retrofitService.getRetrofit().create(ServerAPI.class);
 
-        serverAPI.getChats(userID).enqueue(new Callback<List<String>>() {
+        serverAPI.getChats(userID).enqueue(new Callback<List<Object[]>>() {
             @Override
-            public void onResponse(Call<List<String>> call, Response<List<String>> response) {
+            public void onResponse(Call<List<Object[]>> call, Response<List<Object[]>> response) {
                 populateListView(response.body());
             }
 
             @Override
-            public void onFailure(Call<List<String>> call, Throwable throwable) {
+            public void onFailure(Call<List<Object[]>> call, Throwable throwable) {
 
             }
         });
@@ -62,8 +59,8 @@ public class ChatsContainer extends Fragment {
         return activityView;
     }
 
-    private void populateListView(List<String> chats) {
-        ChatsAdapter chatsAdapter = new ChatsAdapter(chats);
+    private void populateListView(List<Object[]> chats) {
+        ChatsAdapter chatsAdapter = new ChatsAdapter(chats, this);
         recyclerView.setAdapter(chatsAdapter);
     }
 }

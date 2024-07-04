@@ -1,8 +1,6 @@
 package com.example.datingappclient;
 
 import android.os.Bundle;
-import android.view.MenuItem;
-import android.widget.TextView;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -11,21 +9,13 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.fragment.app.Fragment;
 
-import com.example.datingappclient.fragments.ChatsContainer;
+import com.example.datingappclient.fragments.ChatListFragment;
 import com.example.datingappclient.fragments.LikeFragment;
 import com.example.datingappclient.fragments.SearchFragment;
 import com.example.datingappclient.fragments.UserFragment;
 import com.example.datingappclient.retrofit.RetrofitService;
 import com.example.datingappclient.retrofit.ServerAPI;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
-import com.google.gson.JsonObject;
-
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -68,7 +58,7 @@ public class MainActivity extends AppCompatActivity {
         } else if (itemId == R.id.search) {
             selectedFragment = new SearchFragment();
         } else if (itemId == R.id.chat) {
-            selectedFragment = new ChatsContainer(userID);
+            selectedFragment = new ChatListFragment(userID);
         } else if (itemId == R.id.slidemenu) {
 
         }
