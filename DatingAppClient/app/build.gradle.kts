@@ -16,22 +16,6 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
-    packagingOptions {
-        exclude("META-INF/spring.factories")
-        exclude("META-INF/spring.schemas")
-        exclude("META-INF/spring/aot.factories")
-        exclude("META-INF/spring.tooling")
-        exclude("META-INF/spring.handlers")
-        exclude("META-INF/license.txt")
-        exclude("META-INF/DEPENDENCIES")
-        exclude("META-INF/INDEX.LIST")
-        exclude("META-INF/notice.txt")
-        exclude("META-INF/web-fragment.xml")
-        exclude("META-INF/spring-configuration-metadata.json")
-        exclude("META-INF/additional-spring-configuration-metadata.json")
-
-    }
-
     buildTypes {
         release {
             isMinifyEnabled = false
@@ -70,5 +54,10 @@ dependencies {
 
     // https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-databind
     implementation("com.fasterxml.jackson.core:jackson-databind:2.0.1")
+
+    api("com.github.NaikSoftware:StompProtocolAndroid:1.6.4")
+    // RxJava
+    implementation("io.reactivex.rxjava2:rxjava:2.2.5")
+    implementation("io.reactivex.rxjava2:rxandroid:2.1.0")
 
 }

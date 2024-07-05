@@ -1,5 +1,6 @@
 package com.example.datingappclient;
 
+import android.app.Activity;
 import android.os.Bundle;
 
 import androidx.activity.EdgeToEdge;
@@ -46,6 +47,8 @@ public class MainActivity extends AppCompatActivity {
 
         retrofitService = new RetrofitService();
         serverAPI = retrofitService.getRetrofit().create(ServerAPI.class);
+
+
     }
 
     private final BottomNavigationView.OnNavigationItemSelectedListener navListener = item -> {
