@@ -2,9 +2,6 @@
 <project version="4">
   <component name="deploymentTargetSelector">
     <selectionStates>
-      <SelectionState runConfigName="app">
-        <option name="selectionMode" value="DROPDOWN" />
-      </SelectionState>
       <SelectionState runConfigName="DatingAppClient.app">
         <option name="selectionMode" value="DROPDOWN" />
         <DropdownSelection timestamp="2024-07-02T07:34:23.903806500Z">

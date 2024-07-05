@@ -1,14 +1,73 @@
-<?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    tools:context=".fragments.SearchFragment">
 
-    <TextView
-        android:id="@+id/textView3"
-        android:layout_width="wrap_content"
+    <!-- Центральная область для отображения анкеты -->
+    <FrameLayout
+        android:id="@+id/profile_container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:focusable="true"
+        android:clickable="true">
+
+        <!-- Полупрозрачная вуаль -->
+        <View
+            android:id="@+id/swipe_overlay"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="#00FFFFFF"
+            android:visibility="gone"
+        />
+
+    </FrameLayout>
+
+    <!-- Контейнер для кнопок и текста об анкете -->
+    <LinearLayout
+        android:id="@+id/bottom_container"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="search"
-        tools:layout_editor_absoluteX="149dp"
-        tools:layout_editor_absoluteY="256dp" />
-</androidx.constraintlayout.widget.ConstraintLayout>
+        android:layout_alignParentBottom="true"
+        android:orientation="vertical"
+        android:padding="16dp"
+        android:background="#FFFFFF">
+
+        <!-- Текстовая область для информации об анкете -->
+        <TextView
+            android:id="@+id/profile_info"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Имя пользователя, возраст\nОписание профиля (может не быть)"
+            android:textAlignment="center"
+            android:textSize="16sp"
+            android:paddingBottom="8dp"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center">
+
+            <!-- Кнопка для дислайка -->
+            <ImageButton
+                android:id="@+id/dislike_button"
+                android:layout_width="64dp"
+                android:layout_height="64dp"
+                android:layout_margin="16dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:src="@drawable/ic_dislike" />
+
+            <!-- Кнопка для лайка -->
+            <ImageButton
+                android:id="@+id/like_button"
+                android:layout_width="64dp"
+                android:layout_height="64dp"
+                android:layout_margin="16dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:src="@drawable/ic_like" />
+        </LinearLayout>
+
+    </LinearLayout>
+
+</RelativeLayout>
