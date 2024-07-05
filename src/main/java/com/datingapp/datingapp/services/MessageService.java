@@ -23,7 +23,7 @@ public class MessageService {
         return messRepo.save(message);
     }
 
-    public List<ChatMessageDto> getChatHistory(int chatId) {
+    public List<Message> getChatHistory(int chatId) {
         return messRepo.findChatMessages(chatId);
     }
 }

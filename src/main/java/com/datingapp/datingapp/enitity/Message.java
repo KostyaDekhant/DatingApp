@@ -3,6 +3,9 @@ package com.datingapp.datingapp.enitity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.sql.Time;
 import java.sql.Timestamp;
 
@@ -13,17 +16,26 @@ import java.sql.Timestamp;
 @Table(name = "\"message\"")
 
 public class Message {
+
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "pk_message")
     private int pk_message;
+
     @Column(name = "message")
+    @JsonProperty("message")
     private String message;
+
     @Column(name = "time")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX")
     private Timestamp time;
+
     @Column(name = "pk_user")
+    @JsonProperty("pk_user")
     private int pk_user;
     @Column(name = "pk_chat")
+    @JsonProperty("pk_chat")
     private int pk_chat;
 
     public Message(String message, Timestamp time, int pk_user, int pk_chat) {

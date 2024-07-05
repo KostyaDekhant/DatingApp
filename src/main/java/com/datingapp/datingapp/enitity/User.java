@@ -7,6 +7,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.sql.Timestamp;
+import java.util.Date;
 
 @Data
 @Getter
@@ -20,7 +21,7 @@ public class User {
     private int pk_user;
     @Column(name = "name")
     private String name;
-    private int age;
+    private Date age;
     private int height;
     private Boolean is_online;
     private Timestamp last_online;
@@ -30,7 +31,7 @@ public class User {
     @Column(unique = true)
     private String login;
 
-    public User(String name, int age, int height, String gender,
+    public User(String name, Date age, int height, String gender,
                 Boolean is_online, Timestamp last_online, String password,
                 String description, String login) {
         this.name = name;
@@ -47,7 +48,7 @@ public class User {
     public User() {
         this.pk_user = -1;
         this.name = "";
-        this.age = -1;
+        this.age = new Date();
         this.height = -1;
         this.gender = "";
         this.is_online = false;

@@ -1,5 +1,10 @@
 package com.datingapp.datingapp.controller;
 
+import com.datingapp.datingapp.enitity.Picture;
+import com.datingapp.datingapp.repository.PicRepo;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
 import com.datingapp.datingapp.enitity.User;
 import com.datingapp.datingapp.enitity.Residence;
 import com.datingapp.datingapp.repository.ResidRepo;
@@ -10,11 +15,17 @@ import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
 
+
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.sql.Timestamp;
 import java.time.Instant;
+import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 
@@ -25,8 +36,11 @@ import static java.time.Instant.*;
 @RequiredArgsConstructor
 public class MainController {
 
+    private final Path uploadPath = Paths.get("C:/datingapp/pictures");
+
     private final UserRepo userRepo;
     private final ResidRepo residRepo;
+    private final PicRepo picRepo;
     private final ObjectMapper objectMapper;
 
     //Добавление пользователя ()
@@ -69,7 +83,7 @@ public class MainController {
     {
         if(!newU.getName().equals(oldU.getName()) && !newU.getName().equals(""))
             oldU.setName(newU.getName());
-        if(newU.getAge() != oldU.getAge() && newU.getAge() != 0)
+        if(newU.getAge() != oldU.getAge() && newU.getAge() != new Date())
             oldU.setAge(newU.getAge());
         if(!newU.getGender().equals(oldU.getGender()) && !newU.getGender().equals(""))
             oldU.setGender(newU.getGender());
@@ -158,9 +172,27 @@ public class MainController {
 
 
     @GetMapping("/api/chat_users")
-    public List<String> findChat_users(@RequestParam int pk_user)
+    public List<Object[]> findChat_users(@RequestParam int pk_user)
     {
         return userRepo.findUsers(pk_user);
+    }
+
+    @PostMapping("api/uploadpic")
+    public String handleFileUpload(@RequestParam("file") MultipartFile file) {
+        try {
+            // Проверяем, существует ли директория, если нет - создаем
+            if (!Files.exists(uploadPath)) {
+                Files.createDirectories(uploadPath);
+            }
+
+            Files.copy(file.getInputStream(), this.uploadPath.resolve(file.getOriginalFilename()));
+            Picture pic = new Picture(file.getOriginalFilename(), new Timestamp(System.currentTimeMillis()));
+            picRepo.save(pic);
+            return "Файл успешно загружен: " + file.getOriginalFilename();
+        } catch (IOException e) {
+            e.printStackTrace();
+            return "Не удалось загрузить файл: " + file.getOriginalFilename();
+        }
     }
 
 }

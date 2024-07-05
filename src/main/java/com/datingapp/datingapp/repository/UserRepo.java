@@ -13,7 +13,7 @@ public interface UserRepo extends JpaRepository<User, Integer> {
     User findByName(String name);
     User findByLogin(String login);
 
-    @Query(value = "SELECT u2.name " +
+    @Query(value = "SELECT u2.name, u2.pk_user " +
             "FROM \"user\" u1 " +
             "JOIN \"chat\" c ON u1.pk_user = c.pk_user OR u1.pk_user = c.pk_user1 " +
             "JOIN \"user\" u2 ON u2.pk_user = CASE " +
@@ -21,6 +21,6 @@ public interface UserRepo extends JpaRepository<User, Integer> {
                                               " ELSE c.pk_user " +
                                             " END "  +
             "  WHERE u1.pk_user = :user_id", nativeQuery = true)
-    List<String> findUsers(@Param("user_id") int pk_user);
+    List<Object[]> findUsers(@Param("user_id") int pk_user);
 
 }
