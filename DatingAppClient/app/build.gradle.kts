@@ -56,6 +56,8 @@ dependencies {
     implementation("com.fasterxml.jackson.core:jackson-databind:2.0.1")
 
     api("com.github.NaikSoftware:StompProtocolAndroid:1.6.4")
-    api("io.reactivex.rxjava2:rxjava:2.2.5")
+    // RxJava
+    implementation("io.reactivex.rxjava2:rxjava:2.2.5")
+    implementation("io.reactivex.rxjava2:rxandroid:2.1.0")
 
 }
