@@ -60,7 +60,7 @@ public class ChatListFragment extends Fragment {
     }
 
     private void populateListView(List<Object[]> chats) {
-        ChatsAdapter chatsAdapter = new ChatsAdapter(chats, this);
+        ChatsAdapter chatsAdapter = new ChatsAdapter(chats, userID,this);
         recyclerView.setAdapter(chatsAdapter);
     }
 }

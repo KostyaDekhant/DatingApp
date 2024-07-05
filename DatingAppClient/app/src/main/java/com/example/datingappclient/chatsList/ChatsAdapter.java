@@ -3,7 +3,6 @@ package com.example.datingappclient.chatsList;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
@@ -17,10 +16,12 @@ import java.util.List;
 public class ChatsAdapter extends RecyclerView.Adapter<ChatsHolder> {
 
     private List<Object[]> chats;
+    private int sendlerID;
     private Fragment fragment;
 
-    public ChatsAdapter(List<Object[]> chats, Fragment fragment) {
+    public ChatsAdapter(List<Object[]> chats, int sendlerID, Fragment fragment) {
         this.chats = chats;
+        this.sendlerID = sendlerID;
         this.fragment = fragment;
     }
 
@@ -34,14 +35,16 @@ public class ChatsAdapter extends RecyclerView.Adapter<ChatsHolder> {
     @Override
     public void onBindViewHolder(@NonNull ChatsHolder holder, int position) {
         String username = (String) chats.get(position)[0];
-        Double userID = ((Double) chats.get(position)[1]);
-        holder.setUserID(userID);
+
+        Double tempUserID = (Double) chats.get(position)[1];
+        Integer userID = tempUserID.intValue();
+        holder.setReceiverID(userID);
 
         holder.username.setText(username);
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                fragment.getParentFragmentManager().beginTransaction().replace(R.id.fragment_container, new ChatFragment(holder.getUserID(), 1, username)).commit();
+                fragment.getParentFragmentManager().beginTransaction().replace(R.id.fragment_container, new ChatFragment(sendlerID, holder.getReceiverID(), username)).commit();
             }
         });
     }

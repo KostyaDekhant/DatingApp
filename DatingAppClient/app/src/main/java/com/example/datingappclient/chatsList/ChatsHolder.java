@@ -10,7 +10,7 @@ import com.example.datingappclient.R;
 
 public class ChatsHolder extends RecyclerView.ViewHolder {
 
-    private Double userID;
+    private Integer receiverID;
 
     TextView username, lastMessage;
 
@@ -20,11 +20,11 @@ public class ChatsHolder extends RecyclerView.ViewHolder {
         lastMessage = itemView.findViewById(R.id.lastMessage_label);
     }
 
-    public Double getUserID() {
-        return userID;
+    public Integer getReceiverID() {
+        return receiverID;
     }
 
-    public void setUserID(Double userID) {
-        this.userID = userID;
+    public void setReceiverID(Integer receiverID) {
+        this.receiverID = receiverID;
     }
 }
