@@ -1,5 +1,7 @@
 package com.example.datingappclient.chatsList;
 
+import android.app.Activity;
+import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -8,8 +10,8 @@ import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.datingappclient.ChatActivity;
 import com.example.datingappclient.R;
-import com.example.datingappclient.fragments.ChatFragment;
 
 import java.util.List;
 
@@ -18,11 +20,13 @@ public class ChatsAdapter extends RecyclerView.Adapter<ChatsHolder> {
     private List<Object[]> chats;
     private int sendlerID;
     private Fragment fragment;
+    private Activity activity;
 
-    public ChatsAdapter(List<Object[]> chats, int sendlerID, Fragment fragment) {
+    public ChatsAdapter(List<Object[]> chats, int sendlerID, Fragment fragment, Activity activity) {
         this.chats = chats;
         this.sendlerID = sendlerID;
         this.fragment = fragment;
+        this.activity = activity;
     }
 
     @NonNull
@@ -44,7 +48,9 @@ public class ChatsAdapter extends RecyclerView.Adapter<ChatsHolder> {
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                fragment.getParentFragmentManager().beginTransaction().replace(R.id.fragment_container, new ChatFragment(sendlerID, holder.getReceiverID(), username)).commit();
+                //fragment.getParentFragmentManager().beginTransaction().replace(R.id.fragment_container, new ChatFragment(sendlerID, holder.getReceiverID(), username)).commit();
+                activity.startActivity(new Intent(activity, ChatActivity.class).putExtra("sendlerID", sendlerID).putExtra("receiverID", holder.getReceiverID()).putExtra("username", username));
+                activity.finish();
             }
         });
     }

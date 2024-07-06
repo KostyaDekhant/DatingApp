@@ -2,6 +2,7 @@ package com.example.datingappclient;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.view.View;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -18,9 +19,14 @@ import com.example.datingappclient.retrofit.RetrofitService;
 import com.example.datingappclient.retrofit.ServerAPI;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
+import net.yslibrary.android.keyboardvisibilityevent.KeyboardVisibilityEvent;
+
+import java.util.Objects;
+
 public class MainActivity extends AppCompatActivity {
 
     private int userID;
+
     RetrofitService retrofitService;
     ServerAPI serverAPI;
     BottomNavigationView bottomNavigationView;
@@ -36,19 +42,23 @@ public class MainActivity extends AppCompatActivity {
             return insets;
         });
 
-        // Get pk_user from auth activity
-        Bundle arguments = getIntent().getExtras();
-        userID = arguments.getInt("pk_user");
-
-        getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new UserFragment(userID)).commit();
-
         bottomNavigationView = findViewById(R.id.bottom_nav_menu);
         bottomNavigationView.setOnNavigationItemSelectedListener(navListener);
 
+        // Get pk_user from auth activity
+        Bundle arguments = getIntent().getExtras();
+        userID = Objects.requireNonNull(arguments).getInt("pk_user");
+        if (Objects.equals(arguments.getString("action"), "showchats")) {
+            getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new ChatListFragment(userID)).commit();
+            bottomNavigationView.setSelectedItemId(R.id.chat);
+        }
+        else {
+            getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new UserFragment(userID)).commit();
+            bottomNavigationView.setSelectedItemId(R.id.user);
+        }
+
         retrofitService = new RetrofitService();
         serverAPI = retrofitService.getRetrofit().create(ServerAPI.class);
-
-
     }
 
     private final BottomNavigationView.OnNavigationItemSelectedListener navListener = item -> {

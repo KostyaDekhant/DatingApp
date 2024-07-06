@@ -1,27 +1,29 @@
-package com.example.datingappclient.fragments;
+package com.example.datingappclient;
 
 import android.annotation.SuppressLint;
-import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
-
-import androidx.fragment.app.Fragment;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.TextView;
 
+import androidx.activity.EdgeToEdge;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
 import com.example.datingappclient.messageList.MessagesAdapter;
 import com.example.datingappclient.model.Message;
-import com.example.datingappclient.R;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
+
+import net.yslibrary.android.keyboardvisibilityevent.KeyboardVisibilityEvent;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
@@ -30,43 +32,56 @@ import java.util.List;
 
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.schedulers.Schedulers;
-
 import ua.naiksoftware.stomp.Stomp;
 import ua.naiksoftware.stomp.StompClient;
 
-public class ChatFragment extends Fragment {
+public class ChatActivity extends AppCompatActivity {
 
-    Integer sendlerID;
-    Integer reciverID;
+    Integer sendlerID, receiverID;
     String username;
 
-    StompClient stompClient;
     RecyclerView messagesRecyclerView;
+
     MessagesAdapter messagesAdapter;
 
-    public ChatFragment(Integer sendlerID, Integer reciverID, String username) {
-        // Required empty public constructor
-        this.sendlerID = sendlerID;
-        this.reciverID = reciverID;
-        this.username = username;
-    }
+    StompClient stompClient;
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-        View acticityView = inflater.inflate(R.layout.fragment_chat, container, false);
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        EdgeToEdge.enable(this);
+        setContentView(R.layout.activity_chat);
 
-        TextView textView = acticityView.findViewById(R.id.username_label);
-        textView.setText(username);
+        // Get pk_user from auth activity
+        Bundle arguments = getIntent().getExtras();
+        sendlerID = arguments.getInt("sendlerID");
+        receiverID = arguments.getInt("receiverID");
+        username = arguments.getString("username");
 
-        TextInputEditText editText = acticityView.findViewById(R.id.message_inputEdit);
-        MaterialButton sendButton = acticityView.findViewById(R.id.sendmess_button);
+        TextInputEditText editText = findViewById(R.id.message_inputEdit);
+        TextView usernameLabel = findViewById(R.id.username_label);
+        MaterialButton sendButton = findViewById(R.id.sendmess_button);
+        MaterialButton returnButton = findViewById(R.id.return_button);
+        messagesRecyclerView = findViewById(R.id.messages_recyclerView);
 
-        messagesRecyclerView = acticityView.findViewById(R.id.messages_recyclerView);
-        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(acticityView.getContext());
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
         linearLayoutManager.setStackFromEnd(true);
         messagesRecyclerView.setLayoutManager(linearLayoutManager);
+
+        usernameLabel.setText(username);
+
+        KeyboardVisibilityEvent.setEventListener(this, isOpen -> {
+            if (isOpen) messagesRecyclerView.scrollToPosition(messagesAdapter.getItemCount() - 1);
+        });
+
+        returnButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                startActivity(new Intent(ChatActivity.this, MainActivity.class).putExtra("action", "showchats").putExtra("pk_user", sendlerID));
+                finish();
+            }
+        });
+
 
         initStompClient();
 
@@ -74,7 +89,7 @@ public class ChatFragment extends Fragment {
             @SuppressLint("CheckResult")
             @Override
             public void onClick(View view) {
-                stompClient.send("/app/send", new Message(editText.getText().toString(), getCurrentTimeStamp(), sendlerID, reciverID).toString())
+                stompClient.send("/app/send", new Message(editText.getText().toString(), getCurrentTimeStamp(), sendlerID, receiverID).toString())
                         .subscribeOn(Schedulers.io())
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe(() -> {
@@ -85,30 +100,17 @@ public class ChatFragment extends Fragment {
 
                 editText.setText("");
                 editText.clearFocus();
-
-                /*InputMethodManager imm = (InputMethodManager) getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+/*
+                InputMethodManager imm = (InputMethodManager) this.getSystemService(Context.INPUT_METHOD_SERVICE);
                 imm.hideSoftInputFromWindow(getView().getWindowToken(), 0);*/
             }
         });
 
-        TextInputEditText message_inputEdit = acticityView.findViewById(R.id.message_inputEdit);
-
-        message_inputEdit.setOnFocusChangeListener(new View.OnFocusChangeListener() {
-            @Override
-            public void onFocusChange(View v, boolean hasFocus) {
-                if (hasFocus) {
-                    messagesRecyclerView.scrollToPosition(messagesAdapter.getItemCount() - 1);
-                }
-            }
-        });
-        stompClient.send("/app/history/" + reciverID)
+        stompClient.send("/app/history/" + receiverID)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe();
-
-        return acticityView;
     }
-
     private static String getCurrentTimeStamp() {
         SimpleDateFormat sdfDate = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX");
         Date now = new Date();
@@ -136,7 +138,7 @@ public class ChatFragment extends Fragment {
             }
         });
 
-        stompClient.topic("/topic/history/" + reciverID)
+        stompClient.topic("/topic/history/" + receiverID)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(topicMessage -> {
@@ -144,15 +146,15 @@ public class ChatFragment extends Fragment {
                     populateListView(stringToList(topicMessage.getPayload()));
                 });
 
-        stompClient.topic("/topic/messages/" + reciverID)
+        stompClient.topic("/topic/messages/" + receiverID)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(topicMessage -> {
                     Log.d("GETMESS", topicMessage.getPayload());
                     ObjectMapper mapper = new ObjectMapper();
-                    Message message = mapper.readValue(topicMessage.getPayload(), new TypeReference<Message>() {
-                    });
+                    Message message = mapper.readValue(topicMessage.getPayload(), new TypeReference<Message>() {});
                     messagesAdapter.addMessage(message);
+                    messagesRecyclerView.scrollToPosition(messagesAdapter.getItemCount() - 1);
                 });
     }
 
