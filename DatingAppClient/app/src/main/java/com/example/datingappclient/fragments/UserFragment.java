@@ -1,10 +1,13 @@
 package com.example.datingappclient.fragments;
 
 import android.annotation.SuppressLint;
+import android.graphics.Bitmap;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -14,11 +17,15 @@ import androidx.fragment.app.Fragment;
 import com.example.datingappclient.MainActivity;
 import com.example.datingappclient.R;
 import com.example.datingappclient.model.User;
+import com.example.datingappclient.model.UserImage;
 import com.example.datingappclient.retrofit.RetrofitService;
 import com.example.datingappclient.retrofit.ServerAPI;
+import com.example.datingappclient.utils.ImageUtils;
 import com.google.android.material.button.MaterialButton;
 import com.google.gson.JsonObject;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -63,7 +70,23 @@ public class UserFragment extends Fragment implements View.OnClickListener {
                 String description = userinfo.get("description").toString().replace("\"", "");
                 String age = userinfo.get("age").toString();
 
-                user = new User(userID, name, description, age);
+                serverAPI.getImage(10).enqueue(new Callback<Byte[]>() {
+                    @Override
+                    public void onResponse(Call<Byte[]> call, Response<Byte[]> response) {
+                        ImageView profileImage = view.findViewById(R.id.profileImage);
+                        Log.d("GETIMAGE", "Res: " + response.body());
+                        Bitmap image = ImageUtils.convertByteToBitmap(response.body());
+                        profileImage.setImageBitmap(image);
+                    }
+
+                    @Override
+                    public void onFailure(Call<Byte[]> call, Throwable throwable) {
+                        Log.d("BAD GETIMAGE", throwable.toString());
+                    }
+                });
+
+
+                user = new User(userID, name, description, age, new ArrayList<UserImage>() );
                 setUserinfo(view);
             }
 

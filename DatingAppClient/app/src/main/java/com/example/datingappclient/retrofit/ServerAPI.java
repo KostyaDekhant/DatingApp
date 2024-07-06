@@ -28,4 +28,10 @@ public interface ServerAPI {
     @GET("api/chat_users")
     Call<List<Object[]>> getChats(@Query("pk_user") int id);
 
+    @GET("api/user_images")
+    Call<List<Object[]>> getUserImages(@Query("pk_user") int id);
+
+    @GET("api/picture")
+    Call<Byte[]> getImage(@Query("pic_id") int id);
+
 }

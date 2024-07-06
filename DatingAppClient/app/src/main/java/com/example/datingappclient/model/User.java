@@ -1,22 +1,28 @@
 package com.example.datingappclient.model;
 
+import java.util.List;
+
 public class User {
 
-    public User(int id) {
-        this.id = id;
-    }
-
-    public User(int id, String username, String desc, String age) {
-        this.id = id;
-        this.username = username;
-        this.desc = desc;
-        this.age = age;
-    }
 
     private int id;
     private String username;
     private String desc;
     private String age;
+
+    private List<UserImage> images;
+
+    public User(int id) {
+        this.id = id;
+    }
+
+    public User(int id, String username, String desc, String age, List<UserImage> userImages) {
+        this.id = id;
+        this.username = username;
+        this.desc = desc;
+        this.age = age;
+        this.images = userImages;
+    }
 
     public int getId() {
         return id;
@@ -48,5 +54,13 @@ public class User {
 
     public void setAge(String age) {
         this.age = age;
+    }
+
+    public List<UserImage> getImages() {
+        return images;
+    }
+
+    public void setImages(List<UserImage> images) {
+        this.images = images;
     }
 }
