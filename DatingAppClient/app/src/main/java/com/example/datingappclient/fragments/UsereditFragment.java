@@ -69,8 +69,7 @@ public class UsereditFragment extends Fragment {
                         if (response.body()) {
                             Toast.makeText(activityView.getContext(), "SUCCESS SAVE", Toast.LENGTH_LONG).show();
                             Logger.getLogger(MainActivity.class.getName()).log(Level.SEVERE, "SUCCESS SAVE");
-                        }
-                        else {
+                        } else {
                             Toast.makeText(activityView.getContext(), "BAD ID. ERROR", Toast.LENGTH_LONG).show();
                         }
                     }

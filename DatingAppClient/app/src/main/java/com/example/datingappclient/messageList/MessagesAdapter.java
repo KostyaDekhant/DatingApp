@@ -62,4 +62,9 @@ public class MessagesAdapter extends RecyclerView.Adapter<MessagesHolder> {
         if (messageList.get(position).getPk_user() == sendlerID) return VIEW_TYPE_SENT;
         else return VIEW_TYPE_RECEIVED;
     }
+
+    public void addMessage(Message message) {
+        this.messageList.add(message);
+        notifyDataSetChanged();
+    }
 }

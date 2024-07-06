@@ -21,7 +21,8 @@
         android:textColor="@color/white"
         android:textSize="16sp"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"/>
+        app:layout_constraintTop_toTopOf="parent" />
+
     <TextView
         android:id="@+id/textDateTime"
         android:layout_width="300dp"
@@ -32,7 +33,6 @@
         android:text="Время отправки"
         android:textColor="#262626"
         app:layout_constraintTop_toBottomOf="@id/textMessage"
-        app:layout_constraintStart_toStartOf="parent"
-        />
+        app:layout_constraintStart_toStartOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

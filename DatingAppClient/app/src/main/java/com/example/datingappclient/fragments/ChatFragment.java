@@ -42,6 +42,7 @@ public class ChatFragment extends Fragment {
 
     StompClient stompClient;
     RecyclerView messagesRecyclerView;
+    MessagesAdapter messagesAdapter;
 
     public ChatFragment(Integer sendlerID, Integer reciverID, String username) {
         // Required empty public constructor
@@ -62,6 +63,11 @@ public class ChatFragment extends Fragment {
         TextInputEditText editText = acticityView.findViewById(R.id.message_inputEdit);
         MaterialButton sendButton = acticityView.findViewById(R.id.sendmess_button);
 
+        messagesRecyclerView = acticityView.findViewById(R.id.messages_recyclerView);
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(acticityView.getContext());
+        linearLayoutManager.setStackFromEnd(true);
+        messagesRecyclerView.setLayoutManager(linearLayoutManager);
+
         initStompClient();
 
         sendButton.setOnClickListener(new View.OnClickListener() {
@@ -72,22 +78,29 @@ public class ChatFragment extends Fragment {
                         .subscribeOn(Schedulers.io())
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe(() -> {
-                    Log.d("GOOD SEND", "REST echo send successfully");
-                }, throwable -> {
-                    Log.e("BAD SEND", "Error send REST echo", throwable);
-                });
+                            Log.d("GOOD SEND", "REST echo send successfully");
+                        }, throwable -> {
+                            Log.e("BAD SEND", "Error send REST echo", throwable);
+                        });
 
                 editText.setText("");
                 editText.clearFocus();
 
-                InputMethodManager imm = (InputMethodManager) getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
-                imm.hideSoftInputFromWindow(getView().getWindowToken(), 0);
+                /*InputMethodManager imm = (InputMethodManager) getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+                imm.hideSoftInputFromWindow(getView().getWindowToken(), 0);*/
             }
         });
 
-        messagesRecyclerView = acticityView.findViewById(R.id.messages_recyclerView);
-        messagesRecyclerView.setLayoutManager(new LinearLayoutManager(acticityView.getContext()));
+        TextInputEditText message_inputEdit = acticityView.findViewById(R.id.message_inputEdit);
 
+        message_inputEdit.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View v, boolean hasFocus) {
+                if (hasFocus) {
+                    messagesRecyclerView.scrollToPosition(messagesAdapter.getItemCount() - 1);
+                }
+            }
+        });
         stompClient.send("/app/history/" + reciverID)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
@@ -102,6 +115,7 @@ public class ChatFragment extends Fragment {
         return sdfDate.format(now);
     }
 
+    @SuppressLint("CheckResult")
     private void initStompClient() {
         stompClient = Stomp.over(Stomp.ConnectionProvider.OKHTTP, "ws://26.223.19.56:8080/datingapp");
         stompClient.connect();
@@ -122,31 +136,38 @@ public class ChatFragment extends Fragment {
             }
         });
 
-        stompClient.topic("/topic/history")
+        stompClient.topic("/topic/history/" + reciverID)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(topicMessage -> {
-            Log.d("GETMESS", topicMessage.getPayload());
-            populateListView(stringToList(topicMessage.getPayload()));
-        });
+                    Log.d("GETMESS", topicMessage.getPayload());
+                    populateListView(stringToList(topicMessage.getPayload()));
+                });
 
-        stompClient.topic("/topic/messages")
+        stompClient.topic("/topic/messages/" + reciverID)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(topicMessage -> {
-            Log.d("GETMESS", topicMessage.getPayload());
-        });
+                    Log.d("GETMESS", topicMessage.getPayload());
+                    ObjectMapper mapper = new ObjectMapper();
+                    Message message = mapper.readValue(topicMessage.getPayload(), new TypeReference<Message>() {
+                    });
+                    messagesAdapter.addMessage(message);
+                });
     }
 
     private void populateListView(List<Message> messagesList) {
-        messagesRecyclerView.setAdapter(new MessagesAdapter(messagesList, sendlerID));
+        messagesAdapter = new MessagesAdapter(messagesList, sendlerID);
+        messagesRecyclerView.setAdapter(messagesAdapter);
+        messagesRecyclerView.scrollToPosition(messagesAdapter.getItemCount() - 1);
     }
 
     public List<Message> stringToList(String json) {
         ObjectMapper mapper = new ObjectMapper();
         List<Message> messages = null;
         try {
-            messages = mapper.readValue(json, new TypeReference<List<Message>>(){});
+            messages = mapper.readValue(json, new TypeReference<List<Message>>() {
+            });
         } catch (IOException e) {
             e.printStackTrace();
         }

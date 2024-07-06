@@ -18,8 +18,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:background="#00FFFFFF"
-            android:visibility="gone"
-        />
+            android:visibility="gone" />
 
     </FrameLayout>
 
@@ -41,7 +40,7 @@
             android:text="Имя пользователя, возраст\nОписание профиля (может не быть)"
             android:textAlignment="center"
             android:textSize="16sp"
-            android:paddingBottom="8dp"/>
+            android:paddingBottom="8dp" />
 
         <LinearLayout
             android:layout_width="match_parent"
