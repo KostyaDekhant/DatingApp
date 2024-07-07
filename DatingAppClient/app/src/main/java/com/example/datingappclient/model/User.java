@@ -1,5 +1,7 @@
 package com.example.datingappclient.model;
 
+import android.graphics.Bitmap;
+
 import java.util.List;
 
 public class User {
@@ -14,6 +16,13 @@ public class User {
 
     public User(int id) {
         this.id = id;
+    }
+
+    public User(int id, String username, String desc, String age) {
+        this.id = id;
+        this.username = username;
+        this.desc = desc;
+        this.age = age;
     }
 
     public User(int id, String username, String desc, String age, List<UserImage> userImages) {
@@ -62,5 +71,12 @@ public class User {
 
     public void setImages(List<UserImage> images) {
         this.images = images;
+    }
+
+    public Bitmap getMainImage() {
+        for (UserImage it : images) {
+            if (it.getImageNum() == 1) return it.getImage();
+        }
+        return null;
     }
 }

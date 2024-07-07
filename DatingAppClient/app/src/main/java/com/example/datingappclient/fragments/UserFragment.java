@@ -71,19 +71,19 @@ public class UserFragment extends Fragment implements View.OnClickListener {
                 String description = userinfo.get("description").toString().replace("\"", "");
                 String age = userinfo.get("age").toString();
 
+                user = new User(userID, name, description, age);
+                setUserinfo(view);
+
                 serverAPI.getUserImages(userID).enqueue(new Callback<List<Object[]>>() {
                     @Override
                     public void onResponse(Call<List<Object[]>> call, Response<List<Object[]>> response) {
                         ImageView profileImage = view.findViewById(R.id.profileImage);
                         Log.d("GETIMAGE", "Res: " + response.body());
 
-                        List<Object[]> temp = response.body();
-                        String imageStr = temp.get(0)[2].toString();
+                        user.setImages(ImageUtils.objectListToUserImageList(response.body()));
+                        setUserinfo(view);
 
-                        byte[] array = Base64.getDecoder().decode(imageStr);
-                        Bitmap image = ImageUtils.convertPrimitiveByteToBitmap(array);
-
-                        profileImage.setImageBitmap(image);
+                        profileImage.setImageBitmap(user.getMainImage());
                     }
 
                     @Override
@@ -91,8 +91,6 @@ public class UserFragment extends Fragment implements View.OnClickListener {
                         Log.d("BAD GETIMAGE", throwable.toString());
                     }
                 });
-                user = new User(userID, name, description, age, new ArrayList<UserImage>() );
-                setUserinfo(view);
             }
 
             @Override
