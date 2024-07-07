@@ -2,6 +2,7 @@ package com.example.datingappclient.model;
 
 import android.graphics.Bitmap;
 
+import java.util.Comparator;
 import java.util.List;
 
 public class User {
@@ -31,6 +32,7 @@ public class User {
         this.desc = desc;
         this.age = age;
         this.images = userImages;
+        sortImages();
     }
 
     public int getId() {
@@ -69,14 +71,31 @@ public class User {
         return images;
     }
 
-    public void setImages(List<UserImage> images) {
+    public void setListImages(List<UserImage> images) {
         this.images = images;
+        sortImages();
+    }
+
+    public void addUserImage(UserImage image) {
+        images.add(image);
+    }
+
+    public void setUserImageID(int imageID, int imageNum) {
+        if (images.isEmpty()) return;
+        for (UserImage it : images) {
+            if (it.getImageNum() == imageNum) it.setImageID(imageID);
+        }
     }
 
     public Bitmap getMainImage() {
+        if (images.isEmpty()) return null;
         for (UserImage it : images) {
             if (it.getImageNum() == 1) return it.getImage();
         }
         return null;
+    }
+
+    private void sortImages() {
+        images.sort(Comparator.comparingInt(u -> u.getImageNum()));
     }
 }

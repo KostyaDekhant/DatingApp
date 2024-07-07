@@ -15,6 +15,7 @@ import com.example.datingappclient.fragments.ChatListFragment;
 import com.example.datingappclient.fragments.LikeFragment;
 import com.example.datingappclient.fragments.SearchFragment;
 import com.example.datingappclient.fragments.UserFragment;
+import com.example.datingappclient.model.User;
 import com.example.datingappclient.retrofit.RetrofitService;
 import com.example.datingappclient.retrofit.ServerAPI;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
@@ -26,10 +27,13 @@ import java.util.Objects;
 public class MainActivity extends AppCompatActivity {
 
     private int userID;
+    private User user;
 
     RetrofitService retrofitService;
     ServerAPI serverAPI;
     BottomNavigationView bottomNavigationView;
+
+    UserFragment userFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,13 +52,14 @@ public class MainActivity extends AppCompatActivity {
         // Get pk_user from auth activity
         Bundle arguments = getIntent().getExtras();
         userID = Objects.requireNonNull(arguments).getInt("pk_user");
+        user = new User(userID);
         if (Objects.equals(arguments.getString("action"), "showchats")) {
             getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new ChatListFragment(userID)).commit();
             bottomNavigationView.setSelectedItemId(R.id.chat);
         }
         else {
-            getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new UserFragment(userID)).commit();
-            bottomNavigationView.setSelectedItemId(R.id.user);
+            userFragment = new UserFragment(user, true);
+            getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, userFragment).commit();
         }
 
         retrofitService = new RetrofitService();
@@ -65,7 +70,7 @@ public class MainActivity extends AppCompatActivity {
         Fragment selectedFragment = null;
         int itemId = item.getItemId();
         if (itemId == R.id.user) {
-            selectedFragment = new UserFragment(userID);
+            selectedFragment = userFragment;
         } else if (itemId == R.id.like) {
             selectedFragment = new LikeFragment();
         } else if (itemId == R.id.search) {

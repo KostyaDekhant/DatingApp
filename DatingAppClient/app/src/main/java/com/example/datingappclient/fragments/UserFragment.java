@@ -34,12 +34,23 @@ import retrofit2.Response;
 
 public class UserFragment extends Fragment implements View.OnClickListener {
 
-    private User user;
+    private static User user;
     private ImageView profileImage;
     private int currentImageIndex = 0;
+    private boolean isLogin ;
 
-    public UserFragment(int userID) {
-        user = new User(userID);
+    public UserFragment(User user) {
+        this.user = user;
+        this.isLogin = false;
+    }
+
+    public UserFragment(User user, boolean isLogin) {
+        this.user = user;
+        this.isLogin = isLogin;
+    }
+
+    public void setIsLogin(boolean isLogin) {
+        this.isLogin = isLogin;
     }
 
     @Nullable
@@ -51,7 +62,13 @@ public class UserFragment extends Fragment implements View.OnClickListener {
 
         profileImage = view.findViewById(R.id.profileImage);
         setupImageTouchListener();
-        getUserinfo(view, user.getId());
+
+        if (isLogin)
+            getUserinfo(view, user.getId());
+        else {
+            setUserinfo(view);
+            profileImage.setImageBitmap(user.getMainImage());
+        }
 
         return view;
     }
@@ -81,12 +98,14 @@ public class UserFragment extends Fragment implements View.OnClickListener {
                     public void onResponse(Call<List<Object[]>> call, Response<List<Object[]>> response) {
                         Log.d("GETIMAGE", "Res: " + response.body());
 
-                        user.setImages(ImageUtils.objectListToUserImageList(response.body()));
+                        user.setListImages(ImageUtils.objectListToUserImageList(response.body()));
                         setUserinfo(view);
-
                         if (!user.getListImages().isEmpty()) {
                             profileImage.setImageBitmap(user.getListImages().get(0).getImage());
                         }
+
+                        // Чтобы больше не запрашивать данные
+                        isLogin = false;
                     }
 
                     @Override

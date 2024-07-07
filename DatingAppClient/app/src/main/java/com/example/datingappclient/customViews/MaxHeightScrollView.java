@@ -1,9 +1,11 @@
-package com.example.datingappclient;
+package com.example.datingappclient.customViews;
 
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.util.AttributeSet;
 import android.widget.ScrollView;
+
+import com.example.datingappclient.R;
 
 public class MaxHeightScrollView extends ScrollView {
 

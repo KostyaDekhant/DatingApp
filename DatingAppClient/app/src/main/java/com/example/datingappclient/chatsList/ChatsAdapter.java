@@ -48,7 +48,6 @@ public class ChatsAdapter extends RecyclerView.Adapter<ChatsHolder> {
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                //fragment.getParentFragmentManager().beginTransaction().replace(R.id.fragment_container, new ChatFragment(sendlerID, holder.getReceiverID(), username)).commit();
                 activity.startActivity(new Intent(activity, ChatActivity.class).putExtra("sendlerID", sendlerID).putExtra("receiverID", holder.getReceiverID()).putExtra("username", username));
                 activity.finish();
             }
