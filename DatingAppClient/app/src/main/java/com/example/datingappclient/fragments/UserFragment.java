@@ -25,6 +25,7 @@ import com.google.android.material.button.MaterialButton;
 import com.google.gson.JsonObject;
 
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -70,22 +71,26 @@ public class UserFragment extends Fragment implements View.OnClickListener {
                 String description = userinfo.get("description").toString().replace("\"", "");
                 String age = userinfo.get("age").toString();
 
-                serverAPI.getImage(10).enqueue(new Callback<Byte[]>() {
+                serverAPI.getUserImages(userID).enqueue(new Callback<List<Object[]>>() {
                     @Override
-                    public void onResponse(Call<Byte[]> call, Response<Byte[]> response) {
+                    public void onResponse(Call<List<Object[]>> call, Response<List<Object[]>> response) {
                         ImageView profileImage = view.findViewById(R.id.profileImage);
                         Log.d("GETIMAGE", "Res: " + response.body());
-                        Bitmap image = ImageUtils.convertByteToBitmap(response.body());
+
+                        List<Object[]> temp = response.body();
+                        String imageStr = temp.get(0)[2].toString();
+
+                        byte[] array = Base64.getDecoder().decode(imageStr);
+                        Bitmap image = ImageUtils.convertPrimitiveByteToBitmap(array);
+
                         profileImage.setImageBitmap(image);
                     }
 
                     @Override
-                    public void onFailure(Call<Byte[]> call, Throwable throwable) {
+                    public void onFailure(Call<List<Object[]>> call, Throwable throwable) {
                         Log.d("BAD GETIMAGE", throwable.toString());
                     }
                 });
-
-
                 user = new User(userID, name, description, age, new ArrayList<UserImage>() );
                 setUserinfo(view);
             }
