@@ -1,7 +1,9 @@
 package com.datingapp.datingapp.controller;
 
 import com.datingapp.datingapp.enitity.Picture;
+import com.datingapp.datingapp.enitity.User_pic;
 import com.datingapp.datingapp.repository.PicRepo;
+import com.datingapp.datingapp.repository.UserPicRepo;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -41,6 +43,7 @@ public class MainController {
     private final UserRepo userRepo;
     private final ResidRepo residRepo;
     private final PicRepo picRepo;
+    private final UserPicRepo userPicRepo;
     private final ObjectMapper objectMapper;
 
     //Добавление пользователя ()
@@ -177,22 +180,41 @@ public class MainController {
         return userRepo.findUsers(pk_user);
     }
 
-    @PostMapping("api/uploadpic")
-    public String handleFileUpload(@RequestParam("file") MultipartFile file) {
+    @PostMapping("api/upload_image")
+    public int handleFileUpload(@RequestParam("image") byte[] image, @RequestParam("user_id") int user_id,
+                                @RequestParam("image_id")int image_id) {
         try {
             // Проверяем, существует ли директория, если нет - создаем
             if (!Files.exists(uploadPath)) {
                 Files.createDirectories(uploadPath);
             }
+            //Files.copy(file.getInputStream(), this.uploadPath.resolve(file.getOriginalFilename()));
+            Picture pic = new Picture(image_id, new Timestamp(System.currentTimeMillis()),
+                    image);
+            pic.setPk_picture(picRepo.findMaxPk()+1);
+            log.info("информация о фото " + pic.toString());
 
-            Files.copy(file.getInputStream(), this.uploadPath.resolve(file.getOriginalFilename()));
-            Picture pic = new Picture(file.getOriginalFilename(), new Timestamp(System.currentTimeMillis()));
-            picRepo.save(pic);
-            return "Файл успешно загружен: " + file.getOriginalFilename();
+            userPicRepo.save(new User_pic(picRepo.save(pic).getPk_picture(), user_id));
+            return pic.getPk_picture();
         } catch (IOException e) {
             e.printStackTrace();
-            return "Не удалось загрузить файл: " + file.getOriginalFilename();
+            return -1;
         }
+    }
+
+    @GetMapping("api/user_images")
+    public List<Object[]> getImages(@RequestParam("pk_user") int id) {
+        return picRepo.findByUserId(id);
+    }
+
+    ////convertBytetobyte(pic.getBytea())   //Byte[]
+
+    public static Byte[] convertBytetobyte(byte[] bytes) {
+        Byte[] byteObjects = new Byte[bytes.length];
+        for (int i = 0; i < bytes.length; i++) {
+            byteObjects[i] = bytes[i];  // Автоупаковка примитивного типа byte в объект Byte
+        }
+        return byteObjects;
     }
 
 }

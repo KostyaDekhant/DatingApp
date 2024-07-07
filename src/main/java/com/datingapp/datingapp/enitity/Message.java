@@ -8,6 +8,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.sql.Time;
 import java.sql.Timestamp;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 
 @Data
 @Getter
@@ -21,6 +23,7 @@ public class Message {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "pk_message")
+    @JsonProperty("pk_message")
     private int pk_message;
 
     @Column(name = "message")
@@ -63,4 +66,40 @@ public class Message {
                 ", pk_chat=" + pk_chat +
                 '}';
     }
+
+    public static Message fromString(String str) {
+        Message message = new Message();
+
+        // Удаление начальной и конечной скобки
+        str = str.substring(str.indexOf('{') + 1, str.lastIndexOf('}'));
+
+        // Разделение строки на пары "ключ=значение"
+        String[] keyValuePairs = str.split(", ");
+
+        for (String pair : keyValuePairs) {
+            String[] entry = pair.split("=");
+            switch (entry[0]) {
+                case "message":
+                    message.setMessage(entry[1].replaceAll("'", "")); // Удаление кавычек
+                    break;
+                case "time":
+                    if ("time".equals(entry[0])) {
+                        ZonedDateTime zonedDateTime = ZonedDateTime.parse(entry[1].replaceAll("'", ""),
+                                DateTimeFormatter.ISO_DATE_TIME);
+                        Timestamp timestamp = Timestamp.from(zonedDateTime.toInstant());
+                        message.setTime(timestamp);
+                    }
+                    break;
+                case "pk_user":
+                    message.setPk_user(Integer.parseInt(entry[1]));
+                    break;
+                case "pk_chat":
+                    message.setPk_chat(Integer.parseInt(entry[1]));
+                    break;
+            }
+        }
+
+        return message;
+    }
+
 }
