@@ -18,7 +18,6 @@ import androidx.fragment.app.Fragment;
 import com.example.datingappclient.MainActivity;
 import com.example.datingappclient.R;
 import com.example.datingappclient.model.User;
-import com.example.datingappclient.model.UserImage;
 import com.example.datingappclient.retrofit.RetrofitService;
 import com.example.datingappclient.retrofit.ServerAPI;
 import com.example.datingappclient.utils.ImageUtils;
@@ -85,8 +84,8 @@ public class UserFragment extends Fragment implements View.OnClickListener {
                         user.setImages(ImageUtils.objectListToUserImageList(response.body()));
                         setUserinfo(view);
 
-                        if (!user.getImages().isEmpty()) {
-                            profileImage.setImageBitmap(user.getImages().get(0).getImage());
+                        if (!user.getListImages().isEmpty()) {
+                            profileImage.setImageBitmap(user.getListImages().get(0).getImage());
                         }
                     }
 
@@ -106,7 +105,7 @@ public class UserFragment extends Fragment implements View.OnClickListener {
 
     @SuppressLint("SetTextI18n")
     private void setUserinfo(View view) {
-        TextView descLabel = view.findViewById(R.id.description_lable), nameLabel = view.findViewById(R.id.name_label), ageLabel = view.findViewById(R.id.age_label);
+        TextView descLabel = view.findViewById(R.id.description_label), nameLabel = view.findViewById(R.id.username_label), ageLabel = view.findViewById(R.id.age_label);
         nameLabel.setText(user.getUsername() + ",");
         descLabel.setText(user.getDesc());
         ageLabel.setText(user.getAge());
@@ -140,14 +139,14 @@ public class UserFragment extends Fragment implements View.OnClickListener {
 
     private void onSwipeLeft() {
         Log.d("UserFragment", "Clicked on the right half of the image");
-        if (currentImageIndex < user.getImages().size() - 1) {
+        if (currentImageIndex < user.getListImages().size() - 1) {
             currentImageIndex++;
             updateProfileImage();
         }
     }
 
     private void updateProfileImage() {
-        Bitmap image = user.getImages().get(currentImageIndex).getImage();
+        Bitmap image = user.getListImages().get(currentImageIndex).getImage();
         profileImage.setImageBitmap(image);
     }
 }

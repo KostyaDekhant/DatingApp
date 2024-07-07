@@ -65,7 +65,7 @@ public class User {
         this.age = age;
     }
 
-    public List<UserImage> getImages() {
+    public List<UserImage> getListImages() {
         return images;
     }
 

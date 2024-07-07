@@ -65,4 +65,6 @@ dependencies {
 
     implementation("net.yslibrary.keyboardvisibilityevent:keyboardvisibilityevent:3.0.0-RC3")
 
+    implementation("com.github.siyamed:android-shape-imageview:0.9.3")
+
 }

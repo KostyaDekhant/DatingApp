@@ -3,32 +3,20 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:context="">
+    android:layout_height="match_parent">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
         <TextView
-            android:id="@+id/description_lable"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:layout_marginBottom="7dp"
-            android:text="ОПИСАНИЕ"
-            android:textSize="16sp"
-            app:layout_constraintBottom_toTopOf="@+id/edit_button"
-            app:layout_constraintStart_toStartOf="parent" />
-
-        <TextView
-            android:id="@+id/name_label"
+            android:id="@+id/username_label"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
             android:text="ИМЯ ПОЛЬЗОВАТЕЛЯ,"
             android:textSize="20sp"
-            app:layout_constraintBottom_toTopOf="@+id/description_lable"
+            app:layout_constraintBottom_toTopOf="@id/userinfo_scrollView"
             app:layout_constraintStart_toStartOf="parent" />
 
         <TextView
@@ -38,8 +26,39 @@
             android:layout_marginStart="5dp"
             android:text="ВОЗРАСТ"
             android:textSize="20sp"
-            app:layout_constraintBottom_toTopOf="@+id/description_lable"
-            app:layout_constraintStart_toEndOf="@+id/name_label" />
+            app:layout_constraintBottom_toTopOf="@+id/userinfo_scrollView"
+            app:layout_constraintStart_toEndOf="@+id/username_label" />
+
+        <LinearLayout
+            android:id="@+id/userinfo_scrollView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintBottom_toTopOf="@+id/edit_button"
+            app:layout_constraintStart_toStartOf="parent">
+
+            <com.example.datingappclient.MaxHeightScrollView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:minHeight="20dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/description_label"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="16dp"
+                        android:layout_marginBottom="7dp"
+                        android:text="ОПИСАНИЕ"
+                        android:textSize="16sp" />
+                </LinearLayout>
+
+            </com.example.datingappclient.MaxHeightScrollView>
+        </LinearLayout>
+
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/edit_button"
@@ -64,11 +83,15 @@
         <ImageView
             android:id="@+id/profileImage"
             android:layout_width="match_parent"
-            android:layout_height="670dp"
+            android:layout_height="0dp"
+            android:layout_marginBottom="7dp"
+            android:scaleType="centerCrop"
+            app:layout_constraintBottom_toTopOf="@+id/username_label"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             tools:src="@tools:sample/avatars" />
+
     </androidx.constraintlayout.widget.ConstraintLayout>
 
 </FrameLayout>

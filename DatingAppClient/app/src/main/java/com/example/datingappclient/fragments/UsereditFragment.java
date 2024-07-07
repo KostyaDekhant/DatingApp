@@ -1,14 +1,18 @@
 package com.example.datingappclient.fragments;
 
+import android.content.res.Resources;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.graphics.drawable.RoundedBitmapDrawable;
+import androidx.core.graphics.drawable.RoundedBitmapDrawableFactory;
 import androidx.fragment.app.Fragment;
 
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.example.datingappclient.MainActivity;
@@ -84,6 +88,13 @@ public class UsereditFragment extends Fragment {
                 getParentFragmentManager().beginTransaction().replace(R.id.fragment_container, new UserFragment(user.getId())).commit();
             }
         });
+
+        Resources resources = getResources();
+        RoundedBitmapDrawable roundedBitmapDrawable = RoundedBitmapDrawableFactory.create(resources, user.getMainImage());
+        roundedBitmapDrawable.setCornerRadius(20);
+
+        ImageView imageView = activityView.findViewById(R.id.imageView);
+        imageView.setImageDrawable(roundedBitmapDrawable);
 
         return activityView;
     }
