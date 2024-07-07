@@ -16,10 +16,10 @@ public interface  PicRepo extends JpaRepository<Picture, Integer> {
     @Query(value = "SELECT * FROM \"picture\" p WHERE p.pk_picture = :id"
             , nativeQuery = true)
     Picture findById(@Param("id") int id);
-    @Query(value = "SELECT p.pk_picture, p.id, p.image\n" +
-            "FROM \"picture\" p \n" +
-            "INNER JOIN \"user_pic\" up\n" +
-            "ON up.pk_picture = p.pk_picture \n" +
+    @Query(value = "SELECT p.pk_picture, p.id, p.image " +
+            "FROM \"picture\" p " +
+            "INNER JOIN \"user_pic\" up " +
+            "ON up.pk_picture = p.pk_picture " +
             "WHERE up.pk_user = :id"
             , nativeQuery = true)
     List<Object[]> findByUserId(@Param("id") int id);

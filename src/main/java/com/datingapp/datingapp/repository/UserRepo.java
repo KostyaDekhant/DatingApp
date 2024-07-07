@@ -23,4 +23,12 @@ public interface UserRepo extends JpaRepository<User, Integer> {
             "  WHERE u1.pk_user = :user_id", nativeQuery = true)
     List<Object[]> findUsers(@Param("user_id") int pk_user);
 
+    @Query(value = "SELECT u.name, u.age, u.gender, " +
+            "u.height, u.description " +
+            "FROM \"user\" u " +
+            "  WHERE u.pk_user <> :user_id", nativeQuery = true)
+    List<Object[]> findQuestUsers(@Param("user_id") int pk_user);
+
+
+
 }

@@ -1,16 +1,10 @@
 package com.datingapp.datingapp.controller;
 
-import com.datingapp.datingapp.enitity.Picture;
-import com.datingapp.datingapp.enitity.User_pic;
-import com.datingapp.datingapp.repository.PicRepo;
-import com.datingapp.datingapp.repository.UserPicRepo;
+import com.datingapp.datingapp.enitity.*;
+import com.datingapp.datingapp.repository.*;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.datingapp.datingapp.enitity.User;
-import com.datingapp.datingapp.enitity.Residence;
-import com.datingapp.datingapp.repository.ResidRepo;
-import com.datingapp.datingapp.repository.UserRepo;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
@@ -43,10 +37,11 @@ public class MainController {
     private final UserRepo userRepo;
     private final ResidRepo residRepo;
     private final PicRepo picRepo;
+    private final LikeRepo likeRepo;
     private final UserPicRepo userPicRepo;
     private final ObjectMapper objectMapper;
 
-    //Добавление пользователя ()
+    //Добавление пользователя
     @PostMapping("/api/add")
     public void AddUser(@RequestBody User user)
     {
@@ -82,6 +77,7 @@ public class MainController {
         return true;
     }
 
+    //Учёт обновления данных
     private User updateData(User oldU, User newU)
     {
         if(!newU.getName().equals(oldU.getName()) && !newU.getName().equals(""))
@@ -138,6 +134,7 @@ public class MainController {
         userRepo.deleteById(id);
     }
 
+    //Ненужная штука
     @GetMapping("/api/specific")
     public ResponseEntity<User> getSpecificUser(@RequestParam String name)
     {
@@ -145,6 +142,7 @@ public class MainController {
         return user != null ? ResponseEntity.ok(user) : ResponseEntity.notFound().build();
     }
 
+    //Установить место жительства
     @PostMapping("/api/residence")
     public int setResidence(@RequestBody Residence resid)
     {
@@ -168,18 +166,20 @@ public class MainController {
         return -1;
     }
 
+    //Получить место жительства
     @GetMapping("/api/residence")
     public Residence getResidence(@RequestParam int pk_user) {
        return residRepo.findByPk_user(pk_user);
     }
 
-
+    //Искать юзеров, с кем есть общий чат
     @GetMapping("/api/chat_users")
     public List<Object[]> findChat_users(@RequestParam int pk_user)
     {
         return userRepo.findUsers(pk_user);
     }
 
+    //Загрузка фотографий на сервер
     @PostMapping("api/upload_image")
     public int handleFileUpload(@RequestParam("image") byte[] image, @RequestParam("user_id") int user_id,
                                 @RequestParam("image_id")int image_id) {
@@ -188,7 +188,6 @@ public class MainController {
             if (!Files.exists(uploadPath)) {
                 Files.createDirectories(uploadPath);
             }
-            //Files.copy(file.getInputStream(), this.uploadPath.resolve(file.getOriginalFilename()));
             Picture pic = new Picture(image_id, new Timestamp(System.currentTimeMillis()),
                     image);
             pic.setPk_picture(picRepo.findMaxPk()+1);
@@ -202,14 +201,14 @@ public class MainController {
         }
     }
 
+    //Получить фотки конкретного пользователя
     @GetMapping("api/user_images")
     public List<Object[]> getImages(@RequestParam("pk_user") int id) {
         return picRepo.findByUserId(id);
     }
 
-    ////convertBytetobyte(pic.getBytea())   //Byte[]
-
-    public static Byte[] convertBytetobyte(byte[] bytes) {
+    //Конверт byte[] в Byte[]
+    public static Byte[] convertbytetoByte(byte[] bytes) {
         Byte[] byteObjects = new Byte[bytes.length];
         for (int i = 0; i < bytes.length; i++) {
             byteObjects[i] = bytes[i];  // Автоупаковка примитивного типа byte в объект Byte
@@ -217,5 +216,40 @@ public class MainController {
         return byteObjects;
     }
 
+    //Поставить лайк
+    @PostMapping("api/likes")
+    public int setLike(@RequestParam("liker") int liker, @RequestParam("poster") int poster,
+                       @RequestParam("image_id") int image_id)
+    {
+        Timestamp time = new Timestamp(System.currentTimeMillis());
+        Like like = new Like(liker, poster,time, image_id);
+        log.info("Лайк: "+like.toString());
+        like.setPk_like(likeRepo.findMaxPk()+1);
+        return likeRepo.save(like).getPk_like();
+    }
+
+    //Лайки, которые поставил клиент
+    @GetMapping("api/my_likes")
+    public List<Object[]> getLikesList(@RequestParam("user_id") int user_id)
+    {
+        log.info("Мои лайки: "+ likeRepo.findByLiker(user_id));
+        return likeRepo.findByLiker(user_id);
+    }
+
+    //Лайки, которые поставили клиенту
+    @GetMapping("api/received_likes")
+    public List<Object[]> getreceivedLikesList(@RequestParam("user_id") int user_id)
+    {
+        log.info("Лайки на мои фотографии: "+ likeRepo.findByReceiver(user_id));
+        return likeRepo.findByReceiver(user_id);
+    }
+
+    //Анкеты
+    @GetMapping("api/forms")
+    public List<Object[]> getListUsers(@RequestParam("user_id") int user_id)
+    {
+        log.info("Анкеты : "+ userRepo.findQuestUsers(user_id));
+        return userRepo.findQuestUsers(user_id);
+    }
 }
 
