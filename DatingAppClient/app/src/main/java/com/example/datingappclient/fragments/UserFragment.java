@@ -5,6 +5,7 @@ import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -24,8 +25,6 @@ import com.example.datingappclient.utils.ImageUtils;
 import com.google.android.material.button.MaterialButton;
 import com.google.gson.JsonObject;
 
-import java.util.ArrayList;
-import java.util.Base64;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -37,6 +36,8 @@ import retrofit2.Response;
 public class UserFragment extends Fragment implements View.OnClickListener {
 
     private User user;
+    private ImageView profileImage;
+    private int currentImageIndex = 0;
 
     public UserFragment(int userID) {
         user = new User(userID);
@@ -49,6 +50,8 @@ public class UserFragment extends Fragment implements View.OnClickListener {
         MaterialButton button = view.findViewById(R.id.edit_button);
         button.setOnClickListener(this);
 
+        profileImage = view.findViewById(R.id.profileImage);
+        setupImageTouchListener();
         getUserinfo(view, user.getId());
 
         return view;
@@ -77,13 +80,14 @@ public class UserFragment extends Fragment implements View.OnClickListener {
                 serverAPI.getUserImages(userID).enqueue(new Callback<List<Object[]>>() {
                     @Override
                     public void onResponse(Call<List<Object[]>> call, Response<List<Object[]>> response) {
-                        ImageView profileImage = view.findViewById(R.id.profileImage);
                         Log.d("GETIMAGE", "Res: " + response.body());
 
                         user.setImages(ImageUtils.objectListToUserImageList(response.body()));
                         setUserinfo(view);
 
-                        profileImage.setImageBitmap(user.getMainImage());
+                        if (!user.getImages().isEmpty()) {
+                            profileImage.setImageBitmap(user.getImages().get(0).getImage());
+                        }
                     }
 
                     @Override
@@ -107,6 +111,43 @@ public class UserFragment extends Fragment implements View.OnClickListener {
         descLabel.setText(user.getDesc());
         ageLabel.setText(user.getAge());
     }
+    //пальцы не совать
+    private void setupImageTouchListener() {
+        profileImage.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                if (event.getAction() == MotionEvent.ACTION_UP) {
+                    float x = event.getX();
+                    int width = v.getWidth();
+                    if (x < width / 2) {
+                        onSwipeRight();
+                    } else {
+                        onSwipeLeft();
+                    }
+                }
+                return true;
+            }
+        });
+    }
 
-    ;
+    private void onSwipeRight() {
+        Log.d("UserFragment", "Clicked on the left half of the image");
+        if (currentImageIndex > 0) {
+            currentImageIndex--;
+            updateProfileImage();
+        }
+    }
+
+    private void onSwipeLeft() {
+        Log.d("UserFragment", "Clicked on the right half of the image");
+        if (currentImageIndex < user.getImages().size() - 1) {
+            currentImageIndex++;
+            updateProfileImage();
+        }
+    }
+
+    private void updateProfileImage() {
+        Bitmap image = user.getImages().get(currentImageIndex).getImage();
+        profileImage.setImageBitmap(image);
+    }
 }
