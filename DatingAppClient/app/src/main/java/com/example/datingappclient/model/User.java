@@ -87,6 +87,24 @@ public class User {
         }
     }
 
+    public int getUserImageID(int imageNum) {
+        for (UserImage it : images) {
+            if (it.getImageNum() == imageNum) return it.getImageID();
+        }
+        return 0;
+    }
+
+    public void removeImage(int imageNum) {
+        boolean find = false;
+        for (UserImage it : images) {
+            if (find) it.setImageNum(it.getImageNum() - 1);
+            if (it.getImageNum() == imageNum) {
+                images.remove(it);
+                find = true;
+            }
+        }
+    }
+
     public Bitmap getMainImage() {
         if (images.isEmpty()) return null;
         for (UserImage it : images) {

@@ -7,13 +7,13 @@
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/deleteImage_button"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
+        android:layout_width="20dp"
+        android:layout_height="20dp"
         android:background="#00FFFFFF"
         app:icon="@drawable/delete_photo_button"
         app:iconGravity="textStart"
         app:iconPadding="0dp"
-        app:iconSize="20dp"
+        app:iconSize="17dp"
         app:iconTint="#21A038"
         app:layout_constraintEnd_toEndOf="@+id/userImage"
         app:layout_constraintTop_toTopOf="@id/userImage" />

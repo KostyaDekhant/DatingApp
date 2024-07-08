@@ -35,8 +35,7 @@ public interface ServerAPI {
     Call<Integer> uploadImage(@Body JsonObject jsonObject);
 
     @POST("api/delete_image")
-    Call<Integer> deleteImage(@Query("id") int imageID);
-
+    Call<Integer> deleteImage(@Query("image_id") int imageID);
     @GET("api/forms")
     Call<List<Object[]>> getForms(@Query("user_id") int userId, @Query("prev_user_id") int prevUserId);
 

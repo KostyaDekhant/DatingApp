@@ -16,13 +16,16 @@ import androidx.core.graphics.drawable.RoundedBitmapDrawable;
 import androidx.core.graphics.drawable.RoundedBitmapDrawableFactory;
 import androidx.fragment.app.Fragment;
 
+import android.util.DisplayMetrics;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.GridLayout;
 import android.widget.ImageView;
+import android.widget.Space;
 import android.widget.Toast;
 
 import com.example.datingappclient.MainActivity;
@@ -136,10 +139,16 @@ public class UsereditFragment extends Fragment {
         gridLayout.removeAllViews();
         // Динамическое добавление элементов
         for (int i = 0; i < user.getListImages().size(); i++) {
-            gridLayout.addView(createCardImage(inflater, i));
+            View cardImage = createCardImage(inflater, i);
+            cardImage.setLayoutParams(setLayoutParams(i));
+            gridLayout.addView(cardImage);
         }
+
+
+        // Создание карточки добавления фото
         if (gridLayout.getChildCount() < 6) {
-            cardAddImage = inflater.inflate(R.layout.add_photo_item, gridLayout, true);
+            cardAddImage = inflater.inflate(R.layout.add_photo_item, gridLayout, false);
+
             MaterialButton addButton = cardAddImage.findViewById(R.id.addImage_button);
             addButton.setId(View.generateViewId());
             addButton.setOnClickListener(new View.OnClickListener() {
@@ -152,11 +161,47 @@ public class UsereditFragment extends Fragment {
                     startActivityForResult(intent, PICK_IMAGE_REQUEST);
                 }
             });
+
+            cardAddImage.setLayoutParams(setLayoutParams(gridLayout.getChildCount()));
+            gridLayout.addView(cardAddImage);
         }
+
+        // Заполнение пустот
+        while (gridLayout.getChildCount() < 6) {
+            Space space = new Space(gridLayout.getContext());
+            space.setLayoutParams(setLayoutParams(gridLayout.getChildCount()));
+            // Добавление Space в GridLayout
+            gridLayout.addView(space);
+        }
+
+    }
+
+    private GridLayout.LayoutParams setLayoutParams(int elCount) {
+        int dpWidth = 90;
+        int dpHeight = 140;
+
+        Resources resources = getContext().getResources();
+        DisplayMetrics metrics = resources.getDisplayMetrics();
+
+        int pxWidth = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dpWidth, metrics);
+        int pxHeight = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dpHeight, metrics);
+
+        GridLayout.LayoutParams params = new GridLayout.LayoutParams();
+
+        params.width = pxWidth;
+        params.height = pxHeight;
+        int rowNum = 0;
+        int columnNum = elCount;
+        if (elCount > 2) {
+            rowNum = 1;
+            columnNum = elCount - 3;
+        }
+        params.rowSpec = GridLayout.spec(rowNum, 1, 1f);
+        params.columnSpec = GridLayout.spec(columnNum, 1, 1f);
+        return params;
     }
 
     private View createCardImage(LayoutInflater inflater, int cardImageNum) {
-
         // Создание View из XML-файла макета
         View cardImage = inflater.inflate(R.layout.user_photo_item, gridLayout, false);
         cardImage.setId(View.generateViewId());
@@ -168,12 +213,12 @@ public class UsereditFragment extends Fragment {
         MaterialButton deleteButton = cardImage.findViewById(R.id.deleteImage_button);
         deleteButton.setId(View.generateViewId());
 
-            /*ConstraintLayout constraintLayout = (ConstraintLayout) cardImage;
-            ConstraintSet constraintSet = new ConstraintSet();
-            constraintSet.clone(constraintLayout);
-            constraintSet.connect(deleteButton.getId(), ConstraintSet.RIGHT, ConstraintSet.PARENT_ID, ConstraintSet.RIGHT, 0);
-            constraintSet.connect(deleteButton.getId(), ConstraintSet.TOP, ConstraintSet.PARENT_ID, ConstraintSet.TOP, 0);
-            constraintSet.applyTo(constraintLayout);*/
+        ConstraintLayout constraintLayout = (ConstraintLayout) cardImage;
+        ConstraintSet constraintSet = new ConstraintSet();
+        constraintSet.clone(constraintLayout);
+        constraintSet.connect(deleteButton.getId(), ConstraintSet.END, imageView.getId(), ConstraintSet.END, 10);
+        constraintSet.connect(deleteButton.getId(), ConstraintSet.TOP, imageView.getId(), ConstraintSet.TOP, 10);
+        constraintSet.applyTo(constraintLayout);
 
         deleteButton.setTag(R.id.TAG_IMAGE_NUMBER, user.getListImages().get(cardImageNum).getImageNum());
         deleteButton.setTag(R.id.TAG_CARDIMAGE_ID, cardImage);
@@ -181,9 +226,26 @@ public class UsereditFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 Log.d("BUTTON DELETE PRESSED", view.getTag(R.id.TAG_IMAGE_NUMBER).toString());
-                gridLayout.removeView(((View) view.getTag(R.id.TAG_CARDIMAGE_ID)));
+
+                user.removeImage(((int) view.getTag(R.id.TAG_IMAGE_NUMBER)));
+                setImages(getView());
+
+                RetrofitService retrofitService = new RetrofitService();
+                ServerAPI serverAPI = retrofitService.getRetrofit().create(ServerAPI.class);
+                serverAPI.deleteImage(user.getUserImageID((int) view.getTag(R.id.TAG_IMAGE_NUMBER))).enqueue(new Callback<Integer>() {
+                    @Override
+                    public void onResponse(Call<Integer> call, Response<Integer> response) {
+
+                    }
+
+                    @Override
+                    public void onFailure(Call<Integer> call, Throwable throwable) {
+
+                    }
+                });
             }
         });
+
         return cardImage;
     }
 
@@ -192,25 +254,27 @@ public class UsereditFragment extends Fragment {
         ServerAPI serverAPI = retrofitService.getRetrofit().create(ServerAPI.class);
 
         JsonObject jsonObject = new JsonObject();
+
+        //image = ImageUtils.compressImage(image);
         String stringImage = Arrays.toString(image);
         jsonObject.addProperty("image", stringImage);
         jsonObject.addProperty("user_id", user.getId());
         jsonObject.addProperty("image_id", imageNum);
 
-
         serverAPI.uploadImage(jsonObject).enqueue(new Callback<Integer>() {
             @Override
             public void onResponse(Call<Integer> call, Response<Integer> response) {
-                if (response.body() != null && response.body() > 0)
+                if (response.body() != null && response.body() > 0) {
                     user.setUserImageID(response.body(), imageNum);
+                    Log.d("SUCCESS SEND IMAGE", response.body().toString());
+                }
             }
 
             @Override
             public void onFailure(Call<Integer> call, Throwable throwable) {
-
+                Log.d("ERROR SEND IMAGE", throwable.getMessage());
             }
         });
-
     }
 
     // Обработка выбранного изображения
@@ -225,7 +289,15 @@ public class UsereditFragment extends Fragment {
                 gridLayout.removeView(cardAddImage);
                 int imageNum = user.getListImages().size() + 1;
                 user.addUserImage(new UserImage(imageNum, 0, bitmapImage));
-                gridLayout.addView(createCardImage(inflater, imageNum - 1));
+
+                View cardImage = createCardImage(inflater, imageNum - 1);
+                cardImage.setLayoutParams(setLayoutParams(imageNum - 1));
+                gridLayout.addView(cardImage);
+
+                if (imageNum != 6) {
+                    cardAddImage.setLayoutParams(setLayoutParams(imageNum));
+                    gridLayout.addView(cardAddImage);
+                }
                 sendImageOnServer(byteImage, imageNum);
             } catch (IOException e) {
                 throw new RuntimeException(e);
