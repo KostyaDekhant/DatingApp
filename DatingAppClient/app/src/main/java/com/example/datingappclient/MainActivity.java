@@ -69,14 +69,12 @@ public class MainActivity extends AppCompatActivity {
         } else if (itemId == R.id.like) {
             selectedFragment = new LikeFragment();
         } else if (itemId == R.id.search) {
-            selectedFragment = new SearchFragment();
+            selectedFragment = SearchFragment.newInstance(userID); // Передаем userID в SearchFragment
         } else if (itemId == R.id.chat) {
             selectedFragment = new ChatListFragment(userID);
         } else if (itemId == R.id.slidemenu) {
-
+            // Обработка элемента slidemenu
         }
-        // It will help to replace the
-        // one fragment to other.
         if (selectedFragment != null) {
             getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, selectedFragment).commit();
         }

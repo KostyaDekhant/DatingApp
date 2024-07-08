@@ -34,4 +34,9 @@ public interface ServerAPI {
     @GET("api/picture")
     Call<Byte[]> getImage(@Query("pic_id") int id);
 
+    @GET("api/forms")
+    Call<List<Object[]>> getForms(@Query("user_id") int userId, @Query("prev_user_id") int prevUserId);
+
+    @POST("api/likes")
+    Call<Integer> sendLike(@Body JsonObject jsonObject);
 }

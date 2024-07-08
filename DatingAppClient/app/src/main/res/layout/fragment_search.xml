@@ -2,6 +2,10 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    tools:context=".fragments.SearchFragment"><RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
     tools:context=".fragments.SearchFragment">
 
     <!-- Центральная область для отображения анкеты -->
@@ -12,6 +16,13 @@
         android:focusable="true"
         android:clickable="true">
 
+        <!-- Изображение профиля -->
+        <ImageView
+            android:id="@+id/profile_image"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scaleType="centerCrop" />
+
         <!-- Полупрозрачная вуаль -->
         <View
             android:id="@+id/swipe_overlay"
@@ -19,7 +30,6 @@
             android:layout_height="match_parent"
             android:background="#00FFFFFF"
             android:visibility="gone" />
-
     </FrameLayout>
 
     <!-- Контейнер для кнопок и текста об анкете -->
@@ -69,4 +79,5 @@
 
     </LinearLayout>
 
+</RelativeLayout>
 </RelativeLayout>
