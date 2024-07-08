@@ -231,7 +231,10 @@ public class MainController {
     @PostMapping("api/delete_image")
     public int deleteImage(@RequestParam("image_id")int image_id)
     {
-        return picRepo.deleteImage(image_id);
+        int whos_pic = picRepo.findUserById(image_id);
+        int res = picRepo.deleteImage(image_id);
+        picRepo.updateId(whos_pic);
+        return res;
     }
 
 

@@ -15,9 +15,11 @@ public interface  PicRepo extends JpaRepository<Picture, Integer> {
     @Query(value = "SELECT COALESCE(MAX(\"pk_picture\"), 0) FROM \"picture\""
             , nativeQuery = true)
     int findMaxPk();
+
     @Query(value = "SELECT * FROM \"picture\" p WHERE p.pk_picture = :id"
             , nativeQuery = true)
     Picture findById(@Param("id") int id);
+
     @Query(value = "SELECT p.pk_picture, p.id, p.image " +
             "FROM \"picture\" p " +
             "INNER JOIN \"user_pic\" up " +
@@ -33,4 +35,25 @@ public interface  PicRepo extends JpaRepository<Picture, Integer> {
             "DELETE FROM \"picture\" p " +
             "WHERE p.pk_picture = :id", nativeQuery = true)
     int deleteImage(@Param("id") int id);
+
+    @Transactional
+    @Modifying
+    @Query(value = "WITH OrderedPictures AS ( " +
+            "    SELECT p.pk_picture, p.id, " +
+            "           ROW_NUMBER() OVER (ORDER BY p.id ASC) as new_id " +
+            "    FROM \"picture\" p " +
+            "    INNER JOIN \"user_pic\" up ON p.pk_picture = up.pk_picture " +
+            "    WHERE up.pk_user = :user_id " +
+            ") " +
+            "UPDATE \"picture\" p " +
+            "SET id = op.new_id  " +
+            "FROM OrderedPictures op " +
+            "WHERE p.pk_picture = op.pk_picture", nativeQuery = true)
+    void updateId(@Param("user_id") int user_id);
+
+
+    @Query(value = "SELECT u.pk_user FROM \"user_pic\" up INNER JOIN " +
+            "\"user\" u ON up.pk_user = u.pk_user WHERE up.pk_picture = :image_id LIMIT 1"
+            , nativeQuery = true)
+    int findUserById(@Param("image_id") int id);
 }
