@@ -15,12 +15,10 @@
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             android:layout_width="307dp"
             android:layout_height="55dp"
-
             android:layout_marginStart="52dp"
             android:layout_marginTop="40dp"
             android:layout_marginEnd="52dp"
             android:hint="ЛОГИН"
-
             app:boxCornerRadiusBottomEnd="10dp"
             app:boxCornerRadiusBottomStart="10dp"
             app:boxCornerRadiusTopEnd="10dp"
@@ -28,7 +26,6 @@
             app:boxStrokeColor="#262626"
             app:boxStrokeWidth="1dp"
             app:cursorColor="#21A038"
-
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">
@@ -37,8 +34,6 @@
                 android:id="@+id/login_inputEdit"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-
-
                 android:paddingStart="20dp" />
 
         </com.google.android.material.textfield.TextInputLayout>
@@ -48,7 +43,6 @@
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             android:layout_width="307dp"
             android:layout_height="wrap_content"
-
             android:layout_marginStart="52dp"
             android:layout_marginTop="7dp"
             android:layout_marginEnd="52dp"
@@ -75,9 +69,8 @@
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/age_inputLayout"
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-            android:layout_width="110dp"
-            android:layout_height="wrap_content"
-
+            android:layout_width="142dp"
+            android:layout_height="59dp"
             android:layout_marginStart="52dp"
             android:layout_marginTop="7dp"
             android:hint="ВОЗРАСТ"
@@ -93,8 +86,9 @@
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/age_inputEdit"
-                android:layout_width="match_parent"
+                android:layout_width="142dp"
                 android:layout_height="wrap_content"
+                android:focusable="false"
                 android:inputType="date"
                 android:paddingStart="20dp" />
 
@@ -150,7 +144,6 @@
             app:strokeColor="#21A038"
             app:strokeWidth="1dp" />
 
-
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <TextView
@@ -160,7 +153,6 @@
         android:layout_gravity="bottom|center_horizontal|center_vertical"
         android:text="DatingApp, 2024"
         android:textColor="@color/black"
-
         android:textSize="20sp" />
 
 </FrameLayout>
