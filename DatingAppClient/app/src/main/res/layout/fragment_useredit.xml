@@ -98,8 +98,6 @@
 
         </com.google.android.material.textfield.TextInputLayout>
 
-
-
         <com.google.android.material.button.MaterialButton
             android:id="@+id/save_button"
             style="@style/Widget.MaterialComponents.Button.OutlinedButton"
@@ -120,20 +118,20 @@
             app:strokeColor="#262626"
             app:strokeWidth="1dp" />
 
-        <LinearLayout
+        <GridLayout
+            android:id="@+id/images_grid"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/age_inputLayout">
-        <ImageView
-            android:id="@+id/imageView"
-            android:layout_width="130dp"
-            android:layout_height="220dp"
+            android:columnCount="3"
+            android:rowCount="2"
+
             android:layout_marginStart="52dp"
+            android:layout_marginEnd="52dp"
             android:layout_marginTop="7dp"
-            android:scaleType="centerCrop"
-            tools:src="@color/black" />
-        </LinearLayout>
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/age_inputLayout"
+            app:layout_constraintEnd_toEndOf="parent">
+        </GridLayout>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

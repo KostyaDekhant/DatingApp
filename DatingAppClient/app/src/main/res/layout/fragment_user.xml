@@ -36,7 +36,7 @@
             app:layout_constraintBottom_toTopOf="@+id/edit_button"
             app:layout_constraintStart_toStartOf="parent">
 
-            <com.example.datingappclient.MaxHeightScrollView
+            <com.example.datingappclient.customViews.MaxHeightScrollView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:minHeight="20dp">
@@ -56,7 +56,7 @@
                         android:textSize="16sp" />
                 </LinearLayout>
 
-            </com.example.datingappclient.MaxHeightScrollView>
+            </com.example.datingappclient.customViews.MaxHeightScrollView>
         </LinearLayout>
 
 

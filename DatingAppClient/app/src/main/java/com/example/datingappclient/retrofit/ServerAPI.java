@@ -31,8 +31,11 @@ public interface ServerAPI {
     @GET("api/user_images")
     Call<List<Object[]>> getUserImages(@Query("pk_user") int id);
 
-    @GET("api/picture")
-    Call<Byte[]> getImage(@Query("pic_id") int id);
+    @POST("api/upload_image")
+    Call<Integer> uploadImage(@Body JsonObject jsonObject);
+
+    @POST("api/delete_image")
+    Call<Integer> deleteImage(@Query("id") int imageID);
 
     @GET("api/forms")
     Call<List<Object[]>> getForms(@Query("user_id") int userId, @Query("prev_user_id") int prevUserId);
