@@ -13,18 +13,14 @@ public interface LikeRepo extends JpaRepository<Like, Integer> {
     @Query(value = "SELECT COALESCE(MAX(\"pk_like\"), 0) FROM \"like\""
             , nativeQuery = true)
     int findMaxPk();
-    @Query(value = "SELECT l.liker, p.time, p.image " +
-            "FROM \"picture\" p " +
-            "INNER JOIN \"like\" l " +
-            "ON p.pk_picture = l.pk_picture " +
+    @Query(value = "SELECT l.poster, l.time " +
+            "FROM \"like\" l  " +
             "WHERE l.liker = :id"
             , nativeQuery = true)
     List<Object[]> findByLiker(@Param("id") int user_id);
 
-    @Query(value = "SELECT l.liker, p.time, p.image " +
-            "FROM \"picture\" p " +
-            "INNER JOIN \"like\" l " +
-            "ON p.pk_picture = l.pk_picture " +
+    @Query(value = "SELECT l.liker, l.time " +
+            "FROM \"like\" l  " +
             "WHERE l.poster = :id"
             , nativeQuery = true)
     List<Object[]> findByReceiver(@Param("id") int user_id);

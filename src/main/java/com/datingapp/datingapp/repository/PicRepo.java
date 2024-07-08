@@ -1,7 +1,9 @@
 package com.datingapp.datingapp.repository;
 
 import com.datingapp.datingapp.enitity.Picture;
+import jakarta.transaction.Transactional;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -23,4 +25,12 @@ public interface  PicRepo extends JpaRepository<Picture, Integer> {
             "WHERE up.pk_user = :id"
             , nativeQuery = true)
     List<Object[]> findByUserId(@Param("id") int id);
+
+    @Transactional
+    @Modifying
+    @Query(value = "DELETE FROM \"user_pic\" u " +
+            "WHERE u.pk_picture = :id; " +
+            "DELETE FROM \"picture\" p " +
+            "WHERE p.pk_picture = :id", nativeQuery = true)
+    int deleteImage(@Param("id") int id);
 }

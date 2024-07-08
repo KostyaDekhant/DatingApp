@@ -23,12 +23,23 @@ public interface UserRepo extends JpaRepository<User, Integer> {
             "  WHERE u1.pk_user = :user_id", nativeQuery = true)
     List<Object[]> findUsers(@Param("user_id") int pk_user);
 
-    @Query(value = "SELECT u.name, u.age, u.gender, " +
+    /*@Query(value = "SELECT u.name, u.age, u.gender, " +
             "u.height, u.description " +
             "FROM \"user\" u " +
-            "  WHERE u.pk_user <> :user_id", nativeQuery = true)
-    List<Object[]> findQuestUsers(@Param("user_id") int pk_user);
-
-
+            "  WHERE u.pk_user <> :user_id", nativeQuery = true)*/
+    @Query(value = "WITH OrderedUsers AS (" +
+            "    SELECT u.name, u.age, u.gender, u.height, u.description, u.pk_user, " +
+            "           ROW_NUMBER() OVER (ORDER BY u.pk_user ASC) AS RowNum " +
+            "    FROM \"user\" u " +
+            "    WHERE u.pk_user <> :user_id " +
+            ") " +
+            "SELECT pk_user, name, age, gender, height, description " +
+            "FROM OrderedUsers " +
+            "WHERE RowNum = COALESCE( " +
+            "    (SELECT MIN(RowNum) FROM OrderedUsers WHERE pk_user > :prev_user_id), " +
+            "    (SELECT MIN(RowNum) FROM OrderedUsers) " +
+            ")", nativeQuery = true)
+    Object[] findQuestUsers(@Param("user_id") int pk_user,
+                                  @Param("prev_user_id") int prev_pk_user);
 
 }

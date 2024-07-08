@@ -2,6 +2,7 @@ package com.datingapp.datingapp.controller;
 
 import com.datingapp.datingapp.enitity.*;
 import com.datingapp.datingapp.repository.*;
+import jdk.internal.access.JavaTemplateAccess;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -15,6 +16,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -181,31 +184,79 @@ public class MainController {
 
     //Загрузка фотографий на сервер
     @PostMapping("api/upload_image")
-    public int handleFileUpload(@RequestParam("image") byte[] image, @RequestParam("user_id") int user_id,
-                                @RequestParam("image_id")int image_id) {
+    public int handleFileUpload(@RequestBody MyPic myPic)
+    {
         try {
             // Проверяем, существует ли директория, если нет - создаем
             if (!Files.exists(uploadPath)) {
                 Files.createDirectories(uploadPath);
             }
-            Picture pic = new Picture(image_id, new Timestamp(System.currentTimeMillis()),
-                    image);
+            Picture pic = new Picture(myPic.getImage_id(), new Timestamp(System.currentTimeMillis()),
+                    myPic.getImage().getBytes());
             pic.setPk_picture(picRepo.findMaxPk()+1);
-            log.info("информация о фото " + pic.toString());
-
-            userPicRepo.save(new User_pic(picRepo.save(pic).getPk_picture(), user_id));
-            return pic.getPk_picture();
+            Picture temp = picRepo.save(pic);
+            log.info("информация о фото " + temp.toString());
+            userPicRepo.save(new User_pic(temp.getPk_picture(), myPic.getUser_id()));
+            return temp.getPk_picture();
         } catch (IOException e) {
             e.printStackTrace();
             return -1;
         }
     }
 
+    //Загрузка фотографий на сервер с postman'а
+    @PostMapping("api/upload_image2")
+    public int handleFileUpload2(@RequestParam("image") MultipartFile image, @RequestParam("user_id") int user_id,
+                                @RequestParam("image_id")int image_id) {
+        try {
+            // Проверяем, существует ли директория, если нет - создаем
+            if (!Files.exists(uploadPath)) {
+                Files.createDirectories(uploadPath);
+            }
+
+            Picture pic = new Picture(image_id, new Timestamp(System.currentTimeMillis()),
+                    image.getBytes());
+            pic.setPk_picture(picRepo.findMaxPk()+1);
+            Picture temp = picRepo.save(pic);
+            log.info("информация о фото " + temp.toString());
+            userPicRepo.save(new User_pic(temp.getPk_picture(), user_id));
+            return temp.getPk_picture();
+        } catch (IOException e) {
+            e.printStackTrace();
+            return -1;
+        }
+    }
+
+
+    @PostMapping("api/delete_image")
+    public int deleteImage(@RequestParam("image_id")int image_id)
+    {
+        return picRepo.deleteImage(image_id);
+    }
+
+
     //Получить фотки конкретного пользователя
     @GetMapping("api/user_images")
     public List<Object[]> getImages(@RequestParam("pk_user") int id) {
+
+        /*List<Object[]> obj = picRepo.findByUserId(id);
+        List<Object[]> res;
+        for (Object[] temp : obj)
+        {
+            String str = (String) temp[2];
+        }*/
         return picRepo.findByUserId(id);
     }
+
+    public boolean identifyImageFormat(byte[] imageBytes) {
+
+        if ((imageBytes[0] & 0xFF) == 0xFF && (imageBytes[1] & 0xFF) == 0xD8 &&
+                (imageBytes[imageBytes.length - 2] & 0xFF) == 0xFF && (imageBytes[imageBytes.length - 1] & 0xFF) == 0xD9) {
+            return true;
+        }
+        return false;
+    }
+
 
     //Конверт byte[] в Byte[]
     public static Byte[] convertbytetoByte(byte[] bytes) {
@@ -218,11 +269,13 @@ public class MainController {
 
     //Поставить лайк
     @PostMapping("api/likes")
-    public int setLike(@RequestParam("liker") int liker, @RequestParam("poster") int poster,
-                       @RequestParam("image_id") int image_id)
+    public int setLike(@RequestBody Like like)
+    //@RequestParam("liker") int liker,
+    //@RequestParam("poster") int poster
+    //@RequestParam("image_id") int image_id
     {
         Timestamp time = new Timestamp(System.currentTimeMillis());
-        Like like = new Like(liker, poster,time, image_id);
+        like.setTime(time); //, image_id
         log.info("Лайк: "+like.toString());
         like.setPk_like(likeRepo.findMaxPk()+1);
         return likeRepo.save(like).getPk_like();
@@ -246,10 +299,13 @@ public class MainController {
 
     //Анкеты
     @GetMapping("api/forms")
-    public List<Object[]> getListUsers(@RequestParam("user_id") int user_id)
+    public Object[] getListUsers(@RequestParam("user_id") int user_id,
+                                       @RequestParam("prev_user_id") int prev_user_id)
     {
-        log.info("Анкеты : "+ userRepo.findQuestUsers(user_id));
-        return userRepo.findQuestUsers(user_id);
+        log.info("Анкеты : "+ userRepo.findQuestUsers(user_id,prev_user_id));
+        return userRepo.findQuestUsers(user_id,prev_user_id);
     }
+
+
 }
 
