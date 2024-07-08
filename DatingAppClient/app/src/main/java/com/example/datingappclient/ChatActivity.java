@@ -89,23 +89,24 @@ public class ChatActivity extends AppCompatActivity {
             @SuppressLint("CheckResult")
             @Override
             public void onClick(View view) {
-                stompClient.send("/app/send", new Message(editText.getText().toString(), getCurrentTimeStamp(), sendlerID, receiverID).toString())
-                        .subscribeOn(Schedulers.io())
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe(() -> {
-                            Log.d("GOOD SEND", "REST echo send successfully");
-                        }, throwable -> {
-                            Log.e("BAD SEND", "Error send REST echo", throwable);
-                        });
+                String messageText = editText.getText().toString().trim();
+                if (!messageText.isEmpty()) {
+                    stompClient.send("/app/send", new Message(messageText, getCurrentTimeStamp(), sendlerID, receiverID).toString())
+                            .subscribeOn(Schedulers.io())
+                            .observeOn(AndroidSchedulers.mainThread())
+                            .subscribe(() -> {
+                                Log.d("GOOD SEND", "REST echo send successfully");
+                            }, throwable -> {
+                                Log.e("BAD SEND", "Error send REST echo", throwable);
+                            });
 
-                editText.setText("");
-                editText.clearFocus();
-/*
-                InputMethodManager imm = (InputMethodManager) this.getSystemService(Context.INPUT_METHOD_SERVICE);
-                imm.hideSoftInputFromWindow(getView().getWindowToken(), 0);*/
+                    editText.setText("");
+                    editText.clearFocus();
+                } else {
+                    Log.d("EMPTY MESSAGE", "Cannot send an empty message");
+                }
             }
         });
-
         stompClient.send("/app/history/" + receiverID)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
