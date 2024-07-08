@@ -20,8 +20,6 @@ public class AuthActivity extends AppCompatActivity {
 
         getSupportFragmentManager().beginTransaction().replace(R.id.auth_fragment_container, new SigninFragment()).commit();
 
-        MaterialButtonToggleGroup materialButtonToggleGroup = findViewById(R.id.auth_buttons);
-
         MaterialButton signinButton = findViewById(R.id.signin_button);
         signinButton.setOnClickListener(new View.OnClickListener() {
             @Override

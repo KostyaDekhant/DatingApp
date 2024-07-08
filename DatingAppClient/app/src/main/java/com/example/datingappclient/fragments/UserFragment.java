@@ -103,7 +103,6 @@ public class UserFragment extends Fragment implements View.OnClickListener {
                         if (!user.getListImages().isEmpty()) {
                             profileImage.setImageBitmap(user.getListImages().get(0).getImage());
                         }
-
                         // Чтобы больше не запрашивать данные
                         isLogin = false;
                     }

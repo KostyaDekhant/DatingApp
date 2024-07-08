@@ -5,6 +5,7 @@ import android.graphics.BitmapFactory;
 
 import com.example.datingappclient.model.UserImage;
 
+import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
@@ -45,5 +46,20 @@ public class ImageUtils {
             userImages.add(new UserImage(imageNum, imageID, image));
         }
         return userImages;
+    }
+
+    public static byte[] compressImage(byte[] imageBytes) {
+        // Декодирование изображения из массива байтов
+        Bitmap bitmap = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.length);
+
+        // Создание нового изображения с уменьшенным размером
+        Bitmap resizedBitmap = Bitmap.createScaledBitmap(bitmap, 800, 600, true);
+
+        // Сжатие изображения для сохранения в формате JPEG
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        resizedBitmap.compress(Bitmap.CompressFormat.JPEG, 75, outputStream);
+
+        // Получение сжатого массива байтов
+        return outputStream.toByteArray();
     }
 }
