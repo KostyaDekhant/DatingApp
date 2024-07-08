@@ -1,5 +1,6 @@
 package com.example.datingappclient.retrofit;
 
+import com.example.datingappclient.model.Picture;
 import com.google.gson.JsonObject;
 
 import java.util.List;
@@ -31,8 +32,11 @@ public interface ServerAPI {
     @GET("api/user_images")
     Call<List<Object[]>> getUserImages(@Query("pk_user") int id);
 
+    @POST("api/upload_image2")
+    Call<Integer> uploadImage2(@Body JsonObject jsonObject);
+
     @POST("api/upload_image")
-    Call<Integer> uploadImage(@Body JsonObject jsonObject);
+    Call<Integer> uploadImage(@Body Picture picture);
 
     @POST("api/delete_image")
     Call<Integer> deleteImage(@Query("image_id") int imageID);
@@ -41,4 +45,13 @@ public interface ServerAPI {
 
     @POST("api/likes")
     Call<Integer> sendLike(@Body JsonObject jsonObject);
+
+    @GET("api/received_likes")
+    Call<List<Object[]>> getLikes(@Query("user_id") int userID);
+
+    @GET("api/delete_like")
+    Call<Integer> deleteLike(@Query("liker") int likerID, @Query("poster") int posterID);
+
+    @POST("api/chats")
+    Call<Integer> createChat(@Query("pk_user") int userID, @Query("pk_user1") int likerID);
 }

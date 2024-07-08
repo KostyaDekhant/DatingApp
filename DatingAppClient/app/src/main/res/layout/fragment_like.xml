@@ -2,13 +2,22 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <TextView
-        android:id="@+id/textView"
-        android:layout_width="wrap_content"
+    <GridLayout
+        android:id="@+id/likes_grid"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="like"
-        tools:layout_editor_absoluteX="58dp"
-        tools:layout_editor_absoluteY="131dp" />
+        android:layout_marginTop="26dp"
+        android:layout_marginLeft="26dp"
+        android:layout_marginRight="26dp"
+        android:columnCount="2"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:useDefaultMargins="true"
+        android:alignmentMode="alignMargins"/>
+
+
 </androidx.constraintlayout.widget.ConstraintLayout>

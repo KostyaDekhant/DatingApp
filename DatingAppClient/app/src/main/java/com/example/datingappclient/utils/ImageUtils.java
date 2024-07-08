@@ -62,4 +62,13 @@ public class ImageUtils {
         // Получение сжатого массива байтов
         return outputStream.toByteArray();
     }
+
+    public static Byte[] converPrimitiveByteToByte(byte[] bytesPrim) {
+        Byte[] bytesObj = new Byte[bytesPrim.length];
+        int i = 0;
+        for (byte b : bytesPrim) {
+            bytesObj[i++] = b; // Автоупаковка примитивного типа byte в объект Byte
+        }
+        return bytesObj;
+    }
 }

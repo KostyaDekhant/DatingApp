@@ -2,4 +2,6 @@
 <resources>
     <item name="TAG_IMAGE_NUMBER" type="id"/>
     <item name="TAG_CARDIMAGE_ID" type="id"/>
+    <item name="TAG_LIKER_ID" type="id"/>
+    <item name="TAG_CARDLIKE_VIEW" type="id"/>
 </resources>

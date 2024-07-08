@@ -30,6 +30,7 @@ import android.widget.Toast;
 
 import com.example.datingappclient.MainActivity;
 import com.example.datingappclient.R;
+import com.example.datingappclient.model.Picture;
 import com.example.datingappclient.model.User;
 import com.example.datingappclient.model.UserImage;
 import com.example.datingappclient.retrofit.RetrofitService;
@@ -255,13 +256,14 @@ public class UsereditFragment extends Fragment {
 
         JsonObject jsonObject = new JsonObject();
 
+        Byte[] test = ImageUtils.converPrimitiveByteToByte(image);
         //image = ImageUtils.compressImage(image);
-        String stringImage = Arrays.toString(image);
-        jsonObject.addProperty("image", stringImage);
+        //String stringImage = Arrays.toString(image);
+        jsonObject.addProperty("image", Arrays.toString(test));
         jsonObject.addProperty("user_id", user.getId());
         jsonObject.addProperty("image_id", imageNum);
 
-        serverAPI.uploadImage(jsonObject).enqueue(new Callback<Integer>() {
+        serverAPI.uploadImage(new Picture(imageNum, image, user.getId())).enqueue(new Callback<Integer>() {
             @Override
             public void onResponse(Call<Integer> call, Response<Integer> response) {
                 if (response.body() != null && response.body() > 0) {

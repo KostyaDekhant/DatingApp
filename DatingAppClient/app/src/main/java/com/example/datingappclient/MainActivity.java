@@ -72,7 +72,7 @@ public class MainActivity extends AppCompatActivity {
         if (itemId == R.id.user) {
             selectedFragment = userFragment;
         } else if (itemId == R.id.like) {
-            selectedFragment = new LikeFragment();
+            selectedFragment = new LikeFragment(userID);
         } else if (itemId == R.id.search) {
             selectedFragment = SearchFragment.newInstance(userID); // Передаем userID в SearchFragment
         } else if (itemId == R.id.chat) {
