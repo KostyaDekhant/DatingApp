@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.res.ColorStateList;
+import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -17,9 +18,11 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.datingappclient.ChatActivity;
 import com.example.datingappclient.R;
 import com.example.datingappclient.model.Message;
+import com.example.datingappclient.utils.ImageUtils;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import java.util.Base64;
 import java.util.List;
 
 import io.reactivex.android.schedulers.AndroidSchedulers;
@@ -70,8 +73,18 @@ public class ChatsAdapter extends RecyclerView.Adapter<ChatsHolder> {
         try {
             String lastMessage = chats.get(position)[2] == null ? null : chats.get(position)[2].toString();
             Integer messageSendlerID = chats.get(position)[3] == null ? null : ((Double)chats.get(position)[3]).intValue();
+            String strImage = chats.get(position)[4] == null ? null : chats.get(position)[4].toString();
+
+            byte[] byteImage = Base64.getDecoder().decode(strImage);
+            holder.setByteImage(byteImage);
+
             if (sendlerID == messageSendlerID) holder.lastMessage.setText("Вы: " + lastMessage);
             else holder.lastMessage.setText(lastMessage);
+
+            Bitmap bitmapImage = ImageUtils.convertPrimitiveByteToBitmap(byteImage);
+            Bitmap croppedImage = ImageUtils.getCroppedBitmap(bitmapImage);
+            holder.profileImage.setImageBitmap(croppedImage);
+
         } catch (Exception ignored) {
             Log.d("ARRAY", ignored.getMessage());
         }
@@ -82,7 +95,7 @@ public class ChatsAdapter extends RecyclerView.Adapter<ChatsHolder> {
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                activity.startActivity(new Intent(activity, ChatActivity.class).putExtra("sendlerID", sendlerID).putExtra("receiverID", holder.getReceiverID()).putExtra("username", username));
+                activity.startActivity(new Intent(activity, ChatActivity.class).putExtra("sendlerID", sendlerID).putExtra("receiverID", holder.getReceiverID()).putExtra("username", username).putExtra("image", holder.getByteImage()));
                 activity.finish();
             }
         });

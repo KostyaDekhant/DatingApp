@@ -2,23 +2,22 @@ package com.example.datingappclient;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.view.inputmethod.InputMethodManager;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.datingappclient.messageList.MessagesAdapter;
 import com.example.datingappclient.model.Message;
 import com.example.datingappclient.utils.DateUtils;
+import com.example.datingappclient.utils.ImageUtils;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.android.material.button.MaterialButton;
@@ -27,8 +26,6 @@ import com.google.android.material.textfield.TextInputEditText;
 import net.yslibrary.android.keyboardvisibilityevent.KeyboardVisibilityEvent;
 
 import java.io.IOException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.List;
 
 import io.reactivex.android.schedulers.AndroidSchedulers;
@@ -40,8 +37,10 @@ public class ChatActivity extends AppCompatActivity {
 
     Integer sendlerID, receiverID;
     String username;
+    byte[] byteImage;
 
     RecyclerView messagesRecyclerView;
+
 
     MessagesAdapter messagesAdapter;
 
@@ -58,12 +57,17 @@ public class ChatActivity extends AppCompatActivity {
         sendlerID = arguments.getInt("sendlerID");
         receiverID = arguments.getInt("receiverID");
         username = arguments.getString("username");
+        byteImage = arguments.getByteArray("image");
 
         TextInputEditText editText = findViewById(R.id.message_inputEdit);
         TextView usernameLabel = findViewById(R.id.username_label);
         MaterialButton sendButton = findViewById(R.id.sendmess_button);
         MaterialButton returnButton = findViewById(R.id.return_button);
         messagesRecyclerView = findViewById(R.id.messages_recyclerView);
+        ImageView profileImage = findViewById(R.id.profile_image);
+
+        Bitmap croppedImage = ImageUtils.getCroppedBitmap(ImageUtils.convertPrimitiveByteToBitmap(byteImage));
+        profileImage.setImageBitmap(croppedImage);
 
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
         linearLayoutManager.setStackFromEnd(true);

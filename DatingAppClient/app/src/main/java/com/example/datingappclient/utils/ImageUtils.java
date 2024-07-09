@@ -3,6 +3,12 @@ package com.example.datingappclient.utils;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.Paint;
+import android.graphics.PorterDuff;
+import android.graphics.PorterDuffXfermode;
+import android.graphics.Rect;
+import android.graphics.RectF;
 import android.net.Uri;
 
 import com.example.datingappclient.model.UserImage;
@@ -89,5 +95,29 @@ public class ImageUtils {
         }
 
         return byteBuffer.toByteArray();
+    }
+
+    public static Bitmap getCroppedBitmap(Bitmap bitmap) {
+        // Предполагаем, что bitmap - квадратное изображение
+        int width = bitmap.getWidth();
+        int height = bitmap.getHeight();
+        int lenght = Math.min(width, height);
+        Bitmap output = Bitmap.createBitmap(lenght, lenght, Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(output);
+
+        final int color = 0xff424242;
+        final Paint paint = new Paint();
+        final Rect rect = new Rect(0, 0, lenght, lenght);
+        final RectF rectF = new RectF(rect);
+
+        paint.setAntiAlias(true);
+        canvas.drawARGB(0, 0, 0, 0);
+        paint.setColor(color);
+        canvas.drawOval(rectF, paint);
+
+        paint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.SRC_IN));
+        canvas.drawBitmap(bitmap, rect, rect, paint);
+
+        return output;
     }
 }

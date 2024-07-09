@@ -75,7 +75,7 @@ public class UserFragment extends Fragment implements View.OnClickListener {
         MaterialButton button = view.findViewById(R.id.edit_button);
         button.setOnClickListener(this);
 
-        profileImage = view.findViewById(R.id.profileImage);
+        profileImage = view.findViewById(R.id.profile_image);
         setupImageTouchListener();
 
         if (isLogin)
