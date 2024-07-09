@@ -28,6 +28,15 @@ public interface  PicRepo extends JpaRepository<Picture, Integer> {
             , nativeQuery = true)
     List<Object[]> findByUserId(@Param("id") int id);
 
+
+    @Query(value = "SELECT p.image  " +
+            "FROM \"picture\" p  " +
+            "INNER JOIN \"user_pic\" up  " +
+            "ON up.pk_picture = p.pk_picture  " +
+            "WHERE up.pk_user = :id AND p.id = 1 "
+            , nativeQuery = true)
+    byte[] findMainPic(@Param("id") int id);
+
     @Transactional
     @Modifying
     @Query(value = "DELETE FROM \"user_pic\" u " +

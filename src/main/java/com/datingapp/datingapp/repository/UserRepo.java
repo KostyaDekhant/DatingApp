@@ -13,14 +13,26 @@ public interface UserRepo extends JpaRepository<User, Integer> {
     User findByName(String name);
     User findByLogin(String login);
 
-    @Query(value = "SELECT u2.name, c.pk_chat " +
+    @Query(value = "SELECT DISTINCT u2.name, c.pk_chat, m.message AS last_message, m.pk_user AS sender_id, " +
+            "p.image " +
             "FROM \"user\" u1 " +
-            "JOIN \"chat\" c ON u1.pk_user = c.pk_user OR u1.pk_user = c.pk_user1 " +
-            "JOIN \"user\" u2 ON u2.pk_user = CASE " +
-                                              " WHEN u1.pk_user = c.pk_user THEN c.pk_user1 " +
-                                              " ELSE c.pk_user " +
-                                            " END "  +
-            "  WHERE u1.pk_user = :user_id", nativeQuery = true)
+            "LEFT JOIN \"chat\" c ON u1.pk_user = c.pk_user OR u1.pk_user = c.pk_user1 " +
+            "LEFT JOIN \"user\" u2 ON u2.pk_user = CASE " +
+            "    WHEN u1.pk_user = c.pk_user THEN c.pk_user1 " +
+            "    ELSE c.pk_user " +
+            "END " +
+            "LEFT JOIN ( " +
+            "    SELECT m1.pk_chat, m1.pk_user, m1.message " +
+            "    FROM \"message\" m1 " +
+            "    WHERE m1.time = ( " +
+            "        SELECT MAX(m2.time) " +
+            "        FROM \"message\" m2 " +
+            "        WHERE m2.pk_chat = m1.pk_chat " +
+            "    )  " +
+            ") m ON c.pk_chat = m.pk_chat " +
+            "LEFT JOIN \"user_pic\" up ON u2.pk_user = up.pk_user " +
+            "LEFT JOIN \"picture\" p ON up.pk_picture = p.pk_picture  " +
+            "WHERE u1.pk_user = :user_id AND (p.id = 1 OR p.image ISNULL)", nativeQuery = true)
     List<Object[]> findUsers(@Param("user_id") int pk_user);
 
     @Query(value = "WITH OrderedUsers AS (" +

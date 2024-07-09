@@ -208,33 +208,9 @@ public class MainController {
         }
     }
 
-    /*
-    @PostMapping("api/upload_image2")
-    public int handleFileUpload2(@RequestParam("image") Byte[] image, @RequestParam("user_id") int user_id,
-                                 @RequestParam("image_id")int image_id) {
-        try {
-            // Проверяем, существует ли директория, если нет - создаем
-            if (!Files.exists(uploadPath)) {
-                Files.createDirectories(uploadPath);
-            }
-            byte[] temp_image = convertByteTobyte(image);
-            Picture pic = new Picture(image_id, new Timestamp(System.currentTimeMillis()),
-                    temp_image); //.getBytes();
-
-            pic.setPk_picture(picRepo.findMaxPk()+1);
-            Picture temp = picRepo.save(pic);
-            log.info("информация о фото " + temp.toString());
-            userPicRepo.save(new User_pic(temp.getPk_picture(), user_id));
-            return temp.getPk_picture();
-        } catch (IOException e) {
-            e.printStackTrace();
-            return -1;
-        }
-    }
-    */
     //Загрузка фотографий на сервер с postman'а
-    @PostMapping("api/upload_image3")
-    public int handleFileUpload3(@RequestParam("image") MultipartFile image, @RequestParam("user_id") int user_id,
+    @PostMapping("api/upload_image2")
+    public int handleFileUpload2(@RequestParam("image") MultipartFile image, @RequestParam("user_id") int user_id,
                                 @RequestParam("image_id")int image_id) {
         try {
             // Проверяем, существует ли директория, если нет - создаем
