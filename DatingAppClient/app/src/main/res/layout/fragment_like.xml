@@ -4,7 +4,9 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto">
-
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
     <GridLayout
         android:id="@+id/likes_grid"
         android:layout_width="match_parent"
@@ -18,6 +20,19 @@
         app:layout_constraintTop_toTopOf="parent"
         android:useDefaultMargins="true"
         android:alignmentMode="alignMargins"/>
+    </ScrollView>
 
+    <TextView
+        android:id="@+id/noLikes_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Пока вашу анкету никто не лайкнул."
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

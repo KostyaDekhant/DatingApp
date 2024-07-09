@@ -21,6 +21,7 @@ import com.example.datingappclient.R;
 import com.example.datingappclient.model.UserImage;
 import com.example.datingappclient.retrofit.RetrofitService;
 import com.example.datingappclient.retrofit.ServerAPI;
+import com.example.datingappclient.utils.DateUtils;
 import com.example.datingappclient.utils.ImageUtils;
 import com.example.datingappclient.searchlogic.OnSwipeTouchListener;
 import com.google.gson.JsonObject;
@@ -35,7 +36,8 @@ public class SearchFragment extends Fragment {
 
     private ImageButton dislikeButton;
     private ImageButton likeButton;
-    private TextView profileInfo;
+    private TextView userNameAgeLabel;
+    private TextView descLabel;
     private FrameLayout profileContainer;
     private View swipeOverlay;
     private ImageView profileImage;
@@ -73,7 +75,8 @@ public class SearchFragment extends Fragment {
 
         dislikeButton = view.findViewById(R.id.dislike_button);
         likeButton = view.findViewById(R.id.like_button);
-        profileInfo = view.findViewById(R.id.profile_info);
+        userNameAgeLabel = view.findViewById(R.id.userNameAge_label);
+        descLabel = view.findViewById(R.id.description_label);
         profileContainer = view.findViewById(R.id.profile_container);
         swipeOverlay = view.findViewById(R.id.swipe_overlay);
         profileImage = view.findViewById(R.id.profile_image);
@@ -154,7 +157,8 @@ public class SearchFragment extends Fragment {
                     String age = profile[2] != null ? profile[2].toString() : "Unknown";
                     String description = profile[5] != null ? (String) profile[5] : "";
 
-                    profileInfo.setText(name + ", " + age + "\n" + description);
+                    userNameAgeLabel.setText(name + ", " + DateUtils.dateToAge(age));
+                    descLabel.setText(description);
 
                     // Загружаем изображение, если ID пользователя не равен 0
                     if (currentUserId != 0) {

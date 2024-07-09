@@ -35,7 +35,7 @@
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:orientation="vertical"
-        android:padding="16dp"
+        android:paddingVertical="10dp"
         android:background="#FFFFFF">
 
         <!-- ScrollView для текстовой области информации об анкете -->
@@ -44,15 +44,29 @@
             android:layout_height="55dp"
             android:fillViewport="true">
 
-            <!-- Текстовая область для информации об анкете -->
-            <TextView
-                android:id="@+id/profile_info"
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Имя пользователя, возраст\nОписание профиля (может не быть)"
+                android:orientation="vertical">
+            <!-- Текстовая область для информации об анкете -->
+            <TextView
+                android:id="@+id/userNameAge_label"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Имя пользователя, возраст"
+                android:textStyle="bold"
+                android:textSize="20sp"
+                android:textAlignment="center"/>
+
+            <TextView
+                android:id="@+id/description_label"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Описание профиля (может не быть)"
                 android:textAlignment="center"
                 android:textSize="16sp"
-                android:paddingBottom="8dp" />
+                android:paddingHorizontal="10dp"/>
+            </LinearLayout>
         </ScrollView>
 
         <LinearLayout
@@ -66,7 +80,7 @@
                 android:id="@+id/dislike_button"
                 android:layout_width="64dp"
                 android:layout_height="64dp"
-                android:layout_margin="16dp"
+                android:layout_marginRight="16dp"
                 android:background="?attr/selectableItemBackgroundBorderless"
                 android:src="@drawable/ic_dislike" />
 
@@ -75,7 +89,7 @@
                 android:id="@+id/like_button"
                 android:layout_width="64dp"
                 android:layout_height="64dp"
-                android:layout_margin="16dp"
+                android:layout_marginLeft="16dp"
                 android:background="?attr/selectableItemBackgroundBorderless"
                 android:src="@drawable/ic_like" />
         </LinearLayout>

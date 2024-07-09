@@ -71,8 +71,7 @@ public class UsereditFragment extends Fragment {
 
         setInputText(activityView);
         setBirthdayPicker(activityView);
-        if (!user.getListImages().isEmpty())
-            setImages(activityView);
+        setImages(activityView);
 
         acceptEdit.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -80,7 +79,7 @@ public class UsereditFragment extends Fragment {
                 RetrofitService retrofitService = new RetrofitService();
                 ServerAPI serverAPI = retrofitService.getRetrofit().create(ServerAPI.class);
 
-                TextInputEditText inputName = activityView.findViewById(R.id.login_inputEdit);
+                TextInputEditText inputName = activityView.findViewById(R.id.username_inputEdit);
                 TextInputEditText inputDesc = activityView.findViewById(R.id.description_inputEdit);
                 TextInputEditText inputAge = activityView.findViewById(R.id.age_inputEdit);
 
@@ -151,7 +150,7 @@ public class UsereditFragment extends Fragment {
     }
 
     private void setInputText(View view) {
-        TextInputEditText name_input = view.findViewById(R.id.login_inputEdit);
+        TextInputEditText name_input = view.findViewById(R.id.username_inputEdit);
         TextInputEditText desc_input = view.findViewById(R.id.description_inputEdit);
         TextInputEditText age_input = view.findViewById(R.id.age_inputEdit);
 
