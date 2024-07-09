@@ -62,6 +62,12 @@ public class UserFragment extends Fragment implements View.OnClickListener {
         return instance;
     }
 
+
+    public static UserFragment getInstance() {
+        UserFragment.isLogin = false;
+        return instance;
+    }
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {

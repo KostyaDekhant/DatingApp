@@ -52,15 +52,14 @@ public class MainActivity extends AppCompatActivity {
         // Get pk_user from auth activity
         Bundle arguments = getIntent().getExtras();
         userID = Objects.requireNonNull(arguments).getInt("pk_user");
-        user = new User(userID);
+        if (user == null) user = new User(userID);
+        else user.setId(userID);
         if (Objects.equals(arguments.getString("action"), "showchats")) {
             getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new ChatListFragment(userID)).commit();
             bottomNavigationView.setSelectedItemId(R.id.chat);
         }
         else {
-            //userFragment = new UserFragment(user, true);
-            userFragment = UserFragment.getInstance(user, true);
-            getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, userFragment).commit();
+            getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, UserFragment.getInstance(user, true)).commit();
         }
 
         retrofitService = new RetrofitService();
@@ -71,7 +70,7 @@ public class MainActivity extends AppCompatActivity {
         Fragment selectedFragment = null;
         int itemId = item.getItemId();
         if (itemId == R.id.user) {
-            selectedFragment = userFragment;
+            selectedFragment = UserFragment.getInstance();
         } else if (itemId == R.id.like) {
             selectedFragment = new LikeFragment(userID);
         } else if (itemId == R.id.search) {

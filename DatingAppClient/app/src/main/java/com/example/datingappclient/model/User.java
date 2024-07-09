@@ -2,6 +2,8 @@ package com.example.datingappclient.model;
 
 import android.graphics.Bitmap;
 
+import com.example.datingappclient.utils.DateUtils;
+
 import java.time.LocalDate;
 import java.time.Period;
 import java.util.ArrayList;
@@ -64,9 +66,7 @@ public class User {
     }
 
     public int getAge() {
-        LocalDate birth = LocalDate.parse(birthday.replace("\"", ""));
-        LocalDate today = LocalDate.now();
-        return Period.between(birth, today).getYears();
+        return DateUtils.dateToAge(birthday);
     }
 
     public List<UserImage> getListImages() {

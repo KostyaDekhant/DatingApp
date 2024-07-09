@@ -13,6 +13,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.GridLayout;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -23,9 +24,12 @@ import androidx.fragment.app.Fragment;
 import com.example.datingappclient.R;
 import com.example.datingappclient.retrofit.RetrofitService;
 import com.example.datingappclient.retrofit.ServerAPI;
+import com.example.datingappclient.utils.DateUtils;
 import com.example.datingappclient.utils.ImageUtils;
 import com.github.siyamed.shapeimageview.RoundedImageView;
 import com.google.android.material.button.MaterialButton;
+
+import org.w3c.dom.Text;
 
 import java.util.Base64;
 import java.util.List;
@@ -70,8 +74,10 @@ public class LikeFragment extends Fragment {
                     int objNum = 0;
                     for (Object[] it : response.body()) {
                         View cardLike = createLikeCard(it);
-                        cardLike.setLayoutParams(setLayoutParams(objNum++));
-                        gridLayout.addView(cardLike);
+                        if (cardLike != null) {
+                            cardLike.setLayoutParams(setLayoutParams(objNum++));
+                            gridLayout.addView(cardLike);
+                        }
                     }
                 }
                 else {
@@ -90,8 +96,12 @@ public class LikeFragment extends Fragment {
 
     private View createLikeCard(Object[] likeObj) {
 
-        int likerID = ((Double) likeObj[0]).intValue();
-        String imageStr = likeObj[3].toString();
+        try {
+            int likerID = ((Double) likeObj[0]).intValue();
+            String username = likeObj[2].toString();
+            String imageStr = likeObj[3].toString();
+            String birthday = likeObj[4].toString();
+
         byte[] array = Base64.getDecoder().decode(imageStr);
         Bitmap image = ImageUtils.convertPrimitiveByteToBitmap(array);
 
@@ -99,15 +109,23 @@ public class LikeFragment extends Fragment {
         RoundedImageView roundedImageView = cardLike.findViewById(R.id.userImage);
         MaterialButton likeButton = cardLike.findViewById(R.id.like_button);
         MaterialButton dislikeButton = cardLike.findViewById(R.id.dislike_button);
+        TextView usernameLabel = cardLike.findViewById(R.id.username_label);
+        TextView ageLabel = cardLike.findViewById(R.id.age_label);
 
         cardLike.setId(View.generateViewId());
         roundedImageView.setId(View.generateViewId());
         likeButton.setId(View.generateViewId());
         dislikeButton.setId(View.generateViewId());
+        usernameLabel.setId(View.generateViewId());
+        ageLabel.setId(View.generateViewId());
 
         ConstraintLayout constraintLayout = (ConstraintLayout) cardLike;
         ConstraintSet constraintSet = new ConstraintSet();
         constraintSet.clone(constraintLayout);
+
+        roundedImageView.setImageBitmap(image);
+        usernameLabel.setText(username + ",");
+        ageLabel.setText("" + DateUtils.dateToAge(birthday));
 
         int pxEnd = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 15, metrics);
         int pxBottom = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 5, metrics);
@@ -117,9 +135,11 @@ public class LikeFragment extends Fragment {
         constraintSet.connect(dislikeButton.getId(), ConstraintSet.START, roundedImageView.getId(), ConstraintSet.START, pxEnd);
         constraintSet.connect(dislikeButton.getId(), ConstraintSet.BOTTOM, roundedImageView.getId(), ConstraintSet.BOTTOM, pxBottom);
         constraintSet.connect(roundedImageView.getId(), ConstraintSet.BOTTOM, ConstraintSet.PARENT_ID, ConstraintSet.BOTTOM, pxBottomImage);
+        constraintSet.connect(usernameLabel.getId(), ConstraintSet.TOP, roundedImageView.getId(), ConstraintSet.BOTTOM, 0);
+        constraintSet.connect(usernameLabel.getId(), ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START, pxBottomImage);
+        constraintSet.connect(ageLabel.getId(), ConstraintSet.TOP, roundedImageView.getId(), ConstraintSet.BOTTOM, 0);
+        constraintSet.connect(ageLabel.getId(), ConstraintSet.START, usernameLabel.getId(), ConstraintSet.END, pxBottom);
         constraintSet.applyTo(constraintLayout);;
-
-        roundedImageView.setImageBitmap(image);
 
         likeButton.setTag(R.id.TAG_CARDLIKE_VIEW, cardLike);
         likeButton.setTag(R.id.TAG_LIKER_ID, likerID);
@@ -193,6 +213,10 @@ public class LikeFragment extends Fragment {
         });
 
         return cardLike;
+        } catch (Exception exception) {
+            Log.d("ERROR GET OBJECT LIKE", exception.getMessage());
+            return null;
+        }
     }
 
     private GridLayout.LayoutParams setLayoutParams(int elCount) {
@@ -216,6 +240,7 @@ public class LikeFragment extends Fragment {
 
         params.rowSpec = GridLayout.spec(rowNum, 1, 1f);
         params.columnSpec = GridLayout.spec(columnNum, 1, 1f);
+        params.setGravity(Gravity.CENTER);
         return params;
     }
 }

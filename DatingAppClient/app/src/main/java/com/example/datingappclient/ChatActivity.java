@@ -18,6 +18,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.datingappclient.messageList.MessagesAdapter;
 import com.example.datingappclient.model.Message;
+import com.example.datingappclient.utils.DateUtils;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.android.material.button.MaterialButton;
@@ -91,7 +92,7 @@ public class ChatActivity extends AppCompatActivity {
             public void onClick(View view) {
                 String messageText = editText.getText().toString().trim();
                 if (!messageText.isEmpty()) {
-                    stompClient.send("/app/send", new Message(messageText, getCurrentTimeStamp(), sendlerID, receiverID).toString())
+                    stompClient.send("/app/send", new Message(messageText, DateUtils.getCurrentTimeStamp(), sendlerID, receiverID).toString())
                             .subscribeOn(Schedulers.io())
                             .observeOn(AndroidSchedulers.mainThread())
                             .subscribe(() -> {
@@ -111,11 +112,6 @@ public class ChatActivity extends AppCompatActivity {
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe();
-    }
-    private static String getCurrentTimeStamp() {
-        SimpleDateFormat sdfDate = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX");
-        Date now = new Date();
-        return sdfDate.format(now);
     }
 
     @SuppressLint("CheckResult")

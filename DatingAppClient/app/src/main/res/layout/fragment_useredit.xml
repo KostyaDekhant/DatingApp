@@ -13,8 +13,8 @@
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/username_inputLayout"
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-            android:layout_width="307dp"
-            android:layout_height="55dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
 
             android:layout_marginStart="52dp"
             android:layout_marginTop="40dp"
@@ -44,7 +44,7 @@
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/description_inputLayout"
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-            android:layout_width="307dp"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
 
             android:layout_marginStart="52dp"
@@ -73,10 +73,11 @@
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/age_inputLayout"
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-            android:layout_width="178dp"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
 
             android:layout_marginStart="52dp"
+            android:layout_marginEnd="52dp"
             android:layout_marginTop="7dp"
             android:hint="ДАТА РОЖДЕНИЯ"
             app:boxCornerRadiusBottomEnd="10dp"
@@ -86,6 +87,8 @@
             app:boxStrokeColor="#262626"
             app:boxStrokeWidth="1dp"
             app:cursorColor="#21A038"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/description_inputLayout">
 

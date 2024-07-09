@@ -19,6 +19,7 @@ import android.text.InputType;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.TypedValue;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -228,6 +229,7 @@ public class UsereditFragment extends Fragment {
         }
         params.rowSpec = GridLayout.spec(rowNum, 1, 1f);
         params.columnSpec = GridLayout.spec(columnNum, 1, 1f);
+        params.setGravity(Gravity.CENTER);
         return params;
     }
 
@@ -268,8 +270,10 @@ public class UsereditFragment extends Fragment {
                 serverAPI.deleteImage(user.getUserImageID((int) view.getTag(R.id.TAG_IMAGE_NUMBER))).enqueue(new Callback<Integer>() {
                     @Override
                     public void onResponse(Call<Integer> call, Response<Integer> response) {
-                        if (response.body().intValue() == 1)
+                        if (response.body() != null && response.body().intValue() == 1)
                             Log.d("DELETE IMAGE", "Success delete image from profile");
+                        else
+                            Log.d("ERROR DELETE IMAGE", "");
                     }
 
                     @Override
