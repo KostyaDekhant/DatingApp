@@ -2,6 +2,9 @@ package com.example.datingappclient.model;
 
 import android.graphics.Bitmap;
 
+import java.time.LocalDate;
+import java.time.Period;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
@@ -11,28 +14,21 @@ public class User {
     private int id;
     private String username;
     private String desc;
-    private String age;
+    private String birthday;
 
     private List<UserImage> images;
 
     public User(int id) {
         this.id = id;
+        images = new ArrayList<>();
     }
 
     public User(int id, String username, String desc, String age) {
         this.id = id;
         this.username = username;
         this.desc = desc;
-        this.age = age;
-    }
-
-    public User(int id, String username, String desc, String age, List<UserImage> userImages) {
-        this.id = id;
-        this.username = username;
-        this.desc = desc;
-        this.age = age;
-        this.images = userImages;
-        sortImages();
+        this.birthday = age;
+        images = new ArrayList<>();
     }
 
     public int getId() {
@@ -59,12 +55,18 @@ public class User {
         this.desc = desc;
     }
 
-    public String getAge() {
-        return age;
+    public String getBirthday() {
+        return birthday;
     }
 
-    public void setAge(String age) {
-        this.age = age;
+    public void setBirthday(String birthday) {
+        this.birthday = birthday;
+    }
+
+    public int getAge() {
+        LocalDate birth = LocalDate.parse(birthday.replace("\"", ""));
+        LocalDate today = LocalDate.now();
+        return Period.between(birth, today).getYears();
     }
 
     public List<UserImage> getListImages() {

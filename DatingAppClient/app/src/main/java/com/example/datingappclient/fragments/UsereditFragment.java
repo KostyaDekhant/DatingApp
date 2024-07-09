@@ -1,6 +1,7 @@
 package com.example.datingappclient.fragments;
 
 import android.app.Activity;
+import android.app.DatePickerDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
@@ -12,23 +13,21 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.constraintlayout.widget.ConstraintSet;
-import androidx.core.graphics.drawable.RoundedBitmapDrawable;
-import androidx.core.graphics.drawable.RoundedBitmapDrawableFactory;
 import androidx.fragment.app.Fragment;
 
+import android.text.InputType;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.TypedValue;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.DatePicker;
+import android.widget.EditText;
 import android.widget.GridLayout;
 import android.widget.ImageView;
 import android.widget.Space;
-import android.widget.Toast;
 
-import com.example.datingappclient.MainActivity;
 import com.example.datingappclient.R;
 import com.example.datingappclient.model.Picture;
 import com.example.datingappclient.model.User;
@@ -37,21 +36,17 @@ import com.example.datingappclient.retrofit.RetrofitService;
 import com.example.datingappclient.retrofit.ServerAPI;
 import com.example.datingappclient.utils.ImageUtils;
 import com.google.android.material.button.MaterialButton;
-import com.google.android.material.imageview.ShapeableImageView;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.gson.JsonObject;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.util.Arrays;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Locale;
 
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
-import retrofit2.http.Query;
 
 public class UsereditFragment extends Fragment {
 
@@ -71,12 +66,14 @@ public class UsereditFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View activityView = inflater.inflate(R.layout.fragment_useredit, container, false);
-        MaterialButton button = activityView.findViewById(R.id.save_button);
+        MaterialButton acceptEdit = activityView.findViewById(R.id.save_button);
 
         setInputText(activityView);
-        setImages(activityView);
+        setBirthdayPicker(activityView);
+        if (!user.getListImages().isEmpty())
+            setImages(activityView);
 
-        button.setOnClickListener(new View.OnClickListener() {
+        acceptEdit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 RetrofitService retrofitService = new RetrofitService();
@@ -99,26 +96,57 @@ public class UsereditFragment extends Fragment {
                 serverAPI.updateUser(jsonObject).enqueue(new Callback<Boolean>() {
                     @Override
                     public void onResponse(Call<Boolean> call, Response<Boolean> response) {
-                        if (response.body()) {
-                            Toast.makeText(activityView.getContext(), "SUCCESS SAVE", Toast.LENGTH_LONG).show();
-                            Logger.getLogger(MainActivity.class.getName()).log(Level.SEVERE, "SUCCESS SAVE");
+                        if (response.body() != null && response.body()) {
+                            Log.d("SAVE USERINFO ERROR", "");
                         } else {
-                            Toast.makeText(activityView.getContext(), "BAD ID. ERROR", Toast.LENGTH_LONG).show();
+                            Log.d("SAVE USERINFO ERROR", "BAD ID");
                         }
                     }
 
                     @Override
                     public void onFailure(Call<Boolean> call, Throwable throwable) {
-                        Toast.makeText(activityView.getContext(), "ERROR SAVE", Toast.LENGTH_LONG).show();
-                        Logger.getLogger(MainActivity.class.getName()).log(Level.SEVERE, "ERROR SAVE", throwable);
+                        Log.d("SAVE USERINFO ERROR", throwable.getMessage());
                     }
                 });
 
-                getParentFragmentManager().beginTransaction().replace(R.id.fragment_container, new UserFragment(new User(user.getId()))).commit();
+                user.setUsername(username);
+                user.setDesc(desc);
+                user.setBirthday(age);
+
+                UserFragment userFragment = UserFragment.getInstance(user, false);
+                getParentFragmentManager().beginTransaction().replace(R.id.fragment_container, userFragment).commit();
             }
         });
 
         return activityView;
+    }
+
+    // Установка DatePickerDialog для поля возраста
+    private void setBirthdayPicker(View view) {
+        EditText inputAge = view.findViewById(R.id.age_inputEdit);
+        inputAge.setInputType(InputType.TYPE_NULL); // Отключение ручного ввода
+        inputAge.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Calendar calendar = Calendar.getInstance();
+                int year = calendar.get(Calendar.YEAR);
+                int month = calendar.get(Calendar.MONTH);
+                int day = calendar.get(Calendar.DAY_OF_MONTH);
+
+                DatePickerDialog datePickerDialog = new DatePickerDialog(getContext(), new DatePickerDialog.OnDateSetListener() {
+                    @Override
+                    public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
+                        // Преобразуем дату в формат yyyy-MM-dd
+                        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+                        Calendar selectedDate = Calendar.getInstance();
+                        selectedDate.set(year, month, dayOfMonth);
+                        String formattedDate = sdf.format(selectedDate.getTime());
+                        inputAge.setText(formattedDate);
+                    }
+                }, year, month, day);
+                datePickerDialog.show();
+            }
+        });
     }
 
     private void setInputText(View view) {
@@ -128,9 +156,10 @@ public class UsereditFragment extends Fragment {
 
         name_input.setText(user.getUsername());
         desc_input.setText(user.getDesc());
-        age_input.setText(user.getAge());
+        age_input.setText(user.getBirthday().replace("\"", ""));
     }
 
+    // Иницииализация элементов управления для редактирование изобращение(add/remove)
     private void setImages(View view) {
         gridLayout = view.findViewById(R.id.images_grid);
         // Получение LayoutInflater из контекста
@@ -138,7 +167,7 @@ public class UsereditFragment extends Fragment {
 
 
         gridLayout.removeAllViews();
-        // Динамическое добавление элементов
+        // Динамическое добавление карточек с изображенем пользователя
         for (int i = 0; i < user.getListImages().size(); i++) {
             View cardImage = createCardImage(inflater, i);
             cardImage.setLayoutParams(setLayoutParams(i));
@@ -167,16 +196,16 @@ public class UsereditFragment extends Fragment {
             gridLayout.addView(cardAddImage);
         }
 
-        // Заполнение пустот
+        // Заполнение пустот для выравнивания
         while (gridLayout.getChildCount() < 6) {
             Space space = new Space(gridLayout.getContext());
             space.setLayoutParams(setLayoutParams(gridLayout.getChildCount()));
-            // Добавление Space в GridLayout
             gridLayout.addView(space);
         }
 
     }
 
+    // Установка параметров Layout'а для элемента с номером elCount
     private GridLayout.LayoutParams setLayoutParams(int elCount) {
         int dpWidth = 90;
         int dpHeight = 140;
@@ -202,18 +231,21 @@ public class UsereditFragment extends Fragment {
         return params;
     }
 
+    // Создает View с карточкой-изображением пользователя
     private View createCardImage(LayoutInflater inflater, int cardImageNum) {
         // Создание View из XML-файла макета
         View cardImage = inflater.inflate(R.layout.user_photo_item, gridLayout, false);
-        cardImage.setId(View.generateViewId());
 
         ImageView imageView = cardImage.findViewById(R.id.userImage);
-        imageView.setId(View.generateViewId());
-        imageView.setImageBitmap(user.getListImages().get(cardImageNum).getImage());
-
         MaterialButton deleteButton = cardImage.findViewById(R.id.deleteImage_button);
+
+        cardImage.setId(View.generateViewId());
+        imageView.setId(View.generateViewId());
         deleteButton.setId(View.generateViewId());
 
+        imageView.setImageBitmap(user.getListImages().get(cardImageNum).getImage());
+
+        // Установка ограничений внутри cardImage
         ConstraintLayout constraintLayout = (ConstraintLayout) cardImage;
         ConstraintSet constraintSet = new ConstraintSet();
         constraintSet.clone(constraintLayout);
@@ -236,12 +268,13 @@ public class UsereditFragment extends Fragment {
                 serverAPI.deleteImage(user.getUserImageID((int) view.getTag(R.id.TAG_IMAGE_NUMBER))).enqueue(new Callback<Integer>() {
                     @Override
                     public void onResponse(Call<Integer> call, Response<Integer> response) {
-
+                        if (response.body().intValue() == 1)
+                            Log.d("DELETE IMAGE", "Success delete image from profile");
                     }
 
                     @Override
                     public void onFailure(Call<Integer> call, Throwable throwable) {
-
+                        Log.d("ERROR DELETE IMAGE", throwable.getMessage());
                     }
                 });
             }
@@ -250,18 +283,10 @@ public class UsereditFragment extends Fragment {
         return cardImage;
     }
 
+    // Отправка полученного изображения на сервер
     private void sendImageOnServer(byte[] image, int imageNum) {
         RetrofitService retrofitService = new RetrofitService();
         ServerAPI serverAPI = retrofitService.getRetrofit().create(ServerAPI.class);
-
-        JsonObject jsonObject = new JsonObject();
-
-        Byte[] test = ImageUtils.converPrimitiveByteToByte(image);
-        //image = ImageUtils.compressImage(image);
-        //String stringImage = Arrays.toString(image);
-        jsonObject.addProperty("image", Arrays.toString(test));
-        jsonObject.addProperty("user_id", user.getId());
-        jsonObject.addProperty("image_id", imageNum);
 
         serverAPI.uploadImage(new Picture(imageNum, image, user.getId())).enqueue(new Callback<Integer>() {
             @Override
@@ -279,27 +304,31 @@ public class UsereditFragment extends Fragment {
         });
     }
 
-    // Обработка выбранного изображения
+    // Обработка выбранного пользователем изображения
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data){
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == PICK_IMAGE_REQUEST && resultCode == Activity.RESULT_OK && data != null) {
             Uri selectedImage = data.getData();
             try {
-                byte[] byteImage = uriToByteArray(getContext(), selectedImage);
+                byte[] byteImage = ImageUtils.uriToByteArray(getContext(), selectedImage);
                 Bitmap bitmapImage = ImageUtils.convertPrimitiveByteToBitmap(byteImage);
-                gridLayout.removeView(cardAddImage);
+
                 int imageNum = user.getListImages().size() + 1;
                 user.addUserImage(new UserImage(imageNum, 0, bitmapImage));
 
+                // Создаем карточку
                 View cardImage = createCardImage(inflater, imageNum - 1);
                 cardImage.setLayoutParams(setLayoutParams(imageNum - 1));
+
+                gridLayout.removeView(cardAddImage);
                 gridLayout.addView(cardImage);
 
                 if (imageNum != 6) {
                     cardAddImage.setLayoutParams(setLayoutParams(imageNum));
                     gridLayout.addView(cardAddImage);
                 }
+
                 sendImageOnServer(byteImage, imageNum);
             } catch (IOException e) {
                 throw new RuntimeException(e);
@@ -307,18 +336,4 @@ public class UsereditFragment extends Fragment {
         }
     }
 
-    private byte[] uriToByteArray(Context context, Uri uri) throws IOException {
-        InputStream inputStream = context.getContentResolver().openInputStream(uri);
-        ByteArrayOutputStream byteBuffer = new ByteArrayOutputStream();
-
-        int bufferSize = 1024;
-        byte[] buffer = new byte[bufferSize];
-
-        int len;
-        while ((len = inputStream.read(buffer)) != -1) {
-            byteBuffer.write(buffer, 0, len);
-        }
-
-        return byteBuffer.toByteArray();
-    }
 }

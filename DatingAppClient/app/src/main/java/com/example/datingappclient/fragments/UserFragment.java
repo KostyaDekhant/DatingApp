@@ -34,23 +34,32 @@ import retrofit2.Response;
 
 public class UserFragment extends Fragment implements View.OnClickListener {
 
+    private static UserFragment instance;
+
     private static User user;
     private ImageView profileImage;
     private int currentImageIndex = 0;
-    private boolean isLogin ;
+    private static boolean isLogin ;
 
-    public UserFragment(User user) {
+    private UserFragment(User user) {
         this.user = user;
         this.isLogin = false;
     }
 
-    public UserFragment(User user, boolean isLogin) {
+    private UserFragment(User user, boolean isLogin) {
         this.user = user;
         this.isLogin = isLogin;
     }
 
-    public void setIsLogin(boolean isLogin) {
-        this.isLogin = isLogin;
+    public static UserFragment getInstance(User user, boolean isLogin) {
+        if (instance == null) {
+            instance = new UserFragment(user, isLogin);
+        }
+        else {
+            UserFragment.user = user;
+            UserFragment.isLogin = isLogin;
+        }
+        return instance;
     }
 
     @Nullable
@@ -126,7 +135,7 @@ public class UserFragment extends Fragment implements View.OnClickListener {
         TextView descLabel = view.findViewById(R.id.description_label), nameLabel = view.findViewById(R.id.username_label), ageLabel = view.findViewById(R.id.age_label);
         nameLabel.setText(user.getUsername() + ",");
         descLabel.setText(user.getDesc());
-        ageLabel.setText(user.getAge());
+        ageLabel.setText("" + user.getAge());
     }
     //пальцы не совать
     private void setupImageTouchListener() {

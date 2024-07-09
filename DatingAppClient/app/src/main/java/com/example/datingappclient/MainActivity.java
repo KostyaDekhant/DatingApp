@@ -58,7 +58,8 @@ public class MainActivity extends AppCompatActivity {
             bottomNavigationView.setSelectedItemId(R.id.chat);
         }
         else {
-            userFragment = new UserFragment(user, true);
+            //userFragment = new UserFragment(user, true);
+            userFragment = UserFragment.getInstance(user, true);
             getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, userFragment).commit();
         }
 

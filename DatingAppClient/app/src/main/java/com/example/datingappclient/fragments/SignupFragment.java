@@ -50,7 +50,6 @@ public class SignupFragment extends Fragment {
                 TextInputEditText inputName = activityView.findViewById(R.id.username_inputEdit);
 
                 // inputAge уже инициализирована ранее
-
                 String login = inputLogin.getText().toString();
                 String pass = inputPass.getText().toString();
                 String name = inputName.getText().toString();

@@ -39,6 +39,8 @@ public class LikeFragment extends Fragment {
     private int userID;
 
     GridLayout gridLayout;
+    LayoutInflater inflater;
+    DisplayMetrics metrics;
 
     public LikeFragment(int userID) {
         this.userID = userID;
@@ -51,6 +53,9 @@ public class LikeFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View activityView = inflater.inflate(R.layout.fragment_like, container, false);
+        this.inflater = inflater;
+        Resources resources = getContext().getResources();
+        metrics = resources.getDisplayMetrics();
 
         gridLayout = activityView.findViewById(R.id.likes_grid);
 
@@ -84,7 +89,6 @@ public class LikeFragment extends Fragment {
     }
 
     private View createLikeCard(Object[] likeObj) {
-        LayoutInflater inflater = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
         int likerID = ((Double) likeObj[0]).intValue();
         String imageStr = likeObj[3].toString();
@@ -104,9 +108,6 @@ public class LikeFragment extends Fragment {
         ConstraintLayout constraintLayout = (ConstraintLayout) cardLike;
         ConstraintSet constraintSet = new ConstraintSet();
         constraintSet.clone(constraintLayout);
-
-        Resources resources = getContext().getResources();
-        DisplayMetrics metrics = resources.getDisplayMetrics();
 
         int pxEnd = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 15, metrics);
         int pxBottom = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 5, metrics);
@@ -198,16 +199,10 @@ public class LikeFragment extends Fragment {
         int dpWidth = 130;
         int dpHeight = 246;
 
-        Resources resources = getContext().getResources();
-        DisplayMetrics metrics = resources.getDisplayMetrics();
-
         int pxWidth = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dpWidth, metrics);
         int pxHeight = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dpHeight, metrics);
 
         GridLayout.LayoutParams params = new GridLayout.LayoutParams();
-
-        //params.width = pxWidth;
-        //params.height = pxHeight;
         int rowNum = elCount / 2;
         int columnNum;
         if (elCount % 2 == 0 ) {
