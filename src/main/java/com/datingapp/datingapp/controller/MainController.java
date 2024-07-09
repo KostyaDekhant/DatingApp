@@ -2,33 +2,23 @@ package com.datingapp.datingapp.controller;
 
 import com.datingapp.datingapp.enitity.*;
 import com.datingapp.datingapp.repository.*;
-import jdk.internal.access.JavaTemplateAccess;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.Timestamp;
-import java.time.Instant;
-import java.util.Date;
 import java.util.List;
-import java.util.Objects;
-
-import static java.time.Instant.*;
 
 @Slf4j
 @RestController
@@ -38,6 +28,7 @@ public class MainController {
     private final Path uploadPath = Paths.get("C:/datingapp/pictures");
 
     private final UserRepo userRepo;
+    private final ChatRepo chatRepo;
     private final ResidRepo residRepo;
     private final PicRepo picRepo;
     private final LikeRepo likeRepo;
@@ -48,7 +39,7 @@ public class MainController {
     @PostMapping("/api/add")
     public void AddUser(@RequestBody User user)
     {
-        log.info("new row: " + userRepo.save(user));
+        log.info("Новый пользователь: " + userRepo.save(user));
     }
 
     //Вывод пользователей
@@ -56,14 +47,18 @@ public class MainController {
     @GetMapping("/api/all")
     public List<User> getAll()
     {
-        return userRepo.findAll();
+        List<User> temp = userRepo.findAll();
+        log.info("Список пользователей: " + temp);
+        return temp;
     }
 
     //Получение данных о пользователе
     @GetMapping("/api/user")
     public User getUser(@RequestParam int id)
     {
-        return userRepo.findById(id).get();
+        User temp = userRepo.findById(id).get();
+        log.info("Информация о пользователе: " + temp);
+        return temp;
     }
 
     //Обновление данных пользователя
@@ -72,11 +67,12 @@ public class MainController {
     {
         if(userRepo.findById(user.getPk_user()).isEmpty()) //
         {
+            log.info("Данные не обновлены, так как нет пользователя с таким id!");
             return false;
         }
         User temp = userRepo.findById(user.getPk_user()).get();
-
         userRepo.save(updateData(temp, user));
+        log.info("Данные обновлены!");
         return true;
     }
 
@@ -85,7 +81,7 @@ public class MainController {
     {
         if(!newU.getName().equals(oldU.getName()) && !newU.getName().equals(""))
             oldU.setName(newU.getName());
-        if(newU.getAge() != oldU.getAge() && newU.getAge() != new Date())
+        if(!newU.getAge().equals(oldU.getAge()) && newU.getAge() != null)
             oldU.setAge(newU.getAge());
         if(!newU.getGender().equals(oldU.getGender()) && !newU.getGender().equals(""))
             oldU.setGender(newU.getGender());
@@ -107,26 +103,30 @@ public class MainController {
 
     //Регистрация
     @PostMapping("/api/signup")
-    public int signupUser(@RequestBody User user) { //String login, @RequestParam String pass
-        // Обработка данных запроса
+    public int signupUser(@RequestBody User user) {
         User temp = userRepo.findByLogin(user.getLogin());
         if(temp == null)
         {
             AddUser(user);
             return userRepo.findByLogin(user.getLogin()).getPk_user();
         }
+        log.info("Пользователь с таким логином уже существует!");
         return -1;
     }
 
     //Авторизация
     @PostMapping("/api/login")
-    public int loginUser(@RequestBody User user) { //String login, @RequestParam String pass
-        // Обработка данных запроса
+    public int loginUser(@RequestBody User user) {
         User temp = userRepo.findByLogin(user.getLogin());
         if(temp != null)
         {
+            if(temp.getPassword().equals(user.getPassword()))
+                log.info("Пользователь успешно вошёл в систему!");
+            else
+                log.info("Пользователь ввёл пароль неверно!");
             return temp.getPassword().equals(user.getPassword()) ? temp.getPk_user() : -1;
         }
+        log.info("Пользователя с таким логином не существует!");
         return -2;
     }
 
@@ -134,6 +134,7 @@ public class MainController {
     @DeleteMapping("/api")
     public void deleteUser(@RequestParam int id)
     {
+        log.info("Удалён пользователь с id: " + id);
         userRepo.deleteById(id);
     }
 
@@ -179,7 +180,9 @@ public class MainController {
     @GetMapping("/api/chat_users")
     public List<Object[]> findChat_users(@RequestParam int pk_user)
     {
-        return userRepo.findUsers(pk_user);
+        List<Object[]> obj = userRepo.findUsers(pk_user);
+        log.info("Общие чаты: " + obj);
+        return obj;
     }
 
     //Загрузка фотографий на сервер
@@ -187,15 +190,16 @@ public class MainController {
     public int handleFileUpload(@RequestBody MyPic myPic)
     {
         try {
-            // Проверяем, существует ли директория, если нет - создаем
             if (!Files.exists(uploadPath)) {
                 Files.createDirectories(uploadPath);
             }
+            //Сделать проверки на фотки
+            log.info("Сама фотка: " + myPic);
             Picture pic = new Picture(myPic.getImage_id(), new Timestamp(System.currentTimeMillis()),
-                    myPic.getImage().getBytes());
+                    myPic.getImage());
             pic.setPk_picture(picRepo.findMaxPk()+1);
             Picture temp = picRepo.save(pic);
-            log.info("информация о фото " + temp.toString());
+            log.info("Фотография загружена: " + temp.toString());
             userPicRepo.save(new User_pic(temp.getPk_picture(), myPic.getUser_id()));
             return temp.getPk_picture();
         } catch (IOException e) {
@@ -204,9 +208,33 @@ public class MainController {
         }
     }
 
-    //Загрузка фотографий на сервер с postman'а
+    /*
     @PostMapping("api/upload_image2")
-    public int handleFileUpload2(@RequestParam("image") MultipartFile image, @RequestParam("user_id") int user_id,
+    public int handleFileUpload2(@RequestParam("image") Byte[] image, @RequestParam("user_id") int user_id,
+                                 @RequestParam("image_id")int image_id) {
+        try {
+            // Проверяем, существует ли директория, если нет - создаем
+            if (!Files.exists(uploadPath)) {
+                Files.createDirectories(uploadPath);
+            }
+            byte[] temp_image = convertByteTobyte(image);
+            Picture pic = new Picture(image_id, new Timestamp(System.currentTimeMillis()),
+                    temp_image); //.getBytes();
+
+            pic.setPk_picture(picRepo.findMaxPk()+1);
+            Picture temp = picRepo.save(pic);
+            log.info("информация о фото " + temp.toString());
+            userPicRepo.save(new User_pic(temp.getPk_picture(), user_id));
+            return temp.getPk_picture();
+        } catch (IOException e) {
+            e.printStackTrace();
+            return -1;
+        }
+    }
+    */
+    //Загрузка фотографий на сервер с postman'а
+    @PostMapping("api/upload_image3")
+    public int handleFileUpload3(@RequestParam("image") MultipartFile image, @RequestParam("user_id") int user_id,
                                 @RequestParam("image_id")int image_id) {
         try {
             // Проверяем, существует ли директория, если нет - создаем
@@ -227,30 +255,28 @@ public class MainController {
         }
     }
 
-
+    //удалить фотографию
     @PostMapping("api/delete_image")
     public int deleteImage(@RequestParam("image_id")int image_id)
     {
         int whos_pic = picRepo.findUserById(image_id);
         int res = picRepo.deleteImage(image_id);
         picRepo.updateId(whos_pic);
+        log.info("Удалена фотография с id: " + image_id);
         return res;
     }
 
 
     //Получить фотки конкретного пользователя
     @GetMapping("api/user_images")
-    public List<Object[]> getImages(@RequestParam("pk_user") int id) {
-
-        /*List<Object[]> obj = picRepo.findByUserId(id);
-        List<Object[]> res;
-        for (Object[] temp : obj)
-        {
-            String str = (String) temp[2];
-        }*/
-        return picRepo.findByUserId(id);
+    public List<Object[]> getImages(@RequestParam("pk_user") int id)
+    {
+        List<Object[]> obj = picRepo.findByUserId(id);
+        log.info("Получены фотографии для пользователя: " + obj);
+        return obj;
     }
 
+    //Определение формата фото
     public boolean identifyImageFormat(byte[] imageBytes) {
 
         if ((imageBytes[0] & 0xFF) == 0xFF && (imageBytes[1] & 0xFF) == 0xD8 &&
@@ -258,6 +284,15 @@ public class MainController {
             return true;
         }
         return false;
+    }
+
+
+    public byte[] convertByteTobyte(Byte[] byteArray) {
+        byte[] bytes = new byte[byteArray.length];
+        for (int i = 0; i < byteArray.length; i++) {
+            bytes[i] = byteArray[i]; // Автоматическая распаковка Byte в byte
+        }
+        return bytes;
     }
 
 
@@ -273,13 +308,15 @@ public class MainController {
     //Поставить лайк
     @PostMapping("api/likes")
     public int setLike(@RequestBody Like like)
-    //@RequestParam("liker") int liker,
-    //@RequestParam("poster") int poster
-    //@RequestParam("image_id") int image_id
     {
+        if(likeRepo.isLikeExists(like.getLiker(), like.getPoster()))
+        {
+            log.info("Лайк уже был поставлен!");
+            return -2;
+        }
         Timestamp time = new Timestamp(System.currentTimeMillis());
         like.setTime(time); //, image_id
-        log.info("Лайк: "+like.toString());
+        log.info("Поставлен лайк: "+like.toString());
         like.setPk_like(likeRepo.findMaxPk()+1);
         return likeRepo.save(like).getPk_like();
     }
@@ -288,16 +325,18 @@ public class MainController {
     @GetMapping("api/my_likes")
     public List<Object[]> getLikesList(@RequestParam("user_id") int user_id)
     {
-        log.info("Мои лайки: "+ likeRepo.findByLiker(user_id));
-        return likeRepo.findByLiker(user_id);
+        List<Object[]> obj = likeRepo.findByLiker(user_id);
+        log.info("Мои лайки: "+ obj);
+        return obj;
     }
 
     //Лайки, которые поставили клиенту
     @GetMapping("api/received_likes")
     public List<Object[]> getreceivedLikesList(@RequestParam("user_id") int user_id)
     {
-        log.info("Лайки на мои фотографии: "+ likeRepo.findByReceiver(user_id));
-        return likeRepo.findByReceiver(user_id);
+        List<Object[]> obj = likeRepo.findByReceiver(user_id);
+        log.info("Лайки на мои фотографии: "+ obj);
+        return obj;
     }
 
     //Анкеты
@@ -305,10 +344,39 @@ public class MainController {
     public Object[] getListUsers(@RequestParam("user_id") int user_id,
                                        @RequestParam("prev_user_id") int prev_user_id)
     {
-        log.info("Анкеты : "+ userRepo.findQuestUsers(user_id,prev_user_id));
-        return userRepo.findQuestUsers(user_id,prev_user_id);
+        Object[] obj = userRepo.findQuestUsers(user_id, prev_user_id);
+                log.info("Анкеты : "+ obj);
+        return obj;
     }
 
+    //Убрать лайк
+    @GetMapping("api/delete_like")
+    int deleteLike(@RequestParam("liker") int liker,
+                   @RequestParam("poster") int poster)
+    {
+        int delete_count = likeRepo.deleteLike(liker,poster);
+        if(delete_count != 0)
+            log.info("Лайк убран: " + delete_count);
+        return delete_count;
+    }
+
+    //Создание чата по запросу
+    @PostMapping("api/chats")
+    int createChat(@RequestParam("pk_user") int pk_user,
+                   @RequestParam("pk_user1") int pk_user1)
+    {
+        if(!chatRepo.isChatExists(pk_user, pk_user1))
+        {
+            Chat chat = new Chat(pk_user, pk_user1);
+            chat.setPk_chat(chatRepo.findMaxPk()+1);
+            log.info("ID созданного чата: "+ chat);
+            chatRepo.save(chat);
+            log.info("Создан новый чат: " + chat);
+            return chat.getPk_chat();
+        }
+        log.info("Такой чат уже существует!");
+        return -1;
+    }
 
 }
 

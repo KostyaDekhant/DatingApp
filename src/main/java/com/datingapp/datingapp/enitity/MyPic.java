@@ -17,11 +17,11 @@ public class MyPic {
     @Column(name = "image_id")
     private int image_id;
     @Column(name = "image")
-    private String image;
+    private byte[] image;
     @JsonProperty("user_id")
     private int user_id;
 
-    public MyPic(int image_id, String image, int user_id) {
+    public MyPic(int image_id, byte[] image, int user_id) {
         this.image_id = image_id;
         this.image = image;
         this.user_id = user_id;

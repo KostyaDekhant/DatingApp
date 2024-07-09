@@ -1,5 +1,6 @@
 package com.datingapp.datingapp.enitity;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Null;
 import lombok.Data;
@@ -7,6 +8,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.sql.Timestamp;
+import java.time.LocalDate;
 import java.util.Date;
 
 @Data
@@ -18,20 +20,30 @@ public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "pk_user")
+    @JsonProperty("pk_user")
     private int pk_user;
     @Column(name = "name")
+    @JsonProperty("name")
     private String name;
-    private Date age;
+    @JsonProperty("age")
+    private LocalDate age;
+    @JsonProperty("height")
     private int height;
+    @JsonProperty("is_online")
     private Boolean is_online;
+    @JsonProperty("last_online")
     private Timestamp last_online;
+    @JsonProperty("gender")
     private String gender;
+    @JsonProperty("password")
     private String password;
+    @JsonProperty("description")
     private String description;
     @Column(unique = true)
+    @JsonProperty("login")
     private String login;
 
-    public User(String name, Date age, int height, String gender,
+    public User(String name, LocalDate age, int height, String gender,
                 Boolean is_online, Timestamp last_online, String password,
                 String description, String login) {
         this.name = name;
@@ -48,7 +60,7 @@ public class User {
     public User() {
         this.pk_user = -1;
         this.name = "";
-        this.age = new Date();
+        this.age = null;
         this.height = -1;
         this.gender = "";
         this.is_online = false;
