@@ -19,6 +19,8 @@ import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.gson.JsonObject;
 
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -50,9 +52,12 @@ public class SigninFragment extends Fragment {
                 String login = inputLogin.getText().toString();
                 String pass = inputPass.getText().toString();
 
+                // Хэширование пароля перед отправкой на сервер
+                String hashedPass = hashPassword(pass);
+
                 JsonObject jsonObject = new JsonObject();
                 jsonObject.addProperty("login", login);
-                jsonObject.addProperty("password", pass);
+                jsonObject.addProperty("password", hashedPass);
                 serverAPI.login(jsonObject)
                         .enqueue(new Callback<Integer>() {
                             @Override
@@ -75,5 +80,21 @@ public class SigninFragment extends Fragment {
         });
 
         return activityView;
+    }
+
+    // Метод для хэширования пароля
+    private String hashPassword(String password) {
+        try {
+            MessageDigest md = MessageDigest.getInstance("SHA-256");
+            byte[] hashedBytes = md.digest(password.getBytes());
+            StringBuilder sb = new StringBuilder();
+            for (byte b : hashedBytes) {
+                sb.append(String.format("%02x", b));
+            }
+            return sb.toString();
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 }

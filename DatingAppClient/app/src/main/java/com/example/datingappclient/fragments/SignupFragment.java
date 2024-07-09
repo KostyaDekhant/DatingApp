@@ -24,6 +24,8 @@ import java.util.logging.Logger;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.text.SimpleDateFormat;
 import java.util.Locale;
 
@@ -66,12 +68,18 @@ public class SignupFragment extends Fragment {
                 Logger.getLogger(MainActivity.class.getName()).log(Level.INFO, "Name: " + name);
                 Logger.getLogger(MainActivity.class.getName()).log(Level.INFO, "Age: " + age);
 
+                // Хэширование пароля перед отправкой на сервер
+                String hashedPass = hashPassword(pass);
+
+                // Логируем хэшированный пароль для проверки
+                Logger.getLogger(MainActivity.class.getName()).log(Level.INFO, "Hashed Password: " + hashedPass);
+
                 RetrofitService retrofitService = new RetrofitService();
                 ServerAPI serverAPI = retrofitService.getRetrofit().create(ServerAPI.class);
 
                 JsonObject signupJsonObject = new JsonObject();
                 signupJsonObject.addProperty("login", login);
-                signupJsonObject.addProperty("password", pass);
+                signupJsonObject.addProperty("password", hashedPass);
 
                 serverAPI.signup(signupJsonObject).enqueue(new Callback<Integer>() {
                     @Override
@@ -137,5 +145,21 @@ public class SignupFragment extends Fragment {
         });
 
         return activityView;
+    }
+
+    // Метод для хэширования пароля
+    private String hashPassword(String password) {
+        try {
+            MessageDigest md = MessageDigest.getInstance("SHA-256");
+            byte[] hashedBytes = md.digest(password.getBytes());
+            StringBuilder sb = new StringBuilder();
+            for (byte b : hashedBytes) {
+                sb.append(String.format("%02x", b));
+            }
+            return sb.toString();
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 }
