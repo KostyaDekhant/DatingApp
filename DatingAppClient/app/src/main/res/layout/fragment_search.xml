@@ -2,10 +2,6 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".fragments.SearchFragment"><RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
     tools:context=".fragments.SearchFragment">
 
     <!-- Центральная область для отображения анкеты -->
@@ -42,15 +38,22 @@
         android:padding="16dp"
         android:background="#FFFFFF">
 
-        <!-- Текстовая область для информации об анкете -->
-        <TextView
-            android:id="@+id/profile_info"
+        <!-- ScrollView для текстовой области информации об анкете -->
+        <ScrollView
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Имя пользователя, возраст\nОписание профиля (может не быть)"
-            android:textAlignment="center"
-            android:textSize="16sp"
-            android:paddingBottom="8dp" />
+            android:layout_height="55dp"
+            android:fillViewport="true">
+
+            <!-- Текстовая область для информации об анкете -->
+            <TextView
+                android:id="@+id/profile_info"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Имя пользователя, возраст\nОписание профиля (может не быть)"
+                android:textAlignment="center"
+                android:textSize="16sp"
+                android:paddingBottom="8dp" />
+        </ScrollView>
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -79,5 +82,4 @@
 
     </LinearLayout>
 
-</RelativeLayout>
 </RelativeLayout>
