@@ -25,8 +25,6 @@ import java.util.List;
 @RequiredArgsConstructor
 public class MainController {
 
-    private final Path uploadPath = Paths.get("C:/datingapp/pictures");
-
     private final UserRepo userRepo;
     private final ChatRepo chatRepo;
     private final ResidRepo residRepo;
@@ -189,46 +187,48 @@ public class MainController {
     @PostMapping("api/upload_image")
     public int handleFileUpload(@RequestBody MyPic myPic)
     {
-        try {
+        log.info("Сама фотка: " + myPic);
+        Picture pic = new Picture(myPic.getImage_id(), new Timestamp(System.currentTimeMillis()),
+                myPic.getImage());
+        pic.setPk_picture(picRepo.findMaxPk()+1);
+        Picture temp = picRepo.save(pic);
+        log.info("Фотография загружена: " + temp.toString());
+        userPicRepo.save(new User_pic(temp.getPk_picture(), myPic.getUser_id()));
+        return temp.getPk_picture();
+        /*try {
             if (!Files.exists(uploadPath)) {
                 Files.createDirectories(uploadPath);
             }
             //Сделать проверки на фотки
-            log.info("Сама фотка: " + myPic);
-            Picture pic = new Picture(myPic.getImage_id(), new Timestamp(System.currentTimeMillis()),
-                    myPic.getImage());
-            pic.setPk_picture(picRepo.findMaxPk()+1);
-            Picture temp = picRepo.save(pic);
-            log.info("Фотография загружена: " + temp.toString());
-            userPicRepo.save(new User_pic(temp.getPk_picture(), myPic.getUser_id()));
-            return temp.getPk_picture();
+
         } catch (IOException e) {
             e.printStackTrace();
             return -1;
-        }
+        }*/
     }
 
     //Загрузка фотографий на сервер с postman'а
     @PostMapping("api/upload_image2")
     public int handleFileUpload2(@RequestParam("image") MultipartFile image, @RequestParam("user_id") int user_id,
-                                @RequestParam("image_id")int image_id) {
-        try {
+                                @RequestParam("image_id")int image_id) throws IOException {
+        Picture pic = new Picture(image_id, new Timestamp(System.currentTimeMillis()),
+                image.getBytes());
+        pic.setPk_picture(picRepo.findMaxPk()+1);
+        Picture temp = picRepo.save(pic);
+        log.info("информация о фото " + temp.toString());
+        userPicRepo.save(new User_pic(temp.getPk_picture(), user_id));
+        return temp.getPk_picture();
+        /*try {
             // Проверяем, существует ли директория, если нет - создаем
             if (!Files.exists(uploadPath)) {
                 Files.createDirectories(uploadPath);
             }
 
-            Picture pic = new Picture(image_id, new Timestamp(System.currentTimeMillis()),
-                    image.getBytes());
-            pic.setPk_picture(picRepo.findMaxPk()+1);
-            Picture temp = picRepo.save(pic);
-            log.info("информация о фото " + temp.toString());
-            userPicRepo.save(new User_pic(temp.getPk_picture(), user_id));
-            return temp.getPk_picture();
+
         } catch (IOException e) {
             e.printStackTrace();
             return -1;
-        }
+        }*/
     }
 
     //удалить фотографию
