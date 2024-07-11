@@ -29,6 +29,7 @@
         android:text="Пока вашу анкету никто не лайкнул."
         android:textSize="20sp"
         android:textStyle="bold"
+        android:textAlignment="center"
         android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintTop_toTopOf="parent"

@@ -1,10 +1,12 @@
 package com.example.datingappclient.fragments;
 
+import android.opengl.Visibility;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -60,7 +62,13 @@ public class ChatListFragment extends Fragment {
     }
 
     private void populateListView(List<Object[]> chats) {
-        ChatsAdapter chatsAdapter = new ChatsAdapter(chats, userID, this, getActivity());
-        recyclerView.setAdapter(chatsAdapter);
+        TextView noChats = getView().findViewById(R.id.noChats_label);
+        if (chats.get(0)[1] == null) {
+            ChatsAdapter chatsAdapter = new ChatsAdapter(chats, userID, this, getActivity());
+            recyclerView.setAdapter(chatsAdapter);
+            noChats.setVisibility(View.GONE);
+        } else {
+            noChats.setVisibility(View.VISIBLE);
+        }
     }
 }
