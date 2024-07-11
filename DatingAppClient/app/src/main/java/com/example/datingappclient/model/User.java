@@ -98,10 +98,10 @@ public class User {
 
     public void removeImage(int imageNum) {
         boolean find = false;
-        for (UserImage it : images) {
-            if (find) it.setImageNum(it.getImageNum() - 1);
-            if (it.getImageNum() == imageNum) {
-                images.remove(it);
+        for (int i = images.size() - 1; i > 0; i--) {
+            if (find) images.get(i).setImageNum(images.get(i).getImageNum() - 1);
+            if (!find && images.get(i).getImageNum() == imageNum) {
+                images.remove(i);
                 find = true;
             }
         }

@@ -262,12 +262,16 @@ public class UsereditFragment extends Fragment {
             public void onClick(View view) {
                 Log.d("BUTTON DELETE PRESSED", view.getTag(R.id.TAG_IMAGE_NUMBER).toString());
 
-                user.removeImage(((int) view.getTag(R.id.TAG_IMAGE_NUMBER)));
+                int imageNum = (int) view.getTag(R.id.TAG_IMAGE_NUMBER);
+                int imageID = user.getUserImageID(imageNum);
+
+                user.removeImage(imageNum);
                 setImages(getView());
 
                 RetrofitService retrofitService = new RetrofitService();
                 ServerAPI serverAPI = retrofitService.getRetrofit().create(ServerAPI.class);
-                serverAPI.deleteImage(user.getUserImageID((int) view.getTag(R.id.TAG_IMAGE_NUMBER))).enqueue(new Callback<Integer>() {
+
+                serverAPI.deleteImage(imageID).enqueue(new Callback<Integer>() {
                     @Override
                     public void onResponse(Call<Integer> call, Response<Integer> response) {
                         if (response.body() != null && response.body().intValue() == 1)
