@@ -17,6 +17,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.datingappclient.ChatActivity;
 import com.example.datingappclient.R;
+import com.example.datingappclient.constants.Constants;
 import com.example.datingappclient.model.Message;
 import com.example.datingappclient.utils.ImageUtils;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -66,27 +67,29 @@ public class ChatsAdapter extends RecyclerView.Adapter<ChatsHolder> {
                 .subscribe(topicMessage -> {
                     Log.d("GETMESS", topicMessage.getPayload());
                     ObjectMapper mapper = new ObjectMapper();
-                    Message message = mapper.readValue(topicMessage.getPayload(), new TypeReference<Message>() {});
-                    if (sendlerID == message.getPk_user()) holder.lastMessage.setText("Вы: " + message.getMessage());
+                    Message message = mapper.readValue(topicMessage.getPayload(), new TypeReference<Message>() {
+                    });
+                    if (sendlerID == message.getPk_user())
+                        holder.lastMessage.setText("Вы: " + message.getMessage());
                     else holder.lastMessage.setText(message.getMessage());
                 });
-        try {
-            String lastMessage = chats.get(position)[2] == null ? null : chats.get(position)[2].toString();
-            Integer messageSendlerID = chats.get(position)[3] == null ? null : ((Double)chats.get(position)[3]).intValue();
-            String strImage = chats.get(position)[4] == null ? null : chats.get(position)[4].toString();
 
+        String lastMessage = chats.get(position)[2] == null ? null : chats.get(position)[2].toString();
+        Integer messageSendlerID = chats.get(position)[3] == null ? null : ((Double) chats.get(position)[3]).intValue();
+        String strImage = chats.get(position)[4] == null ? null : chats.get(position)[4].toString();
+
+        if (strImage != null) {
             byte[] byteImage = Base64.getDecoder().decode(strImage);
             holder.setByteImage(byteImage);
-
-            if (sendlerID == messageSendlerID) holder.lastMessage.setText("Вы: " + lastMessage);
-            else holder.lastMessage.setText(lastMessage);
 
             Bitmap bitmapImage = ImageUtils.convertPrimitiveByteToBitmap(byteImage);
             Bitmap croppedImage = ImageUtils.getCroppedBitmap(bitmapImage);
             holder.profileImage.setImageBitmap(croppedImage);
+        }
 
-        } catch (Exception ignored) {
-            Log.d("ARRAY", ignored.getMessage());
+        if(lastMessage != null) {
+            if (sendlerID == messageSendlerID) holder.lastMessage.setText("Вы: " + lastMessage);
+            else holder.lastMessage.setText(lastMessage);
         }
 
         holder.setReceiverID(userID);
@@ -109,7 +112,7 @@ public class ChatsAdapter extends RecyclerView.Adapter<ChatsHolder> {
 
     @SuppressLint("CheckResult")
     private void initStompClient() {
-        stompClient = Stomp.over(Stomp.ConnectionProvider.OKHTTP, "ws://26.223.19.56:8080/datingapp");
+        stompClient = Stomp.over(Stomp.ConnectionProvider.OKHTTP, "ws://" + Constants.SERVER_ADDRESS + ":" + Constants.SERVER_PORT + "/datingapp");
         stompClient.connect();
 
         stompClient.lifecycle().subscribe(lifecycleEvent -> {

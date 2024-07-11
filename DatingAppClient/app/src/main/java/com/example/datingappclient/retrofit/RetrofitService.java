@@ -1,5 +1,6 @@
 package com.example.datingappclient.retrofit;
 
+import com.example.datingappclient.constants.Constants;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
@@ -20,7 +21,7 @@ public class RetrofitService {
                 .create();
 
         retrofit = new Retrofit.Builder()
-                .baseUrl("http://26.223.19.56:8080")
+                .baseUrl("http://" + Constants.SERVER_ADDRESS + ":" + Constants.SERVER_PORT)
                 .addConverterFactory(GsonConverterFactory.create(gson))
                 .build();
     }

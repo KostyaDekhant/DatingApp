@@ -141,6 +141,12 @@ public class SearchFragment extends Fragment {
         RetrofitService retrofitService = new RetrofitService();
         ServerAPI serverAPI = retrofitService.getRetrofit().create(ServerAPI.class);
 
+        userNameAgeLabel.setText("");
+        descLabel.setText("");
+        profileImage.setImageResource(R.drawable.images);
+        likeButton.setEnabled(false);
+        dislikeButton.setEnabled(false);
+
         serverAPI.getForms(clientId, prevUserId).enqueue(new Callback<List<Object[]>>() {
             @Override
             public void onResponse(Call<List<Object[]>> call, Response<List<Object[]>> response) {
@@ -164,6 +170,8 @@ public class SearchFragment extends Fragment {
                     if (currentUserId != 0) {
                         loadImage(currentUserId);
                     }
+                    likeButton.setEnabled(true);
+                    dislikeButton.setEnabled(true);
                 } else {
                     Log.d("SearchFragment", "No profiles available");
                 }

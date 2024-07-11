@@ -14,6 +14,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.datingappclient.constants.Constants;
 import com.example.datingappclient.messageList.MessagesAdapter;
 import com.example.datingappclient.model.Message;
 import com.example.datingappclient.utils.DateUtils;
@@ -66,8 +67,10 @@ public class ChatActivity extends AppCompatActivity {
         messagesRecyclerView = findViewById(R.id.messages_recyclerView);
         ImageView profileImage = findViewById(R.id.profile_image);
 
-        Bitmap croppedImage = ImageUtils.getCroppedBitmap(ImageUtils.convertPrimitiveByteToBitmap(byteImage));
-        profileImage.setImageBitmap(croppedImage);
+        if (byteImage != null) {
+            Bitmap croppedImage = ImageUtils.getCroppedBitmap(ImageUtils.convertPrimitiveByteToBitmap(byteImage));
+            profileImage.setImageBitmap(croppedImage);
+        }
 
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
         linearLayoutManager.setStackFromEnd(true);
@@ -120,7 +123,7 @@ public class ChatActivity extends AppCompatActivity {
 
     @SuppressLint("CheckResult")
     private void initStompClient() {
-        stompClient = Stomp.over(Stomp.ConnectionProvider.OKHTTP, "ws://26.223.19.56:8080/datingapp");
+        stompClient = Stomp.over(Stomp.ConnectionProvider.OKHTTP, "ws://" + Constants.SERVER_ADDRESS + ":" + Constants.SERVER_PORT + "/datingapp");
         stompClient.connect();
 
         stompClient.lifecycle().subscribe(lifecycleEvent -> {

@@ -32,9 +32,6 @@ public interface ServerAPI {
     @GET("api/user_images")
     Call<List<Object[]>> getUserImages(@Query("pk_user") int id);
 
-    @POST("api/upload_image2")
-    Call<Integer> uploadImage2(@Body JsonObject jsonObject);
-
     @POST("api/upload_image")
     Call<Integer> uploadImage(@Body Picture picture);
 

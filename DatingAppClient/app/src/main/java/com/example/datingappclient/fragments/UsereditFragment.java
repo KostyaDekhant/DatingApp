@@ -167,6 +167,7 @@ public class UsereditFragment extends Fragment {
 
 
         gridLayout.removeAllViews();
+
         // Динамическое добавление карточек с изображенем пользователя
         for (int i = 0; i < user.getListImages().size(); i++) {
             View cardImage = createCardImage(inflater, i);
@@ -207,8 +208,8 @@ public class UsereditFragment extends Fragment {
 
     // Установка параметров Layout'а для элемента с номером elCount
     private GridLayout.LayoutParams setLayoutParams(int elCount) {
-        int dpWidth = 90;
-        int dpHeight = 140;
+        int dpWidth = 80;
+        int dpHeight = 120;
 
         Resources resources = getContext().getResources();
         DisplayMetrics metrics = resources.getDisplayMetrics();
