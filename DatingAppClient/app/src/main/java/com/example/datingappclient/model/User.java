@@ -98,7 +98,7 @@ public class User {
 
     public void removeImage(int imageNum) {
         boolean find = false;
-        for (int i = images.size() - 1; i > 0; i--) {
+        for (int i = images.size() - 1; i >= 0; i--) {
             if (find) images.get(i).setImageNum(images.get(i).getImageNum() - 1);
             if (!find && images.get(i).getImageNum() == imageNum) {
                 images.remove(i);
