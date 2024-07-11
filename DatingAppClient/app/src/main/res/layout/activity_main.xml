@@ -27,6 +27,7 @@
         android:background="@drawable/border_top"
         android:fitsSystemWindows="true"
         app:itemIconSize="40dp"
+        app:itemIconTint="@drawable/menu_item_color"
         app:labelVisibilityMode="unlabeled"
         app:menu="@menu/bottom_nav">
     </com.google.android.material.bottomnavigation.BottomNavigationView>

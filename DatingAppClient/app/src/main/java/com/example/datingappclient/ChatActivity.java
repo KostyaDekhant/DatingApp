@@ -78,10 +78,6 @@ public class ChatActivity extends AppCompatActivity {
 
         usernameLabel.setText(username);
 
-        KeyboardVisibilityEvent.setEventListener(this, isOpen -> {
-            if (isOpen) messagesRecyclerView.scrollToPosition(messagesAdapter.getItemCount() - 1);
-        });
-
         returnButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -119,6 +115,12 @@ public class ChatActivity extends AppCompatActivity {
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe();
+
+        if (messagesAdapter != null)
+            KeyboardVisibilityEvent.setEventListener(this, isOpen -> {
+                if (isOpen)
+                    messagesRecyclerView.scrollToPosition(messagesAdapter.getItemCount() - 1);
+            });
     }
 
     @SuppressLint("CheckResult")
@@ -156,7 +158,8 @@ public class ChatActivity extends AppCompatActivity {
                 .subscribe(topicMessage -> {
                     Log.d("GETMESS", topicMessage.getPayload());
                     ObjectMapper mapper = new ObjectMapper();
-                    Message message = mapper.readValue(topicMessage.getPayload(), new TypeReference<Message>() {});
+                    Message message = mapper.readValue(topicMessage.getPayload(), new TypeReference<Message>() {
+                    });
                     messagesAdapter.addMessage(message);
                     messagesRecyclerView.scrollToPosition(messagesAdapter.getItemCount() - 1);
                 });

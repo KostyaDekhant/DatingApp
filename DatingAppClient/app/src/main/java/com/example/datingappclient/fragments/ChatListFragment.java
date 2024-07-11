@@ -30,6 +30,7 @@ import retrofit2.Response;
 public class ChatListFragment extends Fragment {
 
     private int userID;
+    View activityView;
     RecyclerView recyclerView;
 
     public ChatListFragment(int userID) {
@@ -39,7 +40,7 @@ public class ChatListFragment extends Fragment {
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View activityView = inflater.inflate(R.layout.fragment_chatlist, container, false);
+        activityView = inflater.inflate(R.layout.fragment_chatlist, container, false);
         recyclerView = activityView.findViewById(R.id.chatsList_recyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(activityView.getContext()));
 
@@ -62,13 +63,13 @@ public class ChatListFragment extends Fragment {
     }
 
     private void populateListView(List<Object[]> chats) {
-        TextView noChats = getView().findViewById(R.id.noChats_label);
+        TextView noChats = activityView.findViewById(R.id.noChats_label);
         if (chats.get(0)[1] == null) {
+            noChats.setVisibility(View.VISIBLE);
+        } else {
             ChatsAdapter chatsAdapter = new ChatsAdapter(chats, userID, this, getActivity());
             recyclerView.setAdapter(chatsAdapter);
             noChats.setVisibility(View.GONE);
-        } else {
-            noChats.setVisibility(View.VISIBLE);
         }
     }
 }
