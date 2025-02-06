@@ -34,7 +34,7 @@ public class MainController {
     private final ObjectMapper objectMapper;
 
     //Добавление пользователя
-    @PostMapping("/api/add")
+    @PostMapping("/api/users")
     public void AddUser(@RequestBody User user)
     {
         log.info("Новый пользователь: " + userRepo.save(user));
@@ -42,7 +42,7 @@ public class MainController {
 
     //Вывод пользователей
     @SneakyThrows
-    @GetMapping("/api/all")
+    @GetMapping("/api/users")
     public List<User> getAll()
     {
         List<User> temp = userRepo.findAll();
@@ -51,8 +51,8 @@ public class MainController {
     }
 
     //Получение данных о пользователе
-    @GetMapping("/api/user")
-    public User getUser(@RequestParam int id)
+    @GetMapping("/api/users/{id}")
+    public User getUser(@PathVariable int id)
     {
         User temp = userRepo.findById(id).get();
         log.info("Информация о пользователе: " + temp);
@@ -60,7 +60,7 @@ public class MainController {
     }
 
     //Обновление данных пользователя
-    @PostMapping("/api/user")
+    @PatchMapping("/api/users")
     public boolean updateUser(@RequestBody User user)
     {
         if(userRepo.findById(user.getPk_user()).isEmpty()) //
@@ -74,7 +74,7 @@ public class MainController {
         return true;
     }
 
-    //Учёт обновления данных
+    //Учёт обновления данных || тут другое
     private User updateData(User oldU, User newU)
     {
         if(!newU.getName().equals(oldU.getName()) && !newU.getName().equals(""))
@@ -98,8 +98,7 @@ public class MainController {
         return oldU;
     }
 
-
-    //Регистрация
+    //Регистрация || переписать с использованием ResponseEntity<String>
     @PostMapping("/api/signup")
     public int signupUser(@RequestBody User user) {
         User temp = userRepo.findByLogin(user.getLogin());
@@ -112,7 +111,7 @@ public class MainController {
         return -1;
     }
 
-    //Авторизация
+    //Авторизация || тоже самое, как и для регистрации
     @PostMapping("/api/login")
     public int loginUser(@RequestBody User user) {
         User temp = userRepo.findByLogin(user.getLogin());
@@ -128,8 +127,8 @@ public class MainController {
         return -2;
     }
 
-    //Удаление пользователей по id
-    @DeleteMapping("/api")
+    //Удаление пользователей по id || почти ок
+    @DeleteMapping("/api/users/{id}")
     public void deleteUser(@RequestParam int id)
     {
         log.info("Удалён пользователь с id: " + id);
@@ -144,7 +143,7 @@ public class MainController {
         return user != null ? ResponseEntity.ok(user) : ResponseEntity.notFound().build();
     }
 
-    //Установить место жительства
+    //Установить место жительства || В целом не реализована почти что, нужно переписать
     @PostMapping("/api/residence")
     public int setResidence(@RequestBody Residence resid)
     {
@@ -168,14 +167,14 @@ public class MainController {
         return -1;
     }
 
-    //Получить место жительства
-    @GetMapping("/api/residence")
+    //Получить место жительства || дописать
+    @GetMapping("/api/residence/{pk_user}")
     public Residence getResidence(@RequestParam int pk_user) {
-       return residRepo.findByPk_user(pk_user);
+        return residRepo.findByPk_user(pk_user);
     }
 
-    //Искать юзеров, с кем есть общий чат
-    @GetMapping("/api/chat_users")
+    //Искать юзеров, с кем есть общий чат || id юзер теперь
+    @GetMapping("/api/chat_users/{pk_user}")
     public List<Object[]> findChat_users(@RequestParam int pk_user)
     {
         List<Object[]> obj = userRepo.findUsers(pk_user);
@@ -183,8 +182,8 @@ public class MainController {
         return obj;
     }
 
-    //Загрузка фотографий на сервер
-    @PostMapping("api/upload_image")
+    //Загрузка фотографий на сервер || ответку переделать тоже
+    @PostMapping("api/images")
     public int handleFileUpload(@RequestBody MyPic myPic)
     {
         log.info("Сама фотка: " + myPic);
@@ -207,10 +206,10 @@ public class MainController {
         }*/
     }
 
-    //Загрузка фотографий на сервер с postman'а
-    @PostMapping("api/upload_image2")
+    //Загрузка фотографий на сервер с postman'а || пусть будет, потом переделать лучше
+    @PostMapping("api/images2")
     public int handleFileUpload2(@RequestParam("image") MultipartFile image, @RequestParam("user_id") int user_id,
-                                @RequestParam("image_id")int image_id) throws IOException {
+                                 @RequestParam("image_id")int image_id) throws IOException {
         Picture pic = new Picture(image_id, new Timestamp(System.currentTimeMillis()),
                 image.getBytes());
         pic.setPk_picture(picRepo.findMaxPk()+1);
@@ -231,8 +230,8 @@ public class MainController {
         }*/
     }
 
-    //удалить фотографию
-    @PostMapping("api/delete_image")
+    //удалить фотографию ||
+    @DeleteMapping("api/images/{image_id}")
     public int deleteImage(@RequestParam("image_id")int image_id)
     {
         int whos_pic = picRepo.findUserById(image_id);
@@ -243,8 +242,8 @@ public class MainController {
     }
 
 
-    //Получить фотки конкретного пользователя
-    @GetMapping("api/user_images")
+    //Получить фотки конкретного пользователя || хз, подумать надо будет
+    @GetMapping("api/images/{pk_user}")
     public List<Object[]> getImages(@RequestParam("pk_user") int id)
     {
         List<Object[]> obj = picRepo.findByUserId(id);
@@ -281,7 +280,7 @@ public class MainController {
         return byteObjects;
     }
 
-    //Поставить лайк
+    //Поставить лайк || результат лишь поменять, а так збс
     @PostMapping("api/likes")
     public int setLike(@RequestBody Like like)
     {
@@ -297,8 +296,8 @@ public class MainController {
         return likeRepo.save(like).getPk_like();
     }
 
-    //Лайки, которые поставил клиент
-    @GetMapping("api/my_likes")
+    //Лайки, которые поставил клиент || тоже хз, мейби так
+    @GetMapping("api/my_likes/{user_id}")
     public List<Object[]> getLikesList(@RequestParam("user_id") int user_id)
     {
         List<Object[]> obj = likeRepo.findByLiker(user_id);
@@ -306,8 +305,8 @@ public class MainController {
         return obj;
     }
 
-    //Лайки, которые поставили клиенту
-    @GetMapping("api/received_likes")
+    //Лайки, которые поставили клиенту || по идее не так
+    @GetMapping("api/received_likes/{user_id}")
     public List<Object[]> getreceivedLikesList(@RequestParam("user_id") int user_id)
     {
         List<Object[]> obj = likeRepo.findByReceiver(user_id);
@@ -315,18 +314,18 @@ public class MainController {
         return obj;
     }
 
-    //Анкеты
+    //Анкеты || вроде норм
     @GetMapping("api/forms")
     public Object[] getListUsers(@RequestParam("user_id") int user_id,
-                                       @RequestParam("prev_user_id") int prev_user_id)
+                                 @RequestParam("prev_user_id") int prev_user_id)
     {
         Object[] obj = userRepo.findQuestUsers(user_id, prev_user_id);
-                log.info("Анкеты : "+ obj);
+        log.info("Анкеты : "+ obj);
         return obj;
     }
 
-    //Убрать лайк
-    @GetMapping("api/delete_like")
+    //Убрать лайк || переписать
+    @DeleteMapping("api/likes/{liker}")
     int deleteLike(@RequestParam("liker") int liker,
                    @RequestParam("poster") int poster)
     {
@@ -336,7 +335,7 @@ public class MainController {
         return delete_count;
     }
 
-    //Создание чата по запросу
+    //Создание чата по запросу || норм, ответку переписать только
     @PostMapping("api/chats")
     int createChat(@RequestParam("pk_user") int pk_user,
                    @RequestParam("pk_user1") int pk_user1)
