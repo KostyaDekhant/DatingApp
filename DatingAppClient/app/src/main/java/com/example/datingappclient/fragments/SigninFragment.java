@@ -53,11 +53,11 @@ public class SigninFragment extends Fragment {
                 String pass = inputPass.getText().toString();
 
                 // Хэширование пароля перед отправкой на сервер
-                String hashedPass = hashPassword(pass);
+                // pass = hashPassword(pass); // Расскоментировать для хэширования
 
                 JsonObject jsonObject = new JsonObject();
                 jsonObject.addProperty("login", login);
-                jsonObject.addProperty("password", hashedPass);
+                jsonObject.addProperty("password", pass);
                 serverAPI.login(jsonObject)
                         .enqueue(new Callback<Integer>() {
                             @Override

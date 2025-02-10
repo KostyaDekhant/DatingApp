@@ -63,23 +63,18 @@ public class SignupFragment extends Fragment {
                     return;
                 }
 
-                Logger.getLogger(MainActivity.class.getName()).log(Level.INFO, "Login: " + login);
-                Logger.getLogger(MainActivity.class.getName()).log(Level.INFO, "Password: " + pass);
-                Logger.getLogger(MainActivity.class.getName()).log(Level.INFO, "Name: " + name);
-                Logger.getLogger(MainActivity.class.getName()).log(Level.INFO, "Age: " + age);
-
                 // Хэширование пароля перед отправкой на сервер
-                String hashedPass = hashPassword(pass);
+                // pass = hashPassword(pass); // разкомментировать для хэширования
 
                 // Логируем хэшированный пароль для проверки
-                Logger.getLogger(MainActivity.class.getName()).log(Level.INFO, "Hashed Password: " + hashedPass);
+                Logger.getLogger(MainActivity.class.getName()).log(Level.INFO, "Hashed Password: " + pass);
 
                 RetrofitService retrofitService = new RetrofitService();
                 ServerAPI serverAPI = retrofitService.getRetrofit().create(ServerAPI.class);
 
                 JsonObject signupJsonObject = new JsonObject();
                 signupJsonObject.addProperty("login", login);
-                signupJsonObject.addProperty("password", hashedPass);
+                signupJsonObject.addProperty("password", pass);
 
                 serverAPI.signup(signupJsonObject).enqueue(new Callback<Integer>() {
                     @Override
