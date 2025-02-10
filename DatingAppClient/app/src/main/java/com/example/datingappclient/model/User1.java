@@ -3,89 +3,60 @@ package com.example.datingappclient.model;
 import android.graphics.Bitmap;
 
 import com.example.datingappclient.utils.DateUtils;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
-import java.time.LocalDate;
-import java.time.Period;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-public class User {
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NonNull;
+import lombok.Setter;
+
+@Getter
+@Setter
+@AllArgsConstructor
+public class User1
+{
+    @NonNull
+    @JsonProperty("id")
     private int id;
+    @NonNull
+    @JsonProperty("username")
     private String username;
+    @JsonProperty("description")
     private String desc;
+    @JsonProperty("birthday")
     private String birthday;
-    private List<UserImage> images;
-    public User(int id) {
-        this.id = id;
-        images = new ArrayList<>();
-    }
-
-    public User(int id, String username, String desc, String age) {
-        this.id = id;
-        this.username = username;
-        this.desc = desc;
-        this.birthday = age;
-        images = new ArrayList<>();
-    }
-
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
+    @Builder.Default
+    private List<UserImage> images = new ArrayList<>();
+    public User1(int id) {
         this.id = id;
     }
-    public String getUsername() {
-        return username;
-    }
-    public void setUsername(String username) {
-        this.username = username;
-    }
-    public String getDesc() {
-        return desc;
-    }
-    public void setDesc(String desc) {
-        this.desc = desc;
-    }
-    public String getBirthday() {
-        return birthday;
-    }
-
-    public void setBirthday(String birthday) {
-        this.birthday = birthday;
-    }
-
     public int getAge() {
         return DateUtils.dateToAge(birthday);
     }
-
-    public List<UserImage> getListImages() {
-        return images;
-    }
-
     public void setListImages(List<UserImage> images) {
         this.images = images;
         sortImages();
     }
-
     public void addUserImage(UserImage image) {
         images.add(image);
     }
-
     public void setUserImageID(int imageID, int imageNum) {
         if (images.isEmpty()) return;
         for (UserImage it : images) {
             if (it.getImageNum() == imageNum) it.setImageID(imageID);
         }
     }
-
     public int getUserImageID(int imageNum) {
         for (UserImage it : images) {
             if (it.getImageNum() == imageNum) return it.getImageID();
         }
         return 0;
     }
-
     public void removeImage(int imageNum) {
         boolean find = false;
         for (int i = images.size() - 1; i >= 0; i--) {
@@ -96,7 +67,6 @@ public class User {
             }
         }
     }
-
     public Bitmap getMainImage() {
         if (images.isEmpty()) return null;
         for (UserImage it : images) {
@@ -104,7 +74,6 @@ public class User {
         }
         return null;
     }
-
     private void sortImages() {
         images.sort(Comparator.comparingInt(u -> u.getImageNum()));
     }

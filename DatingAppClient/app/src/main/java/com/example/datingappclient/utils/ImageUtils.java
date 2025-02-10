@@ -41,6 +41,7 @@ public class ImageUtils {
 
     public static List<UserImage> objectListToUserImageList(List<Object[]> objects) {
         List<UserImage> userImages = new ArrayList<>();
+        if (objects == null) return userImages;
         for (Object[] it : objects) {
             String imageStr = it[2].toString();
             byte[] array = Base64.getDecoder().decode(imageStr);

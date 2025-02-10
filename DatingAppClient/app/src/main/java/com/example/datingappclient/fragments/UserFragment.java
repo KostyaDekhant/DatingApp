@@ -101,6 +101,9 @@ public class UserFragment extends Fragment implements View.OnClickListener {
             @Override
             public void onResponse(Call<JsonObject> call, Response<JsonObject> response) {
                 JsonObject userinfo = response.body();
+
+                Log.d("RESPONSE", response.toString());
+
                 String name = userinfo.get("name").toString().replace("\"", "");
                 String description = userinfo.get("description").toString().replace("\"", "");
                 String age = userinfo.get("age").toString();

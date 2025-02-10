@@ -93,6 +93,8 @@ public class UsereditFragment extends Fragment {
                 jsonObject.addProperty("description", desc);
                 jsonObject.addProperty("age", age);
 
+                Log.d ("SAVE USERINFO : BODY", jsonObject.toString());
+
                 serverAPI.updateUser(jsonObject).enqueue(new Callback<Boolean>() {
                     @Override
                     public void onResponse(Call<Boolean> call, Response<Boolean> response) {
@@ -295,8 +297,9 @@ public class UsereditFragment extends Fragment {
     private void sendImageOnServer(byte[] image, int imageNum) {
         RetrofitService retrofitService = new RetrofitService();
         ServerAPI serverAPI = retrofitService.getRetrofit().create(ServerAPI.class);
-
-        serverAPI.uploadImage(new Picture(imageNum, image, user.getId())).enqueue(new Callback<Integer>() {
+        Picture picture = new Picture(imageNum, image, user.getId());
+        Log.d("TRY SEND USER IMAGE TO SERVER", picture.toString());
+        serverAPI.uploadImage(picture).enqueue(new Callback<Integer>() {
             @Override
             public void onResponse(Call<Integer> call, Response<Integer> response) {
                 if (response.body() != null && response.body() > 0) {
@@ -317,6 +320,7 @@ public class UsereditFragment extends Fragment {
     public void onActivityResult(int requestCode, int resultCode, Intent data){
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == PICK_IMAGE_REQUEST && resultCode == Activity.RESULT_OK && data != null) {
+            Log.d ("GET USER IMAGE", data.toString());
             Uri selectedImage = data.getData();
             try {
                 byte[] byteImage = ImageUtils.uriToByteArray(getContext(), selectedImage);
@@ -338,7 +342,9 @@ public class UsereditFragment extends Fragment {
                 }
 
                 sendImageOnServer(byteImage, imageNum);
+
             } catch (IOException e) {
+                Log.d("GET USER IMAGE ERROR", e.toString());
                 throw new RuntimeException(e);
             }
         }
