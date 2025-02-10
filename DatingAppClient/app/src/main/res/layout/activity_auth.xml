@@ -5,6 +5,8 @@
     android:id="@+id/auth_main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:theme="@style/Theme.DatingAppClient.Default"
+    android:background="?attr/backgroundColor"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <com.google.android.material.button.MaterialButtonToggleGroup

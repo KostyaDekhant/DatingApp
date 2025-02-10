@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    android:theme="@style/Theme.DatingAppClient.Default"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -19,18 +20,16 @@
             android:layout_marginStart="52dp"
             android:layout_marginEnd="52dp"
             android:hint="ЛОГИН"
-
             app:boxCornerRadiusBottomEnd="10dp"
             app:boxCornerRadiusBottomStart="10dp"
             app:boxCornerRadiusTopEnd="10dp"
             app:boxCornerRadiusTopStart="10dp"
-            app:boxStrokeColor="#262626"
+            app:boxStrokeColor="?attr/colorOnPrimary"
             app:boxStrokeWidth="1dp"
-            app:cursorColor="#21A038"
-
+            app:cursorColor="?attr/cursorColor"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            tools:layout_editor_absoluteY="0dp">
+            app:layout_constraintTop_toTopOf="parent">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/login_inputEdit"
@@ -53,9 +52,9 @@
             app:boxCornerRadiusBottomStart="10dp"
             app:boxCornerRadiusTopEnd="10dp"
             app:boxCornerRadiusTopStart="10dp"
-            app:boxStrokeColor="#262626"
+            app:boxStrokeColor="?attr/colorOnPrimary"
             app:boxStrokeWidth="1dp"
-            app:cursorColor="#21A038"
+            app:cursorColor="?attr/cursorColor"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/login_inputLayout"
@@ -79,15 +78,15 @@
             android:layout_marginTop="10dp"
             android:layout_marginEnd="96dp"
             android:text="ВХОД"
-            android:textColor="#21A038"
+            android:textColor="?attr/colorPrimary"
+            app:rippleColor="?attr/colorPrimary"
+            app:strokeColor="?attr/colorPrimary"
             android:textSize="16sp"
             app:cornerRadius="100dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/pass_inputLayout"
-            app:rippleColor="#21A038"
-            app:strokeColor="#21A038"
             app:strokeWidth="1dp" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 
