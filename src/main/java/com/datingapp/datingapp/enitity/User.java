@@ -42,10 +42,12 @@ public class User {
     @Column(unique = true)
     @JsonProperty("login")
     private String login;
+    @JsonProperty("salt")
+    private String salt;
 
     public User(String name, LocalDate age, int height, String gender,
                 Boolean is_online, Timestamp last_online, String password,
-                String description, String login) {
+                String description, String login, String salt) {
         this.name = name;
         this.age = age;
         this.height = height;
@@ -55,6 +57,7 @@ public class User {
         this.password = password;
         this.description = description;
         this.login = login;
+        this.salt = salt;
     }
 
     public User() {
@@ -68,6 +71,7 @@ public class User {
         this.password = "";
         this.description = "";
         this.login = "";
+        this.salt = null;
     }
 
     @Override
@@ -83,6 +87,7 @@ public class User {
                 ", \"password\"='" + password + '\'' +
                 ", \"description\"='" + description + '\'' +
                 ", \"login\"='" + login + '\'' +
+                ", \"salt\"='" + salt + '\'' +
                 '}';
     }
 }

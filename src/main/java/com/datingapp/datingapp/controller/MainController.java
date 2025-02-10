@@ -2,6 +2,11 @@ package com.datingapp.datingapp.controller;
 
 import com.datingapp.datingapp.enitity.*;
 import com.datingapp.datingapp.repository.*;
+import com.datingapp.datingapp.services.PasswordService;
+import com.datingapp.datingapp.services.PasswordService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -19,6 +24,11 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.Timestamp;
 import java.util.List;
+import java.util.UUID;
+
+import java.security.SecureRandom;
+import java.util.Base64;
+
 
 @Slf4j
 @RestController
@@ -33,11 +43,21 @@ public class MainController {
     private final UserPicRepo userPicRepo;
     private final ObjectMapper objectMapper;
 
+
+    @Autowired
+    private PasswordService passwordService;
+
     //Добавление пользователя
     @PostMapping("/api/users")
-    public void AddUser(@RequestBody User user)
-    {
+    public void AddUser(@RequestBody User user) {
         log.info("Новый пользователь: " + userRepo.save(user));
+    }
+
+    private String saltGenerator() {
+        byte[] salt = new byte[16]; // 16 байт соли
+        SecureRandom random = new SecureRandom();
+        random.nextBytes(salt);
+        return Base64.getEncoder().encodeToString(salt);
     }
 
     //Вывод пользователей
@@ -50,7 +70,7 @@ public class MainController {
         return temp;
     }
 
-    //Получение данных о пользователе
+    //Получение данных о пользователе*
     @GetMapping("/api/users/{id}")
     public User getUser(@PathVariable int id)
     {
@@ -59,7 +79,7 @@ public class MainController {
         return temp;
     }
 
-    //Обновление данных пользователя
+    //Обновление данных пользователя*
     @PatchMapping("/api/users")
     public boolean updateUser(@RequestBody User user)
     {
@@ -98,12 +118,19 @@ public class MainController {
         return oldU;
     }
 
-    //Регистрация || переписать с использованием ResponseEntity<String>
+    //Регистрация || переписать с использованием ResponseEntity<String>*
     @PostMapping("/api/signup")
     public int signupUser(@RequestBody User user) {
+
         User temp = userRepo.findByLogin(user.getLogin());
         if(temp == null)
         {
+            String password = user.getPassword();
+            String hashedPassword = passwordService.hashPassword(password);
+            user.setPassword(hashedPassword);
+            String salt = passwordService.extractSalt(hashedPassword); //saltGenerator();
+            user.setSalt(salt);
+            log.info("Соль: " + salt);
             AddUser(user);
             return userRepo.findByLogin(user.getLogin()).getPk_user();
         }
@@ -111,17 +138,21 @@ public class MainController {
         return -1;
     }
 
-    //Авторизация || тоже самое, как и для регистрации
+    //Авторизация || тоже самое, как и для регистрации*
     @PostMapping("/api/login")
     public int loginUser(@RequestBody User user) {
         User temp = userRepo.findByLogin(user.getLogin());
         if(temp != null)
         {
-            if(temp.getPassword().equals(user.getPassword()))
+            if(passwordService.verifyPassword(user.getPassword(),temp.getPassword())) {
                 log.info("Пользователь успешно вошёл в систему!");
-            else
+                return temp.getPk_user();
+            }
+            else {
                 log.info("Пользователь ввёл пароль неверно!");
-            return temp.getPassword().equals(user.getPassword()) ? temp.getPk_user() : -1;
+                return -1;
+            }
+            //return temp.getPassword().equals(user.getPassword()) ? temp.getPk_user() : -1;
         }
         log.info("Пользователя с таким логином не существует!");
         return -2;
@@ -175,18 +206,18 @@ public class MainController {
 
     //Искать юзеров, с кем есть общий чат || id юзер теперь
     @GetMapping("/api/chat_users/{pk_user}")
-    public List<Object[]> findChat_users(@RequestParam int pk_user)
+    public List<Object[]> findChat_users(@PathVariable int pk_user)
     {
         List<Object[]> obj = userRepo.findUsers(pk_user);
         log.info("Общие чаты: " + obj);
         return obj;
     }
 
-    //Загрузка фотографий на сервер || ответку переделать тоже
-    @PostMapping("api/images")
+    //Загрузка фотографий на сервер || ответку переделать тоже*
+    @PostMapping("/api/user_images/upload")
     public int handleFileUpload(@RequestBody MyPic myPic)
     {
-        log.info("Сама фотка: " + myPic);
+        //log.info("Сама фотка: " + myPic);
         Picture pic = new Picture(myPic.getImage_id(), new Timestamp(System.currentTimeMillis()),
                 myPic.getImage());
         pic.setPk_picture(picRepo.findMaxPk()+1);
@@ -230,9 +261,9 @@ public class MainController {
         }*/
     }
 
-    //удалить фотографию ||
-    @DeleteMapping("api/images/{image_id}")
-    public int deleteImage(@RequestParam("image_id")int image_id)
+    //удалить фотографию ||*
+    @DeleteMapping("/api/user_images/delete/{image_id}")
+    public int deleteImage(@PathVariable int image_id)
     {
         int whos_pic = picRepo.findUserById(image_id);
         int res = picRepo.deleteImage(image_id);
@@ -242,11 +273,11 @@ public class MainController {
     }
 
 
-    //Получить фотки конкретного пользователя || хз, подумать надо будет
-    @GetMapping("api/images/{pk_user}")
-    public List<Object[]> getImages(@RequestParam("pk_user") int id)
+    //Получить фотки конкретного пользователя || хз, подумать надо будет*
+    @GetMapping("/api/user_images/{user_id}")
+    public List<Object[]> getImages(@PathVariable int user_id)
     {
-        List<Object[]> obj = picRepo.findByUserId(id);
+        List<Object[]> obj = picRepo.findByUserId(user_id);
         log.info("Получены фотографии для пользователя: " + obj);
         return obj;
     }
@@ -293,6 +324,9 @@ public class MainController {
         like.setTime(time); //, image_id
         log.info("Поставлен лайк: "+like.toString());
         like.setPk_like(likeRepo.findMaxPk()+1);
+
+        //проверка на взаимный лайк (создание чата) create_chat
+
         return likeRepo.save(like).getPk_like();
     }
 
@@ -305,9 +339,9 @@ public class MainController {
         return obj;
     }
 
-    //Лайки, которые поставили клиенту || по идее не так
+    //Лайки, которые поставили клиенту || по идее не так *
     @GetMapping("api/received_likes/{user_id}")
-    public List<Object[]> getreceivedLikesList(@RequestParam("user_id") int user_id)
+    public List<Object[]> getreceivedLikesList(@PathVariable int user_id)
     {
         List<Object[]> obj = likeRepo.findByReceiver(user_id);
         log.info("Лайки на мои фотографии: "+ obj);
@@ -324,8 +358,8 @@ public class MainController {
         return obj;
     }
 
-    //Убрать лайк || переписать
-    @DeleteMapping("api/likes/{liker}")
+    //Убрать лайк || переписать *
+    @DeleteMapping("/api/likes")
     int deleteLike(@RequestParam("liker") int liker,
                    @RequestParam("poster") int poster)
     {
@@ -335,7 +369,7 @@ public class MainController {
         return delete_count;
     }
 
-    //Создание чата по запросу || норм, ответку переписать только
+    //Создание чата по запросу || норм, ответку переписать только*
     @PostMapping("api/chats")
     int createChat(@RequestParam("pk_user") int pk_user,
                    @RequestParam("pk_user1") int pk_user1)
