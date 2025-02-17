@@ -1,6 +1,6 @@
 package com.datingapp.datingapp.repository;
 
-import com.datingapp.datingapp.enitity.Like;
+import com.datingapp.datingapp.entity.Like;
 import jakarta.transaction.Transactional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;

@@ -1,36 +1,32 @@
 package com.datingapp.datingapp.controller;
 
-import com.datingapp.datingapp.enitity.*;
+import com.datingapp.datingapp.entity.*;
 import com.datingapp.datingapp.repository.*;
+
 import com.datingapp.datingapp.services.PasswordService;
-import com.datingapp.datingapp.services.PasswordService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
-import lombok.SneakyThrows;
+//import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 
 
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.sql.Timestamp;
 import java.util.List;
-import java.util.UUID;
 
 import java.security.SecureRandom;
 import java.util.Base64;
 
 
-@Slf4j
+//@Slf4j
 @RestController
 @RequiredArgsConstructor
 public class MainController {
@@ -43,6 +39,8 @@ public class MainController {
     private final UserPicRepo userPicRepo;
     private final ObjectMapper objectMapper;
 
+    private static final Logger log = LoggerFactory.getLogger(MainController.class);
+
 
     @Autowired
     private PasswordService passwordService;
@@ -50,7 +48,7 @@ public class MainController {
     //Добавление пользователя
     @PostMapping("/api/users")
     public void AddUser(@RequestBody User user) {
-        log.info("Новый пользователь: " + userRepo.save(user));
+        log.info("Новый пользователь: {}", userRepo.save(user));
     }
 
     private String saltGenerator() {
@@ -61,12 +59,12 @@ public class MainController {
     }
 
     //Вывод пользователей
-    @SneakyThrows
+    //@SneakyThrows
     @GetMapping("/api/users")
     public List<User> getAll()
     {
         List<User> temp = userRepo.findAll();
-        log.info("Список пользователей: " + temp);
+        log.info("Список пользователей: {}", temp);
         return temp;
     }
 
@@ -75,7 +73,7 @@ public class MainController {
     public User getUser(@PathVariable int id)
     {
         User temp = userRepo.findById(id).get();
-        log.info("Информация о пользователе: " + temp);
+        log.info("Информация о пользователе: {}", temp);
         return temp;
     }
 
@@ -130,7 +128,7 @@ public class MainController {
             user.setPassword(hashedPassword);
             String salt = passwordService.extractSalt(hashedPassword); //saltGenerator();
             user.setSalt(salt);
-            log.info("Соль: " + salt);
+            log.info("Соль: {}", salt);
             AddUser(user);
             return userRepo.findByLogin(user.getLogin()).getPk_user();
         }

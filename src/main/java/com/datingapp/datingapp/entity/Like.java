@@ -1,4 +1,4 @@
-package com.datingapp.datingapp.enitity;
+package com.datingapp.datingapp.entity;
 
 import jakarta.persistence.*;
 import lombok.Data;

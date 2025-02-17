@@ -1,19 +1,17 @@
-package com.datingapp.datingapp.enitity;
+package com.datingapp.datingapp.entity;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Null;
 import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 
 import java.sql.Timestamp;
 import java.time.LocalDate;
-import java.util.Date;
 
 @Data
-@Getter
-@Setter
+//@Getter
+//@Setter
 @Entity
 @Table(name = "\"user\"")
 public class User {

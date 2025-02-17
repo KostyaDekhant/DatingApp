@@ -1,10 +1,7 @@
 package com.datingapp.datingapp.services;
 
-import com.datingapp.datingapp.enitity.ChatMessageDto;
-import com.datingapp.datingapp.services.MessageService;
-import com.datingapp.datingapp.controller.MessageController;
 import com.datingapp.datingapp.repository.MessRepo;
-import com.datingapp.datingapp.enitity.Message;
+import com.datingapp.datingapp.entity.Message;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -1,7 +1,6 @@
-package com.datingapp.datingapp.enitity;
+package com.datingapp.datingapp.entity;
 
 import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
 import lombok.*;
 
 import java.sql.Timestamp;

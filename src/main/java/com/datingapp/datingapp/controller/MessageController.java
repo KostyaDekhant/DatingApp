@@ -1,31 +1,19 @@
 package com.datingapp.datingapp.controller;
 
-import com.datingapp.datingapp.enitity.ChatMessageDto;
-import com.datingapp.datingapp.repository.MessRepo;
 import com.datingapp.datingapp.services.MessageService;
-import com.datingapp.datingapp.enitity.Message;
-import com.fasterxml.jackson.annotation.JsonValue;
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.datingapp.datingapp.entity.Message;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.task.TaskSchedulingProperties;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
-import org.springframework.messaging.simp.annotation.SendToUser;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.socket.TextMessage;
-import org.springframework.web.util.HtmlUtils;
 
-import java.io.IOException;
 import java.util.List;
-
-import lombok.extern.slf4j.Slf4j;
 
 @Controller
 public class MessageController {

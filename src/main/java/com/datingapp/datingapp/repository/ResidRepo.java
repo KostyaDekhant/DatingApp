@@ -1,12 +1,10 @@
 package com.datingapp.datingapp.repository;
 
-import com.datingapp.datingapp.enitity.Residence;
+import com.datingapp.datingapp.entity.Residence;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
-
-import java.util.List;
 
 
 @Repository

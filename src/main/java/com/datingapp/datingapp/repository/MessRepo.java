@@ -1,7 +1,6 @@
 package com.datingapp.datingapp.repository;
 
-import com.datingapp.datingapp.enitity.ChatMessageDto;
-import com.datingapp.datingapp.enitity.Message;
+import com.datingapp.datingapp.entity.Message;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;

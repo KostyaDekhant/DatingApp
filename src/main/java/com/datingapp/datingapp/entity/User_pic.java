@@ -1,12 +1,7 @@
-package com.datingapp.datingapp.enitity;
+package com.datingapp.datingapp.entity;
 
 
 import jakarta.persistence.*;
-import lombok.Data;
-import lombok.Getter;
-import lombok.Setter;
-
-import java.io.Serializable;
 
 
 @Entity
