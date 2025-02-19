@@ -9,13 +9,13 @@
     <style name="Theme.DatingAppClient" parent="Base.Theme.DatingAppClient" />
 
     <style name="Theme.DatingAppClient.Default" parent="Theme.MaterialComponents.Light">
-        <item name="colorPrimary">@color/yellow</item>
+        <item name="colorPrimary">@color/green</item>
         <item name="colorOnPrimary">@color/gray</item>
         <item name="backgroundColor">@color/white</item>
 
         <!-- Text colors -->
         <item name="android:textColorPrimary">@color/white</item>
         <item name="android:textColorSecondary">@color/gray</item>
-        <item name="cursorColor">@color/yellow</item>
+        <item name="cursorColor">@color/green</item>
     </style>
 </resources>

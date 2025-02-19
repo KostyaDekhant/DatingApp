@@ -27,6 +27,7 @@
             app:boxStrokeColor="?attr/colorOnPrimary"
             app:boxStrokeWidth="1dp"
             app:cursorColor="?attr/cursorColor"
+
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">
@@ -35,6 +36,7 @@
                 android:id="@+id/login_inputEdit"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:textColor="?attr/android:textColorSecondary"
                 android:paddingStart="20dp" />
 
         </com.google.android.material.textfield.TextInputLayout>
@@ -65,6 +67,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:inputType="textPassword"
+                android:textColor="?attr/android:textColorSecondary"
                 android:paddingStart="20dp" />
 
         </com.google.android.material.textfield.TextInputLayout>
