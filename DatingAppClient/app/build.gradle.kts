@@ -67,4 +67,13 @@ dependencies {
 
     implementation("com.github.siyamed:android-shape-imageview:0.9.3")
 
+    // JUnit 5
+    testImplementation("org.junit.jupiter:junit-jupiter-engine:5.7.0")
+    testImplementation("org.junit.jupiter:junit-jupiter-api:5.7.0")
+
+    // Mockito
+    testImplementation("org.mockito:mockito-core:3.9.0")
+
+    // MockWebServer
+    testImplementation("com.squareup.okhttp3:mockwebserver:4.9.0")
 }
