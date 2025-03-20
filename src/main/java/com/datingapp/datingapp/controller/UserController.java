@@ -68,7 +68,7 @@ public class UserController {
         }
     }
 
-    //Учёт обновления данных || тут другое
+    //Учёт обновления данных
     private User updateData(User oldU, User newU)
     {
         if(!newU.getName().equals(oldU.getName()) && !newU.getName().equals(""))
@@ -92,7 +92,7 @@ public class UserController {
         return oldU;
     }
 
-    //Регистрация || переписать с использованием ResponseEntity<String>*
+    //Регистрация*
     @PostMapping("/api/signup")
     public int signupUser(@RequestBody User user) {
         Optional<User> tempOptional = userRepo.findByLogin(user.getLogin());
@@ -110,7 +110,7 @@ public class UserController {
         return -1;
     }
 
-    //Авторизация || тоже самое, как и для регистрации*
+    //Авторизация
     @PostMapping("/api/login")
     public ResponseEntity<Integer>  loginUser(@RequestBody User user) {
         Optional<User> tempOptional = userRepo.findByLogin(user.getLogin());
@@ -130,7 +130,7 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(-2);
     }
 
-    //Удаление пользователей по id || почти ок
+    //Удаление пользователей по id
     @DeleteMapping("/api/users/{id}")
     public ResponseEntity<Void> deleteUser(@PathVariable int id)
     {
