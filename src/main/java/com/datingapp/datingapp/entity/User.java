@@ -1,5 +1,9 @@
 package com.datingapp.datingapp.entity;
 
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.NotNull;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import lombok.Data;
@@ -20,26 +24,40 @@ public class User {
     @Column(name = "pk_user")
     @JsonProperty("pk_user")
     private int pk_user;
+
+    @NotBlank(message = "Имя не должно быть пустым")
     @Column(name = "name")
     @JsonProperty("name")
     private String name;
+
+    @NotNull(message = "Возраст не должен быть null")
     @JsonProperty("age")
     private LocalDate age;
+
+    @Positive(message = "Рост должен быть положительным")
     @JsonProperty("height")
     private int height;
-    @JsonProperty("is_online")
-    private Boolean is_online;
-    @JsonProperty("last_online")
-    private Timestamp last_online;
+
+    @NotBlank(message = "Пол не должен быть пустым")
     @JsonProperty("gender")
     private String gender;
+
+    @JsonProperty("is_online")
+    private Boolean is_online;
+
+    @JsonProperty("last_online")
+    private Timestamp last_online;
+
     @JsonProperty("password")
     private String password;
+
     @JsonProperty("description")
     private String description;
+
     @Column(unique = true)
     @JsonProperty("login")
     private String login;
+
     @JsonProperty("salt")
     private String salt;
 

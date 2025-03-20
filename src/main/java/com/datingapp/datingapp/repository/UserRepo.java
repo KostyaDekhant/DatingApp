@@ -7,11 +7,12 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface UserRepo extends JpaRepository<User, Integer> {
     User findByName(String name);
-    User findByLogin(String login);
+    Optional<User> findByLogin(String login);
 
     @Query(value = "SELECT DISTINCT u2.name, c.pk_chat, m.message AS last_message, m.pk_user AS sender_id, " +
             "p.image " +

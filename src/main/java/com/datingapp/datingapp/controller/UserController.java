@@ -7,7 +7,13 @@ import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Optional;
 
 @RestController
 @RequiredArgsConstructor
@@ -15,38 +21,51 @@ public class UserController {
     private final UserRepo userRepo;
 
     @Autowired
-    private PasswordService passwordService;
+    private final PasswordService passwordService;
     //можно попробовать сделать общий
     private static final Logger log = LoggerFactory.getLogger(UserController.class);
 
     //Добавление пользователя
     @PostMapping("/api/users")
-    public void AddUser(@RequestBody User user) {
-        log.info("Новый пользователь: {}", userRepo.save(user));
+    public ResponseEntity<User> AddUser(@Validated @RequestBody User user) {
+        User savedUser = userRepo.save(user);
+        log.info("Новый пользователь: {}", savedUser);
+        return ResponseEntity.status(HttpStatus.CREATED).body(savedUser);
     }
 
-    //Получение данных о пользователе*
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<String> handleValidationExceptions(MethodArgumentNotValidException ex) {
+        return ResponseEntity.badRequest().body("Некорректные данные: " + ex.getBindingResult().getAllErrors().get(0).getDefaultMessage());
+    }
+
+    //Получение данных о пользователе
     @GetMapping("/api/users/{id}")
-    public User getUser(@PathVariable int id)
-    {
-        User temp = userRepo.findById(id).get();
-        log.info("Информация о пользователе: {}", temp);
-        return temp;
+    public ResponseEntity<User> getUser(@PathVariable int id) {
+        Optional<User> temp = userRepo.findById(id);
+        if (temp.isPresent()){
+            log.info("Информация о пользователе: {}", temp);
+            return ResponseEntity.ok(temp.get());
+        }
+        else{
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
     }
 
     //Обновление данных пользователя*
-    @PatchMapping("/api/users")
-    public boolean updateUser(@RequestBody User user)
+    @PatchMapping("/api/users/{id}")
+    public ResponseEntity<User> updateUser(@PathVariable int id, @RequestBody User user)
     {
-        if(userRepo.findById(user.getPk_user()).isEmpty()) //
-        {
-            log.info("Данные не обновлены, так как нет пользователя с таким id!");
-            return false;
+        Optional<User> userOptional = userRepo.findById(id);
+        if(userOptional.isPresent()){
+            User existingUser = userOptional.get();
+            userRepo.save(updateData(existingUser, user));
+            log.info("Данные обновлены!");
+            return ResponseEntity.ok(existingUser);
         }
-        User temp = userRepo.findById(user.getPk_user()).get();
-        userRepo.save(updateData(temp, user));
-        log.info("Данные обновлены!");
-        return true;
+        else {
+            log.info("Данные не обновлены, так как нет пользователя с таким id!");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
     }
 
     //Учёт обновления данных || тут другое
@@ -76,10 +95,8 @@ public class UserController {
     //Регистрация || переписать с использованием ResponseEntity<String>*
     @PostMapping("/api/signup")
     public int signupUser(@RequestBody User user) {
-
-        User temp = userRepo.findByLogin(user.getLogin());
-        if(temp == null)
-        {
+        Optional<User> tempOptional = userRepo.findByLogin(user.getLogin());
+        if (!tempOptional.isPresent()) {
             String password = user.getPassword();
             String hashedPassword = passwordService.hashPassword(password);
             user.setPassword(hashedPassword);
@@ -87,7 +104,7 @@ public class UserController {
             user.setSalt(salt);
             log.info("Соль: {}", salt);
             AddUser(user);
-            return userRepo.findByLogin(user.getLogin()).getPk_user();
+            return userRepo.findByLogin(user.getLogin()).get().getPk_user();
         }
         log.info("Пользователь с таким логином уже существует!");
         return -1;
@@ -95,30 +112,34 @@ public class UserController {
 
     //Авторизация || тоже самое, как и для регистрации*
     @PostMapping("/api/login")
-    public int loginUser(@RequestBody User user) {
-        User temp = userRepo.findByLogin(user.getLogin());
-        if(temp != null)
-        {
+    public ResponseEntity<Integer>  loginUser(@RequestBody User user) {
+        Optional<User> tempOptional = userRepo.findByLogin(user.getLogin());
+        if (tempOptional.isPresent()) {
+            User temp = tempOptional.get();
             if(passwordService.verifyPassword(user.getPassword(),temp.getPassword())) {
                 log.info("Пользователь успешно вошёл в систему!");
-                return temp.getPk_user();
+                return ResponseEntity.ok(temp.getPk_user());
             }
             else {
                 log.info("Пользователь ввёл пароль неверно!");
-                return -1;
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(-1);
             }
             //return temp.getPassword().equals(user.getPassword()) ? temp.getPk_user() : -1;
         }
         log.info("Пользователя с таким логином не существует!");
-        return -2;
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(-2);
     }
 
     //Удаление пользователей по id || почти ок
     @DeleteMapping("/api/users/{id}")
-    public void deleteUser(@RequestParam int id)
+    public ResponseEntity<Void> deleteUser(@PathVariable int id)
     {
+        if(!userRepo.existsById(id)){
+            return ResponseEntity.notFound().build();
+        }
         log.info("Удалён пользователь с id: " + id);
         userRepo.deleteById(id);
+        return ResponseEntity.noContent().build();
     }
 
 }
