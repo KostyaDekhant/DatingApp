@@ -20,6 +20,8 @@ import com.example.datingappclient.R;
 import com.example.datingappclient.model.User;
 import com.example.datingappclient.retrofit.RetrofitService;
 import com.example.datingappclient.retrofit.ServerAPI;
+import com.example.datingappclient.retrofit.repository.ImageRepository;
+import com.example.datingappclient.retrofit.repository.UserRepository;
 import com.example.datingappclient.utils.ImageUtils;
 import com.google.android.material.button.MaterialButton;
 import com.google.gson.JsonObject;
@@ -35,7 +37,8 @@ import retrofit2.Response;
 public class UserFragment extends Fragment implements View.OnClickListener {
 
     private static UserFragment instance;
-
+    private UserRepository userRepository;
+    private ImageRepository imageRepository;
     private static User user;
     private ImageView profileImage;
     private int currentImageIndex = 0;
@@ -49,6 +52,9 @@ public class UserFragment extends Fragment implements View.OnClickListener {
     private UserFragment(User user, boolean isLogin) {
         this.user = user;
         this.isLogin = isLogin;
+
+        userRepository = new UserRepository();
+        imageRepository = new ImageRepository();
     }
 
     public static UserFragment getInstance(User user, boolean isLogin) {
@@ -61,7 +67,6 @@ public class UserFragment extends Fragment implements View.OnClickListener {
         }
         return instance;
     }
-
 
     public static UserFragment getInstance() {
         UserFragment.isLogin = false;
@@ -79,7 +84,7 @@ public class UserFragment extends Fragment implements View.OnClickListener {
         setupImageTouchListener();
 
         if (isLogin)
-            getUserinfo(view, user.getId());
+            getUserInfo(view, user.getId());
         else {
             setUserinfo(view);
             profileImage.setImageBitmap(user.getMainImage());
@@ -135,6 +140,39 @@ public class UserFragment extends Fragment implements View.OnClickListener {
             @Override
             public void onFailure(Call<JsonObject> call, Throwable throwable) {
                 Logger.getLogger(MainActivity.class.getName()).log(Level.SEVERE, "Error occurred", throwable);
+            }
+        });
+    }
+
+    private void getUserInfo(View view, int userId){
+        userRepository.fetchUserInfo(userId, new UserRepository.UserCallback() {
+            @Override
+            public void onSuccess(User fetchedUser) {
+                user = fetchedUser;
+                setUserinfo(view);
+
+                // Загружаем изображения
+                imageRepository.fetchUserImages(userId, new ImageRepository.ImagesCallback() {
+                    @Override
+                    public void onSuccess(List<Object[]> images) {
+                        user.setListImages(ImageUtils.objectListToUserImageList(images));
+                        setUserinfo(view);
+                        if (!user.getListImages().isEmpty()) {
+                            profileImage.setImageBitmap(user.getListImages().get(0).getImage());
+                        }
+                        isLogin = false;
+                    }
+
+                    @Override
+                    public void onError(String errorMessage) {
+                        Log.e("UserFragment", errorMessage);
+                    }
+                });
+            }
+
+            @Override
+            public void onError(String errorMessage) {
+                Log.e("UserFragment", errorMessage);
             }
         });
     }

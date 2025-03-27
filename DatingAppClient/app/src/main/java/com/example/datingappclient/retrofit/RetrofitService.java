@@ -9,19 +9,19 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public class RetrofitService {
 
-    private Retrofit retrofit;
+    private static final String BASE_URL = "http://" + Constants.SERVER_ADDRESS + ":" + Constants.SERVER_PORT;
+    private static Retrofit retrofit;
 
     public RetrofitService() {
         initializeRetrofit();
     }
-
     private void initializeRetrofit() {
         Gson gson = new GsonBuilder()
                 .setLenient()
                 .create();
 
         retrofit = new Retrofit.Builder()
-                .baseUrl("http://" + Constants.SERVER_ADDRESS + ":" + Constants.SERVER_PORT)
+                .baseUrl(BASE_URL)
                 .addConverterFactory(GsonConverterFactory.create(gson))
                 .build();
     }
