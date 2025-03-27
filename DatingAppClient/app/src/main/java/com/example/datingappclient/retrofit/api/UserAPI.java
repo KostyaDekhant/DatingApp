@@ -1,5 +1,6 @@
 package com.example.datingappclient.retrofit.api;
 
+import com.example.datingappclient.model.User1;
 import com.google.gson.JsonObject;
 
 import retrofit2.Call;
@@ -18,6 +19,9 @@ import retrofit2.http.Path;
 public interface UserAPI {
     @GET("api/users/{id}")
     Call<JsonObject> getUser(@Path("id") int id);
+
+    @GET("api/users/{id}")
+    Call<User1> getUserModel(@Path("id") int id);
 
     @PATCH("api/users")
     Call<Boolean> updateUser(@Body JsonObject jsonObject);

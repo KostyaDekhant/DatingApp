@@ -18,6 +18,7 @@ import androidx.fragment.app.Fragment;
 import com.example.datingappclient.MainActivity;
 import com.example.datingappclient.R;
 import com.example.datingappclient.model.User;
+import com.example.datingappclient.model.User1;
 import com.example.datingappclient.retrofit.RetrofitService;
 import com.example.datingappclient.retrofit.ServerAPI;
 import com.example.datingappclient.retrofit.repository.ImageRepository;
@@ -40,6 +41,7 @@ public class UserFragment extends Fragment implements View.OnClickListener {
     private UserRepository userRepository;
     private ImageRepository imageRepository;
     private static User user;
+    private static User1 user1;
     private ImageView profileImage;
     private int currentImageIndex = 0;
     private static boolean isLogin ;
@@ -148,15 +150,62 @@ public class UserFragment extends Fragment implements View.OnClickListener {
         userRepository.fetchUserInfo(userId, new UserRepository.UserCallback() {
             @Override
             public void onSuccess(User fetchedUser) {
+                // Сохраняем юзера в поле фрагмента
                 user = fetchedUser;
+                // Выводим инфу о пользователе в поля
                 setUserinfo(view);
 
                 // Загружаем изображения
                 imageRepository.fetchUserImages(userId, new ImageRepository.ImagesCallback() {
                     @Override
                     public void onSuccess(List<Object[]> images) {
+                        // сетап изображений
                         user.setListImages(ImageUtils.objectListToUserImageList(images));
+                        // вывод изображений на экран
                         setUserinfo(view);
+
+                        // если изображений нет, то выводим дефолтное (возвращается с сервера)
+                        // TODO: изображение по умолчанию можно хранить на клиенте, чтобы не гонять туда-сюда
+                        if (!user.getListImages().isEmpty()) {
+                            profileImage.setImageBitmap(user.getListImages().get(0).getImage());
+                        }
+                        isLogin = false;
+                    }
+
+                    @Override
+                    public void onError(String errorMessage) {
+                        Log.e("UserFragment", errorMessage);
+                    }
+                });
+            }
+
+            @Override
+            public void onError(String errorMessage) {
+                Log.e("UserFragment", errorMessage);
+            }
+        });
+    }
+
+    private void getUserModelInfo(View view, int userId){
+        userRepository.fetchUserModelInfo(userId, new UserRepository.UserModelCallback() {
+            @Override
+            public void onSuccess(User1 fetchedUser) {
+                // Сохраняем юзера в поле фрагмента
+                user1 = fetchedUser;
+                // Выводим инфу о пользователе в поля
+                setUserinfo(view);
+
+                // Загружаем изображения
+                imageRepository.fetchUserImages(userId, new ImageRepository.ImagesCallback() {
+                    @Override
+                    public void onSuccess(List<Object[]> images) {
+                        // сетап изображений
+                        user.setListImages(ImageUtils.objectListToUserImageList(images));
+                        // вывод изображений на экран
+                        setUserinfo(view);
+
+                        // если изображений нет, то выводим дефолтное (возвращается с сервера)
+                        // TODO: изображение по умолчанию можно хранить на клиенте, чтобы не гонять туда-сюда
                         if (!user.getListImages().isEmpty()) {
                             profileImage.setImageBitmap(user.getListImages().get(0).getImage());
                         }
@@ -184,7 +233,15 @@ public class UserFragment extends Fragment implements View.OnClickListener {
         descLabel.setText(user.getDesc());
         ageLabel.setText("" + user.getAge());
     }
+    @SuppressLint("SetTextI18n")
+    private void setUserModelinfo(View view) {
+        TextView descLabel = view.findViewById(R.id.description_label), nameLabel = view.findViewById(R.id.username_label), ageLabel = view.findViewById(R.id.age_label);
+        nameLabel.setText(user1.getUsername() + ",");
+        descLabel.setText(user1.getDesc());
+        ageLabel.setText("" + user1.getAge());
+    }
     //пальцы не совать
+    // TODO: переделать систему свайпов (если вообще нужна)
     private void setupImageTouchListener() {
         profileImage.setOnTouchListener(new View.OnTouchListener() {
             @Override
