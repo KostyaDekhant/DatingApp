@@ -10,6 +10,6 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface ResidRepo extends JpaRepository<Residence, Integer> {
     Residence findByCity(String city);
-    @Query("SELECT r FROM Residence r WHERE r.pk_user = :value")
+    @Query("SELECT r FROM Residence r WHERE r.pkUser = :value")
     Residence findByPk_user(@Param("value") int pk_user);
 }

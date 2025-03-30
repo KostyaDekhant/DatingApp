@@ -16,7 +16,7 @@ public class Like {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "pk_like")
-    private int pk_like;
+    private int pkLike;
     @Column(name = "liker")
     private int liker;
     @Column(name = "poster")
@@ -25,7 +25,7 @@ public class Like {
     private Timestamp time;
 
     public Like() {
-        this.pk_like = -1;
+        this.pkLike = -1;
         this.liker = -1;
         this.poster = -1;
         this.time = new Timestamp(0);
@@ -40,7 +40,7 @@ public class Like {
     @Override
     public String toString() {
         return "Like{" +
-                "pk_like=" + pk_like +
+                "pk_like=" + pkLike +
                 ", liker=" + liker +
                 ", poster=" + poster +
                 ", time=" + time +

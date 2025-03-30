@@ -12,21 +12,21 @@ import lombok.Setter;
 @Setter
 public class MyPic {
     @Column(name = "image_id")
-    private int image_id;
+    private int imageId;
     @Column(name = "image")
     private byte[] image;
     @JsonProperty("user_id")
-    private int user_id;
+    private int userId;
 
-    public MyPic(int image_id, byte[] image, int user_id) {
-        this.image_id = image_id;
+    public MyPic(int imageId, byte[] image, int userId) {
+        this.imageId = imageId;
         this.image = image;
-        this.user_id = user_id;
+        this.userId = userId;
     }
 
     public MyPic() {
-        this.image_id = -1;
+        this.imageId = -1;
         this.image = null;
-        this.user_id = -1;
+        this.userId = -1;
     }
 }

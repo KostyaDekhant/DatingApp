@@ -9,7 +9,6 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
@@ -94,7 +93,7 @@ public class UserControllerTests {
         // Создание тестового пользователя
         User user = new User("testUser", date, 180, "Male", true, timestamp,
                 hashedPassword, "Test description", "testLogin", salt);
-        user.setPk_user(1);
+        user.setPkUser(1);
 
         // Мокинг поведения репозитория при поиске пользователя по ID
         when(userRepo.findById(1)).thenReturn(Optional.of(user));
@@ -130,7 +129,7 @@ public class UserControllerTests {
         // Создание тестового пользователя
         User existingUser = new User("testUser", date, 180, "Male", true, timestamp,
                 hashedPassword, "Test description", "testLogin", salt);
-        existingUser.setPk_user(1);
+        existingUser.setPkUser(1);
 
         // Создание обновленного тестового пользователя
         User updatedUser = new User("updatedUser", date, 180, "Male", true, timestamp,
@@ -199,7 +198,7 @@ public class UserControllerTests {
         // Создание тестового пользователя
         User user = new User("testUser", date, 180, "Male", true, timestamp,
                 hashedPassword, "Test description", "testLogin", salt);
-        user.setPk_user(1);
+        user.setPkUser(1);
 
         // Мокинг поведения репозитория при поиске пользователя по логину и сервиса верификации пароля
         when(userRepo.findByLogin("testLogin")).thenReturn(Optional.of(user));

@@ -28,10 +28,10 @@ public class UserController {
 
     //Добавление пользователя
     @PostMapping("/api/users")
-    public ResponseEntity<Integer> AddUser(@Validated @RequestBody User user) {
+    public ResponseEntity<Integer> addUser(@Validated @RequestBody User user) {
         User savedUser = userRepo.save(user);
         log.info("Новый пользователь: {}", savedUser);
-        Integer id = savedUser.getPk_user();
+        Integer id = savedUser.getPkUser();
         return ResponseEntity.status(HttpStatus.CREATED).body(id);
     }
 
@@ -82,10 +82,10 @@ public class UserController {
             oldU.setGender(newU.getGender());
         if(newU.getHeight() != oldU.getHeight() && newU.getHeight() != 0)
             oldU.setHeight(newU.getHeight());
-        if(newU.getIs_online() != oldU.getIs_online())
-            oldU.setIs_online(newU.getIs_online());
-        if(newU.getLast_online() != oldU.getLast_online() && !newU.getLast_online().equals(""))
-            oldU.setLast_online(newU.getLast_online());
+        if(newU.getIsOnline() != oldU.getIsOnline())
+            oldU.setIsOnline(newU.getIsOnline());
+        if(newU.getLastOnline() != oldU.getLastOnline() && !newU.getLastOnline().equals(""))
+            oldU.setLastOnline(newU.getLastOnline());
         if(!newU.getPassword().equals(oldU.getPassword()) && !newU.getPassword().equals(""))
             oldU.setPassword(newU.getPassword());
         if(!newU.getDescription().equals(oldU.getDescription()) && !newU.getDescription().equals(""))
@@ -106,8 +106,8 @@ public class UserController {
             String salt = passwordService.extractSalt(hashedPassword); //saltGenerator();
             user.setSalt(salt);
             log.info("Соль: {}", salt);
-            AddUser(user);
-            Integer id = userRepo.findByLogin(user.getLogin()).get().getPk_user();
+            addUser(user);
+            Integer id = userRepo.findByLogin(user.getLogin()).get().getPkUser();
             return ResponseEntity.ok().body(id);
         }
         log.info("Пользователь с таким логином уже существует!");
@@ -122,7 +122,7 @@ public class UserController {
             User temp = tempOptional.get();
             if(passwordService.verifyPassword(user.getPassword(),temp.getPassword())) {
                 log.info("Пользователь успешно вошёл в систему!");
-                return ResponseEntity.ok(temp.getPk_user());
+                return ResponseEntity.ok(temp.getPkUser());
             }
             else {
                 log.info("Пользователь ввёл пароль неверно!");

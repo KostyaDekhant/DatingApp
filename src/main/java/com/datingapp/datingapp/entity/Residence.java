@@ -11,36 +11,36 @@ import lombok.*;
 public class Residence {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int pk_residence;
+    private int pkResidence;
     @Column(name = "pk_user")
-    private int pk_user;
+    private int pkUser;
     private String country;
     private String region;
     private String city;
     private int postalcode;
 
-    public Residence(String country, String region, String city, int postalcode, int pk_user) {
+    public Residence(String country, String region, String city, int postalcode, int pkUser) {
         this.country = country;
         this.region = region;
         this.city = city;
         this.postalcode = postalcode;
-        this.pk_user = pk_user;
+        this.pkUser = pkUser;
     }
 
     public Residence() {
-        this.pk_residence = -1;
+        this.pkResidence = -1;
         this.country = "";
         this.region = "";
         this.city = "";
         this.postalcode = 0;
-        this.pk_user = 0;
+        this.pkUser = 0;
     }
 
     @Override
     public String toString() {
         return "Residence{" +
-                "pk_residence=" + pk_residence +
-                ", pk_user='" + pk_user + '\'' +
+                "pk_residence=" + pkResidence +
+                ", pk_user='" + pkUser + '\'' +
                 ", country='" + country + '\'' +
                 ", region='" + region + '\'' +
                 ", city='" + city + '\'' +

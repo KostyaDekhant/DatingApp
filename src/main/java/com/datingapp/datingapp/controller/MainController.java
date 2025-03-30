@@ -8,22 +8,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 //import lombok.SneakyThrows;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 
 
-import java.io.IOException;
 import java.sql.Timestamp;
 import java.util.List;
-
-import java.security.SecureRandom;
-import java.util.Base64;
 
 
 //@Slf4j
@@ -176,14 +170,14 @@ public class MainController {
     @PostMapping("/api/residence")
     public int setResidence(@RequestBody Residence resid)
     {
-        int user_id = resid.getPk_user();
+        int user_id = resid.getPkUser();
         if(!userRepo.findById(user_id).isEmpty())
         {
-            Residence temp = residRepo.findByPk_user(resid.getPk_user());
+            Residence temp = residRepo.findByPk_user(resid.getPkUser());
             if(temp != null)
             {
-                int id = temp.getPk_residence();
-                resid.setPk_residence(id);
+                int id = temp.getPkResidence();
+                resid.setPkResidence(id);
                 log.info("update resid info: " + residRepo.save(resid));
                 return 2;
             }
@@ -204,7 +198,7 @@ public class MainController {
 
     //Искать юзеров, с кем есть общий чат || id юзер теперь
     @GetMapping("/api/chat_users/{pk_user}")
-    public List<Object[]> findChat_users(@PathVariable int pk_user)
+    public List<Object[]> findChatUsers(@PathVariable int pk_user)
     {
         List<Object[]> obj = userRepo.findUsers(pk_user);
         log.info("Общие чаты: " + obj);
@@ -321,11 +315,11 @@ public class MainController {
         Timestamp time = new Timestamp(System.currentTimeMillis());
         like.setTime(time); //, image_id
         log.info("Поставлен лайк: "+like.toString());
-        like.setPk_like(likeRepo.findMaxPk()+1);
+        like.setPkLike(likeRepo.findMaxPk()+1);
 
         //проверка на взаимный лайк (создание чата) create_chat
 
-        return likeRepo.save(like).getPk_like();
+        return likeRepo.save(like).getPkLike();
     }
 
     //Лайки, которые поставил клиент || тоже хз, мейби так
@@ -339,7 +333,7 @@ public class MainController {
 
     //Лайки, которые поставили клиенту || по идее не так *
     @GetMapping("api/received_likes/{user_id}")
-    public List<Object[]> getreceivedLikesList(@PathVariable int user_id)
+    public List<Object[]> getReceivedLikesList(@PathVariable int user_id)
     {
         List<Object[]> obj = likeRepo.findByReceiver(user_id);
         log.info("Лайки на мои фотографии: "+ obj);
@@ -375,11 +369,11 @@ public class MainController {
         if(!chatRepo.isChatExists(pk_user, pk_user1))
         {
             Chat chat = new Chat(pk_user, pk_user1);
-            chat.setPk_chat(chatRepo.findMaxPk()+1);
+            chat.setPkChat(chatRepo.findMaxPk()+1);
             log.info("ID созданного чата: "+ chat);
             chatRepo.save(chat);
             log.info("Создан новый чат: " + chat);
-            return chat.getPk_chat();
+            return chat.getPkChat();
         }
         log.info("Такой чат уже существует!");
         return -1;

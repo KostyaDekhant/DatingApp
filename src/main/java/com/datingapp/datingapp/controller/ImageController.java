@@ -2,7 +2,7 @@ package com.datingapp.datingapp.controller;
 
 import com.datingapp.datingapp.entity.MyPic;
 import com.datingapp.datingapp.entity.Picture;
-import com.datingapp.datingapp.entity.User_pic;
+import com.datingapp.datingapp.entity.UserPic;
 import com.datingapp.datingapp.repository.PicRepo;
 import com.datingapp.datingapp.repository.UserPicRepo;
 import lombok.RequiredArgsConstructor;
@@ -29,13 +29,13 @@ public class ImageController {
     public int handleFileUpload(@RequestBody MyPic myPic)
     {
         //log.info("Сама фотка: " + myPic);
-        Picture pic = new Picture(myPic.getImage_id(), new Timestamp(System.currentTimeMillis()),
+        Picture pic = new Picture(myPic.getImageId(), new Timestamp(System.currentTimeMillis()),
                 myPic.getImage());
-        pic.setPk_picture(picRepo.findMaxPk()+1);
+        pic.setPkPicture(picRepo.findMaxPk()+1);
         Picture temp = picRepo.save(pic);
         log.info("Фотография загружена: " + temp.toString());
-        userPicRepo.save(new User_pic(temp.getPk_picture(), myPic.getUser_id()));
-        return temp.getPk_picture();
+        userPicRepo.save(new UserPic(temp.getPkPicture(), myPic.getUserId()));
+        return temp.getPkPicture();
         /*try {
             if (!Files.exists(uploadPath)) {
                 Files.createDirectories(uploadPath);
@@ -54,11 +54,11 @@ public class ImageController {
                                  @RequestParam("image_id")int image_id) throws IOException {
         Picture pic = new Picture(image_id, new Timestamp(System.currentTimeMillis()),
                 image.getBytes());
-        pic.setPk_picture(picRepo.findMaxPk()+1);
+        pic.setPkPicture(picRepo.findMaxPk()+1);
         Picture temp = picRepo.save(pic);
         log.info("информация о фото " + temp.toString());
-        userPicRepo.save(new User_pic(temp.getPk_picture(), user_id));
-        return temp.getPk_picture();
+        userPicRepo.save(new UserPic(temp.getPkPicture(), user_id));
+        return temp.getPkPicture();
         /*try {
             // Проверяем, существует ли директория, если нет - создаем
             if (!Files.exists(uploadPath)) {
@@ -76,9 +76,9 @@ public class ImageController {
     @DeleteMapping("/api/user_images/delete/{image_id}")
     public int deleteImage(@PathVariable int image_id)
     {
-        int whos_pic = picRepo.findUserById(image_id);
+        int whosPic = picRepo.findUserById(image_id);
         int res = picRepo.deleteImage(image_id);
-        picRepo.updateId(whos_pic);
+        picRepo.updateId(whosPic);
         log.info("Удалена фотография с id: " + image_id);
         return res;
     }

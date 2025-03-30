@@ -23,7 +23,7 @@ public class Message {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "pk_message")
     @JsonProperty("pk_message")
-    private int pk_message;
+    private int pkMessage;
 
     @Column(name = "message")
     @JsonProperty("message")
@@ -35,34 +35,34 @@ public class Message {
 
     @Column(name = "pk_user")
     @JsonProperty("pk_user")
-    private int pk_user;
+    private int pkUser;
     @Column(name = "pk_chat")
     @JsonProperty("pk_chat")
-    private int pk_chat;
+    private int pkChat;
 
-    public Message(String message, Timestamp time, int pk_user, int pk_chat) {
+    public Message(String message, Timestamp time, int pkUser, int pkChat) {
         this.message = message;
         this.time = time;
-        this.pk_user = pk_user;
-        this.pk_chat = pk_chat;
+        this.pkUser = pkUser;
+        this.pkChat = pkChat;
     }
 
     public Message() {
-        this.pk_message = -1;
+        this.pkMessage = -1;
         this.message = "";
         this.time = new Timestamp(0);
-        this.pk_user = -1;
-        this.pk_chat = -1;
+        this.pkUser = -1;
+        this.pkChat = -1;
     }
 
     @Override
     public String toString() {
         return "Message{" +
-                "pk_message=" + pk_message +
+                "pk_message=" + pkMessage +
                 ", message='" + message + '\'' +
                 ", time=" + time +
-                ", pk_user=" + pk_user +
-                ", pk_chat=" + pk_chat +
+                ", pk_user=" + pkUser +
+                ", pk_chat=" + pkChat +
                 '}';
     }
 
@@ -90,10 +90,10 @@ public class Message {
                     }
                     break;
                 case "pk_user":
-                    message.setPk_user(Integer.parseInt(entry[1]));
+                    message.setPkUser(Integer.parseInt(entry[1]));
                     break;
                 case "pk_chat":
-                    message.setPk_chat(Integer.parseInt(entry[1]));
+                    message.setPkChat(Integer.parseInt(entry[1]));
                     break;
             }
         }

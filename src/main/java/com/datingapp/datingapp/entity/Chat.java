@@ -14,31 +14,31 @@ import lombok.Setter;
 public class Chat {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int pk_chat;
+    private int pkChat;
     @Column(name = "pk_user")
     @JsonProperty("pk_user")
-    private int pk_user;
+    private int pkUser;
     @Column(name = "pk_user1")
     @JsonProperty("pk_user1")
-    private int pk_user1;
+    private int pkUser1;
 
     public Chat() {
-        this.pk_chat = -1;
-        this.pk_user = -1;
-        this.pk_user1 = -1;
+        this.pkChat = -1;
+        this.pkUser = -1;
+        this.pkUser1 = -1;
     }
 
-    public Chat(int pk_user, int pk_user1) {
-        this.pk_user = pk_user;
-        this.pk_user1 = pk_user1;
+    public Chat(int pkUser, int pkUser1) {
+        this.pkUser = pkUser;
+        this.pkUser1 = pkUser1;
     }
 
     @Override
     public String toString() {
         return "Chat{" +
-                "pk_chat=" + pk_chat +
-                ", pk_user=" + pk_user +
-                ", pk_user1=" + pk_user1 +
+                "pk_chat=" + pkChat +
+                ", pk_user=" + pkUser +
+                ", pk_user1=" + pkUser1 +
                 '}';
     }
 }

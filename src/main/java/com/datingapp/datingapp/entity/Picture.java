@@ -18,7 +18,7 @@ public class Picture {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "pk_picture")
-    private int pk_picture;
+    private int pkPicture;
     @Column(name = "id")
     private int id;
     @Column(name = "time")
@@ -34,7 +34,7 @@ public class Picture {
     }
 
     public Picture() {
-        this.pk_picture = -1;
+        this.pkPicture = -1;
         this.id = -1;
         this.time = new Timestamp(0);
         this.bytea = null;
@@ -43,7 +43,7 @@ public class Picture {
     @Override
     public String toString() {
         return "Picture{" +
-                "pk_picture=" + pk_picture +
+                "pk_picture=" + pkPicture +
                 ", time=" + time +
                 ", id='" + id + '\'' +
                 ", image='" + bytea + '\'' +

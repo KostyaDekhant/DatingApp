@@ -10,6 +10,6 @@ import java.io.Serializable;
 @Getter
 @Setter
 public class UserPicId implements Serializable {
-    private int pk_user;
-    private int pk_picture;
+    private int pkUser;
+    private int pkPicture;
 }

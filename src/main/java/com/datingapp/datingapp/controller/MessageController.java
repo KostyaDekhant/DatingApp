@@ -44,7 +44,7 @@ public class MessageController {
     public void sendMessage(@Payload String stompMessage) { //Message
         log.info(stompMessage);
         Message mess = Message.fromString(stompMessage);
-        int chat_id = mess.getPk_chat();
+        int chat_id = mess.getPkChat();
         try {
             simpMessagingTemplate.convertAndSend("/topic/messages/" + chat_id, messageService.saveMessage(mess));
             //return messageService.saveMessage(mess);

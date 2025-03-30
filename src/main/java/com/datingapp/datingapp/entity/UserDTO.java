@@ -34,24 +34,24 @@ public class UserDTO {
     private String gender;
 
     @JsonProperty("is_online")
-    private Boolean is_online;
+    private Boolean isOnline;
 
     @JsonProperty("last_online")
-    private Timestamp last_online;
+    private Timestamp lastOnline;
 
     @JsonProperty("description")
     private String description;
 
 
     public UserDTO(String name, LocalDate birthday, int height, String gender,
-                   Boolean is_online, Timestamp last_online,
+                   Boolean isOnline, Timestamp lastOnline,
                    String description) {
         this.name = name;
         this.birthday = birthday;
         this.height = height;
         this.gender = gender;
-        this.is_online = is_online;
-        this.last_online = last_online;
+        this.isOnline = isOnline;
+        this.lastOnline = lastOnline;
         this.description = description;
     }
 
@@ -61,19 +61,19 @@ public class UserDTO {
         this.birthday = null;
         this.height = -1;
         this.gender = "";
-        this.is_online = false;
-        this.last_online = new Timestamp(1);
+        this.isOnline = false;
+        this.lastOnline = new Timestamp(1);
         this.description = "";
     }
 
     public UserDTO(User user){
-        this.id = user.getPk_user();
+        this.id = user.getPkUser();
         this.name = user.getName();
         this.birthday = user.getBirthday();
         this.height = user.getHeight();
         this.gender = user.getGender();
-        this.is_online = user.getIs_online();
-        this.last_online = user.getLast_online();
+        this.isOnline = user.getIsOnline();
+        this.lastOnline = user.getLastOnline();
         this.description = user.getDescription();
     }
 
@@ -85,8 +85,8 @@ public class UserDTO {
                 ", \"birthday\"=" + birthday +
                 ", \"height\"=" + height +
                 ", \"gender\"='" + gender + '\'' +
-                ", \"is_online\"=" + is_online +
-                ", \"last_online\"='" + last_online + '\'' +
+                ", \"is_online\"=" + isOnline +
+                ", \"last_online\"='" + lastOnline + '\'' +
                 ", \"description\"='" + description + '\'' +
                 '}';
     }
