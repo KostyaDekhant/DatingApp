@@ -4,6 +4,7 @@ import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -62,10 +63,14 @@ public class SigninFragment extends Fragment {
                         .enqueue(new Callback<Integer>() {
                             @Override
                             public void onResponse(Call<Integer> call, Response<Integer> response) {
-                                int returnCode = response.body();
-                                if (returnCode > 0)
+                                Integer returnCode = response.body();
+                                if (returnCode > 0) {
+                                    Log.i("SIGNIN", "User successfully sign id with id: " + returnCode);
                                     ((AuthActivity) getActivity()).startMainActivity(returnCode);
+                                }
+                                // TODO : переделать! не возвращать код при неверном пароле!
                                 else if (returnCode == -1 || returnCode == -2) {
+                                    Log.i("SIGNIN", "Wrong login or password: " + returnCode);
                                     Snackbar.make(view, "Ошибка входа, неверный логин или пароль!", Snackbar.LENGTH_LONG).show();
                                 }
                             }
@@ -73,7 +78,7 @@ public class SigninFragment extends Fragment {
                             @Override
                             public void onFailure(Call<Integer> call, Throwable throwable) {
                                 Toast.makeText(activityView.getContext(), "ERROR LOGIN", Toast.LENGTH_LONG).show();
-                                Logger.getLogger(MainActivity.class.getName()).log(Level.SEVERE, "ERROR LOGIN", throwable);
+                                Log.e("SIGNIN", "ERROR LOGIN", throwable);
                             }
                         });
             }

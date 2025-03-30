@@ -8,7 +8,7 @@ import lombok.Setter;
 @Data
 @Getter
 @Setter
-public class Picture {
+public class PictureDTO {
     @JsonProperty("image_id")
     private int image_id;
     @JsonProperty("image")
@@ -16,13 +16,13 @@ public class Picture {
     @JsonProperty("user_id")
     private int user_id;
 
-    public Picture(int image_id, byte[] image, int user_id) {
+    public PictureDTO(int image_id, byte[] image, int user_id) {
         this.image_id = image_id;
         this.image = image;
         this.user_id = user_id;
     }
 
-    public Picture() {
+    public PictureDTO() {
         this.image_id = -1;
         this.image = null;
         this.user_id = -1;

@@ -16,7 +16,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.datingappclient.constants.Constants;
 import com.example.datingappclient.messageList.MessagesAdapter;
-import com.example.datingappclient.model.Message;
+import com.example.datingappclient.model.MessageDTO;
 import com.example.datingappclient.utils.DateUtils;
 import com.example.datingappclient.utils.ImageUtils;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -95,7 +95,7 @@ public class ChatActivity extends AppCompatActivity {
             public void onClick(View view) {
                 String messageText = editText.getText().toString().trim();
                 if (!messageText.isEmpty()) {
-                    stompClient.send("/app/send", new Message(messageText, DateUtils.getCurrentTimeStamp(), sendlerID, receiverID).toString())
+                    stompClient.send("/app/send", new MessageDTO(messageText, DateUtils.getCurrentTimeStamp(), sendlerID, receiverID).toString())
                             .subscribeOn(Schedulers.io())
                             .observeOn(AndroidSchedulers.mainThread())
                             .subscribe(() -> {
@@ -158,24 +158,24 @@ public class ChatActivity extends AppCompatActivity {
                 .subscribe(topicMessage -> {
                     Log.d("GETMESS", topicMessage.getPayload());
                     ObjectMapper mapper = new ObjectMapper();
-                    Message message = mapper.readValue(topicMessage.getPayload(), new TypeReference<Message>() {
+                    MessageDTO message = mapper.readValue(topicMessage.getPayload(), new TypeReference<MessageDTO>() {
                     });
                     messagesAdapter.addMessage(message);
                     messagesRecyclerView.scrollToPosition(messagesAdapter.getItemCount() - 1);
                 });
     }
 
-    private void populateListView(List<Message> messagesList) {
+    private void populateListView(List<MessageDTO> messagesList) {
         messagesAdapter = new MessagesAdapter(messagesList, sendlerID);
         messagesRecyclerView.setAdapter(messagesAdapter);
         messagesRecyclerView.scrollToPosition(messagesAdapter.getItemCount() - 1);
     }
 
-    public List<Message> stringToList(String json) {
+    public List<MessageDTO> stringToList(String json) {
         ObjectMapper mapper = new ObjectMapper();
-        List<Message> messages = null;
+        List<MessageDTO> messages = null;
         try {
-            messages = mapper.readValue(json, new TypeReference<List<Message>>() {
+            messages = mapper.readValue(json, new TypeReference<List<MessageDTO>>() {
             });
         } catch (IOException e) {
             e.printStackTrace();

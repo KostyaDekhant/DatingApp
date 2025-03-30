@@ -1,6 +1,6 @@
 package com.example.datingappclient.retrofit.api;
 
-import com.example.datingappclient.model.Picture;
+import com.example.datingappclient.model.PictureDTO;
 
 import java.util.List;
 
@@ -16,7 +16,7 @@ public interface ImageAPI {
     Call<List<Object[]>> getUserImages(@Path("user_id") int user_id);
 
     @POST("api/user_images/upload")
-    Call<Integer> uploadImage(@Body Picture picture);
+    Call<Integer> uploadImage(@Body PictureDTO picture);
 
     @DELETE("api/user_images/delete/{image_id}")
     Call<Integer> deleteImage(@Path("image_id") int imageID);

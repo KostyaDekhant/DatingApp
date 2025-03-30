@@ -3,9 +3,7 @@ package com.example.datingappclient.chatsList;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
-import android.content.res.ColorStateList;
 import android.graphics.Bitmap;
-import android.graphics.Color;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -18,7 +16,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.datingappclient.ChatActivity;
 import com.example.datingappclient.R;
 import com.example.datingappclient.constants.Constants;
-import com.example.datingappclient.model.Message;
+import com.example.datingappclient.model.MessageDTO;
 import com.example.datingappclient.utils.ImageUtils;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -67,7 +65,7 @@ public class ChatsAdapter extends RecyclerView.Adapter<ChatsHolder> {
                 .subscribe(topicMessage -> {
                     Log.d("GETMESS", topicMessage.getPayload());
                     ObjectMapper mapper = new ObjectMapper();
-                    Message message = mapper.readValue(topicMessage.getPayload(), new TypeReference<Message>() {
+                    MessageDTO message = mapper.readValue(topicMessage.getPayload(), new TypeReference<MessageDTO>() {
                     });
                     if (sendlerID == message.getPk_user())
                         holder.lastMessage.setText("Вы: " + message.getMessage());

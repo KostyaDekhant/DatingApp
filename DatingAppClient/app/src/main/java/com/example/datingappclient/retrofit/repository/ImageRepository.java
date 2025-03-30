@@ -2,10 +2,9 @@ package com.example.datingappclient.retrofit.repository;
 
 import android.util.Log;
 
-import com.example.datingappclient.model.Picture;
+import com.example.datingappclient.model.PictureDTO;
 import com.example.datingappclient.retrofit.RetrofitClient;
 import com.example.datingappclient.retrofit.api.ImageAPI;
-import com.example.datingappclient.utils.ImageUtils;
 
 import java.util.List;
 
@@ -56,7 +55,7 @@ public class ImageRepository {
     }
 
     // Загрузка изображения
-    public void uploadImage(Picture picture, UploadCallback callback) {
+    public void uploadImage(PictureDTO picture, UploadCallback callback) {
         imageAPI.uploadImage(picture).enqueue(new Callback<Integer>() {
             @Override
             public void onResponse(Call<Integer> call, Response<Integer> response) {

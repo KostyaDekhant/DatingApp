@@ -1,6 +1,5 @@
 package com.example.datingappclient.messageList;
 
-import android.text.Layout;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -8,25 +7,20 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.datingappclient.model.Message;
+import com.example.datingappclient.model.MessageDTO;
 import com.example.datingappclient.R;
-import com.example.datingappclient.model.User;
 
-import java.text.SimpleDateFormat;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
-import java.util.Date;
 import java.util.List;
 
 public class MessagesAdapter extends RecyclerView.Adapter<MessagesHolder> {
 
-    List<Message> messageList;
+    List<MessageDTO> messageList;
     Integer sendlerID;
 
     public static final int VIEW_TYPE_SENT = 1;
     public static final int VIEW_TYPE_RECEIVED = 2;
 
-    public MessagesAdapter(List<Message> messageList, Integer sendlerID) {
+    public MessagesAdapter(List<MessageDTO> messageList, Integer sendlerID) {
         this.messageList = messageList;
         this.sendlerID = sendlerID;
     }
@@ -63,7 +57,7 @@ public class MessagesAdapter extends RecyclerView.Adapter<MessagesHolder> {
         else return VIEW_TYPE_RECEIVED;
     }
 
-    public void addMessage(Message message) {
+    public void addMessage(MessageDTO message) {
         this.messageList.add(message);
         notifyDataSetChanged();
     }

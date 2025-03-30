@@ -1,8 +1,6 @@
 package com.example.datingappclient;
 
-import android.app.Activity;
 import android.os.Bundle;
-import android.view.View;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -15,19 +13,17 @@ import com.example.datingappclient.fragments.ChatListFragment;
 import com.example.datingappclient.fragments.LikeFragment;
 import com.example.datingappclient.fragments.SearchFragment;
 import com.example.datingappclient.fragments.UserFragment;
-import com.example.datingappclient.model.User;
+import com.example.datingappclient.model.UserDTO;
 import com.example.datingappclient.retrofit.RetrofitService;
 import com.example.datingappclient.retrofit.ServerAPI;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
-
-import net.yslibrary.android.keyboardvisibilityevent.KeyboardVisibilityEvent;
 
 import java.util.Objects;
 
 public class MainActivity extends AppCompatActivity {
 
     private int userID;
-    private User user;
+    private UserDTO user;
 
     RetrofitService retrofitService;
     ServerAPI serverAPI;
@@ -52,7 +48,7 @@ public class MainActivity extends AppCompatActivity {
         // Get pk_user from auth activity
         Bundle arguments = getIntent().getExtras();
         userID = Objects.requireNonNull(arguments).getInt("pk_user");
-        if (user == null) user = new User(userID);
+        if (user == null) user = new UserDTO(userID);
         else user.setId(userID);
         if (Objects.equals(arguments.getString("action"), "showchats")) {
             getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new ChatListFragment(userID)).commit();

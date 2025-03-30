@@ -1,6 +1,6 @@
 package com.example.datingappclient.retrofit;
 
-import com.example.datingappclient.model.Picture;
+import com.example.datingappclient.model.PictureDTO;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
@@ -9,16 +9,13 @@ import okhttp3.mockwebserver.MockWebServer;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mockito;
+
 import retrofit2.Call;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
-
-import java.util.List;
 
 public class ServerAPITest {
     private MockWebServer mockWebServer;
@@ -152,7 +149,7 @@ public class ServerAPITest {
 
         int userId = 1, imageId = 101;
         byte[] imageData = new byte[]{1, 2, 3, 4};
-        Picture picture = new Picture(imageId, imageData, userId);
+        PictureDTO picture = new PictureDTO(imageId, imageData, userId);
 
         // Создаем запрос
         Call<Integer> call = serverAPI.uploadImage(picture);

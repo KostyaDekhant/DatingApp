@@ -2,8 +2,7 @@ package com.example.datingappclient.retrofit.repository;
 
 import android.util.Log;
 
-import com.example.datingappclient.model.User;
-import com.example.datingappclient.model.User1;
+import com.example.datingappclient.model.UserDTO;
 import com.example.datingappclient.retrofit.RetrofitClient;
 import com.example.datingappclient.retrofit.api.UserAPI;
 import com.google.gson.JsonObject;
@@ -20,12 +19,7 @@ public class UserRepository {
     }
 
     public interface UserCallback {
-        void onSuccess(User user);
-        void onError(String errorMessage);
-    }
-
-    public interface UserModelCallback {
-        void onSuccess(User1 user);
+        void onSuccess(UserDTO user);
         void onError(String errorMessage);
     }
 
@@ -41,43 +35,11 @@ public class UserRepository {
 
     // Получение информации о пользователе
     public void fetchUserInfo(int userID, UserCallback callback) {
-        userAPI.getUser(userID).enqueue(new Callback<JsonObject>() {
+        userAPI.getUser(userID).enqueue(new Callback<UserDTO>() {
             @Override
-            public void onResponse(Call<JsonObject> call, Response<JsonObject> response) {
+            public void onResponse(Call<UserDTO> call, Response<UserDTO> response) {
                 if (response.isSuccessful() && response.body() != null) {
-                    JsonObject userinfo = response.body();
-                    User user = new User(
-                            userID,
-                            userinfo.get("name").getAsString(),
-                            userinfo.get("description").getAsString(),
-                            userinfo.get("age").getAsString()
-                    );
-                    callback.onSuccess(user);
-                } else {
-                    callback.onError("Ошибка получения пользователя: " + response.message());
-                }
-            }
-
-            @Override
-            public void onFailure(Call<JsonObject> call, Throwable throwable) {
-                Log.e("UserRepository", "Ошибка сети", throwable);
-                callback.onError("Ошибка сети: " + throwable.getMessage());
-            }
-        });
-    }
-
-    public void fetchUserModelInfo(int userID, UserModelCallback callback) {
-        userAPI.getUserModel(userID).enqueue(new Callback<User1>() {
-            @Override
-            public void onResponse(Call<User1> call, Response<User1> response) {
-                if (response.isSuccessful() && response.body() != null) {
-                    User1 userinfo = response.body();
-                   /* User user = new User(
-                            userID,
-                            userinfo.get("name").getAsString(),
-                            userinfo.get("description").getAsString(),
-                            userinfo.get("age").getAsString()
-                    );*/
+                    UserDTO userinfo = response.body();
                     callback.onSuccess(userinfo);
                 } else {
                     callback.onError("Ошибка получения пользователя: " + response.message());
@@ -85,9 +47,9 @@ public class UserRepository {
             }
 
             @Override
-            public void onFailure(Call<User1> call, Throwable throwable) {
-                Log.e("UserRepository", "Ошибка сети", throwable);
-                callback.onError("Ошибка сети: " + throwable.getMessage());
+            public void onFailure(Call<UserDTO> call, Throwable throwable) {
+                Log.e("UserRepository", "Ошибка сети или ошибка при обработке данных", throwable);
+                callback.onError("Ошибка сети или ошибка при обработке данных: " + throwable.getMessage());
             }
         });
     }

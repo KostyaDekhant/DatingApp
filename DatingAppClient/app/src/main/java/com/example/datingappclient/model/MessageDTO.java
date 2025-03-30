@@ -10,7 +10,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @Data
-public class Message {
+public class MessageDTO {
     @JsonProperty("pk_message")
     private int pk_message;
 
@@ -27,14 +27,14 @@ public class Message {
     @JsonProperty("pk_chat")
     private int pk_chat;
 
-    public Message(String message, String time, int pk_user, int pk_chat) {
+    public MessageDTO(String message, String time, int pk_user, int pk_chat) {
         this.message = message;
         this.time = time;
         this.pk_user = pk_user;
         this.pk_chat = pk_chat;
     }
 
-    public Message() {
+    public MessageDTO() {
 
     }
 

@@ -15,43 +15,26 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
-import com.example.datingappclient.MainActivity;
 import com.example.datingappclient.R;
-import com.example.datingappclient.model.User;
-import com.example.datingappclient.model.User1;
-import com.example.datingappclient.retrofit.RetrofitService;
-import com.example.datingappclient.retrofit.ServerAPI;
+import com.example.datingappclient.model.UserDTO;
 import com.example.datingappclient.retrofit.repository.ImageRepository;
 import com.example.datingappclient.retrofit.repository.UserRepository;
 import com.example.datingappclient.utils.ImageUtils;
 import com.google.android.material.button.MaterialButton;
-import com.google.gson.JsonObject;
 
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
 
 public class UserFragment extends Fragment implements View.OnClickListener {
 
     private static UserFragment instance;
     private UserRepository userRepository;
     private ImageRepository imageRepository;
-    private static User user;
-    private static User1 user1;
+    private static UserDTO user;
     private ImageView profileImage;
     private int currentImageIndex = 0;
     private static boolean isLogin ;
 
-    private UserFragment(User user) {
-        this.user = user;
-        this.isLogin = false;
-    }
-
-    private UserFragment(User user, boolean isLogin) {
+    private UserFragment(UserDTO user, boolean isLogin) {
         this.user = user;
         this.isLogin = isLogin;
 
@@ -59,7 +42,7 @@ public class UserFragment extends Fragment implements View.OnClickListener {
         imageRepository = new ImageRepository();
     }
 
-    public static UserFragment getInstance(User user, boolean isLogin) {
+    public static UserFragment getInstance(UserDTO user, boolean isLogin) {
         if (instance == null) {
             instance = new UserFragment(user, isLogin);
         }
@@ -85,8 +68,10 @@ public class UserFragment extends Fragment implements View.OnClickListener {
         profileImage = view.findViewById(R.id.profile_image);
         setupImageTouchListener();
 
-        if (isLogin)
+        if (isLogin) {
             getUserInfo(view, user.getId());
+            getUserImages(view, user.getId());
+        }
         else {
             setUserinfo(view);
             profileImage.setImageBitmap(user.getMainImage());
@@ -100,128 +85,47 @@ public class UserFragment extends Fragment implements View.OnClickListener {
         getParentFragmentManager().beginTransaction().replace(R.id.fragment_container, new UsereditFragment(user)).commit();
     }
 
-    private void getUserinfo(View view, int userID) {
-        RetrofitService retrofitService = new RetrofitService();
-        ServerAPI serverAPI = retrofitService.getRetrofit().create(ServerAPI.class);
-
-        serverAPI.getUser(userID).enqueue(new Callback<JsonObject>() {
-            @Override
-            public void onResponse(Call<JsonObject> call, Response<JsonObject> response) {
-                JsonObject userinfo = response.body();
-
-                Log.d("RESPONSE", response.toString());
-
-                String name = userinfo.get("name").toString().replace("\"", "");
-                String description = userinfo.get("description").toString().replace("\"", "");
-                String age = userinfo.get("age").toString();
-
-                user = new User(userID, name, description, age);
-                setUserinfo(view);
-
-                serverAPI.getUserImages(userID).enqueue(new Callback<List<Object[]>>() {
-                    @Override
-                    public void onResponse(Call<List<Object[]>> call, Response<List<Object[]>> response) {
-                        Log.d("GETIMAGE", "Res: " + response.body());
-
-                        user.setListImages(ImageUtils.objectListToUserImageList(response.body()));
-                        setUserinfo(view);
-                        if (!user.getListImages().isEmpty()) {
-                            profileImage.setImageBitmap(user.getListImages().get(0).getImage());
-                        }
-                        // Чтобы больше не запрашивать данные
-                        isLogin = false;
-                    }
-
-                    @Override
-                    public void onFailure(Call<List<Object[]>> call, Throwable throwable) {
-                        Log.d("BAD GETIMAGE", throwable.toString());
-                    }
-                });
-            }
-
-            @Override
-            public void onFailure(Call<JsonObject> call, Throwable throwable) {
-                Logger.getLogger(MainActivity.class.getName()).log(Level.SEVERE, "Error occurred", throwable);
-            }
-        });
-    }
-
     private void getUserInfo(View view, int userId){
+        String logTag = "USER_INFO";
         userRepository.fetchUserInfo(userId, new UserRepository.UserCallback() {
             @Override
-            public void onSuccess(User fetchedUser) {
+            public void onSuccess(UserDTO fetchedUser) {
                 // Сохраняем юзера в поле фрагмента
                 user = fetchedUser;
+                Log.i(logTag, user.toString());
                 // Выводим инфу о пользователе в поля
                 setUserinfo(view);
-
-                // Загружаем изображения
-                imageRepository.fetchUserImages(userId, new ImageRepository.ImagesCallback() {
-                    @Override
-                    public void onSuccess(List<Object[]> images) {
-                        // сетап изображений
-                        user.setListImages(ImageUtils.objectListToUserImageList(images));
-                        // вывод изображений на экран
-                        setUserinfo(view);
-
-                        // если изображений нет, то выводим дефолтное (возвращается с сервера)
-                        // TODO: изображение по умолчанию можно хранить на клиенте, чтобы не гонять туда-сюда
-                        if (!user.getListImages().isEmpty()) {
-                            profileImage.setImageBitmap(user.getListImages().get(0).getImage());
-                        }
-                        isLogin = false;
-                    }
-
-                    @Override
-                    public void onError(String errorMessage) {
-                        Log.e("UserFragment", errorMessage);
-                    }
-                });
             }
 
             @Override
             public void onError(String errorMessage) {
-                Log.e("UserFragment", errorMessage);
+                Log.e(logTag, errorMessage);
             }
         });
     }
-
-    private void getUserModelInfo(View view, int userId){
-        userRepository.fetchUserModelInfo(userId, new UserRepository.UserModelCallback() {
+    private void getUserImages(View view, int userId) {
+        String logTag = "USER_IMAGES";
+        // Загружаем изображения
+        imageRepository.fetchUserImages(userId, new ImageRepository.ImagesCallback() {
             @Override
-            public void onSuccess(User1 fetchedUser) {
-                // Сохраняем юзера в поле фрагмента
-                user1 = fetchedUser;
-                // Выводим инфу о пользователе в поля
+            public void onSuccess(List<Object[]> images) {
+                // сетап изображений
+                user.setListImages(ImageUtils.objectListToUserImageList(images));
+                Log.i(logTag, "Count images: " + user.getListImagesSize());
+                // вывод изображений на экран
                 setUserinfo(view);
 
-                // Загружаем изображения
-                imageRepository.fetchUserImages(userId, new ImageRepository.ImagesCallback() {
-                    @Override
-                    public void onSuccess(List<Object[]> images) {
-                        // сетап изображений
-                        user.setListImages(ImageUtils.objectListToUserImageList(images));
-                        // вывод изображений на экран
-                        setUserinfo(view);
-
-                        // если изображений нет, то выводим дефолтное (возвращается с сервера)
-                        // TODO: изображение по умолчанию можно хранить на клиенте, чтобы не гонять туда-сюда
-                        if (!user.getListImages().isEmpty()) {
-                            profileImage.setImageBitmap(user.getListImages().get(0).getImage());
-                        }
-                        isLogin = false;
-                    }
-
-                    @Override
-                    public void onError(String errorMessage) {
-                        Log.e("UserFragment", errorMessage);
-                    }
-                });
+                // если изображений нет, то выводим дефолтное (возвращается с сервера)
+                // TODO: изображение по умолчанию можно хранить на клиенте, чтобы не гонять туда-сюда
+                if (!user.getImages().isEmpty()) {
+                    profileImage.setImageBitmap(user.getImages().get(0).getImage());
+                }
+                isLogin = false;
             }
 
             @Override
             public void onError(String errorMessage) {
-                Log.e("UserFragment", errorMessage);
+                Log.e(logTag, errorMessage);
             }
         });
     }
@@ -229,16 +133,9 @@ public class UserFragment extends Fragment implements View.OnClickListener {
     @SuppressLint("SetTextI18n")
     private void setUserinfo(View view) {
         TextView descLabel = view.findViewById(R.id.description_label), nameLabel = view.findViewById(R.id.username_label), ageLabel = view.findViewById(R.id.age_label);
-        nameLabel.setText(user.getUsername() + ",");
-        descLabel.setText(user.getDesc());
+        nameLabel.setText(user.getName() + ",");
+        descLabel.setText(user.getDescription());
         ageLabel.setText("" + user.getAge());
-    }
-    @SuppressLint("SetTextI18n")
-    private void setUserModelinfo(View view) {
-        TextView descLabel = view.findViewById(R.id.description_label), nameLabel = view.findViewById(R.id.username_label), ageLabel = view.findViewById(R.id.age_label);
-        nameLabel.setText(user1.getUsername() + ",");
-        descLabel.setText(user1.getDesc());
-        ageLabel.setText("" + user1.getAge());
     }
     //пальцы не совать
     // TODO: переделать систему свайпов (если вообще нужна)
@@ -270,14 +167,14 @@ public class UserFragment extends Fragment implements View.OnClickListener {
 
     private void onSwipeLeft() {
         Log.d("UserFragment", "Clicked on the right half of the image");
-        if (currentImageIndex < user.getListImages().size() - 1) {
+        if (currentImageIndex < user.getImages().size() - 1) {
             currentImageIndex++;
             updateProfileImage();
         }
     }
 
     private void updateProfileImage() {
-        Bitmap image = user.getListImages().get(currentImageIndex).getImage();
+        Bitmap image = user.getImages().get(currentImageIndex).getImage();
         profileImage.setImageBitmap(image);
     }
 }

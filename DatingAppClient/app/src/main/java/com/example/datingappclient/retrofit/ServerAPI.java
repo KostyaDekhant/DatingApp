@@ -1,6 +1,6 @@
 package com.example.datingappclient.retrofit;
 
-import com.example.datingappclient.model.Picture;
+import com.example.datingappclient.model.PictureDTO;
 import com.google.gson.JsonObject;
 
 import java.util.List;
@@ -39,7 +39,7 @@ public interface ServerAPI {
     // Загрузка фоток пользователя на сервер
     // Picture содержит id фото и юзера, а также саму фотку
     @POST("api/user_images/upload")
-    Call<Integer> uploadImage(@Body Picture picture);
+    Call<Integer> uploadImage(@Body PictureDTO picture);
     // Удаление фотографий. Передается image_id
     @DELETE("api/user_images/delete/{image_id}")
     Call<Integer> deleteImage(@Path("image_id") int imageID);

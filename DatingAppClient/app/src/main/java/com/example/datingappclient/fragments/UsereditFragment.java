@@ -30,11 +30,12 @@ import android.widget.ImageView;
 import android.widget.Space;
 
 import com.example.datingappclient.R;
-import com.example.datingappclient.model.Picture;
-import com.example.datingappclient.model.User;
+import com.example.datingappclient.model.PictureDTO;
+import com.example.datingappclient.model.UserDTO;
 import com.example.datingappclient.model.UserImage;
 import com.example.datingappclient.retrofit.RetrofitService;
 import com.example.datingappclient.retrofit.ServerAPI;
+import com.example.datingappclient.utils.DateUtils;
 import com.example.datingappclient.utils.ImageUtils;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
@@ -51,13 +52,13 @@ import retrofit2.Response;
 
 public class UsereditFragment extends Fragment {
 
-    private User user;
+    private UserDTO user;
 
     View cardAddImage;
     GridLayout gridLayout;
     LayoutInflater inflater;
 
-    public UsereditFragment(User user) {
+    public UsereditFragment(UserDTO user) {
         this.user = user;
     }
 
@@ -84,14 +85,14 @@ public class UsereditFragment extends Fragment {
                 TextInputEditText inputAge = activityView.findViewById(R.id.age_inputEdit);
 
                 String username = inputName.getText().toString();
-                String desc = inputDesc.getText().toString();
-                String age = inputAge.getText().toString();
+                String description = inputDesc.getText().toString();
+                String birthday = inputAge.getText().toString();
 
                 JsonObject jsonObject = new JsonObject();
                 jsonObject.addProperty("pk_user", user.getId());
                 jsonObject.addProperty("name", username);
-                jsonObject.addProperty("description", desc);
-                jsonObject.addProperty("age", age);
+                jsonObject.addProperty("description", description);
+                jsonObject.addProperty("age", birthday); // TODO :  переделать поле на birthdate
 
                 Log.d ("SAVE USERINFO : BODY", jsonObject.toString());
 
@@ -111,9 +112,9 @@ public class UsereditFragment extends Fragment {
                     }
                 });
 
-                user.setUsername(username);
-                user.setDesc(desc);
-                user.setBirthday(age);
+                user.setName(username);
+                user.setDescription(description);
+                user.setBirthday(DateUtils.stringToLocalDate(birthday));
 
                 UserFragment userFragment = UserFragment.getInstance(user, false);
                 getParentFragmentManager().beginTransaction().replace(R.id.fragment_container, userFragment).commit();
@@ -156,9 +157,10 @@ public class UsereditFragment extends Fragment {
         TextInputEditText desc_input = view.findViewById(R.id.description_inputEdit);
         TextInputEditText age_input = view.findViewById(R.id.age_inputEdit);
 
-        name_input.setText(user.getUsername());
-        desc_input.setText(user.getDesc());
-        age_input.setText(user.getBirthday().replace("\"", ""));
+        name_input.setText(user.getName());
+        desc_input.setText(user.getDescription());
+        String birthday = DateUtils.localDateToString(user.getBirthday());
+        age_input.setText(birthday);
     }
 
     // Иницииализация элементов управления для редактирование изобращение(add/remove)
@@ -171,7 +173,7 @@ public class UsereditFragment extends Fragment {
         gridLayout.removeAllViews();
 
         // Динамическое добавление карточек с изображенем пользователя
-        for (int i = 0; i < user.getListImages().size(); i++) {
+        for (int i = 0; i < user.getImages().size(); i++) {
             View cardImage = createCardImage(inflater, i);
             cardImage.setLayoutParams(setLayoutParams(i));
             gridLayout.addView(cardImage);
@@ -247,7 +249,7 @@ public class UsereditFragment extends Fragment {
         imageView.setId(View.generateViewId());
         deleteButton.setId(View.generateViewId());
 
-        imageView.setImageBitmap(user.getListImages().get(cardImageNum).getImage());
+        imageView.setImageBitmap(user.getImages().get(cardImageNum).getImage());
 
         // Установка ограничений внутри cardImage
         ConstraintLayout constraintLayout = (ConstraintLayout) cardImage;
@@ -257,7 +259,7 @@ public class UsereditFragment extends Fragment {
         constraintSet.connect(deleteButton.getId(), ConstraintSet.TOP, imageView.getId(), ConstraintSet.TOP, 10);
         constraintSet.applyTo(constraintLayout);
 
-        deleteButton.setTag(R.id.TAG_IMAGE_NUMBER, user.getListImages().get(cardImageNum).getImageNum());
+        deleteButton.setTag(R.id.TAG_IMAGE_NUMBER, user.getImages().get(cardImageNum).getImageNum());
         deleteButton.setTag(R.id.TAG_CARDIMAGE_ID, cardImage);
         deleteButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -297,7 +299,7 @@ public class UsereditFragment extends Fragment {
     private void sendImageOnServer(byte[] image, int imageNum) {
         RetrofitService retrofitService = new RetrofitService();
         ServerAPI serverAPI = retrofitService.getRetrofit().create(ServerAPI.class);
-        Picture picture = new Picture(imageNum, image, user.getId());
+        PictureDTO picture = new PictureDTO(imageNum, image, user.getId());
         Log.d("TRY SEND USER IMAGE TO SERVER", picture.toString());
         serverAPI.uploadImage(picture).enqueue(new Callback<Integer>() {
             @Override
@@ -326,7 +328,7 @@ public class UsereditFragment extends Fragment {
                 byte[] byteImage = ImageUtils.uriToByteArray(getContext(), selectedImage);
                 Bitmap bitmapImage = ImageUtils.convertPrimitiveByteToBitmap(byteImage);
 
-                int imageNum = user.getListImages().size() + 1;
+                int imageNum = user.getImages().size() + 1;
                 user.addUserImage(new UserImage(imageNum, 0, bitmapImage));
 
                 // Создаем карточку
