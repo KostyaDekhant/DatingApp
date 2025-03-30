@@ -1,6 +1,7 @@
 package com.datingapp.datingapp.controller;
 
 import com.datingapp.datingapp.entity.User;
+import com.datingapp.datingapp.entity.UserDTO;
 import com.datingapp.datingapp.repository.UserRepo;
 import com.datingapp.datingapp.services.PasswordService;
 import lombok.RequiredArgsConstructor;
@@ -27,10 +28,11 @@ public class UserController {
 
     //Добавление пользователя
     @PostMapping("/api/users")
-    public ResponseEntity<User> AddUser(@Validated @RequestBody User user) {
+    public ResponseEntity<Integer> AddUser(@Validated @RequestBody User user) {
         User savedUser = userRepo.save(user);
         log.info("Новый пользователь: {}", savedUser);
-        return ResponseEntity.status(HttpStatus.CREATED).body(savedUser);
+        Integer id = savedUser.getPk_user();
+        return ResponseEntity.status(HttpStatus.CREATED).body(id);
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
@@ -40,11 +42,12 @@ public class UserController {
 
     //Получение данных о пользователе
     @GetMapping("/api/users/{id}")
-    public ResponseEntity<User> getUser(@PathVariable int id) {
+    public ResponseEntity<UserDTO> getUser(@PathVariable int id) {
         Optional<User> temp = userRepo.findById(id);
         if (temp.isPresent()){
-            log.info("Информация о пользователе: {}", temp);
-            return ResponseEntity.ok(temp.get());
+            UserDTO userDTO = new UserDTO(temp.get());
+            log.info("Информация о пользователе: {}", userDTO);
+            return ResponseEntity.ok(userDTO);
         }
         else{
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
@@ -53,14 +56,14 @@ public class UserController {
 
     //Обновление данных пользователя*
     @PatchMapping("/api/users/{id}")
-    public ResponseEntity<User> updateUser(@PathVariable int id, @RequestBody User user)
+    public ResponseEntity<Void> updateUser(@PathVariable int id, @RequestBody User user)
     {
         Optional<User> userOptional = userRepo.findById(id);
         if(userOptional.isPresent()){
             User existingUser = userOptional.get();
             userRepo.save(updateData(existingUser, user));
             log.info("Данные обновлены!");
-            return ResponseEntity.ok(existingUser);
+            return ResponseEntity.ok().build();
         }
         else {
             log.info("Данные не обновлены, так как нет пользователя с таким id!");
@@ -73,8 +76,8 @@ public class UserController {
     {
         if(!newU.getName().equals(oldU.getName()) && !newU.getName().equals(""))
             oldU.setName(newU.getName());
-        if(!newU.getAge().equals(oldU.getAge()) && newU.getAge() != null)
-            oldU.setAge(newU.getAge());
+        if(!newU.getBirthday().equals(oldU.getBirthday()) && newU.getBirthday() != null)
+            oldU.setBirthday(newU.getBirthday());
         if(!newU.getGender().equals(oldU.getGender()) && !newU.getGender().equals(""))
             oldU.setGender(newU.getGender());
         if(newU.getHeight() != oldU.getHeight() && newU.getHeight() != 0)
@@ -92,9 +95,9 @@ public class UserController {
         return oldU;
     }
 
-    //Регистрация*
+    //Регистрация
     @PostMapping("/api/signup")
-    public int signupUser(@RequestBody User user) {
+    public ResponseEntity<Integer> signupUser(@RequestBody User user) {
         Optional<User> tempOptional = userRepo.findByLogin(user.getLogin());
         if (!tempOptional.isPresent()) {
             String password = user.getPassword();
@@ -104,10 +107,11 @@ public class UserController {
             user.setSalt(salt);
             log.info("Соль: {}", salt);
             AddUser(user);
-            return userRepo.findByLogin(user.getLogin()).get().getPk_user();
+            Integer id = userRepo.findByLogin(user.getLogin()).get().getPk_user();
+            return ResponseEntity.ok().body(id);
         }
         log.info("Пользователь с таким логином уже существует!");
-        return -1;
+        return ResponseEntity.status(HttpStatus.CONFLICT).build();
     }
 
     //Авторизация
@@ -124,7 +128,6 @@ public class UserController {
                 log.info("Пользователь ввёл пароль неверно!");
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(-1);
             }
-            //return temp.getPassword().equals(user.getPassword()) ? temp.getPk_user() : -1;
         }
         log.info("Пользователя с таким логином не существует!");
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(-2);

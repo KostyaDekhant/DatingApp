@@ -37,12 +37,12 @@ public interface UserRepo extends JpaRepository<User, Integer> {
     List<Object[]> findUsers(@Param("user_id") int pk_user);
 
     @Query(value = "WITH OrderedUsers AS (" +
-            "    SELECT u.name, u.age, u.gender, u.height, u.description, u.pk_user, " +
+            "    SELECT u.name, u.birthday, u.gender, u.height, u.description, u.pk_user, " +
             "           ROW_NUMBER() OVER (ORDER BY u.pk_user ASC) AS RowNum " +
             "    FROM \"user\" u " +
             "    WHERE u.pk_user <> :user_id " +
             ") " +
-            "SELECT pk_user, name, age, gender, height, description " +
+            "SELECT pk_user, name, birthday, gender, height, description " +
             "FROM OrderedUsers " +
             "WHERE RowNum = COALESCE( " +
             "    (SELECT MIN(RowNum) FROM OrderedUsers WHERE pk_user > :prev_user_id), " +

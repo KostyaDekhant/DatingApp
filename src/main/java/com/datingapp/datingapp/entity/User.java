@@ -2,13 +2,10 @@ package com.datingapp.datingapp.entity;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Positive;
-import jakarta.validation.constraints.NotNull;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import lombok.Data;
-import lombok.Getter;
-import lombok.Setter;
 
 import java.sql.Timestamp;
 import java.time.LocalDate;
@@ -25,20 +22,20 @@ public class User {
     @JsonProperty("pk_user")
     private int pk_user;
 
-    @NotBlank(message = "Имя не должно быть пустым")
+    //@NotBlank(message = "Имя не должно быть пустым")
     @Column(name = "name")
     @JsonProperty("name")
     private String name;
 
-    @NotNull(message = "Возраст не должен быть null")
-    @JsonProperty("age")
-    private LocalDate age;
+    //@Positive(message = "Возраст должен быть положительным")
+    @JsonProperty("birthday")
+    private LocalDate birthday;
 
-    @Positive(message = "Рост должен быть положительным")
+    //@Positive(message = "Рост должен быть положительным")
     @JsonProperty("height")
     private int height;
 
-    @NotBlank(message = "Пол не должен быть пустым")
+    //@NotBlank(message = "Пол не должен быть пустым")
     @JsonProperty("gender")
     private String gender;
 
@@ -48,12 +45,14 @@ public class User {
     @JsonProperty("last_online")
     private Timestamp last_online;
 
+    //@NotBlank(message = "Пароль не должен быть пустым")
     @JsonProperty("password")
     private String password;
 
     @JsonProperty("description")
     private String description;
 
+    //@NotBlank(message = "Логин не должен быть пустым")
     @Column(unique = true)
     @JsonProperty("login")
     private String login;
@@ -61,11 +60,11 @@ public class User {
     @JsonProperty("salt")
     private String salt;
 
-    public User(String name, LocalDate age, int height, String gender,
+    public User(String name, LocalDate birthday, int height, String gender,
                 Boolean is_online, Timestamp last_online, String password,
                 String description, String login, String salt) {
         this.name = name;
-        this.age = age;
+        this.birthday = birthday;
         this.height = height;
         this.gender = gender;
         this.is_online = is_online;
@@ -79,7 +78,7 @@ public class User {
     public User() {
         this.pk_user = -1;
         this.name = "";
-        this.age = null;
+        this.birthday = null;
         this.height = -1;
         this.gender = "";
         this.is_online = false;
@@ -95,7 +94,7 @@ public class User {
         return "User{" +
                 "\"pk_user\"=" + pk_user +
                 ", \"name\"='" + name + '\'' +
-                ", \"age\"=" + age +
+                ", \"birthday\"=" + birthday +
                 ", \"height\"=" + height +
                 ", \"gender\"='" + gender + '\'' +
                 ", \"is_online\"=" + is_online +
