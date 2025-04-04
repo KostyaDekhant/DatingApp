@@ -8,6 +8,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.datingappclient.AuthActivity;
@@ -30,6 +31,7 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 public class SigninFragment extends Fragment {
+
     public SigninFragment() {
         // Required empty public constructor
     }
@@ -39,6 +41,14 @@ public class SigninFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View activityView = inflater.inflate(R.layout.fragment_signin, container, false);
+
+        TextView regButton = activityView.findViewById(R.id.reg_button);
+        regButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                ((AuthActivity)getActivity()).openFragment(new SignupFragment());
+            }
+        });
 
         MaterialButton loginButton = activityView.findViewById(R.id.login_button);
         loginButton.setOnClickListener(new View.OnClickListener() {

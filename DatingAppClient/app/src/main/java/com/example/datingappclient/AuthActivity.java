@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.view.View;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 
 import com.example.datingappclient.fragments.SigninFragment;
@@ -20,7 +21,7 @@ public class AuthActivity extends AppCompatActivity {
 
         getSupportFragmentManager().beginTransaction().replace(R.id.auth_fragment_container, new SigninFragment()).commit();
 
-        MaterialButton signinButton = findViewById(R.id.signin_button);
+        /*MaterialButton signinButton = findViewById(R.id.signin_button);
         signinButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -34,11 +35,17 @@ public class AuthActivity extends AppCompatActivity {
             public void onClick(View view) {
                 getSupportFragmentManager().beginTransaction().replace(R.id.auth_fragment_container, new SignupFragment()).commit();
             }
-        });
+        });*/
     }
 
     public void startMainActivity(int id) {
         startActivity(new Intent(AuthActivity.this, MainActivity.class).putExtra("pk_user", id));
         finish();
     }
+
+    public void openFragment(Fragment fragment) {
+        getSupportFragmentManager().beginTransaction().replace(R.id.auth_fragment_container, fragment).commit();
+    }
+
+
 }

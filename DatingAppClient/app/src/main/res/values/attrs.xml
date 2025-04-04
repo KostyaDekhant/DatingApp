@@ -3,4 +3,21 @@
     <declare-styleable name="MaxHeightScrollView">
         <attr name="maxHeight" format="dimension"/>
     </declare-styleable>
+
+    <declare-styleable name="CustomTextView">
+        <attr name="textSizeSmall" format="dimension" />
+        <attr name="textSizeMedium" format="dimension" />
+        <attr name="textSizeLarge" format="dimension" />
+        <attr name="textColorMain" format="color"/>
+        <attr name="textColorFade" format="color"/>
+        <attr name="textColorContrast" format="color"/>
+    </declare-styleable>
+
+    <declare-styleable name="CustomTextInputView">
+        <attr name="textEditHeight" format="dimension"/>
+    </declare-styleable>
+
+    <declare-styleable name="CustomButtons">
+        <attr name="buttonHeight" format="dimension"/>
+    </declare-styleable>
 </resources>

@@ -72,6 +72,9 @@ public class UserDTO
 
     public void setListImages(List<UserImage> images) {
         this.images = images;
+
+        // если изображений нет, то выводим дефолтное (возвращается с сервера)
+        // TODO: изображение по умолчанию можно хранить на клиенте, чтобы не гонять туда-сюда
         sortImages();
     }
     public int getListImagesSize() {return images.size();}

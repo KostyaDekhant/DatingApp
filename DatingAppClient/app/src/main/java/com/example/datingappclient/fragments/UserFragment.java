@@ -27,13 +27,17 @@ import java.util.List;
 public class UserFragment extends Fragment implements View.OnClickListener {
 
     private static UserFragment instance;
-    private UserRepository userRepository;
-    private ImageRepository imageRepository;
+    private final UserRepository userRepository;
+    private final ImageRepository imageRepository;
     private static UserDTO user;
     private ImageView profileImage;
     private int currentImageIndex = 0;
-    private static boolean isLogin ;
+    private static boolean isLogin;
 
+    @Override
+    public void onClick(View view) {
+        getParentFragmentManager().beginTransaction().replace(R.id.fragment_container, new UsereditFragment(user)).commit();
+    }
     private UserFragment(UserDTO user, boolean isLogin) {
         this.user = user;
         this.isLogin = isLogin;
@@ -80,14 +84,9 @@ public class UserFragment extends Fragment implements View.OnClickListener {
         return view;
     }
 
-    @Override
-    public void onClick(View view) {
-        getParentFragmentManager().beginTransaction().replace(R.id.fragment_container, new UsereditFragment(user)).commit();
-    }
-
-    private void getUserInfo(View view, int userId){
+    private void getUserInfo(View view, int userID){
         String logTag = "USER_INFO";
-        userRepository.fetchUserInfo(userId, new UserRepository.UserCallback() {
+        userRepository.fetchUserInfo(userID, new UserRepository.UserCallback() {
             @Override
             public void onSuccess(UserDTO fetchedUser) {
                 // Сохраняем юзера в поле фрагмента
@@ -103,17 +102,15 @@ public class UserFragment extends Fragment implements View.OnClickListener {
             }
         });
     }
-    private void getUserImages(View view, int userId) {
+    private void getUserImages(View view, int userID) {
         String logTag = "USER_IMAGES";
         // Загружаем изображения
-        imageRepository.fetchUserImages(userId, new ImageRepository.ImagesCallback() {
+        imageRepository.fetchUserImages(userID, new ImageRepository.ImagesCallback() {
             @Override
             public void onSuccess(List<Object[]> images) {
                 // сетап изображений
                 user.setListImages(ImageUtils.objectListToUserImageList(images));
                 Log.i(logTag, "Count images: " + user.getListImagesSize());
-                // вывод изображений на экран
-                setUserinfo(view);
 
                 // если изображений нет, то выводим дефолтное (возвращается с сервера)
                 // TODO: изображение по умолчанию можно хранить на клиенте, чтобы не гонять туда-сюда

@@ -35,13 +35,23 @@ public class SignupFragment extends Fragment {
         // Required empty public constructor
     }
 
+    private View.OnClickListener returnButtonClick() {
+        return v -> {
+            ((AuthActivity) getActivity()).openFragment(new SigninFragment());
+        };
+    }
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View activityView = inflater.inflate(R.layout.fragment_signup, container, false);
 
-        TextInputEditText inputAge = activityView.findViewById(R.id.age_inputEdit);  // Объявляем и инициализируем переменную здесь
+        TextInputEditText inputAge = activityView.findViewById(R.id.age_inputEdit);
+
+        // setup return button
+        MaterialButton returnButton = activityView.findViewById(R.id.return_button);
+        returnButton.setOnClickListener(returnButtonClick());
 
         MaterialButton signupButton = activityView.findViewById(R.id.signup_button);
         signupButton.setOnClickListener(new View.OnClickListener() {

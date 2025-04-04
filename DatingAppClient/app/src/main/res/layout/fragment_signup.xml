@@ -7,17 +7,44 @@
     android:layout_height="match_parent"
     tools:context=".fragments.SignupFragment">
 
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/return_button"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_marginStart="10dp"
+        android:background="#00FFFFFF"
+        android:rotation="180"
+        app:icon="@drawable/arrow"
+        app:iconGravity="textStart"
+        app:iconPadding="0dp"
+        app:iconTint="#262626"
+      />
+
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="wrap_content"
+        android:layout_gravity="center">
+
+
+
+        <TextView
+            android:id="@+id/signup_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="РЕГИСТРАЦИЯ"
+            android:textColor="?attr/textColorFade"
+            android:textSize="?attr/textSizeMedium"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            android:paddingBottom="5dp"/>
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/login_inputLayout"
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             android:layout_width="307dp"
-            android:layout_height="55dp"
+            android:layout_height="?attr/textEditHeight"
             android:layout_marginStart="52dp"
-            android:layout_marginTop="40dp"
             android:layout_marginEnd="52dp"
             android:hint="ЛОГИН"
             app:boxCornerRadiusBottomEnd="10dp"
@@ -29,13 +56,13 @@
             app:boxStrokeWidth="1dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent">
+            app:layout_constraintTop_toBottomOf="@id/signup_label">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/login_inputEdit"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textColor="?attr/android:textColorSecondary"
+                android:textColor="?attr/textColorFade"
                 android:paddingStart="20dp" />
 
         </com.google.android.material.textfield.TextInputLayout>
@@ -44,7 +71,7 @@
             android:id="@+id/username_inputLayout"
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             android:layout_width="307dp"
-            android:layout_height="wrap_content"
+            android:layout_height="?attr/textEditHeight"
             android:layout_marginStart="52dp"
             android:layout_marginTop="7dp"
             android:layout_marginEnd="52dp"
@@ -64,7 +91,7 @@
                 android:id="@+id/username_inputEdit"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textColor="?attr/android:textColorSecondary"
+                android:textColor="?attr/textColorFade"
                 android:paddingStart="20dp" />
 
         </com.google.android.material.textfield.TextInputLayout>
@@ -73,7 +100,7 @@
             android:id="@+id/age_inputLayout"
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="?attr/textEditHeight"
             android:layout_marginStart="52dp"
             android:layout_marginEnd="52dp"
             android:layout_marginTop="7dp"
@@ -96,7 +123,7 @@
                 android:layout_height="wrap_content"
                 android:focusable="false"
                 android:inputType="date"
-                android:textColor="?attr/android:textColorSecondary"
+                android:textColor="?attr/textColorFade"
                 android:paddingStart="20dp" />
 
         </com.google.android.material.textfield.TextInputLayout>
@@ -105,7 +132,7 @@
             android:id="@+id/pass_inputLayout"
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             android:layout_width="307dp"
-            android:layout_height="wrap_content"
+            android:layout_height="?attr/textEditHeight"
             android:layout_marginStart="52dp"
             android:layout_marginTop="7dp"
             android:layout_marginEnd="52dp"
@@ -127,7 +154,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:inputType="textPassword"
-                android:textColor="?attr/android:textColorSecondary"
+                android:textColor="?attr/textColorFade"
                 android:paddingStart="20dp" />
 
         </com.google.android.material.textfield.TextInputLayout>
@@ -136,7 +163,7 @@
             android:id="@+id/signup_button"
             style="@style/Widget.MaterialComponents.Button.OutlinedButton"
             android:layout_width="200dp"
-            android:layout_height="60dp"
+            android:layout_height="?attr/buttonHeight"
             android:layout_marginStart="96dp"
             android:layout_marginTop="10dp"
             android:layout_marginEnd="96dp"
@@ -146,7 +173,7 @@
             app:rippleColor="?attr/colorPrimary"
             app:strokeColor="?attr/colorPrimary"
 
-            android:textSize="16sp"
+            android:textSize="?attr/textSizeSmall"
             app:cornerRadius="100dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.5"
@@ -161,8 +188,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|center_horizontal|center_vertical"
-        android:text="DatingApp, 2024"
-        android:textColor="@color/black"
-        android:textSize="20sp" />
+        android:text="@string/app_name"
+        android:textSize="?attr/textSizeMedium" />
 
 </FrameLayout>
