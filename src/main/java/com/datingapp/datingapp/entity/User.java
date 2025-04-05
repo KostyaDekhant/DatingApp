@@ -86,6 +86,21 @@ public class User {
         this.salt = null;
     }
 
+    public User(UserDTO userDTO) {
+        this.pkUser = userDTO.getId();
+        this.name = userDTO.getName();
+        this.birthday = userDTO.getBirthday();
+        this.height = userDTO.getHeight();
+        this.gender = userDTO.getGender();
+        this.isOnline = userDTO.getIsOnline();
+        this.lastOnline = userDTO.getLastOnline();
+        this.description = userDTO.getDescription();
+        this.password = "";
+        this.login = "";
+        this.salt = null;
+    }
+
+
     @Override
     public String toString() {
         return "User{" +

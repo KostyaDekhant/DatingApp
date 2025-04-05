@@ -55,13 +55,16 @@ public class UserController {
     }
 
     //Обновление данных пользователя*
-    @PatchMapping("/api/users/{id}")
-    public ResponseEntity<Void> updateUser(@PathVariable int id, @RequestBody User user)
+    @PatchMapping("/api/users")
+    public ResponseEntity<Void> updateUser(@RequestBody UserDTO user)
     {
+        log.info("DTO: " +user);
+        Integer id = user.getId();
         Optional<User> userOptional = userRepo.findById(id);
         if(userOptional.isPresent()){
             User existingUser = userOptional.get();
-            userRepo.save(updateData(existingUser, user));
+            User newUser = new User(user);
+            userRepo.save(updateData(existingUser, newUser));
             log.info("Данные обновлены!");
             return ResponseEntity.ok().build();
         }
@@ -76,7 +79,7 @@ public class UserController {
     {
         if(!newU.getName().equals(oldU.getName()) && !newU.getName().equals(""))
             oldU.setName(newU.getName());
-        if(!newU.getBirthday().equals(oldU.getBirthday()) && newU.getBirthday() != null)
+        if(!newU.getBirthday().equals(oldU.getBirthday()) && newU.getBirthday().equals(""))
             oldU.setBirthday(newU.getBirthday());
         if(!newU.getGender().equals(oldU.getGender()) && !newU.getGender().equals(""))
             oldU.setGender(newU.getGender());
@@ -86,12 +89,12 @@ public class UserController {
             oldU.setIsOnline(newU.getIsOnline());
         if(newU.getLastOnline() != oldU.getLastOnline() && !newU.getLastOnline().equals(""))
             oldU.setLastOnline(newU.getLastOnline());
-        if(!newU.getPassword().equals(oldU.getPassword()) && !newU.getPassword().equals(""))
-            oldU.setPassword(newU.getPassword());
+        //if(!newU.getPassword().equals(oldU.getPassword()) && !newU.getPassword().equals(""))
+        //    oldU.setPassword(newU.getPassword());
         if(!newU.getDescription().equals(oldU.getDescription()) && !newU.getDescription().equals(""))
             oldU.setDescription(newU.getDescription());
-        if(!newU.getLogin().equals(oldU.getLogin()) && !newU.getLogin().equals(""))
-            oldU.setLogin(newU.getLogin());
+        //if(!newU.getLogin().equals(oldU.getLogin()) && !newU.getLogin().equals(""))
+        //    oldU.setLogin(newU.getLogin());
         return oldU;
     }
 

@@ -1,6 +1,9 @@
 package com.datingapp.datingapp.entity;
 
+import com.datingapp.datingapp.deserializers.CustomDateDeserializer;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -23,6 +26,7 @@ public class UserDTO {
 
     //@Positive
     @JsonProperty("birthday")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     private LocalDate birthday;
 
     //@Positive
@@ -58,7 +62,7 @@ public class UserDTO {
     public UserDTO() {
         this.id = -1;
         this.name = "";
-        this.birthday = null;
+        this.birthday = LocalDate.now();
         this.height = -1;
         this.gender = "";
         this.isOnline = false;
