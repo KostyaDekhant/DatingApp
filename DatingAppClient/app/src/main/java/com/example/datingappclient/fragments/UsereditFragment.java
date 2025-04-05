@@ -28,16 +28,20 @@ import android.widget.EditText;
 import android.widget.GridLayout;
 import android.widget.ImageView;
 import android.widget.Space;
+import android.widget.Toast;
 
+import com.example.datingappclient.AuthActivity;
 import com.example.datingappclient.R;
 import com.example.datingappclient.model.PictureDTO;
 import com.example.datingappclient.model.UserDTO;
 import com.example.datingappclient.model.UserImage;
 import com.example.datingappclient.retrofit.RetrofitService;
 import com.example.datingappclient.retrofit.ServerAPI;
+import com.example.datingappclient.retrofit.repository.UserRepository;
 import com.example.datingappclient.utils.DateUtils;
 import com.example.datingappclient.utils.ImageUtils;
 import com.google.android.material.button.MaterialButton;
+import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.gson.JsonObject;
 
@@ -61,11 +65,19 @@ public class UsereditFragment extends Fragment {
     public UsereditFragment(UserDTO user) {
         this.user = user;
     }
-
+    private final UserRepository userRepository = new UserRepository();
+    private TextInputEditText inputName;
+    private TextInputEditText inputDesc;
+    private TextInputEditText inputAge;
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         activityView = inflater.inflate(R.layout.fragment_useredit, container, false);
+
+
+        inputName = activityView.findViewById(R.id.username_inputEdit);
+        inputDesc = activityView.findViewById(R.id.description_inputEdit);
+        inputAge = activityView.findViewById(R.id.age_inputEdit);
 
         setInputText(activityView);
         setBirthdayPicker(activityView);
@@ -82,47 +94,42 @@ public class UsereditFragment extends Fragment {
         acceptEdit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                RetrofitService retrofitService = new RetrofitService();
-                ServerAPI serverAPI = retrofitService.getRetrofit().create(ServerAPI.class);
-
-                TextInputEditText inputName = activityView.findViewById(R.id.username_inputEdit);
-                TextInputEditText inputDesc = activityView.findViewById(R.id.description_inputEdit);
-                TextInputEditText inputAge = activityView.findViewById(R.id.age_inputEdit);
 
                 String username = inputName.getText().toString();
                 String description = inputDesc.getText().toString();
                 String birthday = inputAge.getText().toString();
 
-                JsonObject jsonObject = new JsonObject();
-                jsonObject.addProperty("pk_user", user.getId());
-                jsonObject.addProperty("name", username);
-                jsonObject.addProperty("description", description);
-                jsonObject.addProperty("birthday", birthday); // TODO :  переделать поле на birthdate
-
-                Log.d ("SAVE USERINFO : BODY", jsonObject.toString());
-
-                /*serverAPI.updateUser(jsonObject).enqueue(new Callback<Void>() {
-                    @Override
-                    public void onResponse(Call<Void> call, Response<Void> response) {
-                        if (response.body() != null && response.body()) {
-                            Log.d("SAVE USERINFO ERROR", "");
-                        } else {
-                            Log.w("SAVE USERINFO ERROR", "BAD ID");
-                        }
-                    }
-
-                    @Override
-                    public void onFailure(Call<Boolean> call, Throwable throwable) {
-                        Log.e("SAVE USERINFO ERROR", throwable.getMessage());
-                    }
-                });*/
+                // !!! Проверка на пустые поля
+                if (username.isEmpty() || birthday.isEmpty()) {
+                    Snackbar.make(view, "Все поля должны быть заполнены", Snackbar.LENGTH_LONG).show();
+                    return;
+                }
 
                 user.setName(username);
                 user.setDescription(description);
                 user.setBirthday(DateUtils.stringToLocalDate(birthday));
 
+                updateUser();
+
                 UserFragment userFragment = UserFragment.getInstance(user, false);
                 getParentFragmentManager().beginTransaction().replace(R.id.fragment_container, userFragment).commit();
+            }
+        });
+    }
+
+    private void updateUser() {
+        String logTag = "UPDATE USER";
+        Log.d (logTag, user.toString());
+        userRepository.updateUser(user, new UserRepository.UpdateCallback() {
+            @Override
+            public void onSuccess() {
+                Toast.makeText(activityView.getContext(), "Успешная обновлено!", Toast.LENGTH_LONG).show();
+                Log.d(logTag, "Success");
+            }
+
+            @Override
+            public void onError(String errorMessage) {
+                Log.e(logTag, errorMessage);
             }
         });
     }
