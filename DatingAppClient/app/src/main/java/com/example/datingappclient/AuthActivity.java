@@ -20,22 +20,6 @@ public class AuthActivity extends AppCompatActivity {
         setContentView(R.layout.activity_auth);
 
         getSupportFragmentManager().beginTransaction().replace(R.id.auth_fragment_container, new SigninFragment()).commit();
-
-        /*MaterialButton signinButton = findViewById(R.id.signin_button);
-        signinButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                getSupportFragmentManager().beginTransaction().replace(R.id.auth_fragment_container, new SigninFragment()).commit();
-            }
-        });
-
-        MaterialButton signupButton = findViewById(R.id.signup_button);
-        signupButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                getSupportFragmentManager().beginTransaction().replace(R.id.auth_fragment_container, new SignupFragment()).commit();
-            }
-        });*/
     }
 
     public void startMainActivity(int id) {

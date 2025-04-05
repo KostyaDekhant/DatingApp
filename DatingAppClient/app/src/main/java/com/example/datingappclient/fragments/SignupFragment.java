@@ -12,6 +12,7 @@ import android.app.DatePickerDialog;
 import android.text.InputType;
 import android.widget.DatePicker;
 
+import com.example.datingappclient.constants.Constants;
 import com.example.datingappclient.model.UserDTO;
 import com.example.datingappclient.retrofit.repository.UserRepository;
 import com.example.datingappclient.utils.DateUtils;
@@ -130,7 +131,7 @@ public class SignupFragment extends Fragment {
         });
     }
     private void signupUser(JsonObject signupJsonObject){
-        String logTag = "SIGNUP. Create user";
+        String logTag = Constants.GLOBAL_LOG_TAG + "SIGNUP. Create user";
         userRepository.signup(signupJsonObject, new UserRepository.SignupCallback() {
             @Override
             public void onSuccess(int userId) {
@@ -150,7 +151,7 @@ public class SignupFragment extends Fragment {
     }
     private void updateUser(int userId) {
         UserDTO userDTO = new UserDTO(userId, name, DateUtils.stringToLocalDate(birthday));
-        String logTag = "SIGNUP. Update user";
+        String logTag = Constants.GLOBAL_LOG_TAG + "SIGNUP. Update user";
         Log.d(logTag, userDTO.toString());
         userRepository.updateUser(userDTO, new UserRepository.UpdateCallback() {
             @Override

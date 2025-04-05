@@ -16,6 +16,7 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import com.example.datingappclient.R;
+import com.example.datingappclient.constants.Constants;
 import com.example.datingappclient.model.UserDTO;
 import com.example.datingappclient.retrofit.repository.ImageRepository;
 import com.example.datingappclient.retrofit.repository.UserRepository;
@@ -85,7 +86,7 @@ public class UserFragment extends Fragment implements View.OnClickListener {
     }
 
     private void getUserInfo(View view, int userID){
-        String logTag = "USER_INFO";
+        String logTag = Constants.GLOBAL_LOG_TAG + "USER_INFO";
         userRepository.fetchUserInfo(userID, new UserRepository.UserCallback() {
             @Override
             public void onSuccess(UserDTO fetchedUser) {
@@ -103,7 +104,7 @@ public class UserFragment extends Fragment implements View.OnClickListener {
         });
     }
     private void getUserImages(View view, int userID) {
-        String logTag = "USER_IMAGES";
+        String logTag = Constants.GLOBAL_LOG_TAG + "USER_IMAGES";
         // Загружаем изображения
         imageRepository.fetchUserImages(userID, new ImageRepository.ImagesCallback() {
             @Override

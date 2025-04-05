@@ -32,6 +32,7 @@ import android.widget.Toast;
 
 import com.example.datingappclient.AuthActivity;
 import com.example.datingappclient.R;
+import com.example.datingappclient.constants.Constants;
 import com.example.datingappclient.model.PictureDTO;
 import com.example.datingappclient.model.UserDTO;
 import com.example.datingappclient.model.UserImage;
@@ -82,14 +83,14 @@ public class UsereditFragment extends Fragment {
         setInputText(activityView);
         setBirthdayPicker(activityView);
         setImages(activityView);
+        setupReturnButton();
         setupAcceptButton();
 
         return activityView;
     }
 
 
-    private void setupAcceptButton()
-    {
+    private void setupAcceptButton() {
         MaterialButton acceptEdit = activityView.findViewById(R.id.save_button);
         acceptEdit.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -116,9 +117,15 @@ public class UsereditFragment extends Fragment {
             }
         });
     }
-
+    private void setupReturnButton() {
+        MaterialButton returnButton = activityView.findViewById(R.id.return_button);
+        returnButton.setOnClickListener(view -> {
+            UserFragment userFragment = UserFragment.getInstance(user, false);
+            getParentFragmentManager().beginTransaction().replace(R.id.fragment_container, userFragment).commit();
+        });
+    }
     private void updateUser() {
-        String logTag = "UPDATE USER";
+        String logTag = Constants.GLOBAL_LOG_TAG + "UPDATE USER";
         Log.d (logTag, user.toString());
         userRepository.updateUser(user, new UserRepository.UpdateCallback() {
             @Override

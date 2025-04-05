@@ -13,6 +13,7 @@ import android.widget.Toast;
 
 import com.example.datingappclient.AuthActivity;
 import com.example.datingappclient.R;
+import com.example.datingappclient.constants.Constants;
 import com.example.datingappclient.retrofit.RetrofitService;
 import com.example.datingappclient.retrofit.ServerAPI;
 import com.example.datingappclient.retrofit.repository.UserRepository;
@@ -55,7 +56,7 @@ public class SigninFragment extends Fragment {
     }
 
     private void loginUser(JsonObject userLoginInfoJson) {
-        String logTag = "SIGNIN";
+        String logTag = Constants.GLOBAL_LOG_TAG + "SIGNIN";
         userRepository.login(userLoginInfoJson, new UserRepository.LoginCallback() {
             @Override
             public void onSuccess(int userId) {

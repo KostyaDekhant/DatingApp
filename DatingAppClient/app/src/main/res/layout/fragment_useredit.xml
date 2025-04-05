@@ -10,6 +10,20 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/return_button"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:background="#00FFFFFF"
+            android:rotation="180"
+            app:icon="@drawable/arrow"
+            app:iconGravity="textStart"
+            app:iconPadding="0dp"
+            app:iconTint="#262626"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
         <!-- START OF PHOTOS SEGMENT -->
         <TextView
             android:id="@+id/photo_label"
@@ -19,8 +33,7 @@
             android:text="ФОТОГРАФИИ"
             android:textSize="?attr/textSizeMedium"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            android:layout_marginTop="10dp"/>
+            app:layout_constraintTop_toBottomOf="@id/return_button" />
 
         <GridLayout
             android:id="@+id/images_grid"
@@ -83,7 +96,7 @@
             android:id="@+id/description_inputLayout"
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             android:layout_width="match_parent"
-            android:layout_height="?attr/textEditHeight"
+            android:layout_height="0dp"
 
             android:layout_marginStart="52dp"
             android:layout_marginTop="4dp"
