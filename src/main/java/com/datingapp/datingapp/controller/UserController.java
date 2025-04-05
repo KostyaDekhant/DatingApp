@@ -79,7 +79,7 @@ public class UserController {
     {
         if(!newU.getName().equals(oldU.getName()) && !newU.getName().equals(""))
             oldU.setName(newU.getName());
-        if(!newU.getBirthday().equals(oldU.getBirthday()) && newU.getBirthday().equals(""))
+        if(!newU.getBirthday().equals(oldU.getBirthday()) && !newU.getBirthday().equals(""))
             oldU.setBirthday(newU.getBirthday());
         if(!newU.getGender().equals(oldU.getGender()) && !newU.getGender().equals(""))
             oldU.setGender(newU.getGender());
