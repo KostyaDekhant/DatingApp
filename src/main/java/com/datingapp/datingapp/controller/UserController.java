@@ -26,7 +26,7 @@ public class UserController {
     //можно попробовать сделать общий
     private static final Logger log = LoggerFactory.getLogger(UserController.class);
 
-    //Добавление пользователя.
+    //Добавление пользователя
     @PostMapping("/api/users")
     public ResponseEntity<Integer> addUser(@Validated @RequestBody User user) {
         User savedUser = userRepo.save(user);
