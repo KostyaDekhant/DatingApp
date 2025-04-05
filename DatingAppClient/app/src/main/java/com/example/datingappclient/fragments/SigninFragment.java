@@ -12,10 +12,11 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.datingappclient.AuthActivity;
-import com.example.datingappclient.MainActivity;
 import com.example.datingappclient.R;
 import com.example.datingappclient.retrofit.RetrofitService;
 import com.example.datingappclient.retrofit.ServerAPI;
+import com.example.datingappclient.retrofit.repository.UserRepository;
+import com.example.datingappclient.utils.PasswordUtils;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.textfield.TextInputEditText;
@@ -23,8 +24,6 @@ import com.google.gson.JsonObject;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -36,80 +35,64 @@ public class SigninFragment extends Fragment {
         // Required empty public constructor
     }
 
+    private final UserRepository userRepository = new UserRepository();;
+    private TextInputEditText inputLogin;
+    private TextInputEditText inputPass;
+    private View activityView;
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        View activityView = inflater.inflate(R.layout.fragment_signin, container, false);
+        activityView = inflater.inflate(R.layout.fragment_signin, container, false);
 
-        TextView regButton = activityView.findViewById(R.id.reg_button);
-        regButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                ((AuthActivity)getActivity()).openFragment(new SignupFragment());
-            }
-        });
+        inputLogin = activityView.findViewById(R.id.login_inputEdit);
+        inputPass = activityView.findViewById(R.id.pass_inputEdit);
 
-        MaterialButton loginButton = activityView.findViewById(R.id.login_button);
-        loginButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                RetrofitService retrofitService = new RetrofitService();
-                ServerAPI serverAPI = retrofitService.getRetrofit().create(ServerAPI.class);
-
-                TextInputEditText inputLogin = activityView.findViewById(R.id.login_inputEdit);
-                TextInputEditText inputPass = activityView.findViewById(R.id.pass_inputEdit);
-
-                String login = inputLogin.getText().toString();
-                String pass = inputPass.getText().toString();
-
-                // Хэширование пароля перед отправкой на сервер
-                // pass = hashPassword(pass); // Расскоментировать для хэширования
-
-                JsonObject jsonObject = new JsonObject();
-                jsonObject.addProperty("login", login);
-                jsonObject.addProperty("password", pass);
-                serverAPI.login(jsonObject)
-                        .enqueue(new Callback<Integer>() {
-                            @Override
-                            public void onResponse(Call<Integer> call, Response<Integer> response) {
-                                Integer returnCode = response.body();
-                                if (returnCode > 0) {
-                                    Log.i("SIGNIN", "User successfully sign id with id: " + returnCode);
-                                    ((AuthActivity) getActivity()).startMainActivity(returnCode);
-                                }
-                                // TODO : переделать! не возвращать код при неверном пароле!
-                                else if (returnCode == -1 || returnCode == -2) {
-                                    Log.i("SIGNIN", "Wrong login or password: " + returnCode);
-                                    Snackbar.make(view, "Ошибка входа, неверный логин или пароль!", Snackbar.LENGTH_LONG).show();
-                                }
-                            }
-
-                            @Override
-                            public void onFailure(Call<Integer> call, Throwable throwable) {
-                                Toast.makeText(activityView.getContext(), "ERROR LOGIN", Toast.LENGTH_LONG).show();
-                                Log.e("SIGNIN", "ERROR LOGIN", throwable);
-                            }
-                        });
-            }
-        });
+        setupSignupButton();
+        setupLoginButton();
 
         return activityView;
     }
 
-    // Метод для хэширования пароля
-    private String hashPassword(String password) {
-        try {
-            MessageDigest md = MessageDigest.getInstance("SHA-256");
-            byte[] hashedBytes = md.digest(password.getBytes());
-            StringBuilder sb = new StringBuilder();
-            for (byte b : hashedBytes) {
-                sb.append(String.format("%02x", b));
+    private void loginUser(JsonObject userLoginInfoJson) {
+        String logTag = "SIGNIN";
+        userRepository.login(userLoginInfoJson, new UserRepository.LoginCallback() {
+            @Override
+            public void onSuccess(int userId) {
+                if (userId > 0) {
+                    Log.i(logTag, "User successfully sign in with id: " + userId);
+                    ((AuthActivity) getActivity()).startMainActivity(userId);
+                }
+                else {
+                    Log.i(logTag, "Wrong login or password: " + userId);
+                    Snackbar.make(activityView, "Ошибка входа, неверный логин или пароль!", Snackbar.LENGTH_LONG).show();
+                }
             }
-            return sb.toString();
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
-            return null;
-        }
+
+            @Override
+            public void onError(String errorMessage) {
+                Log.e(logTag, errorMessage);
+            }
+        });
+    }
+    private void setupLoginButton() {
+        MaterialButton loginButton = activityView.findViewById(R.id.login_button);
+        loginButton.setOnClickListener(view -> {
+            String login = inputLogin.getText().toString();
+            String pass = inputPass.getText().toString();
+
+            // Хэширование пароля перед отправкой на сервер
+            // pass = PasswordUtils.hashPassword(pass); // Расскоментировать для хэширования
+
+            JsonObject userLoginInfoJson = new JsonObject();
+            userLoginInfoJson.addProperty("login", login);
+            userLoginInfoJson.addProperty("password", pass);
+
+            loginUser(userLoginInfoJson);
+        });
+    }
+    private void setupSignupButton() {
+        TextView regButton = activityView.findViewById(R.id.reg_button);
+        regButton.setOnClickListener(view -> ((AuthActivity)getActivity()).openFragment(new SignupFragment()));
     }
 }

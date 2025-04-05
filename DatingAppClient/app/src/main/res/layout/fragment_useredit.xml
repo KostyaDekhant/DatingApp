@@ -1,135 +1,166 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".fragments.UsereditFragment">
+    android:theme="@style/Theme.DatingAppClient.Default">
 
-    <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/username_inputLayout"
-        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="wrap_content">
 
-        android:layout_marginStart="52dp"
-        android:layout_marginTop="40dp"
-        android:layout_marginEnd="52dp"
-        android:hint="ИМЯ ПОЛЬЗОВАТЕЛЯ"
+        <!-- START OF PHOTOS SEGMENT -->
+        <TextView
+            android:id="@+id/photo_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="52dp"
+            android:text="ФОТОГРАФИИ"
+            android:textSize="?attr/textSizeMedium"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            android:layout_marginTop="10dp"/>
 
-        app:boxCornerRadiusBottomEnd="10dp"
-        app:boxCornerRadiusBottomStart="10dp"
-        app:boxCornerRadiusTopEnd="10dp"
-        app:boxCornerRadiusTopStart="10dp"
-        app:boxStrokeColor="#262626"
-        app:boxStrokeWidth="1dp"
-        app:cursorColor="#21A038"
-
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
-
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/username_inputEdit"
+        <GridLayout
+            android:id="@+id/images_grid"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:paddingStart="20dp" />
+            android:layout_marginStart="52dp"
+            android:layout_marginTop="7dp"
+            android:layout_marginEnd="52dp"
+            android:columnCount="3"
+            android:rowCount="2"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/photo_label" />
 
-    </com.google.android.material.textfield.TextInputLayout>
+        <!-- END OF PHOTOS SEGMENT -->
 
-    <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/description_inputLayout"
-        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-
-        android:layout_marginStart="52dp"
-        android:layout_marginTop="7dp"
-        android:layout_marginEnd="52dp"
-        android:hint="ОПИСАНИЕ"
-        app:boxCornerRadiusBottomEnd="10dp"
-        app:boxCornerRadiusBottomStart="10dp"
-        app:boxCornerRadiusTopEnd="10dp"
-        app:boxCornerRadiusTopStart="10dp"
-        app:boxStrokeColor="#262626"
-        app:boxStrokeWidth="1dp"
-        app:cursorColor="#21A038"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/username_inputLayout">
-
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/description_inputEdit"
-            android:layout_width="match_parent"
+        <!-- START OF USERINFO SEGMENT -->
+        <TextView
+            android:id="@+id/userinfo_label"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:maxHeight="80dp"
-            android:paddingStart="20dp" />
+            android:layout_marginStart="52dp"
+            android:text="О СЕБЕ"
+            android:textSize="?attr/textSizeMedium"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/images_grid"
+            android:layout_marginTop="10dp"/>
 
-    </com.google.android.material.textfield.TextInputLayout>
-
-    <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/age_inputLayout"
-        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-
-        android:layout_marginStart="52dp"
-        android:layout_marginTop="7dp"
-        android:layout_marginEnd="52dp"
-        android:hint="ДАТА РОЖДЕНИЯ"
-        app:boxCornerRadiusBottomEnd="10dp"
-        app:boxCornerRadiusBottomStart="10dp"
-        app:boxCornerRadiusTopEnd="10dp"
-        app:boxCornerRadiusTopStart="10dp"
-        app:boxStrokeColor="#262626"
-        app:boxStrokeWidth="1dp"
-        app:cursorColor="#21A038"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/description_inputLayout">
-
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/age_inputEdit"
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/username_inputLayout"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:inputType="number"
-            android:paddingStart="20dp" />
+            android:layout_height="?attr/textEditHeight"
 
-    </com.google.android.material.textfield.TextInputLayout>
+            android:layout_marginStart="52dp"
+            android:layout_marginEnd="52dp"
+            android:hint="ИМЯ ПОЛЬЗОВАТЕЛЯ"
 
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/save_button"
-        style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-        android:layout_width="150dp"
-        android:layout_height="60dp"
-        android:layout_marginStart="96dp"
-        android:layout_marginEnd="96dp"
-        android:layout_marginBottom="10dp"
-        android:text="СОХРАНИТЬ"
-        android:textColor="#262626"
-        android:textSize="16sp"
-        app:cornerRadius="100dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toStartOf="parent"
-        app:rippleColor="#21A038"
-        app:strokeColor="#262626"
-        app:strokeWidth="1dp" />
+            app:boxCornerRadiusBottomEnd="10dp"
+            app:boxCornerRadiusBottomStart="10dp"
+            app:boxCornerRadiusTopEnd="10dp"
+            app:boxCornerRadiusTopStart="10dp"
+            app:boxStrokeColor="?attr/colorOnPrimary"
+            app:boxStrokeWidth="1dp"
+            app:cursorColor="?attr/cursorColor"
 
-    <GridLayout
-        android:id="@+id/images_grid"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="52dp"
-        android:layout_marginTop="7dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/userinfo_label">
 
-        android:layout_marginEnd="52dp"
-        android:columnCount="3"
-        android:rowCount="2"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/age_inputLayout" />
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/username_inputEdit"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingStart="20dp" />
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/description_inputLayout"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/textEditHeight"
+
+            android:layout_marginStart="52dp"
+            android:layout_marginTop="4dp"
+            android:layout_marginEnd="52dp"
+            android:hint="ОПИСАНИЕ"
+            app:boxCornerRadiusBottomEnd="10dp"
+            app:boxCornerRadiusBottomStart="10dp"
+            app:boxCornerRadiusTopEnd="10dp"
+            app:boxCornerRadiusTopStart="10dp"
+            app:boxStrokeColor="?attr/colorOnPrimary"
+            app:boxStrokeWidth="1dp"
+            app:cursorColor="?attr/cursorColor"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/age_inputLayout">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/description_inputEdit"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:maxHeight="500dp"
+                android:paddingStart="20dp" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/age_inputLayout"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/textEditHeight"
+
+            android:layout_marginStart="52dp"
+            android:layout_marginTop="7dp"
+            android:layout_marginEnd="52dp"
+            android:hint="ДАТА РОЖДЕНИЯ"
+            app:boxCornerRadiusBottomEnd="10dp"
+            app:boxCornerRadiusBottomStart="10dp"
+            app:boxCornerRadiusTopEnd="10dp"
+            app:boxCornerRadiusTopStart="10dp"
+            app:boxStrokeColor="?attr/colorOnPrimary"
+            app:boxStrokeWidth="1dp"
+            app:cursorColor="?attr/cursorColor"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/username_inputLayout">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/age_inputEdit"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="number"
+                android:paddingStart="20dp" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/save_button"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+            android:layout_width="wrap_content"
+            android:layout_height="?attr/buttonHeight"
+            android:layout_marginStart="96dp"
+            android:layout_marginEnd="96dp"
+            android:paddingHorizontal="30dp"
+            android:text="СОХРАНИТЬ"
+
+            android:textColor="?attr/colorPrimary"
+            android:textSize="?attr/textSizeSmall"
+            app:cornerRadius="100dp"
+
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/description_inputLayout"
+            app:rippleColor="?attr/colorPrimary"
+            app:strokeColor="?attr/colorPrimary"
+            app:strokeWidth="1dp" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</ScrollView>

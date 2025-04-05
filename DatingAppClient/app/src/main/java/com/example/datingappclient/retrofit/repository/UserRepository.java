@@ -33,6 +33,11 @@ public class UserRepository {
         void onError(String errorMessage);
     }
 
+    public interface UpdateCallback {
+        void onSuccess();
+        void onError(String errorMessage);
+    }
+
     // Получение информации о пользователе
     public void fetchUserInfo(int userID, UserCallback callback) {
         userAPI.getUser(userID).enqueue(new Callback<UserDTO>() {
@@ -48,7 +53,7 @@ public class UserRepository {
 
             @Override
             public void onFailure(Call<UserDTO> call, Throwable throwable) {
-                Log.e("UserRepository", "Ошибка сети или ошибка при обработке данных", throwable);
+                Log.e("UserRepository", "Ошибка сети или ошибка при обработке данных" + call.toString(), throwable);
                 callback.onError("Ошибка сети или ошибка при обработке данных: " + throwable.getMessage());
             }
         });
@@ -62,14 +67,14 @@ public class UserRepository {
                 if (response.isSuccessful() && response.body() != null) {
                     callback.onSuccess(response.body());
                 } else {
-                    callback.onError("Ошибка входа: " + response.message());
+                    callback.onError("Ошибка входа: " + response.code());
                 }
             }
 
             @Override
             public void onFailure(Call<Integer> call, Throwable throwable) {
-                Log.e("UserRepository", "Ошибка сети при входе", throwable);
-                callback.onError("Ошибка сети: " + throwable.getMessage());
+                Log.e("UserRepository", "Ошибка при входе", throwable);
+                callback.onError("Ошибка: " + throwable.getMessage());
             }
         });
     }
@@ -82,14 +87,33 @@ public class UserRepository {
                 if (response.isSuccessful() && response.body() != null) {
                     callback.onSuccess(response.body());
                 } else {
-                    callback.onError("Ошибка регистрации: " + response.message());
+                    callback.onError("Ошибка регистрации: " + response.code());
                 }
             }
 
             @Override
             public void onFailure(Call<Integer> call, Throwable throwable) {
-                Log.e("UserRepository", "Ошибка сети при регистрации", throwable);
-                callback.onError("Ошибка сети: " + throwable.getMessage());
+                Log.e("UserRepository", "Ошибка при регистрации", throwable);
+                callback.onError("Ошибка: " + throwable.getMessage());
+            }
+        });
+    }
+
+    public void updateUser (UserDTO userData, UpdateCallback callback) {
+        userAPI.updateUser(userData).enqueue(new Callback<Void>() {
+            @Override
+            public void onResponse(Call<Void> call, Response<Void> response) {
+                if (response.isSuccessful()) {
+                    callback.onSuccess();
+                } else {
+                    callback.onError("Ошибка обновления пользователя: " + response.code());
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Void> call, Throwable throwable) {
+                Log.e("User Repository", "Ошибка при обновлении пользователя", throwable);
+                callback.onError("Ошибка: " + throwable.getMessage());
             }
         });
     }

@@ -21,7 +21,7 @@ public interface UserAPI {
     Call<UserDTO> getUser(@Path("id") int id);
 
     @PATCH("api/users")
-    Call<Boolean> updateUser(@Body JsonObject jsonObject);
+    Call<Void> updateUser(@Body UserDTO userDTO);
 
     @POST("api/login")
     Call<Integer> login(@Body JsonObject jsonObject);

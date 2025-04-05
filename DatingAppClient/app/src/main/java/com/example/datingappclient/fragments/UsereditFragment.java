@@ -52,28 +52,33 @@ import retrofit2.Response;
 
 public class UsereditFragment extends Fragment {
 
+    private static final int PICK_IMAGE_REQUEST = 1;
     private UserDTO user;
-
-    View cardAddImage;
-    GridLayout gridLayout;
-    LayoutInflater inflater;
-
+    private View cardAddImage;
+    private GridLayout gridLayout;
+    private LayoutInflater inflater;
+    private View activityView;
     public UsereditFragment(UserDTO user) {
         this.user = user;
     }
 
-    private static final int PICK_IMAGE_REQUEST = 1;
-
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View activityView = inflater.inflate(R.layout.fragment_useredit, container, false);
-        MaterialButton acceptEdit = activityView.findViewById(R.id.save_button);
+        activityView = inflater.inflate(R.layout.fragment_useredit, container, false);
 
         setInputText(activityView);
         setBirthdayPicker(activityView);
         setImages(activityView);
+        setupAcceptButton();
 
+        return activityView;
+    }
+
+
+    private void setupAcceptButton()
+    {
+        MaterialButton acceptEdit = activityView.findViewById(R.id.save_button);
         acceptEdit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -92,25 +97,25 @@ public class UsereditFragment extends Fragment {
                 jsonObject.addProperty("pk_user", user.getId());
                 jsonObject.addProperty("name", username);
                 jsonObject.addProperty("description", description);
-                jsonObject.addProperty("age", birthday); // TODO :  переделать поле на birthdate
+                jsonObject.addProperty("birthday", birthday); // TODO :  переделать поле на birthdate
 
                 Log.d ("SAVE USERINFO : BODY", jsonObject.toString());
 
-                serverAPI.updateUser(jsonObject).enqueue(new Callback<Boolean>() {
+                /*serverAPI.updateUser(jsonObject).enqueue(new Callback<Void>() {
                     @Override
-                    public void onResponse(Call<Boolean> call, Response<Boolean> response) {
+                    public void onResponse(Call<Void> call, Response<Void> response) {
                         if (response.body() != null && response.body()) {
                             Log.d("SAVE USERINFO ERROR", "");
                         } else {
-                            Log.d("SAVE USERINFO ERROR", "BAD ID");
+                            Log.w("SAVE USERINFO ERROR", "BAD ID");
                         }
                     }
 
                     @Override
                     public void onFailure(Call<Boolean> call, Throwable throwable) {
-                        Log.d("SAVE USERINFO ERROR", throwable.getMessage());
+                        Log.e("SAVE USERINFO ERROR", throwable.getMessage());
                     }
-                });
+                });*/
 
                 user.setName(username);
                 user.setDescription(description);
@@ -120,10 +125,7 @@ public class UsereditFragment extends Fragment {
                 getParentFragmentManager().beginTransaction().replace(R.id.fragment_container, userFragment).commit();
             }
         });
-
-        return activityView;
     }
-
     // Установка DatePickerDialog для поля возраста
     private void setBirthdayPicker(View view) {
         EditText inputAge = view.findViewById(R.id.age_inputEdit);
@@ -151,7 +153,6 @@ public class UsereditFragment extends Fragment {
             }
         });
     }
-
     private void setInputText(View view) {
         TextInputEditText name_input = view.findViewById(R.id.username_inputEdit);
         TextInputEditText desc_input = view.findViewById(R.id.description_inputEdit);
@@ -169,7 +170,6 @@ public class UsereditFragment extends Fragment {
         // Получение LayoutInflater из контекста
         inflater = (LayoutInflater) this.getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
-
         gridLayout.removeAllViews();
 
         // Динамическое добавление карточек с изображенем пользователя
@@ -178,7 +178,6 @@ public class UsereditFragment extends Fragment {
             cardImage.setLayoutParams(setLayoutParams(i));
             gridLayout.addView(cardImage);
         }
-
 
         // Создание карточки добавления фото
         if (gridLayout.getChildCount() < 6) {

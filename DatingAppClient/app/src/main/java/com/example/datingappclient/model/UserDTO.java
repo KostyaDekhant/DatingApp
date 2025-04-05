@@ -3,7 +3,11 @@ package com.example.datingappclient.model;
 import android.graphics.Bitmap;
 
 import com.example.datingappclient.utils.DateUtils;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.google.gson.annotations.Expose;
 
 import java.sql.Timestamp;
 import java.time.LocalDate;
@@ -32,23 +36,21 @@ public class UserDTO
     @JsonProperty("description")
     private String description;
     @JsonProperty("birthday")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     private LocalDate birthday;
-
     //@Positive
     @JsonProperty("height")
     private int height;
-
     //@NotBlank
     @JsonProperty("gender")
     private String gender;
-
     @JsonProperty("is_online")
     private Boolean is_online;
-
     @JsonProperty("last_online")
     private Timestamp last_online;
     @Builder.Default
-    private List<UserImage> images = new ArrayList<>();
+    @JsonIgnore
+    transient private List<UserImage> images = new ArrayList<>();
 
     @Override
     public String toString() {
@@ -65,6 +67,11 @@ public class UserDTO
     }
     public UserDTO(int id) {
         this.id = id;
+    }
+    public UserDTO(int id, String name, LocalDate birthday) {
+        this.id = id;
+        this.name = name;
+        this.birthday = birthday;
     }
     public int getAge() {
         return DateUtils.dateToAge(birthday);

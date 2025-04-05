@@ -14,8 +14,6 @@ import com.example.datingappclient.fragments.LikeFragment;
 import com.example.datingappclient.fragments.SearchFragment;
 import com.example.datingappclient.fragments.UserFragment;
 import com.example.datingappclient.model.UserDTO;
-import com.example.datingappclient.retrofit.RetrofitService;
-import com.example.datingappclient.retrofit.ServerAPI;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import java.util.Objects;

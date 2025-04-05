@@ -2,6 +2,8 @@ package com.example.datingappclient.fragments;
 
 import android.os.Bundle;
 import androidx.fragment.app.Fragment;
+
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -9,9 +11,15 @@ import android.widget.Toast;
 import android.app.DatePickerDialog;
 import android.text.InputType;
 import android.widget.DatePicker;
+
+import com.example.datingappclient.model.UserDTO;
+import com.example.datingappclient.retrofit.repository.UserRepository;
+import com.example.datingappclient.utils.DateUtils;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.snackbar.Snackbar;
+
+import java.time.LocalDate;
 import java.util.Calendar;
 import com.example.datingappclient.AuthActivity;
 import com.example.datingappclient.MainActivity;
@@ -34,50 +42,81 @@ public class SignupFragment extends Fragment {
     public SignupFragment() {
         // Required empty public constructor
     }
-
-    private View.OnClickListener returnButtonClick() {
-        return v -> {
-            ((AuthActivity) getActivity()).openFragment(new SigninFragment());
-        };
-    }
+    private final UserRepository userRepository = new UserRepository();
+    private View activityView;
+    private TextInputEditText inputAge;
+    private TextInputEditText inputLogin;
+    private TextInputEditText inputPass;
+    private TextInputEditText inputName;
+    private String login, pass, name, birthday;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        View activityView = inflater.inflate(R.layout.fragment_signup, container, false);
+        activityView = inflater.inflate(R.layout.fragment_signup, container, false);
 
-        TextInputEditText inputAge = activityView.findViewById(R.id.age_inputEdit);
+        setupInputEditView();
+        setupReturnButton();
+        setupSignupButton();
+        setupDateTimePicker();
 
-        // setup return button
+        return activityView;
+    }
+
+    private void setupInputEditView() {
+        inputAge = activityView.findViewById(R.id.age_inputEdit);
+        inputLogin = activityView.findViewById(R.id.login_inputEdit);
+        inputPass = activityView.findViewById(R.id.pass_inputEdit);
+        inputName = activityView.findViewById(R.id.username_inputEdit);
+    }
+    private void setupDateTimePicker() {
+        // Установка DatePickerDialog для поля возраста
+        inputAge.setInputType(InputType.TYPE_NULL); // Отключение ручного ввода
+        inputAge.setOnClickListener(v -> {
+            Calendar calendar = Calendar.getInstance();
+            int year = calendar.get(Calendar.YEAR);
+            int month = calendar.get(Calendar.MONTH);
+            int day = calendar.get(Calendar.DAY_OF_MONTH);
+
+            DatePickerDialog datePickerDialog = new DatePickerDialog(getContext(), new DatePickerDialog.OnDateSetListener() {
+                @Override
+                public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
+                    // Преобразуем дату в формат yyyy-MM-dd
+                    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+                    Calendar selectedDate = Calendar.getInstance();
+                    selectedDate.set(year, month, dayOfMonth);
+                    String formattedDate = sdf.format(selectedDate.getTime());
+                    inputAge.setText(formattedDate);
+                }
+            }, year, month, day);
+            datePickerDialog.show();
+        });
+    }
+    private void setupReturnButton() {
         MaterialButton returnButton = activityView.findViewById(R.id.return_button);
-        returnButton.setOnClickListener(returnButtonClick());
-
+        returnButton.setOnClickListener(view -> ((AuthActivity) getActivity()).openFragment(new SigninFragment()));
+    }
+    private void setupSignupButton() {
         MaterialButton signupButton = activityView.findViewById(R.id.signup_button);
         signupButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                TextInputEditText inputLogin = activityView.findViewById(R.id.login_inputEdit);
-                TextInputEditText inputPass = activityView.findViewById(R.id.pass_inputEdit);
-                TextInputEditText inputName = activityView.findViewById(R.id.username_inputEdit);
 
                 // inputAge уже инициализирована ранее
-                String login = inputLogin.getText().toString();
-                String pass = inputPass.getText().toString();
-                String name = inputName.getText().toString();
-                String age = inputAge.getText().toString();
+                login = inputLogin.getText().toString();
+                pass = inputPass.getText().toString();
+                name = inputName.getText().toString();
+                birthday = inputAge.getText().toString();
 
-                // Проверка на пустые поля
-                if (login.isEmpty() || pass.isEmpty() || name.isEmpty() || age.isEmpty()) {
+                // !!! Проверка на пустые поля
+                if (login.isEmpty() || pass.isEmpty() || name.isEmpty() || birthday.isEmpty()) {
                     Snackbar.make(view, "Все поля должны быть заполнены", Snackbar.LENGTH_LONG).show();
                     return;
                 }
 
                 // Хэширование пароля перед отправкой на сервер
-                // pass = hashPassword(pass); // разкомментировать для хэширования
-
-                // Логируем хэшированный пароль для проверки
-                Logger.getLogger(MainActivity.class.getName()).log(Level.INFO, "Hashed Password: " + pass);
+                // pass = PasswordUtils.hashPassword(pass); // разкомментировать для хэширования
 
                 RetrofitService retrofitService = new RetrofitService();
                 ServerAPI serverAPI = retrofitService.getRetrofit().create(ServerAPI.class);
@@ -86,85 +125,47 @@ public class SignupFragment extends Fragment {
                 signupJsonObject.addProperty("login", login);
                 signupJsonObject.addProperty("password", pass);
 
-                serverAPI.signup(signupJsonObject).enqueue(new Callback<Integer>() {
-                    @Override
-                    public void onResponse(Call<Integer> call, Response<Integer> response) {
-                        int returnCode = response.body();
-                        if (returnCode > 0) {
-                            JsonObject updateUserJsonObject = new JsonObject();
-                            updateUserJsonObject.addProperty("pk_user", returnCode);
-                            updateUserJsonObject.addProperty("name", name);
-                            updateUserJsonObject.addProperty("age", age);
-
-                            serverAPI.updateUser(updateUserJsonObject).enqueue(new Callback<Boolean>() {
-                                @Override
-                                public void onResponse(Call<Boolean> call, Response<Boolean> response) {
-                                    Toast.makeText(activityView.getContext(), "SUCCESS SAVE", Toast.LENGTH_LONG).show();
-                                    Logger.getLogger(MainActivity.class.getName()).log(Level.INFO, "SUCCESS SAVE", response.body());
-                                }
-
-                                @Override
-                                public void onFailure(Call<Boolean> call, Throwable throwable) {
-                                    Toast.makeText(activityView.getContext(), "ERROR SAVE", Toast.LENGTH_LONG).show();
-                                    Logger.getLogger(MainActivity.class.getName()).log(Level.SEVERE, "ERROR SAVE", throwable);
-                                }
-                            });
-                            ((AuthActivity) getActivity()).startMainActivity(returnCode);
-                        } else if (returnCode == -1) {
-                            Snackbar.make(view, "Ошибка регистрации, такой пользователь уже существует!", Snackbar.LENGTH_LONG).show();
-                        }
-                    }
-
-                    @Override
-                    public void onFailure(Call<Integer> call, Throwable throwable) {
-                        Toast.makeText(activityView.getContext(), "ERROR SIGNUP", Toast.LENGTH_LONG).show();
-                        Logger.getLogger(MainActivity.class.getName()).log(Level.SEVERE, "ERROR SIGNUP", throwable);
-                    }
-                });
+                signupUser(signupJsonObject);
             }
         });
-
-        // Установка DatePickerDialog для поля возраста
-        inputAge.setInputType(InputType.TYPE_NULL); // Отключение ручного ввода
-        inputAge.setOnClickListener(new View.OnClickListener() {
+    }
+    private void signupUser(JsonObject signupJsonObject){
+        String logTag = "SIGNUP. Create user";
+        userRepository.signup(signupJsonObject, new UserRepository.SignupCallback() {
             @Override
-            public void onClick(View v) {
-                Calendar calendar = Calendar.getInstance();
-                int year = calendar.get(Calendar.YEAR);
-                int month = calendar.get(Calendar.MONTH);
-                int day = calendar.get(Calendar.DAY_OF_MONTH);
+            public void onSuccess(int userId) {
+                if (userId > 0) {
+                    updateUser(userId);
+                } else if (userId == -1) {
+                    String errorMessage = "Ошибка регистрации, такой пользователь уже существует!";
+                    Snackbar.make(activityView, errorMessage, Snackbar.LENGTH_LONG).show();
+                    Log.d(logTag, errorMessage);
+                }
+            }
+            @Override
+            public void onError(String errorMessage) {
+                Log.e(logTag, errorMessage);
+            }
+        });
+    }
+    private void updateUser(int userId) {
+        UserDTO userDTO = new UserDTO(userId, name, DateUtils.stringToLocalDate(birthday));
+        String logTag = "SIGNUP. Update user";
+        Log.d(logTag, userDTO.toString());
+        userRepository.updateUser(userDTO, new UserRepository.UpdateCallback() {
+            @Override
+            public void onSuccess() {
+                Toast.makeText(activityView.getContext(), "Успешная регистрация!", Toast.LENGTH_LONG).show();
+                Log.d(logTag, "Success");
+                ((AuthActivity) getActivity()).startMainActivity(userId);
+            }
 
-                DatePickerDialog datePickerDialog = new DatePickerDialog(getContext(), new DatePickerDialog.OnDateSetListener() {
-                    @Override
-                    public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
-                        // Преобразуем дату в формат yyyy-MM-dd
-                        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
-                        Calendar selectedDate = Calendar.getInstance();
-                        selectedDate.set(year, month, dayOfMonth);
-                        String formattedDate = sdf.format(selectedDate.getTime());
-                        inputAge.setText(formattedDate);
-                    }
-                }, year, month, day);
-                datePickerDialog.show();
+            @Override
+            public void onError(String errorMessage) {
+                Log.e(logTag, errorMessage);
             }
         });
 
-        return activityView;
     }
 
-    // Метод для хэширования пароля
-    private String hashPassword(String password) {
-        try {
-            MessageDigest md = MessageDigest.getInstance("SHA-256");
-            byte[] hashedBytes = md.digest(password.getBytes());
-            StringBuilder sb = new StringBuilder();
-            for (byte b : hashedBytes) {
-                sb.append(String.format("%02x", b));
-            }
-            return sb.toString();
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
-            return null;
-        }
-    }
 }
