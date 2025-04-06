@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 
@@ -14,6 +15,8 @@ import androidx.annotation.Nullable;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.constraintlayout.widget.ConstraintSet;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.text.InputType;
 import android.util.DisplayMetrics;
@@ -23,6 +26,7 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.GridLayout;
@@ -36,11 +40,13 @@ import com.example.datingappclient.constants.Constants;
 import com.example.datingappclient.model.PictureDTO;
 import com.example.datingappclient.model.UserDTO;
 import com.example.datingappclient.model.UserImage;
+import com.example.datingappclient.recyclerViews.interestList.InterestsAdapter;
 import com.example.datingappclient.retrofit.RetrofitService;
 import com.example.datingappclient.retrofit.ServerAPI;
 import com.example.datingappclient.retrofit.repository.UserRepository;
 import com.example.datingappclient.utils.DateUtils;
 import com.example.datingappclient.utils.ImageUtils;
+import com.google.android.flexbox.FlexboxLayout;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.textfield.TextInputEditText;
@@ -48,7 +54,9 @@ import com.google.gson.JsonObject;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Calendar;
+import java.util.List;
 import java.util.Locale;
 
 import retrofit2.Call;
@@ -85,8 +93,42 @@ public class UsereditFragment extends Fragment {
         setImages(activityView);
         setupReturnButton();
         setupAcceptButton();
+        setupInterests();
 
         return activityView;
+    }
+
+    private void setupInterests() {
+        FlexboxLayout flexboxLayout = activityView.findViewById(R.id.recycler_view_interests);
+
+        List<String> interests = Arrays.asList("Спорт", "Музыка", "Путешествия", "Кулинария");
+
+        for (String interest : interests) {
+            Button interestButton = new Button(activityView.getContext());
+            interestButton.setText(interest);
+            interestButton.setBackgroundResource(R.drawable.bubble_useredit); // Set your button background drawable
+            interestButton.setTextColor(Color.WHITE);
+            // Set button height in dp
+            int buttonHeight = (int) TypedValue.applyDimension(
+                    TypedValue.COMPLEX_UNIT_DIP, 20, activityView.getContext().getResources().getDisplayMetrics());
+            interestButton.setHeight(buttonHeight);
+
+            interestButton.setPadding(5, 0, 5, 0);
+            interestButton.setOnClickListener(v -> {
+                // Обработка клика по интересу
+                // Toast.makeText(this, "Вы выбрали: " + interest, Toast.LENGTH_SHORT).show();
+            });
+
+            // Create LayoutParams and set margins
+            FlexboxLayout.LayoutParams params = new FlexboxLayout.LayoutParams(
+                    FlexboxLayout.LayoutParams.WRAP_CONTENT,
+                    FlexboxLayout.LayoutParams.WRAP_CONTENT);
+            //params.setMargins(0, 16, 0, 0); // Set top margin and bottom margin
+            interestButton.setLayoutParams(params);
+
+            // Add the button to the FlexboxLayout
+            flexboxLayout.addView(interestButton);
+        }
     }
 
 

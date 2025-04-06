@@ -78,4 +78,6 @@ dependencies {
 
     // MockWebServer
     testImplementation("com.squareup.okhttp3:mockwebserver:4.9.0")
+
+    implementation ("com.google.android.flexbox:flexbox:3.0.0")
 }

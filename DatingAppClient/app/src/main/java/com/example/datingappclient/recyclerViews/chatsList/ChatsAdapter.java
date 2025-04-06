@@ -1,4 +1,4 @@
-package com.example.datingappclient.chatsList;
+package com.example.datingappclient.recyclerViews.chatsList;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;

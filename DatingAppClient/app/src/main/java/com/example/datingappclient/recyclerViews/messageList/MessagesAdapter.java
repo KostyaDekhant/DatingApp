@@ -1,4 +1,4 @@
-package com.example.datingappclient.messageList;
+package com.example.datingappclient.recyclerViews.messageList;
 
 import android.view.LayoutInflater;
 import android.view.View;

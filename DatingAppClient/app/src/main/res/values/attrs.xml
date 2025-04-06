@@ -8,6 +8,7 @@
         <attr name="textSizeSmall" format="dimension" />
         <attr name="textSizeMedium" format="dimension" />
         <attr name="textSizeLarge" format="dimension" />
+
         <attr name="textColorMain" format="color"/>
         <attr name="textColorFade" format="color"/>
         <attr name="textColorContrast" format="color"/>
@@ -19,5 +20,15 @@
 
     <declare-styleable name="CustomButtons">
         <attr name="buttonHeight" format="dimension"/>
+    </declare-styleable>
+
+    <declare-styleable name="CustomBubbles">
+        <attr name="bubbleBackgroundColor" format="color"/>
+        <attr name="bubbleTextColor" format="color"/>
+
+        <attr name="bubbleProfileBackgroundColor" format="color"/>
+        <attr name="bubbleProfileTextColor" format="color"/>
+
+        <attr name="bubbleTextSize" format="dimension"/>
     </declare-styleable>
 </resources>

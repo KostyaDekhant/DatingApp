@@ -1,13 +1,10 @@
 package com.example.datingappclient.fragments;
 
-import android.opengl.Visibility;
 import android.os.Bundle;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -16,11 +13,10 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.datingappclient.R;
-import com.example.datingappclient.chatsList.ChatsAdapter;
+import com.example.datingappclient.recyclerViews.chatsList.ChatsAdapter;
 import com.example.datingappclient.retrofit.RetrofitService;
 import com.example.datingappclient.retrofit.ServerAPI;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import retrofit2.Call;

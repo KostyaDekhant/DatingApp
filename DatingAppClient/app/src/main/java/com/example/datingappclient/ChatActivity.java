@@ -15,7 +15,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.datingappclient.constants.Constants;
-import com.example.datingappclient.messageList.MessagesAdapter;
+import com.example.datingappclient.recyclerViews.messageList.MessagesAdapter;
 import com.example.datingappclient.model.MessageDTO;
 import com.example.datingappclient.utils.DateUtils;
 import com.example.datingappclient.utils.ImageUtils;
@@ -41,7 +41,6 @@ public class ChatActivity extends AppCompatActivity {
     byte[] byteImage;
 
     RecyclerView messagesRecyclerView;
-
 
     MessagesAdapter messagesAdapter;
 
@@ -85,7 +84,6 @@ public class ChatActivity extends AppCompatActivity {
                 finish();
             }
         });
-
 
         initStompClient();
 

@@ -1,4 +1,4 @@
-package com.example.datingappclient.messageList;
+package com.example.datingappclient.recyclerViews.messageList;
 
 import com.example.datingappclient.R;
 
