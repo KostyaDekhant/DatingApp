@@ -105,10 +105,10 @@ public class UserService {
     }
 
     @Transactional
-    public UserDTO getUser(int id) {
+    public UserDTO getUser(int id) throws UserNotExistsExceptions {
         Optional<User> temp = userRepo.findById(id);
         if (!temp.isPresent()){
-            throw new UserNotExistsException("Нет пользователя с таким id!");
+            throw new UserNotExistsExceptions("Нет пользователя с таким id!");
         }
         UserDTO userDTO = new UserDTO(temp.get());
         log.info("Информация о пользователе: {}", userDTO);
@@ -116,9 +116,9 @@ public class UserService {
     }
 
     @Transactional
-    public void deleteUser(int id){
+    public void deleteUser(int id) throws UserNotExistsExceptions {
         if(!userRepo.existsById(id)){
-            throw new UserNotExistsException("Нет пользователя с таким id!");
+            throw new UserNotExistsExceptions("Нет пользователя с таким id!");
         }
         log.info("Удалён пользователь с id: " + id);
         userRepo.deleteById(id);

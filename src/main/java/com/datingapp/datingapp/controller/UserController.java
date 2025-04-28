@@ -41,7 +41,7 @@ public class UserController {
 
     //Получение данных о пользователе
     @GetMapping("/users/{id}")
-    public ResponseEntity<UserDTO> getUser(@PathVariable int id) {
+    public ResponseEntity<UserDTO> getUser(@PathVariable int id) throws UserNotExistsExceptions {
         UserDTO userDTO = userService.getUser(id);
         return ResponseEntity.ok(userDTO);
     }
@@ -69,7 +69,7 @@ public class UserController {
 
     //Удаление пользователей по id
     @DeleteMapping("/users/{id}")
-    public ResponseEntity<Void> deleteUser(@PathVariable int id){
+    public ResponseEntity<Void> deleteUser(@PathVariable int id) throws UserNotExistsExceptions {
         userService.deleteUser(id);
         return ResponseEntity.ok().build();
     }

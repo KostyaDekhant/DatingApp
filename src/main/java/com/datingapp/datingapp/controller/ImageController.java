@@ -1,18 +1,17 @@
 package com.datingapp.datingapp.controller;
 
 import com.datingapp.datingapp.entity.MyPic;
-import com.datingapp.datingapp.entity.Picture;
-import com.datingapp.datingapp.entity.UserPic;
 import com.datingapp.datingapp.repository.PicRepo;
 import com.datingapp.datingapp.repository.UserPicRepo;
+import com.datingapp.datingapp.services.ImageService;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.sql.Timestamp;
 import java.util.List;
 
 @RestController
@@ -24,53 +23,22 @@ public class ImageController {
     private final UserPicRepo userPicRepo;
 
     private static final Logger log = LoggerFactory.getLogger(ImageController.class);
+    private final ImageService imageService;
 
-    //Загрузка фотографий на сервер || ответку переделать тоже*
+    //Загрузка фотографий на сервер
     @PostMapping("/user_images/upload")
-    public ResponseEntity<Integer> handleFileUpload(@RequestBody MyPic myPic)
-    {
-        //log.info("Сама фотка: " + myPic);
-        Picture pic = new Picture(myPic.getImageId(), new Timestamp(System.currentTimeMillis()),
-                myPic.getImage());
-        pic.setPkPicture(picRepo.findMaxPk()+1);
-        Picture temp = picRepo.save(pic);
-        log.info("Фотография загружена: " + temp.toString());
-        userPicRepo.save(new UserPic(temp.getPkPicture(), myPic.getUserId()));
-        return temp.getPkPicture();
-        /*try {
-            if (!Files.exists(uploadPath)) {
-                Files.createDirectories(uploadPath);
-            }
-            //Сделать проверки на фотки
-
-        } catch (IOException e) {
-            e.printStackTrace();
-            return -1;
-        }*/
+    public ResponseEntity<Integer> imageUpload(@RequestBody MyPic myPic){
+        Integer id = imageService.imageUpload(myPic);
+        return ResponseEntity.ok(id);
     }
 
-    //Загрузка фотографий на сервер с postman'а || пусть будет, потом переделать лучше
+    //Загрузка фотографий на сервер с postman'а
     @PostMapping("/images2")
-    public int handleFileUpload2(@RequestParam("image") MultipartFile image, @RequestParam("user_id") int user_id,
-                                 @RequestParam("image_id")int image_id) throws IOException {
-        Picture pic = new Picture(image_id, new Timestamp(System.currentTimeMillis()),
-                image.getBytes());
-        pic.setPkPicture(picRepo.findMaxPk()+1);
-        Picture temp = picRepo.save(pic);
-        log.info("информация о фото " + temp.toString());
-        userPicRepo.save(new UserPic(temp.getPkPicture(), user_id));
-        return temp.getPkPicture();
-        /*try {
-            // Проверяем, существует ли директория, если нет - создаем
-            if (!Files.exists(uploadPath)) {
-                Files.createDirectories(uploadPath);
-            }
-
-
-        } catch (IOException e) {
-            e.printStackTrace();
-            return -1;
-        }*/
+    public ResponseEntity<Integer> imageUpload2(@RequestParam("image") MultipartFile image,
+                                                @RequestParam("user_id") int user_id,
+                                                @RequestParam("image_id")int image_id) throws IOException {
+        Integer id = imageService.imageUpload2(image, user_id, image_id);
+        return ResponseEntity.ok(id);
     }
 
     //удалить фотографию ||*
