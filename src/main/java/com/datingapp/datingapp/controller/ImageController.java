@@ -17,6 +17,7 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
+@RequestMapping("/api")
 public class ImageController {
 
     private final PicRepo picRepo;
@@ -25,8 +26,8 @@ public class ImageController {
     private static final Logger log = LoggerFactory.getLogger(ImageController.class);
 
     //Загрузка фотографий на сервер || ответку переделать тоже*
-    @PostMapping("/api/user_images/upload")
-    public int handleFileUpload(@RequestBody MyPic myPic)
+    @PostMapping("/user_images/upload")
+    public ResponseEntity<Integer> handleFileUpload(@RequestBody MyPic myPic)
     {
         //log.info("Сама фотка: " + myPic);
         Picture pic = new Picture(myPic.getImageId(), new Timestamp(System.currentTimeMillis()),
@@ -49,7 +50,7 @@ public class ImageController {
     }
 
     //Загрузка фотографий на сервер с postman'а || пусть будет, потом переделать лучше
-    @PostMapping("api/images2")
+    @PostMapping("/images2")
     public int handleFileUpload2(@RequestParam("image") MultipartFile image, @RequestParam("user_id") int user_id,
                                  @RequestParam("image_id")int image_id) throws IOException {
         Picture pic = new Picture(image_id, new Timestamp(System.currentTimeMillis()),
@@ -73,7 +74,7 @@ public class ImageController {
     }
 
     //удалить фотографию ||*
-    @DeleteMapping("/api/user_images/delete/{image_id}")
+    @DeleteMapping("/user_images/delete/{image_id}")
     public int deleteImage(@PathVariable int image_id)
     {
         int whosPic = picRepo.findUserById(image_id);
@@ -85,7 +86,7 @@ public class ImageController {
 
 
     //Получить фотки конкретного пользователя || хз, подумать надо будет*
-    @GetMapping("/api/user_images/{user_id}")
+    @GetMapping("/user_images/{user_id}")
     public List<Object[]> getImages(@PathVariable int user_id)
     {
         List<Object[]> obj = picRepo.findByUserId(user_id);
