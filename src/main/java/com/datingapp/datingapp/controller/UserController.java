@@ -28,7 +28,6 @@ public class UserController {
 
     private final UserRepo userRepo;
 
-
     //@Autowired
     private final PasswordService passwordService;
     private static final Logger log = LoggerFactory.getLogger(UserController.class);
@@ -43,15 +42,8 @@ public class UserController {
     //Получение данных о пользователе
     @GetMapping("/users/{id}")
     public ResponseEntity<UserDTO> getUser(@PathVariable int id) {
-        Optional<User> temp = userRepo.findById(id);
-        if (temp.isPresent()){
-            UserDTO userDTO = new UserDTO(temp.get());
-            log.info("Информация о пользователе: {}", userDTO);
-            return ResponseEntity.ok(userDTO);
-        }
-        else{
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-        }
+        UserDTO userDTO = userService.getUser(id);
+        return ResponseEntity.ok(userDTO);
     }
 
     //Обновление данных пользователя
@@ -77,14 +69,8 @@ public class UserController {
 
     //Удаление пользователей по id
     @DeleteMapping("/users/{id}")
-    public ResponseEntity<Void> deleteUser(@PathVariable int id)
-    {
-        if(!userRepo.existsById(id)){
-            return ResponseEntity.notFound().build();
-        }
-        log.info("Удалён пользователь с id: " + id);
-        userRepo.deleteById(id);
-        return ResponseEntity.noContent().build();
+    public ResponseEntity<Void> deleteUser(@PathVariable int id){
+        userService.deleteUser(id);
+        return ResponseEntity.ok().build();
     }
-
 }

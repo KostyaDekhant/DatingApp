@@ -76,15 +76,14 @@ public class UserService {
         log.info("DTO: " +user);
         Integer id = user.getId();
         Optional<User> userOptional = userRepo.findById(id);
-        if(userOptional.isPresent()){
-            User existingUser = userOptional.get();
-            User newUser = new User(user);
-            userRepo.save(updateData(existingUser, newUser));
-            log.info("Данные обновлены!");
-            return id;
-        }
-        else
+        if(!userOptional.isPresent()){
             throw new UserNotExistsExceptions("Данные не обновлены, так как нет пользователя с таким id!", -1);
+        }
+        User existingUser = userOptional.get();
+        User newUser = new User(user);
+        userRepo.save(updateData(existingUser, newUser));
+        log.info("Данные обновлены!");
+        return id;
     }
 
     private User updateData(User oldU, User newU){
@@ -104,4 +103,25 @@ public class UserService {
             oldU.setDescription(newU.getDescription());
         return oldU;
     }
+
+    @Transactional
+    public UserDTO getUser(int id) {
+        Optional<User> temp = userRepo.findById(id);
+        if (!temp.isPresent()){
+            throw new UserNotExistsException("Нет пользователя с таким id!");
+        }
+        UserDTO userDTO = new UserDTO(temp.get());
+        log.info("Информация о пользователе: {}", userDTO);
+        return userDTO;
+    }
+
+    @Transactional
+    public void deleteUser(int id){
+        if(!userRepo.existsById(id)){
+            throw new UserNotExistsException("Нет пользователя с таким id!");
+        }
+        log.info("Удалён пользователь с id: " + id);
+        userRepo.deleteById(id);
+    }
+
 }
