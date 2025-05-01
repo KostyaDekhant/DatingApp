@@ -2,6 +2,8 @@ package com.datingapp.datingapp.services;
 
 import com.datingapp.datingapp.controller.ImageController;
 import com.datingapp.datingapp.entity.UserPic;
+import com.datingapp.datingapp.exception.UserNotExistsExceptions;
+import com.datingapp.datingapp.exception.ImageNotFoundException;
 import com.datingapp.datingapp.repository.PicRepo;
 import com.datingapp.datingapp.repository.UserPicRepo;
 import com.datingapp.datingapp.entity.Picture;
@@ -10,10 +12,14 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.sql.Timestamp;
+import java.util.List;
+import java.util.Optional;
 
 
 @Service
@@ -61,6 +67,33 @@ public class ImageService {
         catch (Exception e){
             e.printStackTrace();
             throw new RuntimeException("Ошибка при загрузке изображения!");
+        }
+    }
+
+    @Transactional
+    public void deleteImage(int image_id) throws ImageNotFoundException {
+        Optional<Integer> whosPic = picRepo.findUserById(image_id);
+        if(whosPic.isEmpty())
+            throw new ImageNotFoundException("Нет пользователя с такой фотографией!");
+        try {
+            picRepo.deleteImage(image_id);
+            picRepo.updateId(whosPic.get());
+            log.info("Удалена фотография с id: " + image_id);
+        } catch (RuntimeException e) {
+            throw new RuntimeException("Ошибка при удалении фотографии!");
+        }
+    }
+
+    @Transactional
+    public List<Object[]> getImages(int user_id){
+        try {
+            List<Object[]> obj = picRepo.findByUserId(user_id);
+            log.info("Получены фотографии для пользователя: " + obj);
+            return obj;
+        }
+        catch (Exception e){
+            e.printStackTrace();
+            return null;
         }
     }
 

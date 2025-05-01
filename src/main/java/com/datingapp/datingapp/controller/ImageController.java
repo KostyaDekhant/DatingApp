@@ -1,10 +1,13 @@
 package com.datingapp.datingapp.controller;
 
 import com.datingapp.datingapp.entity.MyPic;
+import com.datingapp.datingapp.exception.ImageNotFoundException;
+import com.datingapp.datingapp.exception.UserNotExistsExceptions;
 import com.datingapp.datingapp.repository.PicRepo;
 import com.datingapp.datingapp.repository.UserPicRepo;
 import com.datingapp.datingapp.services.ImageService;
 import lombok.RequiredArgsConstructor;
+import org.hibernate.id.IncrementGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
@@ -41,25 +44,20 @@ public class ImageController {
         return ResponseEntity.ok(id);
     }
 
-    //удалить фотографию ||*
+    //удалить фотографию
     @DeleteMapping("/user_images/delete/{image_id}")
-    public int deleteImage(@PathVariable int image_id)
-    {
-        int whosPic = picRepo.findUserById(image_id);
-        int res = picRepo.deleteImage(image_id);
-        picRepo.updateId(whosPic);
-        log.info("Удалена фотография с id: " + image_id);
-        return res;
+    public ResponseEntity<Void> deleteImage(@PathVariable int image_id) throws ImageNotFoundException {
+        imageService.deleteImage(image_id);
+        return ResponseEntity.ok().build();
     }
 
 
-    //Получить фотки конкретного пользователя || хз, подумать надо будет*
+    //Получить фотки конкретного пользователя
     @GetMapping("/user_images/{user_id}")
-    public List<Object[]> getImages(@PathVariable int user_id)
-    {
+    public ResponseEntity<List<Object[]>> getImages(@PathVariable int user_id){
         List<Object[]> obj = picRepo.findByUserId(user_id);
         log.info("Получены фотографии для пользователя: " + obj);
-        return obj;
+        return ResponseEntity.ok(obj);
     }
 
     //Определение формата фото

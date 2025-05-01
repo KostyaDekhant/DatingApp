@@ -9,6 +9,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface  PicRepo extends JpaRepository<Picture, Integer> {
@@ -64,5 +65,5 @@ public interface  PicRepo extends JpaRepository<Picture, Integer> {
     @Query(value = "SELECT u.pk_user FROM \"user_pic\" up INNER JOIN " +
             "\"user\" u ON up.pk_user = u.pk_user WHERE up.pk_picture = :image_id LIMIT 1"
             , nativeQuery = true)
-    int findUserById(@Param("image_id") int id);
+    Optional<Integer> findUserById(@Param("image_id") int id);
 }

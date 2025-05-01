@@ -35,4 +35,10 @@ public class ClobalExceptionHandler {
         log.error("Нет пользователя с таким id: {}", ex.getMessage());
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getErrorCode());
     }
+
+    @ExceptionHandler(ImageNotFoundException.class)
+    public ResponseEntity<Integer> handleImageNotFoundException(ImageNotFoundException ex) {
+        log.error("Нет фотографии с таким id: {}", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+    }
 }
