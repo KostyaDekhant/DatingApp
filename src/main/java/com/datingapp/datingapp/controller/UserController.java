@@ -4,20 +4,16 @@ import com.datingapp.datingapp.entity.User;
 import com.datingapp.datingapp.entity.UserDTO;
 import com.datingapp.datingapp.exception.UserExceptionsWithCode;
 import com.datingapp.datingapp.exception.UserNotExistsExceptions;
-import com.datingapp.datingapp.repository.UserRepo;
 import com.datingapp.datingapp.services.PasswordService;
 import com.datingapp.datingapp.services.UserService;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Optional;
 
 @RestController
 @RequiredArgsConstructor
@@ -26,10 +22,6 @@ public class UserController {
 
     private final UserService userService;
 
-    private final UserRepo userRepo;
-
-    //@Autowired
-    private final PasswordService passwordService;
     private static final Logger log = LoggerFactory.getLogger(UserController.class);
 
     //Добавление пользователя

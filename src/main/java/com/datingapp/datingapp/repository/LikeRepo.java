@@ -17,26 +17,26 @@ public interface LikeRepo extends JpaRepository<Like, Integer> {
     int findMaxPk();
     @Query(value = "SELECT l.poster, l.time, u.name, p.image, u.birthday " +
             "FROM \"like\" l " +
-            "INNER JOIN \"user\" u ON u.pk_user = l.poster " +
-            "INNER JOIN \"user_pic\" up ON u.pk_user = up.pk_user " +
-            "INNER JOIN \"picture\" p ON p.pk_picture = (  " +
+            "JOIN \"user\" u ON u.pk_user = l.poster " +
+            "LEFT JOIN \"user_pic\" up ON u.pk_user = up.pk_user " +
+            "LEFT JOIN \"picture\" p ON p.pk_picture = (  " +
             "    SELECT MIN(pk_picture) " +
             "    FROM \"user_pic\" " +
-            "    WHERE pk_user = u.pk_user  " +
+            "    WHERE up.pk_user = u.pk_user  " +
             ") " +
             "WHERE l.liker = :id " +
-            "GROUP BY l.liker, l.time, u.name, p.image, u.birthday;"
+            "GROUP BY l.poster, l.time, u.name, p.image, u.birthday;"
             , nativeQuery = true)
     List<Object[]> findByLiker(@Param("id") int user_id);
 
     @Query(value = "SELECT l.liker, l.time, u.name, p.image, u.birthday " +
             "FROM \"like\" l " +
-            "LEFT JOIN \"user\" u ON u.pk_user = l.liker " +
+            "JOIN \"user\" u ON u.pk_user = l.liker " +
             "LEFT JOIN \"user_pic\" up ON u.pk_user = up.pk_user " +
             "LEFT JOIN \"picture\" p ON p.pk_picture = (  " +
             "    SELECT MIN(pk_picture) " +
             "    FROM \"user_pic\" " +
-            "    WHERE pk_user = u.pk_user  " +
+            "    WHERE up.pk_user = u.pk_user  " +
             ") " +
             "WHERE l.poster = :id " +
             "GROUP BY l.liker, l.time, u.name, p.image, u.birthday;"

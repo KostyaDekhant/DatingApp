@@ -37,8 +37,34 @@ public class ClobalExceptionHandler {
     }
 
     @ExceptionHandler(ImageNotFoundException.class)
-    public ResponseEntity<Integer> handleImageNotFoundException(ImageNotFoundException ex) {
+    public ResponseEntity<Void> handleImageNotFoundException(ImageNotFoundException ex) {
         log.error("Нет фотографии с таким id: {}", ex.getMessage());
         return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
     }
+
+    @ExceptionHandler(ChatAlreadyExistsException.class)
+    public ResponseEntity<Void> handleChatAlreadyExistsException(ChatAlreadyExistsException ex) {
+        log.error("Ошибка при создании чата: {}", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.CONFLICT).build();
+    }
+
+    @ExceptionHandler(FormsNotFoundException.class)
+    public ResponseEntity<Void> handleFormsNotFoundException(FormsNotFoundException ex) {
+        log.error("Анкеты не найдены : {}", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+    }
+
+    @ExceptionHandler(LikeAlreadyExistsException.class)
+    public ResponseEntity<Void> handleLikeAlreadyExistsException(LikeAlreadyExistsException ex) {
+        log.error("Лайк уже поставлен: {}", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.CONFLICT).build();
+    }
+
+    @ExceptionHandler(LikeNotFoundException.class)
+    public ResponseEntity<Void> handleLikeNotFoundException(LikeNotFoundException ex) {
+        log.error("Лайк не найден: {}", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+    }
+
+
 }

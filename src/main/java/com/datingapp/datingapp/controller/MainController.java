@@ -77,90 +77,80 @@ public class MainController {
         return residRepo.findByPk_user(pk_user);
     }
 
-    //Искать юзеров, с кем есть общий чат || id юзер теперь
-    @GetMapping("/api/chat_users/{pk_user}")
-    public List<Object[]> findChatUsers(@PathVariable int pk_user)
-    {
-        List<Object[]> obj = userRepo.findUsers(pk_user);
-        log.info("Общие чаты: " + obj);
-        return obj;
-    }
+//    //Искать юзеров, с кем есть общий чат || id юзер теперь
+//    @GetMapping("/api/chat_users/{pk_user}")
+//    public List<Object[]> findChatUsers(@PathVariable int pk_user)
+//    {
+//        List<Object[]> obj = userRepo.findUsers(pk_user);
+//        log.info("Общие чаты: " + obj);
+//        return obj;
+//    }
 
-    //Поставить лайк || результат лишь поменять, а так збс
-    @PostMapping("api/likes")
-    public int setLike(@RequestBody Like like)
-    {
-        if(likeRepo.isLikeExists(like.getLiker(), like.getPoster()))
-        {
-            log.info("Лайк уже был поставлен!");
-            return -2;
-        }
-        Timestamp time = new Timestamp(System.currentTimeMillis());
-        like.setTime(time); //, image_id
-        log.info("Поставлен лайк: "+like.toString());
-        like.setPkLike(likeRepo.findMaxPk()+1);
+//    //Поставить лайк || результат лишь поменять, а так збс
+//    @PostMapping("api/likes")
+//    public int setLike(@RequestBody Like like)
+//    {
+//        if(likeRepo.isLikeExists(like.getLiker(), like.getPoster()))
+//        {
+//            log.info("Лайк уже был поставлен!");
+//            return -2;
+//        }
+//        Timestamp time = new Timestamp(System.currentTimeMillis());
+//        like.setTime(time); //, image_id
+//        log.info("Поставлен лайк: "+like.toString());
+//        like.setPkLike(likeRepo.findMaxPk()+1);
+//
+//        //проверка на взаимный лайк (создание чата) create_chat
+//
+//        return likeRepo.save(like).getPkLike();
+//    }
+//
+//    //Лайки, которые поставил клиент || тоже хз, мейби так
+//    @GetMapping("api/my_likes/{user_id}")
+//    public List<Object[]> getLikesList(@RequestParam("user_id") int user_id)
+//    {
+//        List<Object[]> obj = likeRepo.findByLiker(user_id);
+//        log.info("Мои лайки: "+ obj);
+//        return obj;
+//    }
+//
+//    //Лайки, которые поставили клиенту || по идее не так *
+//    @GetMapping("api/received_likes/{user_id}")
+//    public List<Object[]> getReceivedLikesList(@PathVariable int user_id)
+//    {
+//        List<Object[]> obj = likeRepo.findByReceiver(user_id);
+//        log.info("Лайки на мои фотографии: "+ obj);
+//        return obj;
+//    }
+//
+//    //Убрать лайк || переписать *
+//    @DeleteMapping("/api/likes")
+//    int deleteLike(@RequestParam("liker") int liker,
+//                   @RequestParam("poster") int poster)
+//    {
+//        int delete_count = likeRepo.deleteLike(liker,poster);
+//        if(delete_count != 0)
+//            log.info("Лайк убран: " + delete_count);
+//        return delete_count;
+//    }
 
-        //проверка на взаимный лайк (создание чата) create_chat
-
-        return likeRepo.save(like).getPkLike();
-    }
-
-    //Лайки, которые поставил клиент || тоже хз, мейби так
-    @GetMapping("api/my_likes/{user_id}")
-    public List<Object[]> getLikesList(@RequestParam("user_id") int user_id)
-    {
-        List<Object[]> obj = likeRepo.findByLiker(user_id);
-        log.info("Мои лайки: "+ obj);
-        return obj;
-    }
-
-    //Лайки, которые поставили клиенту || по идее не так *
-    @GetMapping("api/received_likes/{user_id}")
-    public List<Object[]> getReceivedLikesList(@PathVariable int user_id)
-    {
-        List<Object[]> obj = likeRepo.findByReceiver(user_id);
-        log.info("Лайки на мои фотографии: "+ obj);
-        return obj;
-    }
-
-    //Анкеты || вроде норм
-    @GetMapping("api/forms")
-    public Object[] getListUsers(@RequestParam("user_id") int user_id,
-                                 @RequestParam("prev_user_id") int prev_user_id)
-    {
-        Object[] obj = userRepo.findQuestUsers(user_id, prev_user_id);
-        log.info("Анкеты : "+ obj);
-        return obj;
-    }
-
-    //Убрать лайк || переписать *
-    @DeleteMapping("/api/likes")
-    int deleteLike(@RequestParam("liker") int liker,
-                   @RequestParam("poster") int poster)
-    {
-        int delete_count = likeRepo.deleteLike(liker,poster);
-        if(delete_count != 0)
-            log.info("Лайк убран: " + delete_count);
-        return delete_count;
-    }
-
-    //Создание чата по запросу || норм, ответку переписать только*
-    @PostMapping("api/chats")
-    int createChat(@RequestParam("pk_user") int pk_user,
-                   @RequestParam("pk_user1") int pk_user1)
-    {
-        if(!chatRepo.isChatExists(pk_user, pk_user1))
-        {
-            Chat chat = new Chat(pk_user, pk_user1);
-            chat.setPkChat(chatRepo.findMaxPk()+1);
-            log.info("ID созданного чата: "+ chat);
-            chatRepo.save(chat);
-            log.info("Создан новый чат: " + chat);
-            return chat.getPkChat();
-        }
-        log.info("Такой чат уже существует!");
-        return -1;
-    }
+//    //Создание чата по запросу || норм, ответку переписать только*
+//    @PostMapping("api/chats")
+//    int createChat(@RequestParam("pk_user") int pk_user,
+//                   @RequestParam("pk_user1") int pk_user1)
+//    {
+//        if(!chatRepo.isChatExists(pk_user, pk_user1))
+//        {
+//            Chat chat = new Chat(pk_user, pk_user1);
+//            chat.setPkChat(chatRepo.findMaxPk()+1);
+//            log.info("ID созданного чата: "+ chat);
+//            chatRepo.save(chat);
+//            log.info("Создан новый чат: " + chat);
+//            return chat.getPkChat();
+//        }
+//        log.info("Такой чат уже существует!");
+//        return -1;
+//    }
 
 }
 
