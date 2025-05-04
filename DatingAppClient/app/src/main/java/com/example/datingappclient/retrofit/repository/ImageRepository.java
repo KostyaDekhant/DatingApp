@@ -21,6 +21,7 @@ public class ImageRepository {
 
     public interface ImagesCallback {
         void onSuccess(List<Object[]> images);
+        void onEmpty(String message);
         void onError(String errorMessage);
     }
 
@@ -36,13 +37,13 @@ public class ImageRepository {
 
     // Получение изображений пользователя
     public void fetchUserImages(int userID, ImagesCallback callback) {
-        imageAPI.getUserImages(userID).enqueue(new Callback<List<Object[]>>() {
+        imageAPI.getUserImages(userID).enqueue(new Callback<>() {
             @Override
             public void onResponse(Call<List<Object[]>> call, Response<List<Object[]>> response) {
                 if (response.isSuccessful() && response.body() != null) {
                     callback.onSuccess(response.body());
                 } else {
-                    callback.onError("Ошибка получения изображений: " + response.message());
+                    callback.onEmpty("Для пользователя не найдено изображений: " + response.code());
                 }
             }
 

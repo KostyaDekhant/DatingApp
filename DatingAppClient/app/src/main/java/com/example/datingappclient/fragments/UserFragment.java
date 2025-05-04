@@ -115,10 +115,10 @@ public class UserFragment extends Fragment implements View.OnClickListener {
         });
     }
 
-    private void getUserImages(int userID) {
+    private void getUserImages(int userId) {
         String logTag = Constants.GLOBAL_LOG_TAG + "USER_IMAGES";
         // Загружаем изображения
-        imageRepository.fetchUserImages(userID, new ImageRepository.ImagesCallback() {
+        imageRepository.fetchUserImages(userId, new ImageRepository.ImagesCallback() {
             @Override
             public void onSuccess(List<Object[]> images) {
                 // сетап изображений
@@ -131,6 +131,11 @@ public class UserFragment extends Fragment implements View.OnClickListener {
                     profileImage.setImageBitmap(user.getImages().get(0).getImage());
                 }
                 isLogin = false;
+            }
+
+            @Override
+            public void onEmpty(String message) {
+                Log.i(logTag, message + " userId :" + userId);
             }
 
             @Override

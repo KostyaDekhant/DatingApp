@@ -29,6 +29,7 @@ public interface ServerAPI {
     Call<Integer> signup(@Body JsonObject jsonObject);
 
     // Получние чатов для опр. юзера
+    // TODO: Переделать
     @GET("api/chats/chat_users/{pk_user}")
     Call<List<Object[]>> getChats(@Path("pk_user") int id);
 

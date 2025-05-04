@@ -11,6 +11,7 @@ import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -18,9 +19,11 @@ import androidx.constraintlayout.motion.widget.OnSwipe;
 import androidx.fragment.app.Fragment;
 
 import com.example.datingappclient.R;
+import com.example.datingappclient.constants.Constants;
 import com.example.datingappclient.model.UserImage;
 import com.example.datingappclient.retrofit.RetrofitService;
 import com.example.datingappclient.retrofit.ServerAPI;
+import com.example.datingappclient.retrofit.repository.ImageRepository;
 import com.example.datingappclient.utils.DateUtils;
 import com.example.datingappclient.utils.ImageUtils;
 import com.example.datingappclient.searchlogic.OnSwipeTouchListener;
@@ -34,14 +37,22 @@ import retrofit2.Response;
 
 public class SearchFragment extends Fragment {
 
+    /* === CONSTANTS === */
+    private static final String ARG_CLIENT_ID = "client_id";
+
+    /* === Repository === */
+    private final ImageRepository imageRepository;
+
+    /* === Android Objects === */
+    private View activityView;
     private ImageButton dislikeButton;
     private ImageButton likeButton;
     private TextView userNameAgeLabel;
     private TextView descLabel;
-    private FrameLayout profileContainer;
     private View swipeOverlay;
     private ImageView profileImage;
 
+    /* === Other === */
     private int clientId = 24; // ID нашего клиента
     private int prevUserId = 0; // Для первой анкеты
     private int currentUserId = 0; // Текущая анкета
@@ -49,10 +60,10 @@ public class SearchFragment extends Fragment {
     private List<UserImage> userImages;
     private int currentImageIndex = 0;
 
-    private static final String ARG_CLIENT_ID = "client_id";
-
+    /* === Methods === */
     public SearchFragment() {
         // Required empty public constructor
+        imageRepository = new ImageRepository();
     }
 
     public static SearchFragment newInstance(int clientId) {
@@ -66,20 +77,19 @@ public class SearchFragment extends Fragment {
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_search, container, false);
+        activityView = inflater.inflate(R.layout.fragment_search, container, false);
 
         // Извлекаем clientId из аргументов
         if (getArguments() != null) {
             clientId = getArguments().getInt(ARG_CLIENT_ID);
         }
 
-        dislikeButton = view.findViewById(R.id.dislike_button);
-        likeButton = view.findViewById(R.id.like_button);
-        userNameAgeLabel = view.findViewById(R.id.userNameAge_label);
-        descLabel = view.findViewById(R.id.description_label);
-        profileContainer = view.findViewById(R.id.profile_container);
-        swipeOverlay = view.findViewById(R.id.swipe_overlay);
-        profileImage = view.findViewById(R.id.profile_image);
+        dislikeButton = activityView.findViewById(R.id.dislike_button);
+        likeButton = activityView.findViewById(R.id.like_button);
+        userNameAgeLabel = activityView.findViewById(R.id.userNameAge_label);
+        descLabel = activityView.findViewById(R.id.description_label);
+        swipeOverlay = activityView.findViewById(R.id.swipe_overlay);
+        profileImage = activityView.findViewById(R.id.profile_image);
 
         dislikeButton.setOnClickListener(v -> {
             showSwipeOverlay(false); // Показать красную вуаль
@@ -124,7 +134,7 @@ public class SearchFragment extends Fragment {
         // Загружаем первую анкету при создании фрагмента
         loadNextProfile();
 
-        return view;
+        return activityView;
     }
 
     private void showSwipeOverlay(boolean isRightSwipe) {
@@ -168,7 +178,7 @@ public class SearchFragment extends Fragment {
 
                     // Загружаем изображение, если ID пользователя не равен 0
                     if (currentUserId != 0) {
-                        loadImage(currentUserId);
+                        loadUserImagesFromForm(currentUserId);
                     }
                     likeButton.setEnabled(true);
                     dislikeButton.setEnabled(true);
@@ -184,25 +194,25 @@ public class SearchFragment extends Fragment {
         });
     }
 
-    private void loadImage(int userId) {
-        RetrofitService retrofitService = new RetrofitService();
-        ServerAPI serverAPI = retrofitService.getRetrofit().create(ServerAPI.class);
-
-        serverAPI.getUserImages(userId).enqueue(new Callback<List<Object[]>>() {
+    private void loadUserImagesFromForm(int userId) {
+        String logTag = Constants.GLOBAL_LOG_TAG + "USER_IMAGES (FORMS)";
+        imageRepository.fetchUserImages(userId, new ImageRepository.ImagesCallback() {
             @Override
-            public void onResponse(Call<List<Object[]>> call, Response<List<Object[]>> response) {
-                if (response.body() != null && !response.body().isEmpty()) {
-                    userImages = ImageUtils.objectListToUserImageList(response.body());
-                    currentImageIndex = 0;
-                    showCurrentImage();
-                } else {
-                    Log.d("SearchFragment", "No images found for user");
-                }
+            public void onSuccess(List<Object[]> images) {
+                Log.i(logTag, "Count images: " + images.size());
+                userImages = ImageUtils.objectListToUserImageList(images);
+                currentImageIndex = 0;
+                showCurrentImage();
             }
 
             @Override
-            public void onFailure(Call<List<Object[]>> call, Throwable t) {
-                Log.e("SearchFragment", "Error loading images", t);
+            public void onEmpty(String message) {
+                Log.i(logTag, message + " userId :" + userId);
+            }
+
+            @Override
+            public void onError(String errorMessage) {
+                Log.e(logTag, errorMessage);
             }
         });
     }
