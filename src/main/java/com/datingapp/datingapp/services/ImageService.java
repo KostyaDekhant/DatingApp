@@ -73,8 +73,8 @@ public class ImageService {
     @Transactional
     public void deleteImage(int image_id) throws ImageNotFoundException {
         Optional<Integer> whosPic = picRepo.findUserById(image_id);
-        if(whosPic.isEmpty())
-            throw new ImageNotFoundException("Нет пользователя с такой фотографией!");
+//        if(whosPic.isPresent()){}
+//            throw new ImageNotFoundException("Нет пользователя с такой фотографией!");
         try {
             picRepo.deleteImage(image_id);
             picRepo.updateId(whosPic.get());

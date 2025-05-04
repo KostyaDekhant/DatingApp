@@ -54,7 +54,6 @@ public class UserInterestController {
 
     @GetMapping("/categories")
     public List<CategoryDto> listCategories() {
-        log.info("category: " + categoryInterests.toString());
         return categoryInterests;
     }
 

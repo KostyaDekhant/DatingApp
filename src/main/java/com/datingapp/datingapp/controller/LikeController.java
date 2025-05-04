@@ -28,7 +28,7 @@ public class LikeController {
         return ResponseEntity.ok(likeService.getMyLikes(userId));
     }
 
-    @GetMapping("/received_likes/{user_id}")
+    @GetMapping("/{user_id}")
     public ResponseEntity<List<Object[]>> getReceivedLikes(@PathVariable("user_id") int userId) {
         return ResponseEntity.ok(likeService.getReceivedLikes(userId));
     }

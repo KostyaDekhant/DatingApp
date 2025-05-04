@@ -13,7 +13,7 @@ import java.util.List;
 public class ChatController {
     private final ChatService chatService;
 
-    @GetMapping("/chat_users/{userId}") //users
+    @GetMapping("/{userId}") //users
     public ResponseEntity<List<Object[]>> findChatUsers(@PathVariable int userId) {
         return ResponseEntity.ok(chatService.findChatUsers(userId));
     }
