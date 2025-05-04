@@ -1,0 +1,687 @@
+[
+  {
+    "pk_interest": 1,
+    "pk_category": 1,
+    "name": "Компьютерные игры"
+  },
+  {
+    "pk_interest": 2,
+    "pk_category": 1,
+    "name": "Мода и красота"
+  },
+  {
+    "pk_interest": 3,
+    "pk_category": 1,
+    "name": "Автомобили"
+  },
+  {
+    "pk_interest": 4,
+    "pk_category": 1,
+    "name": "IT и технологии"
+  },
+  {
+    "pk_interest": 5,
+    "pk_category": 1,
+    "name": "Психология"
+  },
+  {
+    "pk_interest": 6,
+    "pk_category": 1,
+    "name": "Астрология"
+  },
+  {
+    "pk_interest": 7,
+    "pk_category": 1,
+    "name": "Медитации"
+  },
+  {
+    "pk_interest": 8,
+    "pk_category": 1,
+    "name": "Комиксы"
+  },
+  {
+    "pk_interest": 9,
+    "pk_category": 1,
+    "name": "Манга"
+  },
+  {
+    "pk_interest": 10,
+    "pk_category": 1,
+    "name": "Фанфики"
+  },
+  {
+    "pk_interest": 11,
+    "pk_category": 1,
+    "name": "Коллекционирование"
+  },
+  {
+    "pk_interest": 12,
+    "pk_category": 1,
+    "name": "Изучение языков"
+  },
+  {
+    "pk_interest": 13,
+    "pk_category": 1,
+    "name": "Стриминги"
+  },
+  {
+    "pk_interest": 14,
+    "pk_category": 1,
+    "name": "Игры на приставке"
+  },
+  {
+    "pk_interest": 15,
+    "pk_category": 2,
+    "name": "Кинотеатры"
+  },
+  {
+    "pk_interest": 16,
+    "pk_category": 2,
+    "name": "Концерты и шоу"
+  },
+  {
+    "pk_interest": 17,
+    "pk_category": 2,
+    "name": "Музеи и галереи"
+  },
+  {
+    "pk_interest": 18,
+    "pk_category": 2,
+    "name": "Театры"
+  },
+  {
+    "pk_interest": 19,
+    "pk_category": 2,
+    "name": "Отдых на природе"
+  },
+  {
+    "pk_interest": 20,
+    "pk_category": 2,
+    "name": "Фестивали"
+  },
+  {
+    "pk_interest": 21,
+    "pk_category": 2,
+    "name": "Тусовки и клубы"
+  },
+  {
+    "pk_interest": 22,
+    "pk_category": 2,
+    "name": "Рестораны"
+  },
+  {
+    "pk_interest": 23,
+    "pk_category": 2,
+    "name": "Путешествия"
+  },
+  {
+    "pk_interest": 24,
+    "pk_category": 2,
+    "name": "Шопинг"
+  },
+  {
+    "pk_interest": 25,
+    "pk_category": 2,
+    "name": "Встречи с друзьями"
+  },
+  {
+    "pk_interest": 26,
+    "pk_category": 2,
+    "name": "Искусство"
+  },
+  {
+    "pk_interest": 27,
+    "pk_category": 2,
+    "name": "Активный отдых"
+  },
+  {
+    "pk_interest": 28,
+    "pk_category": 2,
+    "name": "Мастер-классы"
+  },
+  {
+    "pk_interest": 29,
+    "pk_category": 2,
+    "name": "Караоке"
+  },
+  {
+    "pk_interest": 30,
+    "pk_category": 2,
+    "name": "Квизы"
+  },
+  {
+    "pk_interest": 31,
+    "pk_category": 3,
+    "name": "Фотография"
+  },
+  {
+    "pk_interest": 32,
+    "pk_category": 3,
+    "name": "Видеосъёмка"
+  },
+  {
+    "pk_interest": 33,
+    "pk_category": 3,
+    "name": "Дизайн"
+  },
+  {
+    "pk_interest": 34,
+    "pk_category": 3,
+    "name": "Макияж"
+  },
+  {
+    "pk_interest": 35,
+    "pk_category": 3,
+    "name": "Рукоделие"
+  },
+  {
+    "pk_interest": 36,
+    "pk_category": 3,
+    "name": "Танцы"
+  },
+  {
+    "pk_interest": 37,
+    "pk_category": 3,
+    "name": "Пение"
+  },
+  {
+    "pk_interest": 38,
+    "pk_category": 3,
+    "name": "Музыка"
+  },
+  {
+    "pk_interest": 39,
+    "pk_category": 3,
+    "name": "Ведение блога"
+  },
+  {
+    "pk_interest": 40,
+    "pk_category": 3,
+    "name": "Рисование"
+  },
+  {
+    "pk_interest": 41,
+    "pk_category": 3,
+    "name": "Стрит-арт"
+  },
+  {
+    "pk_interest": 42,
+    "pk_category": 3,
+    "name": "Флористика"
+  },
+  {
+    "pk_interest": 43,
+    "pk_category": 3,
+    "name": "Косплей"
+  },
+  {
+    "pk_interest": 44,
+    "pk_category": 4,
+    "name": "Бег"
+  },
+  {
+    "pk_interest": 45,
+    "pk_category": 4,
+    "name": "Фитнес"
+  },
+  {
+    "pk_interest": 46,
+    "pk_category": 4,
+    "name": "Велосипед"
+  },
+  {
+    "pk_interest": 47,
+    "pk_category": 4,
+    "name": "Верховая езда"
+  },
+  {
+    "pk_interest": 48,
+    "pk_category": 4,
+    "name": "Лыжи"
+  },
+  {
+    "pk_interest": 49,
+    "pk_category": 4,
+    "name": "Йога"
+  },
+  {
+    "pk_interest": 50,
+    "pk_category": 4,
+    "name": "Пилатес"
+  },
+  {
+    "pk_interest": 51,
+    "pk_category": 4,
+    "name": "Сноуборд"
+  },
+  {
+    "pk_interest": 52,
+    "pk_category": 4,
+    "name": "Ролики"
+  },
+  {
+    "pk_interest": 53,
+    "pk_category": 4,
+    "name": "Скейтборд"
+  },
+  {
+    "pk_interest": 54,
+    "pk_category": 4,
+    "name": "Самокат"
+  },
+  {
+    "pk_interest": 55,
+    "pk_category": 4,
+    "name": "Прогулки"
+  },
+  {
+    "pk_interest": 56,
+    "pk_category": 4,
+    "name": "Альпинизм"
+  },
+  {
+    "pk_interest": 57,
+    "pk_category": 5,
+    "name": "Пицца"
+  },
+  {
+    "pk_interest": 58,
+    "pk_category": 5,
+    "name": "Суши"
+  },
+  {
+    "pk_interest": 59,
+    "pk_category": 5,
+    "name": "Бургеры"
+  },
+  {
+    "pk_interest": 60,
+    "pk_category": 5,
+    "name": "Здоровое питание"
+  },
+  {
+    "pk_interest": 61,
+    "pk_category": 5,
+    "name": "Веганство"
+  },
+  {
+    "pk_interest": 62,
+    "pk_category": 5,
+    "name": "Вегетарианство"
+  },
+  {
+    "pk_interest": 63,
+    "pk_category": 5,
+    "name": "Кофе"
+  },
+  {
+    "pk_interest": 64,
+    "pk_category": 5,
+    "name": "Чай"
+  },
+  {
+    "pk_interest": 65,
+    "pk_category": 5,
+    "name": "Выпечка"
+  },
+  {
+    "pk_interest": 66,
+    "pk_category": 5,
+    "name": "Сладости"
+  },
+  {
+    "pk_interest": 67,
+    "pk_category": 5,
+    "name": "Домашняя кухня"
+  },
+  {
+    "pk_interest": 68,
+    "pk_category": 5,
+    "name": "Бабл-ти"
+  },
+  {
+    "pk_interest": 69,
+    "pk_category": 5,
+    "name": "Паста"
+  },
+  {
+    "pk_interest": 70,
+    "pk_category": 5,
+    "name": "Шаурма"
+  },
+  {
+    "pk_interest": 71,
+    "pk_category": 6,
+    "name": "Футбол"
+  },
+  {
+    "pk_interest": 72,
+    "pk_category": 6,
+    "name": "Плавание"
+  },
+  {
+    "pk_interest": 73,
+    "pk_category": 6,
+    "name": "Волейбол"
+  },
+  {
+    "pk_interest": 74,
+    "pk_category": 6,
+    "name": "Баскетбол"
+  },
+  {
+    "pk_interest": 75,
+    "pk_category": 6,
+    "name": "Хоккей"
+  },
+  {
+    "pk_interest": 76,
+    "pk_category": 6,
+    "name": "Тяжёлая атлетика"
+  },
+  {
+    "pk_interest": 77,
+    "pk_category": 6,
+    "name": "Бокс"
+  },
+  {
+    "pk_interest": 78,
+    "pk_category": 6,
+    "name": "Киберспорт"
+  },
+  {
+    "pk_interest": 79,
+    "pk_category": 6,
+    "name": "Единоборства"
+  },
+  {
+    "pk_interest": 80,
+    "pk_category": 6,
+    "name": "Теннис"
+  },
+  {
+    "pk_interest": 81,
+    "pk_category": 7,
+    "name": "Кулинария"
+  },
+  {
+    "pk_interest": 82,
+    "pk_category": 7,
+    "name": "Настольные игры"
+  },
+  {
+    "pk_interest": 83,
+    "pk_category": 7,
+    "name": "Кино и сериалы"
+  },
+  {
+    "pk_interest": 84,
+    "pk_category": 7,
+    "name": "Садоводство"
+  },
+  {
+    "pk_interest": 85,
+    "pk_category": 7,
+    "name": "Книги"
+  },
+  {
+    "pk_interest": 86,
+    "pk_category": 7,
+    "name": "Саморазвитие"
+  },
+  {
+    "pk_interest": 87,
+    "pk_category": 7,
+    "name": "Онлайн-обучение"
+  },
+  {
+    "pk_interest": 88,
+    "pk_category": 7,
+    "name": "Просмотр шоу"
+  },
+  {
+    "pk_interest": 89,
+    "pk_category": 7,
+    "name": "Подкасты"
+  },
+  {
+    "pk_interest": 90,
+    "pk_category": 8,
+    "name": "Загородные поездки"
+  },
+  {
+    "pk_interest": 91,
+    "pk_category": 8,
+    "name": "Турпоходы"
+  },
+  {
+    "pk_interest": 92,
+    "pk_category": 8,
+    "name": "Экскурсии"
+  },
+  {
+    "pk_interest": 93,
+    "pk_category": 8,
+    "name": "Пляжный отдых"
+  },
+  {
+    "pk_interest": 94,
+    "pk_category": 8,
+    "name": "Охота и рыбалка"
+  },
+  {
+    "pk_interest": 95,
+    "pk_category": 8,
+    "name": "Круизы"
+  },
+  {
+    "pk_interest": 96,
+    "pk_category": 8,
+    "name": "Горы"
+  },
+  {
+    "pk_interest": 97,
+    "pk_category": 8,
+    "name": "Мероприятия и концерты"
+  },
+  {
+    "pk_interest": 98,
+    "pk_category": 8,
+    "name": "Путешествия за границей"
+  },
+  {
+    "pk_interest": 99,
+    "pk_category": 8,
+    "name": "Экстрим"
+  },
+  {
+    "pk_interest": 100,
+    "pk_category": 8,
+    "name": "Путешествия по России"
+  },
+  {
+    "pk_interest": 101,
+    "pk_category": 9,
+    "name": "Кошки"
+  },
+  {
+    "pk_interest": 102,
+    "pk_category": 9,
+    "name": "Собаки"
+  },
+  {
+    "pk_interest": 103,
+    "pk_category": 9,
+    "name": "Птицы"
+  },
+  {
+    "pk_interest": 104,
+    "pk_category": 9,
+    "name": "Рыбки"
+  },
+  {
+    "pk_interest": 105,
+    "pk_category": 9,
+    "name": "Кролики"
+  },
+  {
+    "pk_interest": 106,
+    "pk_category": 9,
+    "name": "Черепахи"
+  },
+  {
+    "pk_interest": 107,
+    "pk_category": 9,
+    "name": "Змеи"
+  },
+  {
+    "pk_interest": 108,
+    "pk_category": 9,
+    "name": "Ящерицы"
+  },
+  {
+    "pk_interest": 109,
+    "pk_category": 9,
+    "name": "Хомяки"
+  },
+  {
+    "pk_interest": 110,
+    "pk_category": 10,
+    "name": "Комедии"
+  },
+  {
+    "pk_interest": 111,
+    "pk_category": 10,
+    "name": "Мультфильмы"
+  },
+  {
+    "pk_interest": 112,
+    "pk_category": 10,
+    "name": "Исторические"
+  },
+  {
+    "pk_interest": 113,
+    "pk_category": 10,
+    "name": "Детективы"
+  },
+  {
+    "pk_interest": 114,
+    "pk_category": 10,
+    "name": "Приключения"
+  },
+  {
+    "pk_interest": 115,
+    "pk_category": 10,
+    "name": "Ужасы"
+  },
+  {
+    "pk_interest": 116,
+    "pk_category": 10,
+    "name": "Драмы"
+  },
+  {
+    "pk_interest": 117,
+    "pk_category": 10,
+    "name": "Мелодрамы"
+  },
+  {
+    "pk_interest": 118,
+    "pk_category": 10,
+    "name": "Триллеры"
+  },
+  {
+    "pk_interest": 119,
+    "pk_category": 10,
+    "name": "Боевики"
+  },
+  {
+    "pk_interest": 120,
+    "pk_category": 10,
+    "name": "Аниме"
+  },
+  {
+    "pk_interest": 121,
+    "pk_category": 10,
+    "name": "Тру-крайм"
+  },
+  {
+    "pk_interest": 122,
+    "pk_category": 10,
+    "name": "Документальное кино"
+  },
+  {
+    "pk_interest": 123,
+    "pk_category": 10,
+    "name": "Развлекательные шоу"
+  },
+  {
+    "pk_interest": 124,
+    "pk_category": 10,
+    "name": "Стендап"
+  },
+  {
+    "pk_interest": 125,
+    "pk_category": 10,
+    "name": "Дорамы"
+  },
+  {
+    "pk_interest": 126,
+    "pk_category": 10,
+    "name": "Фантастика"
+  },
+  {
+    "pk_interest": 127,
+    "pk_category": 11,
+    "name": "Поп-музыка"
+  },
+  {
+    "pk_interest": 128,
+    "pk_category": 11,
+    "name": "Хип-хоп"
+  },
+  {
+    "pk_interest": 129,
+    "pk_category": 11,
+    "name": "Электроника"
+  },
+  {
+    "pk_interest": 130,
+    "pk_category": 11,
+    "name": "Рок"
+  },
+  {
+    "pk_interest": 131,
+    "pk_category": 11,
+    "name": "Рэп"
+  },
+  {
+    "pk_interest": 132,
+    "pk_category": 11,
+    "name": "Классическая музыка"
+  },
+  {
+    "pk_interest": 133,
+    "pk_category": 11,
+    "name": "Метал"
+  },
+  {
+    "pk_interest": 134,
+    "pk_category": 11,
+    "name": "Техно"
+  },
+  {
+    "pk_interest": 135,
+    "pk_category": 11,
+    "name": "Блюз"
+  },
+  {
+    "pk_interest": 136,
+    "pk_category": 11,
+    "name": "Меломан"
+  },
+  {
+    "pk_interest": 137,
+    "pk_category": 11,
+    "name": "K-pop"
+  }
+]

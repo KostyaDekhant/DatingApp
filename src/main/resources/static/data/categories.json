@@ -1,0 +1,46 @@
+[
+  {
+    "pk_category": 1,
+    "name": "Хобби"
+  },
+  {
+    "pk_category": 2,
+    "name": "Социальная жизнь"
+  },
+  {
+    "pk_category": 3,
+    "name": "Творчество"
+  },
+  {
+    "pk_category": 4,
+    "name": "Активный образ жизни"
+  },
+  {
+    "pk_category": 5,
+    "name": "Еда и напитки"
+  },
+  {
+    "pk_category": 6,
+    "name": "Спорт"
+  },
+  {
+    "pk_category": 7,
+    "name": "Время дома"
+  },
+  {
+    "pk_category": 8,
+    "name": "Путешествия"
+  },
+  {
+    "pk_category": 9,
+    "name": "Домашние животные"
+  },
+  {
+    "pk_category": 10,
+    "name": "Фильмы и сериалы"
+  },
+  {
+    "pk_category": 11,
+    "name": "Музыка"
+  }
+]
