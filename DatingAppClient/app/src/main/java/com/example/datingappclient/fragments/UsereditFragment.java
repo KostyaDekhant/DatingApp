@@ -488,7 +488,7 @@ public class UsereditFragment extends Fragment {
         String logTag = Constants.GLOBAL_LOG_TAG + "DELETE USER IMAGE";
         imageRepository.deleteImage(imageId, new ImageRepository.DeleteCallback() {
             @Override
-            public void onSuccess(int responseCode) {
+            public void onSuccess() {
                 Toast.makeText(activityView.getContext(), "Изображение удалено!", Toast.LENGTH_LONG).show();
                 Log.d(logTag, "Success");
             }

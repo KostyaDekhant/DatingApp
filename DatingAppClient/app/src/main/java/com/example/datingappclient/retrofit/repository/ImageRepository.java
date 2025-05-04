@@ -30,7 +30,7 @@ public class ImageRepository {
     }
 
     public interface DeleteCallback {
-        void onSuccess(int responseCode);
+        void onSuccess();
         void onError(String errorMessage);
     }
 
@@ -76,18 +76,18 @@ public class ImageRepository {
 
     // Удаление изображения
     public void deleteImage(int imageId, DeleteCallback callback) {
-        imageAPI.deleteImage(imageId).enqueue(new Callback<Integer>() {
+        imageAPI.deleteImage(imageId).enqueue(new Callback<>() {
             @Override
-            public void onResponse(Call<Integer> call, Response<Integer> response) {
+            public void onResponse(Call<Void> call, Response<Void> response) {
                 if (response.isSuccessful()) {
-                    callback.onSuccess(response.body());
+                    callback.onSuccess();
                 } else {
-                    callback.onError("Ошибка удаления изображения: " + response.message());
+                    callback.onError("Ошибка удаления изображения: " + response.code());
                 }
             }
 
             @Override
-            public void onFailure(Call<Integer> call, Throwable throwable) {
+            public void onFailure(Call<Void> call, Throwable throwable) {
                 Log.e("ImageRepository", "Ошибка сети при удалении изображения", throwable);
                 callback.onError("Ошибка сети: " + throwable.getMessage());
             }

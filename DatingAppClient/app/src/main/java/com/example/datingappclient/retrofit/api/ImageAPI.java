@@ -19,5 +19,5 @@ public interface ImageAPI {
     Call<Integer> uploadImage(@Body PictureDTO picture);
 
     @DELETE("api/user_images/delete/{image_id}")
-    Call<Integer> deleteImage(@Path("image_id") int imageID);
+    Call<Void> deleteImage(@Path("image_id") int imageID);
 }
