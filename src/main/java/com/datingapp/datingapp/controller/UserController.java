@@ -1,6 +1,8 @@
 package com.datingapp.datingapp.controller;
 
 import com.datingapp.datingapp.entity.User;
+import com.datingapp.datingapp.entity.UserCompanyInfo;
+import com.datingapp.datingapp.entity.UserCompanyInfoDto;
 import com.datingapp.datingapp.entity.UserDTO;
 import com.datingapp.datingapp.exception.UserExceptionsWithCode;
 import com.datingapp.datingapp.exception.UserNotExistsExceptions;
@@ -63,6 +65,19 @@ public class UserController {
     @DeleteMapping("/users/{id}")
     public ResponseEntity<Void> deleteUser(@PathVariable int id) throws UserNotExistsExceptions {
         userService.deleteUser(id);
+        return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/users/{id}/company_info")
+    public ResponseEntity<UserCompanyInfoDto> getUserCompanyInfo(@PathVariable int id) throws RuntimeException {
+        UserCompanyInfoDto userCompanyInfo = userService.getUserCompanyInfo(id);
+        return ResponseEntity.ok(userCompanyInfo);
+    }
+
+    @PostMapping("/users/{id}/company_info")
+    public ResponseEntity<Void> setUserCompanyInfo(@PathVariable int id, @RequestBody UserCompanyInfoDto ucfDto)
+            throws RuntimeException {
+        userService.setUserCompanyInfo(id, ucfDto);
         return ResponseEntity.ok().build();
     }
 }

@@ -2,19 +2,19 @@ package com.datingapp.datingapp.services;
 
 import com.datingapp.datingapp.controller.UserController;
 import com.datingapp.datingapp.entity.User;
+import com.datingapp.datingapp.entity.UserCompanyInfo;
+import com.datingapp.datingapp.entity.UserCompanyInfoDto;
 import com.datingapp.datingapp.entity.UserDTO;
 import com.datingapp.datingapp.exception.UserAlreadyExistsExceptions;
 import com.datingapp.datingapp.exception.UserExceptionsWithCode;
 import com.datingapp.datingapp.exception.UserNotExistsExceptions;
+import com.datingapp.datingapp.repository.UserCompanyRepo;
 import com.datingapp.datingapp.repository.UserRepo;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.RequestBody;
 
 import java.util.Optional;
 
@@ -25,6 +25,7 @@ public class UserService {
     private final PasswordService passwordService;
 
     private static final Logger log = LoggerFactory.getLogger(UserController.class);
+    private final UserCompanyRepo userCompanyRepo;
 
     @Transactional
     public Integer signupUser(User user) {
@@ -122,6 +123,34 @@ public class UserService {
         }
         log.info("Удалён пользователь с id: " + id);
         userRepo.deleteById(id);
+    }
+
+    @Transactional
+    public UserCompanyInfoDto getUserCompanyInfo(int id) throws RuntimeException {
+        try{
+            Optional<UserCompanyInfo> userCompanyInfo = userCompanyRepo.findByPkUser(id);
+            if(!userCompanyInfo.isPresent())
+                return null;
+            return new UserCompanyInfoDto(userCompanyInfo.get());
+        }
+        catch(Exception e){
+            log.error(e.getMessage());
+            throw new RuntimeException("Непредвиденная ошибка: " + e.getMessage());
+        }
+    }
+
+    @Transactional
+    public void setUserCompanyInfo(int id, UserCompanyInfoDto ucfDto) throws RuntimeException {
+        try{
+            Integer ucfId = userCompanyRepo.getPkUserCompanyInfoByPkUser(id);
+            UserCompanyInfo ucf = new UserCompanyInfo(ucfId, id, ucfDto.getDolzh(),
+                    ucfDto.getCompanyName(), ucfDto.getOtdel(), ucfDto.getOffice());
+            userCompanyRepo.save(ucf);
+        }
+        catch(Exception e){
+            log.error(e.getMessage());
+            throw new RuntimeException("Непредвиденная ошибка: " + e.getMessage());
+        }
     }
 
 }

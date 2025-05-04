@@ -11,9 +11,9 @@ import lombok.Setter;
 @Getter
 @Setter
 public class MyPic {
-    @Column(name = "image_id")
+    @JsonProperty("image_id")
     private int imageId;
-    @Column(name = "image")
+    @JsonProperty("image")
     private byte[] image;
     @JsonProperty("user_id")
     private int userId;

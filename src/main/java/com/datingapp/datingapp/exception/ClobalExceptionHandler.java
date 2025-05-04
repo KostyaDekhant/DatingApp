@@ -56,13 +56,13 @@ public class ClobalExceptionHandler {
 
     @ExceptionHandler(LikeAlreadyExistsException.class)
     public ResponseEntity<Void> handleLikeAlreadyExistsException(LikeAlreadyExistsException ex) {
-        log.error("Лайк уже поставлен: {}", ex.getMessage());
+        log.error("Ошибка при лайке: {}", ex.getMessage());
         return ResponseEntity.status(HttpStatus.CONFLICT).build();
     }
 
     @ExceptionHandler(LikeNotFoundException.class)
     public ResponseEntity<Void> handleLikeNotFoundException(LikeNotFoundException ex) {
-        log.error("Лайк не найден: {}", ex.getMessage());
+        log.error("Ошибка при удалении лайка: {}", ex.getMessage());
         return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
     }
 

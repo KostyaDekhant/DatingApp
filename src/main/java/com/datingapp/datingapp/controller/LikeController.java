@@ -23,13 +23,13 @@ public class LikeController {
         return ResponseEntity.ok(id);
     }
 
-    @GetMapping("/my_likes/{userId}")
-    public ResponseEntity<List<Object[]>> getMyLikes(@PathVariable int userId) {
+    @GetMapping("/my_likes/{user_id}")
+    public ResponseEntity<List<Object[]>> getMyLikes(@PathVariable("user_id") int userId) {
         return ResponseEntity.ok(likeService.getMyLikes(userId));
     }
 
-    @GetMapping("/received_likes/{userId}")
-    public ResponseEntity<List<Object[]>> getReceivedLikes(@PathVariable int userId) {
+    @GetMapping("/received_likes/{user_id}")
+    public ResponseEntity<List<Object[]>> getReceivedLikes(@PathVariable("user_id") int userId) {
         return ResponseEntity.ok(likeService.getReceivedLikes(userId));
     }
 
