@@ -1,6 +1,7 @@
 package com.example.datingappclient.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.google.gson.annotations.SerializedName;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -9,11 +10,11 @@ import lombok.Setter;
 @Setter
 public class InterestDTO{
 
-    @JsonProperty("pk_interest")
-    private Integer pkInterest;
+    @SerializedName("pk_interest")
+    private Integer interestId;
 
-    @JsonProperty("pk_category")
-    private Integer pkCategory;
+    @SerializedName("pk_category")
+    private Integer categoryId;
 
     private String name;
 

@@ -28,17 +28,28 @@ import java.util.List;
 public class UserFragment extends Fragment implements View.OnClickListener {
 
     private static UserFragment instance;
+
+    /* === Repository === */
     private final UserRepository userRepository;
     private final ImageRepository imageRepository;
+
+    /* === DTO Models === */
     private static UserDTO user;
+
+    /* === Android Objects === */
     private ImageView profileImage;
+
+    /* === Other === */
     private int currentImageIndex = 0;
     private static boolean isLogin;
+
+    /* === Methods === */
 
     @Override
     public void onClick(View view) {
         getParentFragmentManager().beginTransaction().replace(R.id.fragment_container, new UsereditFragment(user)).commit();
     }
+
     private UserFragment(UserDTO user, boolean isLogin) {
         this.user = user;
         this.isLogin = isLogin;
@@ -75,7 +86,7 @@ public class UserFragment extends Fragment implements View.OnClickListener {
 
         if (isLogin) {
             getUserInfo(view, user.getId());
-            getUserImages(view, user.getId());
+            getUserImages(user.getId());
         }
         else {
             setUserinfo(view);
@@ -103,7 +114,8 @@ public class UserFragment extends Fragment implements View.OnClickListener {
             }
         });
     }
-    private void getUserImages(View view, int userID) {
+
+    private void getUserImages(int userID) {
         String logTag = Constants.GLOBAL_LOG_TAG + "USER_IMAGES";
         // Загружаем изображения
         imageRepository.fetchUserImages(userID, new ImageRepository.ImagesCallback() {
@@ -135,6 +147,7 @@ public class UserFragment extends Fragment implements View.OnClickListener {
         descLabel.setText(user.getDescription());
         ageLabel.setText("" + user.getAge());
     }
+
     //пальцы не совать
     // TODO: переделать систему свайпов (если вообще нужна)
     private void setupImageTouchListener() {

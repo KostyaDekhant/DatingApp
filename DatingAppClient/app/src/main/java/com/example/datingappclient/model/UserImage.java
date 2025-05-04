@@ -2,11 +2,17 @@ package com.example.datingappclient.model;
 
 import android.graphics.Bitmap;
 
+import lombok.Getter;
+import lombok.Setter;
+
+@Getter
 public class UserImage {
 
+    @Setter
     private int imageNum;
+    @Setter
     private int imageID;
-    private Bitmap image;
+    private final Bitmap image;
 
     public  UserImage() {
         imageNum = 0;
@@ -18,27 +24,4 @@ public class UserImage {
         this.image = image;
     }
 
-    public int getImageNum() {
-        return imageNum;
-    }
-
-    public void setImageNum(int imageNum) {
-        this.imageNum = imageNum;
-    }
-
-    public Bitmap getImage() {
-        return image;
-    }
-
-    public void setImage(Bitmap image) {
-        this.image = image;
-    }
-
-    public int getImageID() {
-        return imageID;
-    }
-
-    public void setImageID(int imageID) {
-        this.imageID = imageID;
-    }
 }
