@@ -21,6 +21,7 @@ public class BubblesRepository {
         bubblesAPI = RetrofitClient.getClient().create(BubblesAPI.class);
     }
 
+    /* === Interfaces === */
     public interface CategoryCallback {
         void onSuccess(List<CategoryDTO> categories);
         void onError(String errorMessage);
@@ -35,6 +36,8 @@ public class BubblesRepository {
         void onSuccess(List<UserInterestDTO> interests);
         void onError(String errorMessage);
     }
+
+    /* === Methods === */
 
     public void fetchCategories(CategoryCallback callback) {
         bubblesAPI.getListCategories().enqueue(new Callback<List<CategoryDTO>>() {

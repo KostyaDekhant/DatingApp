@@ -14,9 +14,11 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.datingappclient.R;
+import com.example.datingappclient.constants.Constants;
 import com.example.datingappclient.recyclerViews.chatsList.ChatsAdapter;
 import com.example.datingappclient.retrofit.RetrofitService;
 import com.example.datingappclient.retrofit.ServerAPI;
+import com.example.datingappclient.retrofit.repository.ChatsRepository;
 
 import java.util.List;
 
@@ -26,12 +28,20 @@ import retrofit2.Response;
 
 public class ChatListFragment extends Fragment {
 
-    private int userID;
-    View activityView;
-    RecyclerView recyclerView;
+    /* === Repository === */
+    private final ChatsRepository chatsRepository;
+
+    /* === Android Objects === */
+    private View activityView;
+    private RecyclerView recyclerView;
+
+    /* === Other === */
+    private final int userId;
 
     public ChatListFragment(int userID) {
-        this.userID = userID;
+        this.userId = userID;
+
+        chatsRepository = new ChatsRepository();
     }
 
     @Nullable
@@ -41,10 +51,12 @@ public class ChatListFragment extends Fragment {
         recyclerView = activityView.findViewById(R.id.chatsList_recyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(activityView.getContext()));
 
-        RetrofitService retrofitService = new RetrofitService();
+        getUserChats(userId);
+
+        /*RetrofitService retrofitService = new RetrofitService();
         ServerAPI serverAPI = retrofitService.getRetrofit().create(ServerAPI.class);
 
-        serverAPI.getChats(userID).enqueue(new Callback<List<Object[]>>() {
+        serverAPI.getChats(userId).enqueue(new Callback<List<Object[]>>() {
             @Override
             public void onResponse(Call<List<Object[]>> call, Response<List<Object[]>> response) {
                 if (response.body() != null) {
@@ -58,9 +70,29 @@ public class ChatListFragment extends Fragment {
             public void onFailure(Call<List<Object[]>> call, Throwable throwable) {
 
             }
-        });
+        });*/
 
         return activityView;
+    }
+
+    private void getUserChats(int userId) {
+        String logTag = Constants.GLOBAL_LOG_TAG + "GET CHATS";
+        chatsRepository.fetchUserChats(userId, new ChatsRepository.ChatsCallback() {
+            @Override
+            public void onSuccess(List<Object[]> chats) {
+                populateListView(chats);
+            }
+
+            @Override
+            public void onEmpty(String message) {
+                Log.i(logTag, "userId: " + userId + " - " + message);
+            }
+
+            @Override
+            public void onError(String errorMessage) {
+                Log.e(logTag, errorMessage);
+            }
+        });
     }
 
     private void populateListView(List<Object[]> chats) {
@@ -68,7 +100,7 @@ public class ChatListFragment extends Fragment {
         if (chats.get(0)[1] == null) {
             noChats.setVisibility(View.VISIBLE);
         } else {
-            ChatsAdapter chatsAdapter = new ChatsAdapter(chats, userID, this, getActivity());
+            ChatsAdapter chatsAdapter = new ChatsAdapter(chats, userId, this, getActivity());
             recyclerView.setAdapter(chatsAdapter);
             noChats.setVisibility(View.GONE);
         }

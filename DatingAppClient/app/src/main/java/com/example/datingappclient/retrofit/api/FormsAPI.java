@@ -9,5 +9,4 @@ import retrofit2.http.Query;
 public interface FormsAPI {
     @GET("api/forms")
     Call<List<Object[]>> getForms(@Query("user_id") int userId, @Query("prev_user_id") int prevUserId);
-
 }

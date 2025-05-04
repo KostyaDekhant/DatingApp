@@ -18,6 +18,7 @@ public class UserRepository {
         userAPI = RetrofitClient.getClient().create(UserAPI.class);
     }
 
+    /* === Interfaces === */
     public interface UserCallback {
         void onSuccess(UserDTO user);
         void onError(String errorMessage);
@@ -38,6 +39,7 @@ public class UserRepository {
         void onError(String errorMessage);
     }
 
+    /* === Methods === */
     // Получение информации о пользователе
     public void fetchUserInfo(int userID, UserCallback callback) {
         userAPI.getUser(userID).enqueue(new Callback<UserDTO>() {

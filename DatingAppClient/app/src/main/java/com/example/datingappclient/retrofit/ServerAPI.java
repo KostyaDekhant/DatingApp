@@ -15,36 +15,12 @@ import retrofit2.http.Path;
 import retrofit2.http.Query;
 
 public interface ServerAPI {
-    @GET("api/users/{id}")
-    Call<JsonObject> getUser(@Path("id") int id);
-
-    // Обновление данных пользователя. Отправляется объект типа ...
-    @PATCH("api/users")
-    Call<Boolean> updateUser(@Body JsonObject jsonObject);
-
-    @POST("api/login")
-    Call<Integer> login(@Body JsonObject jsonObject);
-
-    @POST("api/signup")
-    Call<Integer> signup(@Body JsonObject jsonObject);
 
     // Получние чатов для опр. юзера
     // TODO: Переделать
-    @GET("api/chats/chat_users/{pk_user}")
+    @GET("api/chats/{pk_user}")
     Call<List<Object[]>> getChats(@Path("pk_user") int id);
 
-    // Получение фоток юзера по его id
-    @GET("api/user_images/{user_id}")
-    Call<List<Object[]>> getUserImages(@Path("user_id") int user_id);
-
-    // Загрузка фоток пользователя на сервер
-    // Picture содержит id фото и юзера, а также саму фотку
-    @POST("api/user_images/upload")
-    Call<Integer> uploadImage(@Body PictureDTO picture);
-
-    // Удаление фотографий. Передается image_id
-    @DELETE("api/user_images/delete/{image_id}")
-    Call<Integer> deleteImage(@Path("image_id") int imageID);
     @GET("api/forms")
     Call<List<Object[]>> getForms(@Query("user_id") int userId, @Query("prev_user_id") int prevUserId);
 
@@ -52,7 +28,7 @@ public interface ServerAPI {
     Call<Integer> sendLike(@Body JsonObject jsonObject);
 
     // Получение лайков, поставленных юзеру
-    @GET("api/likes/received_likes/{user_id}")
+    @GET("api/likes/{user_id}")
     Call<List<Object[]>> getLikes(@Path("user_id") int userID);
 
     // Удаление лайков
