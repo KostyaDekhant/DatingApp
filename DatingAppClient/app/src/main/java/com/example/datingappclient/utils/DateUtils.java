@@ -40,7 +40,8 @@ public class DateUtils {
 
     public static LocalDate stringToLocalDate(String dateString) {
         try {
-            return LocalDate.parse(dateString);
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+            return LocalDate.parse(dateString, formatter);
         } catch (Exception e) {
             Log.d("Error", e.toString());
             return null; // или выбросьте исключение, если это более уместно

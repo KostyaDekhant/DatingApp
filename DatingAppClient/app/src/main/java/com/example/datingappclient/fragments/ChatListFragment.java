@@ -1,6 +1,7 @@
 package com.example.datingappclient.fragments;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -46,7 +47,11 @@ public class ChatListFragment extends Fragment {
         serverAPI.getChats(userID).enqueue(new Callback<List<Object[]>>() {
             @Override
             public void onResponse(Call<List<Object[]>> call, Response<List<Object[]>> response) {
-                populateListView(response.body());
+                if (response.body() != null) {
+                    Log.i("GET CHATS", "Success");
+                    populateListView(response.body());
+                }
+                else Log.i("GET CHATS", "Fail");
             }
 
             @Override

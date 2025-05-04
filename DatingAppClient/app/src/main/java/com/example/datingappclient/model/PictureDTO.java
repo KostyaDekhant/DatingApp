@@ -1,6 +1,8 @@
 package com.example.datingappclient.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.google.gson.annotations.SerializedName;
+
 import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
@@ -9,22 +11,16 @@ import lombok.Setter;
 @Getter
 @Setter
 public class PictureDTO {
-    @JsonProperty("image_id")
-    private int image_id;
+    @SerializedName("image_id")
+    private int imageId;
     @JsonProperty("image")
     private byte[] image;
-    @JsonProperty("user_id")
-    private int user_id;
+    @SerializedName("user_id")
+    private int userId;
 
-    public PictureDTO(int image_id, byte[] image, int user_id) {
-        this.image_id = image_id;
+    public PictureDTO(int imageId, byte[] image, int userId) {
+        this.imageId = imageId;
         this.image = image;
-        this.user_id = user_id;
-    }
-
-    public PictureDTO() {
-        this.image_id = -1;
-        this.image = null;
-        this.user_id = -1;
+        this.userId = userId;
     }
 }

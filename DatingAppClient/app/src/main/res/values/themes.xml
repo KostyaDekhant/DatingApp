@@ -2,19 +2,6 @@
     <!-- Base application theme. -->
     <style name="Base.Theme.DatingAppClient" parent="Theme.MaterialComponents.Light.NoActionBar">
         <!-- Customize your light theme here. -->
-        <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
-        <item name="colorPrimary">#262626</item>
-        <item name="textSizeSmall">16sp</item>
-        <item name="textSizeMedium">18sp</item>
-        <item name="textSizeLarge">20sp</item>
-
-        <item name="textEditHeight">55dp</item>
-        <item name="buttonHeight">50dp</item>
-    </style>
-
-    <style name="Theme.DatingAppClient" parent="Base.Theme.DatingAppClient" />
-
-    <style name="Theme.DatingAppClient.Default" parent="Theme.MaterialComponents.Light">
         <item name="colorPrimary">@color/green</item>
         <item name="colorOnPrimary">@color/gray</item>
         <item name="backgroundColor">@color/white</item>
@@ -33,5 +20,16 @@
         <item name="bubbleProfileTextColor">@color/white</item>
 
         <item name="bubbleTextSize"> 16sp </item>
+
+        <item name="textSizeSmall">16sp</item>
+        <item name="textSizeMedium">18sp</item>
+        <item name="textSizeLarge">20sp</item>
+
+        <item name="textEditHeight">55dp</item>
+        <item name="buttonHeight">50dp</item>
+    </style>
+
+    <style name="Theme.DatingAppClient.Default" parent="Base.Theme.DatingAppClient">
+
     </style>
 </resources>

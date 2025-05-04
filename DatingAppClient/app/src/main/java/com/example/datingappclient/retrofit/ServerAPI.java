@@ -29,7 +29,7 @@ public interface ServerAPI {
     Call<Integer> signup(@Body JsonObject jsonObject);
 
     // Получние чатов для опр. юзера
-    @GET("api/chat_users/{pk_user}")
+    @GET("api/chats/chat_users/{pk_user}")
     Call<List<Object[]>> getChats(@Path("pk_user") int id);
 
     // Получение фоток юзера по его id
@@ -40,6 +40,7 @@ public interface ServerAPI {
     // Picture содержит id фото и юзера, а также саму фотку
     @POST("api/user_images/upload")
     Call<Integer> uploadImage(@Body PictureDTO picture);
+
     // Удаление фотографий. Передается image_id
     @DELETE("api/user_images/delete/{image_id}")
     Call<Integer> deleteImage(@Path("image_id") int imageID);
@@ -50,7 +51,7 @@ public interface ServerAPI {
     Call<Integer> sendLike(@Body JsonObject jsonObject);
 
     // Получение лайков, поставленных юзеру
-    @GET("api/received_likes/{user_id}")
+    @GET("api/likes/received_likes/{user_id}")
     Call<List<Object[]>> getLikes(@Path("user_id") int userID);
 
     // Удаление лайков

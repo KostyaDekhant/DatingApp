@@ -75,11 +75,11 @@ public class ImageRepository {
     }
 
     // Удаление изображения
-    public void deleteImage(int imageID, DeleteCallback callback) {
-        imageAPI.deleteImage(imageID).enqueue(new Callback<Integer>() {
+    public void deleteImage(int imageId, DeleteCallback callback) {
+        imageAPI.deleteImage(imageId).enqueue(new Callback<Integer>() {
             @Override
             public void onResponse(Call<Integer> call, Response<Integer> response) {
-                if (response.isSuccessful() && response.body() != null) {
+                if (response.isSuccessful()) {
                     callback.onSuccess(response.body());
                 } else {
                     callback.onError("Ошибка удаления изображения: " + response.message());

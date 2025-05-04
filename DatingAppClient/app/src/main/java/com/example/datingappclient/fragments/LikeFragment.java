@@ -81,7 +81,7 @@ public class LikeFragment extends Fragment {
                         updateLikes();
                     }
                 } else {
-                    Log.d("GET LIKES. BODY NULL", response.body().toString());
+                    Log.e("GET LIKES. BODY NULL",  "");
                 }
             }
 
@@ -170,26 +170,28 @@ public class LikeFragment extends Fragment {
                     serverAPI.createChat(userID, likerID).enqueue(new Callback<Integer>() {
                         @Override
                         public void onResponse(Call<Integer> call, Response<Integer> response) {
-                            int returnCode = response.body().intValue();
-                            if (returnCode == -1)
-                                Log.d("CREATE CHAT", "Chat is already exists");
-                            else
-                                Log.d("CREATE CHAT", "Chat ID: " + returnCode);
+                            if (response.body() != null) {
+                                int returnCode = response.body().intValue();
+                                if (returnCode == -1)
+                                    Log.d("CREATE CHAT", "Chat is already exists");
+                                else
+                                    Log.d("CREATE CHAT", "Chat ID: " + returnCode);
 
-                            serverAPI.deleteLike(likerID, userID).enqueue(new Callback<Integer>() {
-                                @Override
-                                public void onResponse(Call<Integer> call, Response<Integer> response) {
-                                    int returnCode = response.body().intValue();
-                                    if (returnCode == 0) Log.d("DISLIKE", "No rows to delete");
-                                    if (returnCode > 0)
-                                        Log.d("DISLIKE", "Delete " + returnCode + " rows");
-                                }
+                                serverAPI.deleteLike(likerID, userID).enqueue(new Callback<Integer>() {
+                                    @Override
+                                    public void onResponse(Call<Integer> call, Response<Integer> response) {
+                                        int returnCode = response.body().intValue();
+                                        if (returnCode == 0) Log.d("DISLIKE", "No rows to delete");
+                                        if (returnCode > 0)
+                                            Log.d("DISLIKE", "Delete " + returnCode + " rows");
+                                    }
 
-                                @Override
-                                public void onFailure(Call<Integer> call, Throwable throwable) {
-                                    Log.d("ERROR DISLIKE", throwable.getMessage());
-                                }
-                            });
+                                    @Override
+                                    public void onFailure(Call<Integer> call, Throwable throwable) {
+                                        Log.d("ERROR DISLIKE", throwable.getMessage());
+                                    }
+                                });
+                            }
                         }
 
                         @Override

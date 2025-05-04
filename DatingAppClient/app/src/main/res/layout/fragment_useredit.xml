@@ -2,13 +2,11 @@
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:theme="@style/Theme.DatingAppClient.Default">
+    android:layout_height="match_parent">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
-
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/return_button"
@@ -241,29 +239,49 @@
 
         </com.google.android.material.textfield.TextInputLayout>
 
-        <!-- START OF USER INTERES SEGMENT -->
-        <TextView
-            android:id="@+id/userinteres_label"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="52dp"
-            android:text="ИНТЕРЕСЫ"
-            android:textSize="?attr/textSizeMedium"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/description_inputLayout"
-            android:layout_marginTop="10dp"/>
-
-        <com.google.android.flexbox.FlexboxLayout
-            android:id="@+id/recycler_view_interests"
+        <LinearLayout
+            android:id="@+id/categories_container"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="52dp"
             android:layout_marginEnd="52dp"
-            app:layout_constraintTop_toBottomOf="@+id/userinteres_label"
-            android:layoutMode="opticalBounds"
-            app:flexWrap="wrap"
-            app:flow_verticalGap="5dp"
-            app:justifyContent="space_between"/>
+            android:layout_marginTop="10dp"
+            app:layout_constraintTop_toBottomOf="@id/description_inputLayout"
+            app:layout_constraintStart_toStartOf="parent"
+            android:orientation="vertical"/>
+
+        <!--<androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/categories_container1"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_marginStart="52dp"
+            android:layout_marginEnd="52dp"
+            android:layout_marginTop="10dp"
+            app:layout_constraintTop_toBottomOf="@id/description_inputLayout">
+            &lt;!&ndash; START OF USER INTERES SEGMENT &ndash;&gt;
+            <TextView
+                android:id="@+id/userinteres_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+
+                android:text="ИНТЕРЕСЫ"
+                android:textSize="?attr/textSizeMedium"
+
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <com.google.android.flexbox.FlexboxLayout
+                android:id="@+id/chip_flexbox"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:layout_constraintTop_toBottomOf="@id/userinteres_label"
+                app:flexWrap="wrap"
+                app:justifyContent="space_between"
+                android:clipChildren="false"
+                android:clipToPadding="false" />
+        </androidx.constraintlayout.widget.ConstraintLayout>-->
 
         <!-- START OF USER COMPANY SEGMENT -->
         <TextView
@@ -274,7 +292,7 @@
             android:text="В КОМПАНИИ"
             android:textSize="?attr/textSizeMedium"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/recycler_view_interests"
+            app:layout_constraintTop_toBottomOf="@+id/categories_container"
             android:layout_marginTop="10dp"/>
 
         <com.google.android.material.textfield.TextInputLayout

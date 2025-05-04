@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="ChipStyle" parent="Widget.MaterialComponents.Chip.Entry">
+        <!-- Углы и размеры -->
+        <item name="chipCornerRadius">16dp</item>
+        <item name="chipMinHeight">32dp</item> <!-- ❗ делает чипы одинаковыми по высоте -->
+        <item name="chipMinTouchTargetSize">0dp</item> <!-- ❗ отключает автопаддинг на некоторых устройствах -->
+
+        <!-- Внутренние отступы -->
+        <item name="chipStartPadding">16dp</item>
+        <item name="chipEndPadding">16dp</item>
+        <item name="textStartPadding">0dp</item>
+        <item name="textEndPadding">0dp</item>
+
+        <!-- Иконки — если не используешь, обязательно обнулить -->
+        <item name="chipIconVisible">false</item>
+        <item name="closeIconVisible">false</item>
+        <item name="checkedIconVisible">false</item>
+    </style>
+
+    <style name="ChipStyle_Edit" parent="ChipStyle">
+        <!-- Фон и текст -->
+        <item name="chipBackgroundColor">@color/black</item>
+        <item name="android:textColor">@android:color/white</item>
+    </style>
+
+    <style name="ChipStyle_ProfileBlue" parent="ChipStyle">
+        <item name="chipBackgroundColor">@color/teal</item>
+        <item name="android:textColor">@android:color/white</item>
+    </style>
+
+    <style name="ChipStyle_ProfileGray" parent="ChipStyle">
+        <item name="chipBackgroundColor">@color/white_transparent</item>
+        <item name="android:textColor">@android:color/black</item>
+    </style>
+
+    <style name="ThemeOverlay_ChipStyleEdit" parent="">
+        <item name="chipStyle">@style/ChipStyle_Edit</item>
+    </style>
+
+    <style name="ThemeOverlay_ChipStyleProfileBlue" parent="">
+        <item name="chipStyle">@style/ChipStyle_ProfileBlue</item>
+    </style>
+
+    <style name="ThemeOverlay_ChipStyleProfileGray" parent="">
+        <item name="chipStyle">@style/ChipStyle_ProfileGray</item>
+    </style>
+
+</resources>

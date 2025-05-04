@@ -111,7 +111,7 @@ public class UserDTO
         }
     }
     public Bitmap getMainImage() {
-        if (images.isEmpty()) return null;
+        if (images == null || images.isEmpty()) return null;
         for (UserImage it : images) {
             if (it.getImageNum() == 1) return it.getImage();
         }
