@@ -199,7 +199,7 @@ public class SearchFragment extends Fragment {
         imageRepository.fetchUserImages(userId, new ImageRepository.ImagesCallback() {
             @Override
             public void onSuccess(List<Object[]> images) {
-                Log.i(logTag, "Count images: " + images.size());
+                Log.i(logTag, "For userId = " + userId + " - Count images: " + images.size());
                 userImages = ImageUtils.objectListToUserImageList(images);
                 currentImageIndex = 0;
                 showCurrentImage();

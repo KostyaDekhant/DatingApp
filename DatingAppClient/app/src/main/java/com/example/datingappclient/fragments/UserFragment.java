@@ -123,7 +123,7 @@ public class UserFragment extends Fragment implements View.OnClickListener {
             public void onSuccess(List<Object[]> images) {
                 // сетап изображений
                 user.setListImages(ImageUtils.objectListToUserImageList(images));
-                Log.i(logTag, "Count images: " + user.getListImagesSize());
+                Log.i(logTag, "For userId = " + userId + " - Count images: " + user.getListImagesSize());
 
                 // если изображений нет, то выводим дефолтное (возвращается с сервера)
                 // TODO: изображение по умолчанию можно хранить на клиенте, чтобы не гонять туда-сюда
