@@ -1,5 +1,6 @@
 package com.datingapp.datingapp.controller;
 
+import com.datingapp.datingapp.entity.ChatDTO;
 import com.datingapp.datingapp.services.ChatService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -14,7 +15,7 @@ public class ChatController {
     private final ChatService chatService;
 
     @GetMapping("/{userId}") //users
-    public ResponseEntity<List<Object[]>> findChatUsers(@PathVariable int userId) {
+    public ResponseEntity<List<ChatDTO>> findChatUsers(@PathVariable int userId) {
         return ResponseEntity.ok(chatService.findChatUsers(userId));
     }
 

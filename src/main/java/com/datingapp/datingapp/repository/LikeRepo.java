@@ -1,6 +1,7 @@
 package com.datingapp.datingapp.repository;
 
 import com.datingapp.datingapp.entity.Like;
+import com.datingapp.datingapp.entity.LikeDTO;
 import jakarta.transaction.Transactional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -29,24 +30,27 @@ public interface LikeRepo extends JpaRepository<Like, Integer> {
             , nativeQuery = true)
     List<Object[]> findByLiker(@Param("id") int user_id);
 
-    @Query(value = "SELECT l.liker, l.time, u.name, p.image, u.birthday " +
-            "FROM \"like\" l " +
-            "JOIN \"user\" u ON u.pk_user = l.liker " +
-            "LEFT JOIN \"user_pic\" up ON u.pk_user = up.pk_user " +
-            "LEFT JOIN \"picture\" p ON p.pk_picture = (  " +
-            "    SELECT MIN(pk_picture) " +
-            "    FROM \"user_pic\" " +
-            "    WHERE up.pk_user = u.pk_user  " +
-            ") " +
-            "WHERE l.poster = :id " +
-            "GROUP BY l.liker, l.time, u.name, p.image, u.birthday;"
-            , nativeQuery = true)
+    @Query(value = """
+SELECT l.liker, l.time, u.name, p.image, u.birthday 
+            FROM \"like\" l 
+            JOIN \"user\" u ON u.pk_user = l.liker 
+            LEFT JOIN \"user_pic\" up ON u.pk_user = up.pk_user 
+            LEFT JOIN \"picture\" p ON p.pk_picture = (  
+                SELECT MIN(pk_picture) 
+                FROM \"user_pic\" 
+                WHERE up.pk_user = u.pk_user  
+            )
+            WHERE l.poster = :id 
+            GROUP BY l.liker, l.time, u.name, p.image, u.birthday;
+""", nativeQuery = true)
     List<Object[]> findByReceiver(@Param("id") int user_id); //LikeDTO
 
     @Transactional
     @Modifying
-    @Query(value = "DELETE FROM \"like\" l WHERE l.liker = :liker " +
-            "AND l.poster = :poster" , nativeQuery = true)
+    @Query(value = """
+DELETE FROM \"like\" l WHERE l.liker = :liker 
+AND l.poster = :poster 
+""" , nativeQuery = true)
     int deleteLike(@Param("liker") int liker, @Param("poster") int poster);
 
     @Query(value = "SELECT CASE" +

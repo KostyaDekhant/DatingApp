@@ -1,6 +1,7 @@
 package com.datingapp.datingapp.services;
 
 import com.datingapp.datingapp.entity.Chat;
+import com.datingapp.datingapp.entity.ChatDTO;
 import com.datingapp.datingapp.exception.ChatAlreadyExistsException;
 import com.datingapp.datingapp.exception.ChatNotFoundException;
 import com.datingapp.datingapp.repository.ChatRepo;
@@ -19,9 +20,9 @@ public class ChatService {
     private final UserRepo userRepo;
 
     @Transactional(readOnly = true)
-    public List<Object[]> findChatUsers(int userId) {
+    public List<ChatDTO> findChatUsers(int userId) {
         try {
-            List<Object[]> chatUsers = userRepo.findChatPartners(userId);
+            List<ChatDTO> chatUsers = userRepo.findChatPartners(userId);
             return chatUsers;
         }
         catch (Exception e) {

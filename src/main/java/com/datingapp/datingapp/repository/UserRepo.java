@@ -1,5 +1,6 @@
 package com.datingapp.datingapp.repository;
 
+import com.datingapp.datingapp.entity.ChatDTO;
 import com.datingapp.datingapp.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -51,7 +52,7 @@ WHERE :userId IN (c.pk_user, c.pk_user1)
 
 """,
             nativeQuery = true)
-    List<Object[]> findChatPartners(@Param("userId") int userId);
+    List<ChatDTO> findChatPartners(@Param("userId") int userId);
 
 
     @Query(value = """

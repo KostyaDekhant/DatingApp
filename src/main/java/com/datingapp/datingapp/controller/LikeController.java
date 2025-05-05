@@ -1,6 +1,8 @@
 package com.datingapp.datingapp.controller;
 
 import com.datingapp.datingapp.entity.Like;
+import com.datingapp.datingapp.entity.LikeDTO;
+import com.datingapp.datingapp.exception.UserNotExistsExceptions;
 import com.datingapp.datingapp.services.LikeService;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -18,26 +20,24 @@ public class LikeController {
 
     private static final Logger log = LoggerFactory.getLogger(ImageController.class);
     @PostMapping
-    public ResponseEntity<Integer> setLike(@RequestBody Like like) { //LikeDTO
-        int id = likeService.setLike(like);
+    public ResponseEntity<Integer> setLike(@RequestBody LikeDTO likeDTO) {
+        int id = likeService.setLike(likeDTO);
         return ResponseEntity.ok(id);
     }
 
     @GetMapping("/my_likes/{user_id}")
-    public ResponseEntity<List<Object[]>> getMyLikes(@PathVariable("user_id") int userId) { //LikeDTO
+    public ResponseEntity<List<LikeDTO>> getMyLikes(@PathVariable("user_id") int userId) { //LikeDTO
         return ResponseEntity.ok(likeService.getMyLikes(userId));
     }
 
     @GetMapping("/{user_id}")
-    public ResponseEntity<List<Object[]>> getReceivedLikes(@PathVariable("user_id") int userId) { //LikeDTO
+    public ResponseEntity<List<LikeDTO>> getReceivedLikes(@PathVariable("user_id") int userId) { //LikeDTO
         return ResponseEntity.ok(likeService.getReceivedLikes(userId));
     }
 
     @DeleteMapping
-    public ResponseEntity<Integer> deleteLike( //LikeDTO
-            @RequestParam int liker,
-            @RequestParam int poster) {
-        int deleted = likeService.deleteLike(liker, poster); //LikeDTO
+    public ResponseEntity<Integer> deleteLike(  @RequestBody LikeDTO likeDTO ) throws UserNotExistsExceptions {
+        int deleted = likeService.deleteLike(likeDTO);
         return ResponseEntity.ok(deleted);
     }
 }
