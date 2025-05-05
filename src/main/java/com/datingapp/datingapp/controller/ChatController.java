@@ -20,9 +20,9 @@ public class ChatController {
 
     @PostMapping
     public ResponseEntity<Integer> createChat(
-            @RequestParam int pk_user,
-            @RequestParam int pk_user1) {
-        int chatId = chatService.createChat(pk_user, pk_user1);
+            @RequestParam int userA,
+            @RequestParam int userB) {
+        int chatId = chatService.createChat(userA, userB);
         return ResponseEntity.ok(chatId);
     }
 }

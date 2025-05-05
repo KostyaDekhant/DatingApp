@@ -41,7 +41,7 @@ public interface LikeRepo extends JpaRepository<Like, Integer> {
             "WHERE l.poster = :id " +
             "GROUP BY l.liker, l.time, u.name, p.image, u.birthday;"
             , nativeQuery = true)
-    List<Object[]> findByReceiver(@Param("id") int user_id);
+    List<Object[]> findByReceiver(@Param("id") int user_id); //LikeDTO
 
     @Transactional
     @Modifying

@@ -18,26 +18,26 @@ public class LikeController {
 
     private static final Logger log = LoggerFactory.getLogger(ImageController.class);
     @PostMapping
-    public ResponseEntity<Integer> setLike(@RequestBody Like like) {
+    public ResponseEntity<Integer> setLike(@RequestBody Like like) { //LikeDTO
         int id = likeService.setLike(like);
         return ResponseEntity.ok(id);
     }
 
     @GetMapping("/my_likes/{user_id}")
-    public ResponseEntity<List<Object[]>> getMyLikes(@PathVariable("user_id") int userId) {
+    public ResponseEntity<List<Object[]>> getMyLikes(@PathVariable("user_id") int userId) { //LikeDTO
         return ResponseEntity.ok(likeService.getMyLikes(userId));
     }
 
     @GetMapping("/{user_id}")
-    public ResponseEntity<List<Object[]>> getReceivedLikes(@PathVariable("user_id") int userId) {
+    public ResponseEntity<List<Object[]>> getReceivedLikes(@PathVariable("user_id") int userId) { //LikeDTO
         return ResponseEntity.ok(likeService.getReceivedLikes(userId));
     }
 
     @DeleteMapping
-    public ResponseEntity<Integer> deleteLike(
+    public ResponseEntity<Integer> deleteLike( //LikeDTO
             @RequestParam int liker,
             @RequestParam int poster) {
-        int deleted = likeService.deleteLike(liker, poster);
+        int deleted = likeService.deleteLike(liker, poster); //LikeDTO
         return ResponseEntity.ok(deleted);
     }
 }

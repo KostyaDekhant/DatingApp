@@ -1,0 +1,24 @@
+package com.datingapp.datingapp.entity;
+
+import jakarta.persistence.*;
+import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
+
+import java.sql.Timestamp;
+
+@Data
+public class LikeDTO {
+        @JsonProperty("liker")
+        private int liker;
+        @JsonProperty("poster")
+        private int poster;
+        @JsonProperty("time")
+        private Timestamp time;
+        @JsonProperty("name")
+        private String name;
+        @JsonProperty("image")
+        private byte[] image;
+        @JsonProperty("birthday")
+        private LocalDate birthday;
+}
