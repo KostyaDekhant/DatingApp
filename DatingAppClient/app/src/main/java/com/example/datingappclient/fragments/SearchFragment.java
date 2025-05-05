@@ -157,7 +157,7 @@ public class SearchFragment extends Fragment {
         likeButton.setEnabled(false);
         dislikeButton.setEnabled(false);
 
-        serverAPI.getForms(clientId, prevUserId).enqueue(new Callback<List<Object[]>>() {
+        serverAPI.getForms(clientId, prevUserId).enqueue(new Callback<>() {
             @Override
             public void onResponse(Call<List<Object[]>> call, Response<List<Object[]>> response) {
                 if (response.body() != null && !response.body().isEmpty()) {

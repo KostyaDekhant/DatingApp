@@ -1,5 +1,6 @@
 package com.example.datingappclient.fragments;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
@@ -14,6 +15,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.GridLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -21,15 +23,19 @@ import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.constraintlayout.widget.ConstraintSet;
 import androidx.fragment.app.Fragment;
 
+import com.example.datingappclient.ChatActivity;
+import com.example.datingappclient.MainActivity;
 import com.example.datingappclient.R;
+import com.example.datingappclient.constants.Constants;
+import com.example.datingappclient.model.LikeDTO;
 import com.example.datingappclient.retrofit.RetrofitService;
 import com.example.datingappclient.retrofit.ServerAPI;
+import com.example.datingappclient.retrofit.repository.ChatsRepository;
+import com.example.datingappclient.retrofit.repository.LikesRepository;
 import com.example.datingappclient.utils.DateUtils;
 import com.example.datingappclient.utils.ImageUtils;
 import com.github.siyamed.shapeimageview.RoundedImageView;
 import com.google.android.material.button.MaterialButton;
-
-import org.w3c.dom.Text;
 
 import java.util.Base64;
 import java.util.List;
@@ -40,64 +46,76 @@ import retrofit2.Response;
 
 public class LikeFragment extends Fragment {
 
-    private int userID;
-    List<Object[]> likesArray;
+    /* === Repositories === */
+    private final LikesRepository likesRepository;
+    private final ChatsRepository chatsRepository;
 
-    GridLayout gridLayout;
-    LayoutInflater inflater;
-    DisplayMetrics metrics;
+    /* === Android Objects === */
+    private GridLayout gridLayout;
+    private LayoutInflater inflater;
+    private DisplayMetrics metrics;
+    private View activityView;
 
+    /* === Other === */
+    private final int userId;
+    private List<LikeDTO> likesArray;
+
+    /* === Methods === */
     public LikeFragment(int userID) {
-        this.userID = userID;
-    }
-
-    public LikeFragment() {
+        this.userId = userID;
+        likesRepository = new LikesRepository();
+        chatsRepository = new ChatsRepository();
     }
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View activityView = inflater.inflate(R.layout.fragment_like, container, false);
+        activityView = inflater.inflate(R.layout.fragment_like, container, false);
         this.inflater = inflater;
         Resources resources = getContext().getResources();
         metrics = resources.getDisplayMetrics();
 
         gridLayout = activityView.findViewById(R.id.likes_grid);
 
-        RetrofitService retrofitService = new RetrofitService();
-        ServerAPI serverAPI = retrofitService.getRetrofit().create(ServerAPI.class);
-
-        serverAPI.getLikes(userID).enqueue(new Callback<List<Object[]>>() {
-            @Override
-            public void onResponse(Call<List<Object[]>> call, Response<List<Object[]>> response) {
-                if (response.body() != null) {
-                    Log.d("GET LIKES", response.body().toString());
-                    likesArray = response.body();
-                    TextView noLikesView = activityView.findViewById(R.id.noLikes_label);
-                    if (likesArray.isEmpty()) {
-                        noLikesView.setVisibility(View.VISIBLE);
-                    } else {
-                        noLikesView.setVisibility(View.GONE);
-                        updateLikes();
-                    }
-                } else {
-                    Log.e("GET LIKES. BODY NULL",  "");
-                }
-            }
-
-            @Override
-            public void onFailure(Call<List<Object[]>> call, Throwable throwable) {
-                Log.d("ERROR GET LIKES", throwable.getMessage());
-            }
-        });
+        getUserLikes(userId);
 
         return activityView;
     }
 
-    private void updateLikes() {
+    private void getUserLikes(int userId) {
+        String logTag = Constants.GLOBAL_LOG_TAG + "GET LIKES";
+        likesRepository.fetchUserLikes(userId, new LikesRepository.LikesCallback() {
+            @Override
+            public void onSuccess(List<LikeDTO> likes) {
+                Log.d(logTag, "Получены лайки: " + likes.size());
+
+                likesArray = likes;
+                TextView noLikesView = activityView.findViewById(R.id.noLikes_label);
+
+                if (likesArray.isEmpty()) {
+                    noLikesView.setVisibility(View.VISIBLE);
+                } else {
+                    noLikesView.setVisibility(View.GONE);
+                    renderLikes();
+                }
+            }
+
+            @Override
+            public void onEmpty(String message) {
+                Log.d(logTag, "Для userId = " + userId + " - " + message);
+            }
+
+            @Override
+            public void onError(String errorMessage) {
+                Log.e(logTag, errorMessage);
+            }
+        });
+    }
+
+    private void renderLikes() {
         gridLayout.removeAllViews();
         int objNum = 0;
-        for (Object[] it : likesArray) {
+        for (LikeDTO it : likesArray) {
             View cardLike = createLikeCard(it, objNum);
             if (cardLike != null) {
                 cardLike.setLayoutParams(setLayoutParams(objNum++));
@@ -106,11 +124,11 @@ public class LikeFragment extends Fragment {
         }
     }
 
-    private View createLikeCard(Object[] likeObj, int objNum) {
+    private View createLikeCard(LikeDTO like, int objNum) {
         try {
-            int likerID = ((Double) likeObj[0]).intValue();
-            String username = likeObj[2].toString();
-            String birthday = likeObj[4].toString();
+            int likerID = like.getLikerId();
+            String username = like.getName();
+            String birthday = DateUtils.localDateToString(like.getBirthday());
 
             View cardLike = inflater.inflate(R.layout.user_like_item, gridLayout, false);
             RoundedImageView roundedImageView = cardLike.findViewById(R.id.userImage);
@@ -130,10 +148,8 @@ public class LikeFragment extends Fragment {
             ConstraintSet constraintSet = new ConstraintSet();
             constraintSet.clone(constraintLayout);
 
-            if (likeObj[3] != null) {
-                String imageStr = likeObj[3].toString();
-                byte[] array = Base64.getDecoder().decode(imageStr);
-                Bitmap image = ImageUtils.convertPrimitiveByteToBitmap(array);
+            if (like.getImage() != null) {
+                Bitmap image = ImageUtils.convertPrimitiveByteToBitmap(like.getImage());
                 roundedImageView.setImageBitmap(image);
             }
 
@@ -153,104 +169,26 @@ public class LikeFragment extends Fragment {
             constraintSet.connect(ageLabel.getId(), ConstraintSet.TOP, roundedImageView.getId(), ConstraintSet.BOTTOM, 0);
             constraintSet.connect(ageLabel.getId(), ConstraintSet.START, usernameLabel.getId(), ConstraintSet.END, pxBottom);
             constraintSet.applyTo(constraintLayout);
-            ;
 
-            likeButton.setTag(R.id.TAG_CARDLIKE_VIEW, cardLike);
             likeButton.setTag(R.id.TAG_LIKER_ID, likerID);
+            likeButton.setTag(R.id.TAG_CARDLIKE_VIEW, cardLike);
             likeButton.setTag(R.id.TAG_CARDLIKE_ID, objNum);
-            likeButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    gridLayout.removeView((View) view.getTag(R.id.TAG_CARDLIKE_VIEW));
-
-                    RetrofitService retrofitService = new RetrofitService();
-                    ServerAPI serverAPI = retrofitService.getRetrofit().create(ServerAPI.class);
-
-                    int likerID = ((int) view.getTag(R.id.TAG_LIKER_ID));
-                    serverAPI.createChat(userID, likerID).enqueue(new Callback<Integer>() {
-                        @Override
-                        public void onResponse(Call<Integer> call, Response<Integer> response) {
-                            if (response.body() != null) {
-                                int returnCode = response.body().intValue();
-                                if (returnCode == -1)
-                                    Log.d("CREATE CHAT", "Chat is already exists");
-                                else
-                                    Log.d("CREATE CHAT", "Chat ID: " + returnCode);
-
-                                serverAPI.deleteLike(likerID, userID).enqueue(new Callback<Integer>() {
-                                    @Override
-                                    public void onResponse(Call<Integer> call, Response<Integer> response) {
-                                        int returnCode = response.body().intValue();
-                                        if (returnCode == 0) Log.d("DISLIKE", "No rows to delete");
-                                        if (returnCode > 0)
-                                            Log.d("DISLIKE", "Delete " + returnCode + " rows");
-                                    }
-
-                                    @Override
-                                    public void onFailure(Call<Integer> call, Throwable throwable) {
-                                        Log.d("ERROR DISLIKE", throwable.getMessage());
-                                    }
-                                });
-                            }
-                        }
-
-                        @Override
-                        public void onFailure(Call<Integer> call, Throwable throwable) {
-                            Log.d("CREATE CHAT ERROR", throwable.getMessage());
-                        }
-                    });
-
-                    likesArray.remove((int)view.getTag(R.id.TAG_CARDLIKE_ID));
-                    updateLikes();
-                }
-            });
 
             dislikeButton.setTag(R.id.TAG_LIKER_ID, likerID);
             dislikeButton.setTag(R.id.TAG_CARDLIKE_VIEW, cardLike);
             dislikeButton.setTag(R.id.TAG_CARDLIKE_ID, objNum);
-            dislikeButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
 
-                    gridLayout.removeView((View) view.getTag(R.id.TAG_CARDLIKE_VIEW));
-
-                    RetrofitService retrofitService = new RetrofitService();
-                    ServerAPI serverAPI = retrofitService.getRetrofit().create(ServerAPI.class);
-
-                    int likerID = ((int) view.getTag(R.id.TAG_LIKER_ID));
-                    serverAPI.deleteLike(likerID, userID).enqueue(new Callback<Integer>() {
-                        @Override
-                        public void onResponse(Call<Integer> call, Response<Integer> response) {
-                            int returnCode = response.body().intValue();
-                            if (returnCode == 0) Log.d("DISLIKE", "No rows to delete");
-                            if (returnCode > 0) Log.d("DISLIKE", "Delete " + returnCode + " rows");
-                        }
-
-                        @Override
-                        public void onFailure(Call<Integer> call, Throwable throwable) {
-                            Log.d("ERROR DISLIKE", throwable.getMessage());
-                        }
-                    });
-
-                    likesArray.remove((int)view.getTag(R.id.TAG_CARDLIKE_ID));
-                    updateLikes();
-                }
-            });
+            likeButton.setOnClickListener(setupLikeButton());
+            dislikeButton.setOnClickListener(setupDislikeButton());
 
             return cardLike;
         } catch (Exception exception) {
-            Log.d("ERROR GET OBJECT LIKE", exception.getMessage());
+            Log.d(Constants.GLOBAL_LOG_TAG + "ERROR GET OBJECT LIKE", exception.getMessage());
             return null;
         }
     }
 
     private GridLayout.LayoutParams setLayoutParams(int elCount) {
-        int dpWidth = 130;
-        int dpHeight = 246;
-
-        int pxWidth = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dpWidth, metrics);
-        int pxHeight = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dpHeight, metrics);
-
         GridLayout.LayoutParams params = new GridLayout.LayoutParams();
         int rowNum = elCount / 2;
         int columnNum;
@@ -266,6 +204,74 @@ public class LikeFragment extends Fragment {
         params.columnSpec = GridLayout.spec(columnNum, 1, 1f);
         params.setGravity(Gravity.CENTER);
         return params;
+    }
+
+    private View.OnClickListener setupLikeButton() {
+        return view -> {
+            int likerId = ((int) view.getTag(R.id.TAG_LIKER_ID));
+            createChat(view, userId, likerId);
+        };
+    }
+
+    private View.OnClickListener setupDislikeButton() {
+        return view -> {
+            int likerID = ((int) view.getTag(R.id.TAG_LIKER_ID));
+            deleteLike(view, new LikeDTO(likerID, userId));
+        };
+    }
+
+    private void createChat(View view, int userId, int likerId) {
+        String logTag = Constants.GLOBAL_LOG_TAG + "LIKE (CREATE CHAT)";
+        chatsRepository.createChat(userId, likerId, new ChatsRepository.CreateChatCallback() {
+            @Override
+            public void onSuccess(Integer chatId) {
+                Log.d(logTag, "Чат успешно создан: " + chatId);
+
+               /* Context context = view.getContext();
+
+                Intent intent = new Intent(context, ChatActivity.class)
+                        .putExtra("sendlerID", userId)
+                        .putExtra("receiverID", likerId)
+                        .putExtra("username", username)
+                        .putExtra("image", imageBytes);
+
+                context.startActivity(intent);*/
+
+
+                deleteLike(view, new LikeDTO(likerId, userId));
+            }
+
+            @Override
+            public void onExists(String message) {
+                Toast.makeText(activityView.getContext(), message, Toast.LENGTH_LONG).show();
+                Log.i(logTag, message);
+            }
+
+            @Override
+            public void onError(String errorMessage) {
+                Log.e(logTag, errorMessage);
+            }
+        }) ;
+    }
+
+    private void deleteLike(View view, LikeDTO likeDTO) {
+        String logTag = Constants.GLOBAL_LOG_TAG + "DISLIKE";
+        likesRepository.deleteLike(likeDTO, new LikesRepository.DislikeCallback() {
+            @Override
+            public void onSuccess(Integer deleteLikesCount) {
+                gridLayout.removeView((View) view.getTag(R.id.TAG_CARDLIKE_VIEW));
+                likesArray.remove((int)view.getTag(R.id.TAG_CARDLIKE_ID));
+                renderLikes();
+                Toast.makeText(activityView.getContext(), "Успешно!", Toast.LENGTH_LONG).show();
+
+                Log.i(logTag, "Удалено " + deleteLikesCount + " лайков");
+            }
+
+            @Override
+            public void onError(String errorMessage) {
+                Log.e(logTag, errorMessage);
+            }
+        });
     }
 }
 

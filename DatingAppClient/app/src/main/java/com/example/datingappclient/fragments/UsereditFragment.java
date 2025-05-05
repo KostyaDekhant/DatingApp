@@ -36,13 +36,10 @@ import android.widget.Toast;
 import com.example.datingappclient.R;
 import com.example.datingappclient.constants.Constants;
 import com.example.datingappclient.model.CategoryDTO;
-import com.example.datingappclient.model.InterestDTO;
 import com.example.datingappclient.model.PictureDTO;
 import com.example.datingappclient.model.UserDTO;
 import com.example.datingappclient.model.UserImage;
 import com.example.datingappclient.model.UserInterestDTO;
-import com.example.datingappclient.retrofit.RetrofitService;
-import com.example.datingappclient.retrofit.ServerAPI;
 import com.example.datingappclient.retrofit.repository.BubblesRepository;
 import com.example.datingappclient.retrofit.repository.ImageRepository;
 import com.example.datingappclient.retrofit.repository.UserRepository;
@@ -63,10 +60,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
 
 public class UsereditFragment extends Fragment {
 
@@ -118,7 +111,7 @@ public class UsereditFragment extends Fragment {
         setBirthdayPicker(activityView);
         setImages(activityView);
         setupReturnButton();
-        setupAcceptButton();
+        setupSaveButton();
 
         getCategories();
 
@@ -277,31 +270,28 @@ public class UsereditFragment extends Fragment {
         return label;
     }
 
-    private void setupAcceptButton() {
+    private void setupSaveButton() {
         MaterialButton acceptEdit = activityView.findViewById(R.id.save_button);
-        acceptEdit.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
+        acceptEdit.setOnClickListener(view -> {
 
-                String username = inputName.getText().toString();
-                String description = inputDesc.getText().toString();
-                String birthday = inputAge.getText().toString();
+            String username = inputName.getText().toString();
+            String description = inputDesc.getText().toString();
+            String birthday = inputAge.getText().toString();
 
-                // !!! Проверка на пустые поля
-                if (username.isEmpty() || birthday.isEmpty()) {
-                    Snackbar.make(view, "Все поля должны быть заполнены", Snackbar.LENGTH_LONG).show();
-                    return;
-                }
-
-                user.setName(username);
-                user.setDescription(description);
-                user.setBirthday(DateUtils.stringToLocalDate(birthday));
-
-                updateUser();
-
-                UserFragment userFragment = UserFragment.getInstance(user, false);
-                getParentFragmentManager().beginTransaction().replace(R.id.fragment_container, userFragment).commit();
+            // !!! Проверка на пустые поля
+            if (username.isEmpty() || birthday.isEmpty()) {
+                Snackbar.make(view, "Все поля должны быть заполнены", Snackbar.LENGTH_LONG).show();
+                return;
             }
+
+            user.setName(username);
+            user.setDescription(description);
+            user.setBirthday(DateUtils.stringToLocalDate(birthday));
+
+            updateUser();
+
+            UserFragment userFragment = UserFragment.getInstance(user, false);
+            getParentFragmentManager().beginTransaction().replace(R.id.fragment_container, userFragment).commit();
         });
     }
 

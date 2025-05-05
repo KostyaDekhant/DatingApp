@@ -2,6 +2,8 @@ package com.example.datingappclient.utils;
 
 import android.util.Log;
 
+import com.example.datingappclient.constants.Constants;
+
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.Period;
@@ -10,14 +12,16 @@ import java.util.Date;
 
 public class DateUtils {
 
-    private static final String format = "dd-MM-yyyy";
+    private static final String format = "yyyy-MM-dd";
+    private static final String logTag = Constants.GLOBAL_LOG_TAG + "DATE UTILS";
+
     public static int dateToAge(String date) {
         try {
             LocalDate birth = LocalDate.parse(date.replace("\"", ""));
             LocalDate today = LocalDate.now();
             return Period.between(birth, today).getYears();
         } catch (Exception e) {
-            Log.d("Error", e.toString());
+            Log.e(logTag, e.toString());
             return -1;
         }
     }
@@ -27,7 +31,7 @@ public class DateUtils {
             LocalDate today = LocalDate.now();
             return Period.between(date, today).getYears();
         } catch (Exception e) {
-            Log.d("Error", e.toString());
+            Log.e(logTag, e.toString());
             return -1;
         }
     }
@@ -40,11 +44,11 @@ public class DateUtils {
 
     public static LocalDate stringToLocalDate(String dateString) {
         try {
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern(format);
             return LocalDate.parse(dateString, formatter);
         } catch (Exception e) {
-            Log.d("Error", e.toString());
-            return null; // или выбросьте исключение, если это более уместно
+            Log.e(logTag, e.toString());
+            return null;
         }
     }
 
