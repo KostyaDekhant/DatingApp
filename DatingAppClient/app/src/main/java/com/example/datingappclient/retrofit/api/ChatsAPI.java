@@ -14,5 +14,5 @@ public interface ChatsAPI {
 
     // Создание чата с юзером
     @POST("api/chats")
-    Call<Integer> createChat(@Query("pk_user") int userID, @Query("pk_user1") int likerID);
+    Call<Integer> createChat(@Query("userA") int userId, @Query("userB") int likerId);
 }

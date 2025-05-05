@@ -27,6 +27,7 @@ public class ChatsRepository {
 
     public interface CreateChatCallback {
         void onSuccess(Integer chatId);
+        void onExists(String message);
         void onError(String errorMessage);
     }
 
@@ -56,6 +57,7 @@ public class ChatsRepository {
         chatsAPI.createChat(userId, likerId).enqueue(new Callback<>() {
             @Override
             public void onResponse(Call<Integer> call, Response<Integer> response) {
+                if (response.code() == 409) callback.onExists("Чат уже существует!");
                 if (response.isSuccessful() && response.body() != null) {
                     callback.onSuccess(response.body());
                 }

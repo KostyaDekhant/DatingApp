@@ -40,7 +40,6 @@ public class ChatListFragment extends Fragment {
 
     public ChatListFragment(int userID) {
         this.userId = userID;
-
         chatsRepository = new ChatsRepository();
     }
 
@@ -52,25 +51,6 @@ public class ChatListFragment extends Fragment {
         recyclerView.setLayoutManager(new LinearLayoutManager(activityView.getContext()));
 
         getUserChats(userId);
-
-        /*RetrofitService retrofitService = new RetrofitService();
-        ServerAPI serverAPI = retrofitService.getRetrofit().create(ServerAPI.class);
-
-        serverAPI.getChats(userId).enqueue(new Callback<List<Object[]>>() {
-            @Override
-            public void onResponse(Call<List<Object[]>> call, Response<List<Object[]>> response) {
-                if (response.body() != null) {
-                    Log.i("GET CHATS", "Success");
-                    populateListView(response.body());
-                }
-                else Log.i("GET CHATS", "Fail");
-            }
-
-            @Override
-            public void onFailure(Call<List<Object[]>> call, Throwable throwable) {
-
-            }
-        });*/
 
         return activityView;
     }
@@ -100,7 +80,7 @@ public class ChatListFragment extends Fragment {
         if (chats.get(0)[1] == null) {
             noChats.setVisibility(View.VISIBLE);
         } else {
-            ChatsAdapter chatsAdapter = new ChatsAdapter(chats, userId, this, getActivity());
+            ChatsAdapter chatsAdapter = new ChatsAdapter(chats, userId, getActivity());
             recyclerView.setAdapter(chatsAdapter);
             noChats.setVisibility(View.GONE);
         }

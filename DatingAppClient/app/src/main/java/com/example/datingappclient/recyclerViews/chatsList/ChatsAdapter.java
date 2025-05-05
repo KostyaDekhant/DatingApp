@@ -31,17 +31,15 @@ import ua.naiksoftware.stomp.StompClient;
 
 public class ChatsAdapter extends RecyclerView.Adapter<ChatsHolder> {
 
-    private List<Object[]> chats;
-    private int sendlerID;
-    private Fragment fragment;
-    private Activity activity;
+    private final List<Object[]> chats;
+    private final int sendlerID;
+    private final Activity activity;
 
     StompClient stompClient;
 
-    public ChatsAdapter(List<Object[]> chats, int sendlerID, Fragment fragment, Activity activity) {
+    public ChatsAdapter(List<Object[]> chats, int sendlerID, Activity activity) {
         this.chats = chats;
         this.sendlerID = sendlerID;
-        this.fragment = fragment;
         this.activity = activity;
         initStompClient();
     }
@@ -101,7 +99,6 @@ public class ChatsAdapter extends RecyclerView.Adapter<ChatsHolder> {
             }
         });
     }
-
 
     @Override
     public int getItemCount() {
