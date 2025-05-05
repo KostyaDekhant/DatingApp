@@ -15,11 +15,13 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.datingappclient.R;
 import com.example.datingappclient.constants.Constants;
+import com.example.datingappclient.model.ChatDTO;
 import com.example.datingappclient.recyclerViews.chatsList.ChatsAdapter;
 import com.example.datingappclient.retrofit.RetrofitService;
 import com.example.datingappclient.retrofit.ServerAPI;
 import com.example.datingappclient.retrofit.repository.ChatsRepository;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import retrofit2.Call;
@@ -59,7 +61,8 @@ public class ChatListFragment extends Fragment {
         String logTag = Constants.GLOBAL_LOG_TAG + "GET CHATS";
         chatsRepository.fetchUserChats(userId, new ChatsRepository.ChatsCallback() {
             @Override
-            public void onSuccess(List<Object[]> chats) {
+            public void onSuccess(List<ChatDTO> chats) {
+                Log.d(logTag, chats.toString());
                 populateListView(chats);
             }
 
@@ -75,9 +78,9 @@ public class ChatListFragment extends Fragment {
         });
     }
 
-    private void populateListView(List<Object[]> chats) {
+    private void populateListView(List<ChatDTO> chats) {
         TextView noChats = activityView.findViewById(R.id.noChats_label);
-        if (chats.get(0)[1] == null) {
+        if (chats.isEmpty()) {
             noChats.setVisibility(View.VISIBLE);
         } else {
             ChatsAdapter chatsAdapter = new ChatsAdapter(chats, userId, getActivity());

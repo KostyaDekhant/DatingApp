@@ -230,7 +230,7 @@ public class LikeFragment extends Fragment {
                /* Context context = view.getContext();
 
                 Intent intent = new Intent(context, ChatActivity.class)
-                        .putExtra("sendlerID", userId)
+                        .putExtra("senderID", userId)
                         .putExtra("receiverID", likerId)
                         .putExtra("username", username)
                         .putExtra("image", imageBytes);

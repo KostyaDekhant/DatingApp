@@ -2,6 +2,7 @@ package com.example.datingappclient.retrofit.repository;
 
 import android.util.Log;
 
+import com.example.datingappclient.model.ChatDTO;
 import com.example.datingappclient.retrofit.RetrofitClient;
 import com.example.datingappclient.retrofit.api.ChatsAPI;
 
@@ -20,7 +21,7 @@ public class ChatsRepository {
 
     /* === Interfaces === */
     public interface ChatsCallback {
-        void onSuccess(List<Object[]> chats);
+        void onSuccess(List<ChatDTO> chats);
         void onEmpty(String message);
         void onError(String errorMessage);
     }
@@ -35,7 +36,7 @@ public class ChatsRepository {
     public void fetchUserChats(int userId, ChatsCallback callback) {
         chatsAPI.getChats(userId).enqueue(new Callback<>() {
             @Override
-            public void onResponse(Call<List<Object[]>> call, Response<List<Object[]>> response) {
+            public void onResponse(Call<List<ChatDTO>> call, Response<List<ChatDTO>> response) {
                 if (!response.isSuccessful()) callback.onError("Ошибка получения чатов: " + response.message());
                 if (response.body() != null) {
                     callback.onSuccess(response.body());
@@ -46,8 +47,7 @@ public class ChatsRepository {
             }
 
             @Override
-            public void onFailure(Call<List<Object[]>> call, Throwable throwable) {
-                Log.e("ChatsRepository", "Ошибка сети или ошибка при обработке данных" + call.toString(), throwable);
+            public void onFailure(Call<List<ChatDTO>> call, Throwable throwable) {
                 callback.onError("Ошибка сети или ошибка при обработке данных: " + throwable.getMessage());
             }
         });
@@ -68,7 +68,6 @@ public class ChatsRepository {
 
             @Override
             public void onFailure(Call<Integer> call, Throwable throwable) {
-                Log.e("ChatsRepository", "Ошибка сети или ошибка при обработке данных" + call.toString(), throwable);
                 callback.onError("Ошибка сети или ошибка при обработке данных: " + throwable.getMessage());
             }
         });

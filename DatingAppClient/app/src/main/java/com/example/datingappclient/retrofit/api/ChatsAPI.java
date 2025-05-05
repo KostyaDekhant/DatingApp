@@ -1,5 +1,7 @@
 package com.example.datingappclient.retrofit.api;
 
+import com.example.datingappclient.model.ChatDTO;
+
 import java.util.List;
 
 import retrofit2.Call;
@@ -10,7 +12,7 @@ import retrofit2.http.Query;
 
 public interface ChatsAPI {
     @GET("api/chats/{pk_user}")
-    Call<List<Object[]>> getChats(@Path("pk_user") int userId);
+    Call<List<ChatDTO>> getChats(@Path("pk_user") int userId);
 
     // Создание чата с юзером
     @POST("api/chats")

@@ -15,14 +15,14 @@ import java.util.List;
 public class MessagesAdapter extends RecyclerView.Adapter<MessagesHolder> {
 
     List<MessageDTO> messageList;
-    Integer sendlerID;
+    Integer senderID;
 
     public static final int VIEW_TYPE_SENT = 1;
     public static final int VIEW_TYPE_RECEIVED = 2;
 
-    public MessagesAdapter(List<MessageDTO> messageList, Integer sendlerID) {
+    public MessagesAdapter(List<MessageDTO> messageList, Integer senderID) {
         this.messageList = messageList;
-        this.sendlerID = sendlerID;
+        this.senderID = senderID;
     }
 
     @NonNull
@@ -53,7 +53,7 @@ public class MessagesAdapter extends RecyclerView.Adapter<MessagesHolder> {
 
     @Override
     public int getItemViewType(int position) {
-        if (messageList.get(position).getPk_user() == sendlerID) return VIEW_TYPE_SENT;
+        if (messageList.get(position).getPk_user() == senderID) return VIEW_TYPE_SENT;
         else return VIEW_TYPE_RECEIVED;
     }
 

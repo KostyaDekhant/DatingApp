@@ -36,7 +36,7 @@ import ua.naiksoftware.stomp.StompClient;
 
 public class ChatActivity extends AppCompatActivity {
 
-    Integer sendlerID, receiverID;
+    Integer senderID, receiverID;
     String username;
     byte[] byteImage;
 
@@ -54,7 +54,7 @@ public class ChatActivity extends AppCompatActivity {
 
         // Get pk_user from auth activity
         Bundle arguments = getIntent().getExtras();
-        sendlerID = arguments.getInt("sendlerID");
+        senderID = arguments.getInt("senderID");
         receiverID = arguments.getInt("receiverID");
         username = arguments.getString("username");
         byteImage = arguments.getByteArray("image");
@@ -77,12 +77,9 @@ public class ChatActivity extends AppCompatActivity {
 
         usernameLabel.setText(username);
 
-        returnButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                startActivity(new Intent(ChatActivity.this, MainActivity.class).putExtra("action", "showchats").putExtra("pk_user", sendlerID));
-                finish();
-            }
+        returnButton.setOnClickListener(view -> {
+            startActivity(new Intent(ChatActivity.this, MainActivity.class).putExtra("action", "showchats").putExtra("pk_user", senderID));
+            finish();
         });
 
         initStompClient();
@@ -93,7 +90,7 @@ public class ChatActivity extends AppCompatActivity {
             public void onClick(View view) {
                 String messageText = editText.getText().toString().trim();
                 if (!messageText.isEmpty()) {
-                    stompClient.send("/app/send", new MessageDTO(messageText, DateUtils.getCurrentTimeStamp(), sendlerID, receiverID).toString())
+                    stompClient.send("/app/send", new MessageDTO(messageText, DateUtils.getCurrentTimeStamp(), senderID, receiverID).toString())
                             .subscribeOn(Schedulers.io())
                             .observeOn(AndroidSchedulers.mainThread())
                             .subscribe(() -> {
@@ -164,7 +161,7 @@ public class ChatActivity extends AppCompatActivity {
     }
 
     private void populateListView(List<MessageDTO> messagesList) {
-        messagesAdapter = new MessagesAdapter(messagesList, sendlerID);
+        messagesAdapter = new MessagesAdapter(messagesList, senderID);
         messagesRecyclerView.setAdapter(messagesAdapter);
         messagesRecyclerView.scrollToPosition(messagesAdapter.getItemCount() - 1);
     }

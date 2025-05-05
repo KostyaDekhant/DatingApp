@@ -12,10 +12,10 @@ import retrofit2.http.Path;
 
 public interface BubblesAPI {
     @GET("/api/interests")
-    public Call<List<InterestDTO>> getListInterests();
+    Call<List<InterestDTO>> getListInterests();
 
     @GET("/api/categories")
-    public Call<List<CategoryDTO>> getListCategories();
+    Call<List<CategoryDTO>> getListCategories();
 
     @GET("/api/interests/{categoryId}")
     Call<List<InterestDTO>> getListInterestsByCategory(@Path("categoryId") int categoryId);
