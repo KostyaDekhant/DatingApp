@@ -1,99 +1,11 @@
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".fragments.SearchFragment">
 
-    <!-- Центральная область для отображения анкеты -->
-    <FrameLayout
-        android:id="@+id/profile_container"
+    <com.yuyakaido.android.cardstackview.CardStackView
+        android:id="@+id/profile_image"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:focusable="true"
-        android:clickable="true">
-
-        <!-- Изображение профиля -->
-        <ImageView
-            android:id="@+id/profile_image"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:scaleType="centerCrop" />
-
-        <!-- Полупрозрачная вуаль -->
-        <View
-            android:id="@+id/swipe_overlay"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:background="#00FFFFFF"
-            android:visibility="gone" />
-    </FrameLayout>
-
-    <!-- Контейнер для кнопок и текста об анкете -->
-    <LinearLayout
-        android:id="@+id/bottom_container"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:orientation="vertical"
-        android:paddingVertical="10dp"
-        android:background="#FFFFFF">
-
-        <!-- ScrollView для текстовой области информации об анкете -->
-        <ScrollView
-            android:layout_width="match_parent"
-            android:layout_height="55dp"
-            android:fillViewport="true">
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical">
-            <!-- Текстовая область для информации об анкете -->
-            <TextView
-                android:id="@+id/userNameAge_label"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Имя пользователя, возраст"
-                android:textStyle="bold"
-                android:textSize="20sp"
-                android:textAlignment="center"/>
-
-            <TextView
-                android:id="@+id/description_label"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Описание профиля (может не быть)"
-                android:textAlignment="center"
-                android:textSize="16sp"
-                android:paddingHorizontal="10dp"/>
-            </LinearLayout>
-        </ScrollView>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center">
-
-            <!-- Кнопка для дислайка -->
-            <ImageButton
-                android:id="@+id/dislike_button"
-                android:layout_width="64dp"
-                android:layout_height="64dp"
-                android:layout_marginRight="16dp"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:src="@drawable/ic_dislike" />
-
-            <!-- Кнопка для лайка -->
-            <ImageButton
-                android:id="@+id/like_button"
-                android:layout_width="64dp"
-                android:layout_height="64dp"
-                android:layout_marginLeft="16dp"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:src="@drawable/ic_like" />
-        </LinearLayout>
-
-    </LinearLayout>
-
-</RelativeLayout>
+        android:layout_height="match_parent" />
+</FrameLayout>

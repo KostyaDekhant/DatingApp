@@ -1,34 +1,33 @@
 package com.example.datingappclient.fragments;
 
-import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.FrameLayout;
-import android.widget.ImageButton;
-import android.widget.ImageView;
-import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.constraintlayout.motion.widget.OnSwipe;
 import androidx.fragment.app.Fragment;
 
 import com.example.datingappclient.R;
 import com.example.datingappclient.constants.Constants;
+import com.example.datingappclient.model.ProfileCardData;
 import com.example.datingappclient.model.UserImage;
+import com.example.datingappclient.recyclerViews.ProfileCardAdapter;
 import com.example.datingappclient.retrofit.RetrofitService;
 import com.example.datingappclient.retrofit.ServerAPI;
 import com.example.datingappclient.retrofit.repository.ImageRepository;
 import com.example.datingappclient.utils.DateUtils;
 import com.example.datingappclient.utils.ImageUtils;
-import com.example.datingappclient.searchlogic.OnSwipeTouchListener;
 import com.google.gson.JsonObject;
+import com.yuyakaido.android.cardstackview.CardStackLayoutManager;
+import com.yuyakaido.android.cardstackview.CardStackListener;
+import com.yuyakaido.android.cardstackview.CardStackView;
+import com.yuyakaido.android.cardstackview.Direction;
+import com.yuyakaido.android.cardstackview.StackFrom;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import retrofit2.Call;
@@ -45,20 +44,14 @@ public class SearchFragment extends Fragment {
 
     /* === Android Objects === */
     private View activityView;
-    private ImageButton dislikeButton;
-    private ImageButton likeButton;
-    private TextView userNameAgeLabel;
-    private TextView descLabel;
-    private View swipeOverlay;
-    private ImageView profileImage;
 
     /* === Other === */
-    private int clientId = 24; // ID нашего клиента
-    private int prevUserId = 0; // Для первой анкеты
-    private int currentUserId = 0; // Текущая анкета
+    private int userId;         // ID юзера приложения
+    private int prevUserId;     // ID предыдущего юзера (для запроса)
+    private int currentUserId ; // ID юзера текущей анкеты
 
-    private List<UserImage> userImages;
-    private int currentImageIndex = 0;
+    private final List<ProfileCardData> profiles = new ArrayList<>(); // Массив карточек юзеров (заполняется по ходу работы)
+    private ProfileCardAdapter adapter;
 
     /* === Methods === */
     public SearchFragment() {
@@ -66,10 +59,10 @@ public class SearchFragment extends Fragment {
         imageRepository = new ImageRepository();
     }
 
-    public static SearchFragment newInstance(int clientId) {
+    public static SearchFragment newInstance(int userId) {
         SearchFragment fragment = new SearchFragment();
         Bundle args = new Bundle();
-        args.putInt(ARG_CLIENT_ID, clientId);
+        args.putInt(ARG_CLIENT_ID, userId);
         fragment.setArguments(args);
         return fragment;
     }
@@ -79,85 +72,25 @@ public class SearchFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         activityView = inflater.inflate(R.layout.fragment_search, container, false);
 
-        // Извлекаем clientId из аргументов
+        // Извлекаем clientId из аргументов из формы
         if (getArguments() != null) {
-            clientId = getArguments().getInt(ARG_CLIENT_ID);
+            userId = getArguments().getInt(ARG_CLIENT_ID);
         }
 
-        dislikeButton = activityView.findViewById(R.id.dislike_button);
-        likeButton = activityView.findViewById(R.id.like_button);
-        userNameAgeLabel = activityView.findViewById(R.id.userNameAge_label);
-        descLabel = activityView.findViewById(R.id.description_label);
-        swipeOverlay = activityView.findViewById(R.id.swipe_overlay);
-        profileImage = activityView.findViewById(R.id.profile_image);
-
-        dislikeButton.setOnClickListener(v -> {
-            showSwipeOverlay(false); // Показать красную вуаль
-            loadNextProfile();
-        });
-
-        likeButton.setOnClickListener(v -> {
-            showSwipeOverlay(true); // Показать зеленую вуаль
-            sendLike(clientId, currentUserId);
-            loadNextProfile();
-        });
-
-        profileImage.setOnTouchListener(new OnSwipeTouchListener(getContext()) {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                if (event.getAction() == MotionEvent.ACTION_UP) {
-                    float x = event.getX();
-                    int width = profileImage.getWidth();
-                    if (x < width / 2) {
-                        showPreviousImage();
-                    } else {
-                        showNextImage();
-                    }
-                    return true;
-                }
-                return super.onTouch(v, event);
-            }
-
-            @Override
-            public void onSwipeRight() {
-                super.onSwipeRight();
-                showNextImage();
-            }
-
-            @Override
-            public void onSwipeLeft() {
-                super.onSwipeLeft();
-                showPreviousImage();
-            }
-        });
-
         // Загружаем первую анкету при создании фрагмента
-        loadNextProfile();
+        getNextForm();
+        // Задаем параметры карточки анкеты
+        setupCardStackView();
 
         return activityView;
     }
 
-    private void showSwipeOverlay(boolean isRightSwipe) {
-        if (isRightSwipe) {
-            swipeOverlay.setBackgroundColor(0x8800FF00); // Полупрозрачный зеленый
-        } else {
-            swipeOverlay.setBackgroundColor(0x88FF0000); // Полупрозрачный красный
-        }
-        swipeOverlay.setVisibility(View.VISIBLE);
-        swipeOverlay.postDelayed(() -> swipeOverlay.setVisibility(View.GONE), 300); // Скрыть через 300 мс
-    }
-
-    private void loadNextProfile() {
+    // Метод загрузки следующей анкеты
+    private void getNextForm() {
         RetrofitService retrofitService = new RetrofitService();
         ServerAPI serverAPI = retrofitService.getRetrofit().create(ServerAPI.class);
 
-        userNameAgeLabel.setText("");
-        descLabel.setText("");
-        profileImage.setImageResource(R.drawable.images);
-        likeButton.setEnabled(false);
-        dislikeButton.setEnabled(false);
-
-        serverAPI.getForms(clientId, prevUserId).enqueue(new Callback<>() {
+        serverAPI.getForms(userId, prevUserId).enqueue(new Callback<>() {
             @Override
             public void onResponse(Call<List<Object[]>> call, Response<List<Object[]>> response) {
                 if (response.body() != null && !response.body().isEmpty()) {
@@ -169,19 +102,20 @@ public class SearchFragment extends Fragment {
                         prevUserId = currentUserId; // Обновляем prevUserId на текущую анкету
                     }
 
+                    Log.d("SearchFragment", "" + currentUserId);
                     String name = profile[1] != null ? (String) profile[1] : "Unknown";
-                    String age = profile[2] != null ? profile[2].toString() : "Unknown";
+                    String birthday = profile[2] != null ? profile[2].toString() : "Unknown";
                     String description = profile[5] != null ? (String) profile[5] : "";
 
-                    userNameAgeLabel.setText(name + ", " + DateUtils.dateToAge(age));
-                    descLabel.setText(description);
+                    int age = DateUtils.dateToAge(birthday);
 
                     // Загружаем изображение, если ID пользователя не равен 0
                     if (currentUserId != 0) {
-                        loadUserImagesFromForm(currentUserId);
+                        loadUserImagesFromForm(currentUserId, (images) -> {
+                            profiles.add(new ProfileCardData(name, age, description, images));
+                            adapter.notifyItemInserted(profiles.size() - 1);
+                        });
                     }
-                    likeButton.setEnabled(true);
-                    dislikeButton.setEnabled(true);
                 } else {
                     Log.d("SearchFragment", "No profiles available");
                 }
@@ -194,15 +128,19 @@ public class SearchFragment extends Fragment {
         });
     }
 
-    private void loadUserImagesFromForm(int userId) {
-        String logTag = Constants.GLOBAL_LOG_TAG + "USER_IMAGES (FORMS)";
+    // Колбэк ответа получения изображений
+    interface ImageCallback {
+        void onLoaded(List<UserImage> images);
+    }
+
+    // Метод загрузка изображений для юзера из анкеты
+    private void loadUserImagesFromForm(int userId, ImageCallback callback) {
+        String logTag = Constants.GLOBAL_LOG_TAG + "USER IMAGES (FORMS)";
         imageRepository.fetchUserImages(userId, new ImageRepository.ImagesCallback() {
             @Override
             public void onSuccess(List<Object[]> images) {
                 Log.i(logTag, "For userId = " + userId + " - Count images: " + images.size());
-                userImages = ImageUtils.objectListToUserImageList(images);
-                currentImageIndex = 0;
-                showCurrentImage();
+                callback.onLoaded(ImageUtils.objectListToUserImageList(images));
             }
 
             @Override
@@ -217,27 +155,7 @@ public class SearchFragment extends Fragment {
         });
     }
 
-    private void showCurrentImage() {
-        if (userImages != null && !userImages.isEmpty() && currentImageIndex >= 0 && currentImageIndex < userImages.size()) {
-            Bitmap profileBitmap = userImages.get(currentImageIndex).getImage();
-            profileImage.setImageBitmap(profileBitmap);
-        }
-    }
-
-    private void showPreviousImage() {
-        if (userImages != null && !userImages.isEmpty()) {
-            currentImageIndex = (currentImageIndex - 1 + userImages.size()) % userImages.size();
-            showCurrentImage();
-        }
-    }
-
-    private void showNextImage() {
-        if (userImages != null && !userImages.isEmpty()) {
-            currentImageIndex = (currentImageIndex + 1) % userImages.size();
-            showCurrentImage();
-        }
-    }
-
+    // Метод отправки лайка на сервер
     private void sendLike(int liker, int poster) {
         RetrofitService retrofitService = new RetrofitService();
         ServerAPI serverAPI = retrofitService.getRetrofit().create(ServerAPI.class);
@@ -266,5 +184,62 @@ public class SearchFragment extends Fragment {
                 Log.d("SearchFragment", "Failed to send like. Error: " + t.getMessage());
             }
         });
+    }
+
+    // Тут можно задать параметры самого свайпа
+    private void setupCardStackView() {
+        CardStackView cardStackView = activityView.findViewById(R.id.profile_image);
+
+        CardStackLayoutManager layoutManager = new CardStackLayoutManager(activityView.getContext(), setupCardStackListener());
+
+        layoutManager.setStackFrom(StackFrom.None);
+        layoutManager.setVisibleCount(3);
+        layoutManager.setTranslationInterval(8.0f);
+        layoutManager.setScaleInterval(0.95f);
+        layoutManager.setSwipeThreshold(0.3f);
+        layoutManager.setMaxDegree(20.0f);
+        layoutManager.setDirections(Direction.HORIZONTAL);
+        layoutManager.setCanScrollVertical(false);
+
+        cardStackView.setLayoutManager(layoutManager);
+        adapter = new ProfileCardAdapter(profiles);
+        cardStackView.setAdapter(adapter);
+    }
+
+    // Тут можно настроить все действия при свайпе
+    private CardStackListener setupCardStackListener() {
+        return new CardStackListener() {
+            @Override
+            public void onCardDragging(Direction direction, float ratio) {
+
+            }
+
+            @Override public void onCardSwiped(Direction direction) {
+                getNextForm();
+                if (direction == Direction.Right) {
+                    sendLike(userId, currentUserId);
+                }
+            }
+
+            @Override
+            public void onCardRewound() {
+
+            }
+
+            @Override
+            public void onCardCanceled() {
+
+            }
+
+            @Override
+            public void onCardAppeared(View view, int position) {
+
+            }
+
+            @Override
+            public void onCardDisappeared(View view, int position) {
+
+            }
+        };
     }
 }

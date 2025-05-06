@@ -28,7 +28,6 @@ android {
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
-
     }
 }
 
@@ -79,5 +78,9 @@ dependencies {
     // MockWebServer
     testImplementation("com.squareup.okhttp3:mockwebserver:4.9.0")
 
+    // Flexbox
     implementation ("com.google.android.flexbox:flexbox:3.0.0")
+
+    //
+    implementation ("com.github.yuyakaido:cardstackview:2.3.4")
 }
