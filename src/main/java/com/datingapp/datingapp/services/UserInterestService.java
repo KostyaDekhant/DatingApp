@@ -144,4 +144,9 @@ public class UserInterestService {
         return finalList;
     }
 
+    @Transactional
+    public List<UserInterest> userListInterest(int userId) {
+        return userInterestRepo.findUserInterestByPkUser(userId);
+    }
+
 }

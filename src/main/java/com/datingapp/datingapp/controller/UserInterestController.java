@@ -94,5 +94,26 @@ public class UserInterestController {
         }
         return ResponseEntity.ok(userInterestsDto);
     }
+    @GetMapping("/users/{user_id}/interests")
+    public ResponseEntity<List<UserInterestDto>> listUserInterest(@PathVariable int user_id){
+        List<UserInterest> userInterests = userInterestService.userListInterest(user_id);
+        List<UserInterestDto> userInterestsDto = new ArrayList<>();
+        for (UserInterest userInterest : userInterests) {
+            Integer interestId = userInterest.getId().getInterestId();
+            String name = "";
+            Integer weight = userInterest.getWeight();
+            String description = userInterest.getDescription();
+            for (var interest : interests) {
+                if(interest.getPkInterest() == interestId){
+                    name = interest.getName();
+                    break;
+                }
+            }
+            UserInterestDto userInterestDto = new UserInterestDto(
+                    interestId, name, weight, description);
+            userInterestsDto.add(userInterestDto);
+        }
+        return ResponseEntity.ok(userInterestsDto);
 
+    }
 }

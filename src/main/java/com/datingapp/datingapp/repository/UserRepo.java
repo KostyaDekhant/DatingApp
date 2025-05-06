@@ -52,7 +52,46 @@ WHERE :userId IN (c.pk_user, c.pk_user1)
 
 """,
             nativeQuery = true)
-    List<ChatDTO> findChatPartners(@Param("userId") int userId);
+    List<Object[]> findChatPartners(@Param("userId") int userId);
+
+//    @Query(value = """
+//SELECT
+//  u2.name      AS partner_name,
+//  c.pk_chat    AS chat_id,
+//  m.message    AS last_message,
+//  CASE
+//    WHEN c.pk_user = :userId THEN c.pk_user1
+//    ELSE c.pk_user
+//  END          AS partner_id,
+//  p.image      AS avatar
+//FROM "chat" c
+//  -- сначала все JOIN-ы
+//  JOIN "user" u2
+//    ON u2.pk_user = CASE
+//                       WHEN c.pk_user = :userId THEN c.pk_user1
+//                       ELSE c.pk_user
+//                    END
+//  LEFT JOIN (
+//    SELECT m1.pk_chat, m1.pk_user, m1.message
+//    FROM "message" m1
+//    WHERE m1.time = (
+//      SELECT MAX(m2.time)
+//      FROM "message" m2
+//      WHERE m2.pk_chat = m1.pk_chat
+//    )
+//  ) m
+//    ON m.pk_chat = c.pk_chat
+//  LEFT JOIN "user_pic" up
+//    ON up.pk_user = u2.pk_user
+//  LEFT JOIN "picture" p
+//    ON up.pk_picture = p.pk_picture
+//       AND p.id = 1
+//-- а потом уже WHERE
+//WHERE c.pk_chat = :chatID LIMIT 1
+//
+//""",
+//            nativeQuery = true)
+//    Object[] findChatPartnerById(@Param("chatId") int chatId, @Param("userId") int userId);
 
 
     @Query(value = """
