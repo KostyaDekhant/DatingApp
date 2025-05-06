@@ -10,6 +10,7 @@
         <attr name="textSizeLarge" format="dimension" />
 
         <attr name="textColorMain" format="color"/>
+        <attr name="textColorMainReverse" format="color"/>
         <attr name="textColorFade" format="color"/>
         <attr name="textColorContrast" format="color"/>
     </declare-styleable>

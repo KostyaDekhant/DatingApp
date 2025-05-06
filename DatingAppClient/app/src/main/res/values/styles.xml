@@ -4,8 +4,8 @@
     <style name="ChipStyle" parent="Widget.MaterialComponents.Chip.Entry">
         <!-- Углы и размеры -->
         <item name="chipCornerRadius">16dp</item>
-        <item name="chipMinHeight">32dp</item> <!-- ❗ делает чипы одинаковыми по высоте -->
-        <item name="chipMinTouchTargetSize">0dp</item> <!-- ❗ отключает автопаддинг на некоторых устройствах -->
+        <item name="chipMinHeight">32dp</item>          <!-- ❗ делает чипы одинаковыми по высоте -->
+        <item name="chipMinTouchTargetSize">0dp</item>  <!-- ❗ отключает автопаддинг на некоторых устройствах -->
 
         <!-- Внутренние отступы -->
         <item name="chipStartPadding">16dp</item>

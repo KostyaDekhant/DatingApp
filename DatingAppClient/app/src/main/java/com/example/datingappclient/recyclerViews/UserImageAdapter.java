@@ -1,0 +1,50 @@
+package com.example.datingappclient.recyclerViews;
+
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ImageView;
+
+import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.RecyclerView;
+
+import com.example.datingappclient.model.UserImage;
+
+import java.util.List;
+
+public class UserImageAdapter extends RecyclerView.Adapter<UserImageAdapter.ViewHolder> {
+    private final List<UserImage> images;
+
+    public UserImageAdapter(List<UserImage> images) {
+        this.images = images;
+    }
+
+    @NonNull
+    @Override
+    public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        ImageView imageView = new ImageView(parent.getContext());
+        imageView.setLayoutParams(new ViewGroup.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.MATCH_PARENT));
+        imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
+        return new ViewHolder(imageView);
+    }
+
+    @Override
+    public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
+        holder.imageView.setImageBitmap(images.get(position).getImage());
+    }
+
+    @Override
+    public int getItemCount() {
+        return images.size();
+    }
+
+    public static class ViewHolder extends RecyclerView.ViewHolder {
+        ImageView imageView;
+
+        public ViewHolder(@NonNull View itemView) {
+            super(itemView);
+            imageView = (ImageView) itemView;
+        }
+    }
+}

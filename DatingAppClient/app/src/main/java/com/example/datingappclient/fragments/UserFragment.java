@@ -8,20 +8,22 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.viewpager2.widget.ViewPager2;
 
 import com.example.datingappclient.R;
 import com.example.datingappclient.constants.Constants;
 import com.example.datingappclient.model.UserDTO;
+import com.example.datingappclient.recyclerViews.UserImageAdapter;
 import com.example.datingappclient.retrofit.repository.ImageRepository;
 import com.example.datingappclient.retrofit.repository.UserRepository;
 import com.example.datingappclient.utils.ImageUtils;
-import com.google.android.material.button.MaterialButton;
 
 import java.util.List;
 
@@ -37,14 +39,14 @@ public class UserFragment extends Fragment implements View.OnClickListener {
     private static UserDTO user;
 
     /* === Android Objects === */
-    private ImageView profileImage;
+    //private ImageView profileImage;
+    private ViewPager2 profileImage;
 
     /* === Other === */
     private int currentImageIndex = 0;
     private static boolean isLogin;
 
     /* === Methods === */
-
     @Override
     public void onClick(View view) {
         getParentFragmentManager().beginTransaction().replace(R.id.fragment_container, new UsereditFragment(user)).commit();
@@ -78,19 +80,21 @@ public class UserFragment extends Fragment implements View.OnClickListener {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_user, container, false);
-        MaterialButton button = view.findViewById(R.id.edit_button);
+        ImageButton button = view.findViewById(R.id.edit_button);
         button.setOnClickListener(this);
 
         profileImage = view.findViewById(R.id.profile_image);
         setupImageTouchListener();
 
+        // если только после авторизации, то запрашиваем инфу о пользователе
         if (isLogin) {
             getUserInfo(view, user.getId());
             getUserImages(user.getId());
         }
+        // Нужно для того, что бы при переходе с другой вкладки проставлялась инфа и изображении
         else {
             setUserinfo(view);
-            profileImage.setImageBitmap(user.getMainImage());
+            profileImage.setAdapter(new UserImageAdapter(user.getImages()));
         }
 
         return view;
@@ -116,7 +120,7 @@ public class UserFragment extends Fragment implements View.OnClickListener {
     }
 
     private void getUserImages(int userId) {
-        String logTag = Constants.GLOBAL_LOG_TAG + "USER_IMAGES";
+        String logTag = Constants.GLOBAL_LOG_TAG + "USER IMAGES";
         // Загружаем изображения
         imageRepository.fetchUserImages(userId, new ImageRepository.ImagesCallback() {
             @Override
@@ -128,7 +132,7 @@ public class UserFragment extends Fragment implements View.OnClickListener {
                 // если изображений нет, то выводим дефолтное (возвращается с сервера)
                 // TODO: изображение по умолчанию можно хранить на клиенте, чтобы не гонять туда-сюда
                 if (!user.getImages().isEmpty()) {
-                    profileImage.setImageBitmap(user.getImages().get(0).getImage());
+                    profileImage.setAdapter(new UserImageAdapter(user.getImages()));
                 }
                 isLogin = false;
             }
@@ -143,6 +147,10 @@ public class UserFragment extends Fragment implements View.OnClickListener {
                 Log.e(logTag, errorMessage);
             }
         });
+    }
+
+    private void getUserBubbles(int userId) {
+
     }
 
     @SuppressLint("SetTextI18n")
@@ -191,6 +199,6 @@ public class UserFragment extends Fragment implements View.OnClickListener {
 
     private void updateProfileImage() {
         Bitmap image = user.getImages().get(currentImageIndex).getImage();
-        profileImage.setImageBitmap(image);
+        //profileImage.setImageBitmap(image);
     }
 }

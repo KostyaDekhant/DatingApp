@@ -1,5 +1,8 @@
 package com.example.datingappclient.fragments;
 
+import static com.example.datingappclient.utils.BubbleUtils.getBubble;
+import static com.example.datingappclient.utils.BubbleUtils.getBubblesFlexbox;
+
 import android.app.Activity;
 import android.app.DatePickerDialog;
 import android.content.Context;
@@ -45,9 +48,7 @@ import com.example.datingappclient.retrofit.repository.ImageRepository;
 import com.example.datingappclient.retrofit.repository.UserRepository;
 import com.example.datingappclient.utils.DateUtils;
 import com.example.datingappclient.utils.ImageUtils;
-import com.google.android.flexbox.FlexWrap;
 import com.google.android.flexbox.FlexboxLayout;
-import com.google.android.flexbox.JustifyContent;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.chip.Chip;
 import com.google.android.material.snackbar.Snackbar;
@@ -195,61 +196,19 @@ public class UsereditFragment extends Fragment {
             categoryLayout.addView(label);
 
             // === FlexboxLayout под интересы ===
-            FlexboxLayout flexbox = getBubblesFlexbox(label.getId());
+            FlexboxLayout flexbox = getBubblesFlexbox(activityView, label.getId());
             categoryLayout.addView(flexbox);
 
             // === Добавление Bubble'ов в Flexbox ===
             ContextThemeWrapper wrapper = new ContextThemeWrapper(activityView.getContext(), R.style.ThemeOverlay_ChipStyleEdit);
             for (UserInterestDTO interest : interests) {
-                Chip chip = getBubble(interest.getName(), wrapper);
+                Chip chip = getBubble(activityView, interest.getName(), wrapper);
                 flexbox.addView(chip);
             }
 
             // Добавляем готовый блок в контейнер
             container.addView(categoryLayout);
         }
-    }
-
-    @NonNull
-    private Chip getBubble(String interest, ContextThemeWrapper wrapper) {
-        Chip chip = new Chip(wrapper, null, com.google.android.material.R.attr.chipStyle);
-        chip.setText(interest);
-
-        // Поведение
-        chip.setOnClickListener(v -> {
-            Toast.makeText(activityView.getContext(), "Открыть: " + interest, Toast.LENGTH_SHORT).show();
-        });
-
-        // Layout
-        FlexboxLayout.LayoutParams lp = new FlexboxLayout.LayoutParams(
-                ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-        lp.setMargins(0, 4, 0, 4);
-        lp.setMinHeight(0);
-        chip.setLayoutParams(lp);
-        return chip;
-    }
-
-    @NonNull
-    private FlexboxLayout getBubblesFlexbox(int labelId) {
-        FlexboxLayout flexbox = new FlexboxLayout(activityView.getContext());
-        flexbox.setId(View.generateViewId());
-
-        flexbox.setFlexWrap(FlexWrap.WRAP);
-        flexbox.setJustifyContent(JustifyContent.SPACE_BETWEEN);
-        flexbox.setClipChildren(false);
-        flexbox.setClipToPadding(false);
-
-        ConstraintLayout.LayoutParams flexParams = new ConstraintLayout.LayoutParams(
-                ConstraintLayout.LayoutParams.MATCH_PARENT,
-                ConstraintLayout.LayoutParams.WRAP_CONTENT
-        );
-        flexParams.topToBottom = labelId;
-        flexParams.startToStart = ConstraintLayout.LayoutParams.PARENT_ID;
-        flexParams.endToEnd = ConstraintLayout.LayoutParams.PARENT_ID;
-        flexParams.topMargin = 4;
-        flexbox.setLayoutParams(flexParams);
-
-        return flexbox;
     }
 
     @NonNull

@@ -14,10 +14,6 @@ public class UserImage {
     private int imageID;
     private final Bitmap image;
 
-    public  UserImage() {
-        imageNum = 0;
-        image = null;
-    }
     public UserImage(int imageNum, int imageID, Bitmap image) {
         this.imageNum = imageNum;
         this.imageID = imageID;
