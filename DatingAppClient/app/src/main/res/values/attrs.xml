@@ -32,4 +32,10 @@
 
         <attr name="bubbleTextSize" format="dimension"/>
     </declare-styleable>
+
+    <declare-styleable name="CustomIndicators">
+        <attr name="indicatorActiveColor" format="color"/>
+        <attr name="indicatorWidth" format="dimension"/>
+        <attr name="indicatorHeight" format="dimension"/>
+    </declare-styleable>
 </resources>

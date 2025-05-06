@@ -24,6 +24,8 @@ import com.example.datingappclient.recyclerViews.UserImageAdapter;
 import com.example.datingappclient.retrofit.repository.ImageRepository;
 import com.example.datingappclient.retrofit.repository.UserRepository;
 import com.example.datingappclient.utils.ImageUtils;
+import com.google.android.material.tabs.TabLayout;
+import com.google.android.material.tabs.TabLayoutMediator;
 
 import java.util.List;
 
@@ -39,11 +41,10 @@ public class UserFragment extends Fragment implements View.OnClickListener {
     private static UserDTO user;
 
     /* === Android Objects === */
-    //private ImageView profileImage;
     private ViewPager2 profileImage;
+    private View activityView;
 
     /* === Other === */
-    private int currentImageIndex = 0;
     private static boolean isLogin;
 
     /* === Methods === */
@@ -79,28 +80,27 @@ public class UserFragment extends Fragment implements View.OnClickListener {
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_user, container, false);
-        ImageButton button = view.findViewById(R.id.edit_button);
+        activityView = inflater.inflate(R.layout.fragment_user, container, false);
+        ImageButton button = activityView.findViewById(R.id.edit_button);
         button.setOnClickListener(this);
 
-        profileImage = view.findViewById(R.id.profile_image);
-        setupImageTouchListener();
+        profileImage = activityView.findViewById(R.id.profile_image);
 
         // если только после авторизации, то запрашиваем инфу о пользователе
         if (isLogin) {
-            getUserInfo(view, user.getId());
+            getUserInfo(user.getId());
             getUserImages(user.getId());
         }
         // Нужно для того, что бы при переходе с другой вкладки проставлялась инфа и изображении
         else {
-            setUserinfo(view);
-            profileImage.setAdapter(new UserImageAdapter(user.getImages()));
+            setUserinfo();
+            setProfileImage();
         }
 
-        return view;
+        return activityView;
     }
 
-    private void getUserInfo(View view, int userID){
+    private void getUserInfo(int userID){
         String logTag = Constants.GLOBAL_LOG_TAG + "USER_INFO";
         userRepository.fetchUserInfo(userID, new UserRepository.UserCallback() {
             @Override
@@ -109,7 +109,7 @@ public class UserFragment extends Fragment implements View.OnClickListener {
                 user = fetchedUser;
                 Log.i(logTag, user.toString());
                 // Выводим инфу о пользователе в поля
-                setUserinfo(view);
+                setUserinfo();
             }
 
             @Override
@@ -132,7 +132,7 @@ public class UserFragment extends Fragment implements View.OnClickListener {
                 // если изображений нет, то выводим дефолтное (возвращается с сервера)
                 // TODO: изображение по умолчанию можно хранить на клиенте, чтобы не гонять туда-сюда
                 if (!user.getImages().isEmpty()) {
-                    profileImage.setAdapter(new UserImageAdapter(user.getImages()));
+                    setProfileImage();
                 }
                 isLogin = false;
             }
@@ -154,51 +154,25 @@ public class UserFragment extends Fragment implements View.OnClickListener {
     }
 
     @SuppressLint("SetTextI18n")
-    private void setUserinfo(View view) {
-        TextView descLabel = view.findViewById(R.id.description_label), nameLabel = view.findViewById(R.id.username_label), ageLabel = view.findViewById(R.id.age_label);
+    private void setUserinfo() {
+        TextView descLabel = activityView.findViewById(R.id.description_label), nameLabel = activityView.findViewById(R.id.username_label), ageLabel = activityView.findViewById(R.id.age_label);
         nameLabel.setText(user.getName() + ",");
         descLabel.setText(user.getDescription());
         ageLabel.setText("" + user.getAge());
     }
 
-    //пальцы не совать
-    // TODO: переделать систему свайпов (если вообще нужна)
-    private void setupImageTouchListener() {
-        profileImage.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                if (event.getAction() == MotionEvent.ACTION_UP) {
-                    float x = event.getX();
-                    int width = v.getWidth();
-                    if (x < width / 2) {
-                        onSwipeRight();
-                    } else {
-                        onSwipeLeft();
-                    }
-                }
-                return true;
-            }
-        });
-    }
+    private void setProfileImage() {
+        profileImage.setAdapter(new UserImageAdapter(user.getImages()));
+        TabLayout tabLayout = activityView.findViewById(R.id.image_indicator);
+        new TabLayoutMediator(tabLayout, profileImage, (tab, position) -> {
+            // ничего не делаем — просто точки
+        }).attach();
 
-    private void onSwipeRight() {
-        Log.d("UserFragment", "Clicked on the left half of the image");
-        if (currentImageIndex > 0) {
-            currentImageIndex--;
-            updateProfileImage();
+        for (int i = 0; i < tabLayout.getTabCount(); i++) {
+            View tab = ((ViewGroup) tabLayout.getChildAt(0)).getChildAt(i);
+            ViewGroup.MarginLayoutParams layoutParams = (ViewGroup.MarginLayoutParams) tab.getLayoutParams();
+            layoutParams.setMargins(8, 0, 8, 0);
+            tab.requestLayout();
         }
-    }
-
-    private void onSwipeLeft() {
-        Log.d("UserFragment", "Clicked on the right half of the image");
-        if (currentImageIndex < user.getImages().size() - 1) {
-            currentImageIndex++;
-            updateProfileImage();
-        }
-    }
-
-    private void updateProfileImage() {
-        Bitmap image = user.getImages().get(currentImageIndex).getImage();
-        //profileImage.setImageBitmap(image);
     }
 }

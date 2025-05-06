@@ -27,6 +27,12 @@
 
         <item name="bubbleTextSize"> 16sp </item>
 
+        <!-- Image indicator -->
+        <item name="indicatorActiveColor">@color/white</item>
+        <item name="indicatorColor">@color/white_transparent</item>
+        <item name="indicatorWidth">30dp</item>
+        <item name="indicatorHeight">5dp</item>
+
         <!-- -->
         <item name="textEditHeight">55dp</item>
         <item name="buttonHeight">50dp</item>
