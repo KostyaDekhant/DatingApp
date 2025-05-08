@@ -7,6 +7,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -101,7 +102,7 @@ public class SearchFragment extends Fragment {
             public void onSuccess(FormDTO form) {
                 Log.d(logTag, "Успешно получена анкета юзера: " +  form.getUserId());
                 currentUserId = form.getUserId();
-                loadUserImagesFromForm(currentUserId, (images) -> {
+                getUserImages(currentUserId, (images) -> {
                     int age = DateUtils.dateToAge(form.getBirthday());
                     profiles.add(new ProfileCardData(form.getName(), age, form.getDescription(), images));
                     adapter.notifyItemInserted(profiles.size() - 1);
@@ -111,7 +112,8 @@ public class SearchFragment extends Fragment {
             @Override
             public void onEmpty(String message) {
                 Log.i(logTag, message);
-                // TOOO: сделать текст бокс для сообщения
+                TextView emptyTextView = activityView.findViewById(R.id.empty_text);
+                emptyTextView.setVisibility(View.VISIBLE);
             }
 
             @Override
@@ -127,7 +129,7 @@ public class SearchFragment extends Fragment {
     }
 
     // Метод загрузка изображений для юзера из анкеты
-    private void loadUserImagesFromForm(int userId, ImageCallback callback) {
+    private void getUserImages(int userId, ImageCallback callback) {
         String logTag = Constants.GLOBAL_LOG_TAG + "USER IMAGES (FORMS)";
         imageRepository.fetchUserImages(userId, new ImageRepository.ImagesCallback() {
             @Override
@@ -149,9 +151,9 @@ public class SearchFragment extends Fragment {
     }
 
     // Метод отправки лайка на сервер
-    private void sendLike(int liker, int poster) {
+    private void sendLikeToPoster(int likerId, int posterId) {
         String logTag = Constants.GLOBAL_LOG_TAG + "SEND LIKE";
-        likesRepository.sendLike(new LikeDTO(liker, poster), new LikesRepository.SendLikeCallback() {
+        likesRepository.sendLike(new LikeDTO(likerId, posterId), new LikesRepository.SendLikeCallback() {
             @Override
             public void onSuccess(Integer likeId) {
                 Log.d(logTag, "Успешно поставлен лайк: " + likeId);
@@ -207,9 +209,9 @@ public class SearchFragment extends Fragment {
                 swipeAnimateFlash(direction);
                 getForm();
                 if (direction == Direction.Right) {
-                    sendLike(userId, currentUserId);
+                    sendLikeToPoster(userId, currentUserId);
                 }
-
+                frameLayout.setBackgroundColor(Color.TRANSPARENT);
             }
 
             @Override
