@@ -1,10 +1,12 @@
 package com.example.datingappclient.fragments;
 
+import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -12,15 +14,16 @@ import androidx.fragment.app.Fragment;
 
 import com.example.datingappclient.R;
 import com.example.datingappclient.constants.Constants;
+import com.example.datingappclient.model.FormDTO;
+import com.example.datingappclient.model.LikeDTO;
 import com.example.datingappclient.model.ProfileCardData;
 import com.example.datingappclient.model.UserImage;
 import com.example.datingappclient.recyclerViews.ProfileCardAdapter;
-import com.example.datingappclient.retrofit.RetrofitService;
-import com.example.datingappclient.retrofit.ServerAPI;
+import com.example.datingappclient.retrofit.repository.FormsRepository;
 import com.example.datingappclient.retrofit.repository.ImageRepository;
+import com.example.datingappclient.retrofit.repository.LikesRepository;
 import com.example.datingappclient.utils.DateUtils;
 import com.example.datingappclient.utils.ImageUtils;
-import com.google.gson.JsonObject;
 import com.yuyakaido.android.cardstackview.CardStackLayoutManager;
 import com.yuyakaido.android.cardstackview.CardStackListener;
 import com.yuyakaido.android.cardstackview.CardStackView;
@@ -30,10 +33,6 @@ import com.yuyakaido.android.cardstackview.StackFrom;
 import java.util.ArrayList;
 import java.util.List;
 
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
-
 public class SearchFragment extends Fragment {
 
     /* === CONSTANTS === */
@@ -41,9 +40,13 @@ public class SearchFragment extends Fragment {
 
     /* === Repository === */
     private final ImageRepository imageRepository;
+    private final FormsRepository formsRepository;
+    private final LikesRepository likesRepository;
 
     /* === Android Objects === */
     private View activityView;
+    private FrameLayout frameLayout;
+    private View swipeOverlay;
 
     /* === Other === */
     private int userId;         // ID юзера приложения
@@ -57,6 +60,8 @@ public class SearchFragment extends Fragment {
     public SearchFragment() {
         // Required empty public constructor
         imageRepository = new ImageRepository();
+        formsRepository = new FormsRepository();
+        likesRepository = new LikesRepository();
     }
 
     public static SearchFragment newInstance(int userId) {
@@ -77,8 +82,11 @@ public class SearchFragment extends Fragment {
             userId = getArguments().getInt(ARG_CLIENT_ID);
         }
 
+        frameLayout = activityView.findViewById(R.id.search_frame);
+        swipeOverlay = activityView.findViewById(R.id.swipe_overlay);
+
         // Загружаем первую анкету при создании фрагмента
-        getNextForm();
+        getForm();
         // Задаем параметры карточки анкеты
         setupCardStackView();
 
@@ -86,44 +94,29 @@ public class SearchFragment extends Fragment {
     }
 
     // Метод загрузки следующей анкеты
-    private void getNextForm() {
-        RetrofitService retrofitService = new RetrofitService();
-        ServerAPI serverAPI = retrofitService.getRetrofit().create(ServerAPI.class);
-
-        serverAPI.getForms(userId, prevUserId).enqueue(new Callback<>() {
+    private void getForm() {
+        String logTag = Constants.GLOBAL_LOG_TAG + "GET FORM";
+        formsRepository.fetchForm(userId, currentUserId, new FormsRepository.FormCallback() {
             @Override
-            public void onResponse(Call<List<Object[]>> call, Response<List<Object[]>> response) {
-                if (response.body() != null && !response.body().isEmpty()) {
-                    Object[] profile = response.body().get(0);
-
-                    // Проверяем наличие значений
-                    if (profile[0] != null) {
-                        currentUserId = ((Double) profile[0]).intValue();
-                        prevUserId = currentUserId; // Обновляем prevUserId на текущую анкету
-                    }
-
-                    Log.d("SearchFragment", "" + currentUserId);
-                    String name = profile[1] != null ? (String) profile[1] : "Unknown";
-                    String birthday = profile[2] != null ? profile[2].toString() : "Unknown";
-                    String description = profile[5] != null ? (String) profile[5] : "";
-
-                    int age = DateUtils.dateToAge(birthday);
-
-                    // Загружаем изображение, если ID пользователя не равен 0
-                    if (currentUserId != 0) {
-                        loadUserImagesFromForm(currentUserId, (images) -> {
-                            profiles.add(new ProfileCardData(name, age, description, images));
-                            adapter.notifyItemInserted(profiles.size() - 1);
-                        });
-                    }
-                } else {
-                    Log.d("SearchFragment", "No profiles available");
-                }
+            public void onSuccess(FormDTO form) {
+                Log.d(logTag, "Успешно получена анкета юзера: " +  form.getUserId());
+                currentUserId = form.getUserId();
+                loadUserImagesFromForm(currentUserId, (images) -> {
+                    int age = DateUtils.dateToAge(form.getBirthday());
+                    profiles.add(new ProfileCardData(form.getName(), age, form.getDescription(), images));
+                    adapter.notifyItemInserted(profiles.size() - 1);
+                });
             }
 
             @Override
-            public void onFailure(Call<List<Object[]>> call, Throwable t) {
-                Log.e("SearchFragment", "Error loading profile", t);
+            public void onEmpty(String message) {
+                Log.i(logTag, message);
+                // TOOO: сделать текст бокс для сообщения
+            }
+
+            @Override
+            public void onError(String errorMessage) {
+                Log.e(logTag, errorMessage);
             }
         });
     }
@@ -157,31 +150,16 @@ public class SearchFragment extends Fragment {
 
     // Метод отправки лайка на сервер
     private void sendLike(int liker, int poster) {
-        RetrofitService retrofitService = new RetrofitService();
-        ServerAPI serverAPI = retrofitService.getRetrofit().create(ServerAPI.class);
-
-        JsonObject jsonObject = new JsonObject();
-        jsonObject.addProperty("liker", liker);
-        jsonObject.addProperty("poster", poster);
-
-        serverAPI.sendLike(jsonObject).enqueue(new Callback<Integer>() {
+        String logTag = Constants.GLOBAL_LOG_TAG + "SEND LIKE";
+        likesRepository.sendLike(new LikeDTO(liker, poster), new LikesRepository.SendLikeCallback() {
             @Override
-            public void onResponse(Call<Integer> call, Response<Integer> response) {
-                if (response.isSuccessful() && response.body() != null) {
-                    int likeId = response.body();
-                    if (likeId != -1) {
-                        Log.d("SearchFragment", "Like successfully sent. ID: " + likeId);
-                    } else {
-                        Log.d("SearchFragment", "Failed to save like. Invalid data.");
-                    }
-                } else {
-                    Log.d("SearchFragment", "Failed to send like. Response code: " + response.code());
-                }
+            public void onSuccess(Integer likeId) {
+                Log.d(logTag, "Успешно поставлен лайк: " + likeId);
             }
 
             @Override
-            public void onFailure(Call<Integer> call, Throwable t) {
-                Log.d("SearchFragment", "Failed to send like. Error: " + t.getMessage());
+            public void onError(String errorMessage) {
+                Log.e(logTag, errorMessage);
             }
         });
     }
@@ -211,14 +189,27 @@ public class SearchFragment extends Fragment {
         return new CardStackListener() {
             @Override
             public void onCardDragging(Direction direction, float ratio) {
+                int alpha = Math.min((int) (ratio * 150), 150);
+                int color;
 
+                if (direction == Direction.Right) {
+                    color = Color.argb(alpha, 0, 255, 0); // зелёный
+                } else if (direction == Direction.Left) {
+                    color = Color.argb(alpha, 255, 0, 0); // красный
+                } else {
+                    color = Color.TRANSPARENT;
+                }
+
+                frameLayout.setBackgroundColor(color);
             }
 
             @Override public void onCardSwiped(Direction direction) {
-                getNextForm();
+                swipeAnimateFlash(direction);
+                getForm();
                 if (direction == Direction.Right) {
                     sendLike(userId, currentUserId);
                 }
+
             }
 
             @Override
@@ -228,7 +219,7 @@ public class SearchFragment extends Fragment {
 
             @Override
             public void onCardCanceled() {
-
+                frameLayout.setBackgroundColor(Color.TRANSPARENT);
             }
 
             @Override
@@ -241,5 +232,30 @@ public class SearchFragment extends Fragment {
 
             }
         };
+    }
+
+    // Анимация вспышки при свайпе в сторону
+    private void swipeAnimateFlash(Direction direction) {
+        int flashColor;
+        if (direction == Direction.Right) {
+            flashColor = Color.GREEN;
+        } else if (direction == Direction.Left) {
+            flashColor = Color.RED;
+        } else {
+            flashColor = Color.GRAY;
+        }
+
+        swipeOverlay.setBackgroundColor(flashColor);
+        swipeOverlay.setAlpha(1f);
+        swipeOverlay.setVisibility(View.VISIBLE);
+
+        swipeOverlay.animate()
+                .alpha(0f)
+                .setDuration(400)
+                .withEndAction(() -> {
+                    swipeOverlay.setVisibility(View.GONE);
+                    swipeOverlay.setAlpha(1f);
+                })
+                .start();
     }
 }
