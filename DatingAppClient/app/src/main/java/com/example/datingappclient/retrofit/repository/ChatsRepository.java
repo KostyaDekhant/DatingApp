@@ -23,6 +23,14 @@ public class ChatsRepository {
     public interface ChatsCallback {
         void onSuccess(List<ChatDTO> chats);
         void onEmpty(String message);
+
+        void onError(String errorMessage);
+    }
+
+    public interface ChatCallback {
+        void onSuccess(ChatDTO chat);
+        void onEmpty(String message);
+
         void onError(String errorMessage);
     }
 
@@ -48,6 +56,26 @@ public class ChatsRepository {
 
             @Override
             public void onFailure(Call<List<ChatDTO>> call, Throwable throwable) {
+                callback.onError("Ошибка сети или ошибка при обработке данных: " + throwable.getMessage());
+            }
+        });
+    }
+
+    public void fetchUserChat(int userId, int chatId, ChatCallback callback) {
+        chatsAPI.getChat(userId, chatId).enqueue(new Callback<ChatDTO>() {
+            @Override
+            public void onResponse(Call<ChatDTO> call, Response<ChatDTO> response) {
+                if (!response.isSuccessful()) callback.onError("Ошибка получения чата (" + chatId +"): " + response.message());
+                if (response.isSuccessful() && response.body() != null) {
+                    callback.onSuccess(response.body());
+                }
+                else {
+                    callback.onError("Ошибка при получении чата: " + response.code() + " " + response.message());
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ChatDTO> call, Throwable throwable) {
                 callback.onError("Ошибка сети или ошибка при обработке данных: " + throwable.getMessage());
             }
         });

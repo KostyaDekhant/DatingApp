@@ -27,6 +27,7 @@ import com.example.datingappclient.ChatActivity;
 import com.example.datingappclient.MainActivity;
 import com.example.datingappclient.R;
 import com.example.datingappclient.constants.Constants;
+import com.example.datingappclient.model.ChatDTO;
 import com.example.datingappclient.model.LikeDTO;
 import com.example.datingappclient.retrofit.RetrofitService;
 import com.example.datingappclient.retrofit.ServerAPI;
@@ -209,7 +210,7 @@ public class LikeFragment extends Fragment {
     private View.OnClickListener setupLikeButton() {
         return view -> {
             int likerId = ((int) view.getTag(R.id.TAG_LIKER_ID));
-            createChat(view, userId, likerId);
+            createChat(view, likerId);
         };
     }
 
@@ -220,23 +221,42 @@ public class LikeFragment extends Fragment {
         };
     }
 
-    private void createChat(View view, int userId, int likerId) {
+    private void getChat(int chatId, View view) {
+        String logTag = Constants.GLOBAL_LOG_TAG + "GET CHAT AFTER LIKE";
+        chatsRepository.fetchUserChat(userId, chatId, new ChatsRepository.ChatCallback() {
+            @Override
+            public void onSuccess(ChatDTO chat) {
+                Context context = view.getContext();
+                Intent intent = new Intent(context, ChatActivity.class)
+                        .putExtra("senderID", userId)
+                        .putExtra("receiverID", chat.getPartnerId())
+                        .putExtra("username", chat.getPartnerName())
+                        .putExtra("image", chat.getAvatar());
+                context.startActivity(intent);
+
+                Log.i(logTag, "Success get chat");
+            }
+
+            @Override
+            public void onEmpty(String message) {
+                Log.d(logTag, "Чат не найден");
+            }
+
+            @Override
+            public void onError(String errorMessage) {
+                Log.e(logTag, errorMessage);
+            }
+        });
+    }
+
+    private void createChat(View view, int likerId) {
         String logTag = Constants.GLOBAL_LOG_TAG + "LIKE (CREATE CHAT)";
         chatsRepository.createChat(userId, likerId, new ChatsRepository.CreateChatCallback() {
             @Override
             public void onSuccess(Integer chatId) {
                 Log.d(logTag, "Чат успешно создан: " + chatId);
 
-               /* Context context = view.getContext();
-
-                Intent intent = new Intent(context, ChatActivity.class)
-                        .putExtra("senderID", userId)
-                        .putExtra("receiverID", likerId)
-                        .putExtra("username", username)
-                        .putExtra("image", imageBytes);
-
-                context.startActivity(intent);*/
-
+                // getChat(chatId, view);
 
                 deleteLike(view, new LikeDTO(likerId, userId));
             }
