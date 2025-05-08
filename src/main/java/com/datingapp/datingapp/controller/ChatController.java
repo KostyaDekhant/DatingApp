@@ -19,6 +19,11 @@ public class ChatController {
         return ResponseEntity.ok(chatService.findChatUsers(userId));
     }
 
+    @GetMapping("/{chatId}/users/{userId}") //users
+    public ResponseEntity<ChatDTO> findChatUsers(@PathVariable int userId, @PathVariable int chatId) {
+        return ResponseEntity.ok(chatService.getChatById(userId, chatId));
+    }
+
     @PostMapping
     public ResponseEntity<Integer> createChat(
             @RequestParam int userA,

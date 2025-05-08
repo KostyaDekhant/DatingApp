@@ -10,7 +10,7 @@ public class ChatDTO {
     @JsonProperty("partnerName")
     private String  partnerName;
     @JsonProperty("chatId")
-    private Integer    chatId;
+    private Integer chatId;
     @JsonProperty("lastMessage")
     private String  lastMessage;
     @JsonProperty("partnerId")
