@@ -1,6 +1,5 @@
 package com.example.datingappclient.fragments;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
@@ -24,13 +23,10 @@ import androidx.constraintlayout.widget.ConstraintSet;
 import androidx.fragment.app.Fragment;
 
 import com.example.datingappclient.ChatActivity;
-import com.example.datingappclient.MainActivity;
 import com.example.datingappclient.R;
 import com.example.datingappclient.constants.Constants;
 import com.example.datingappclient.model.ChatDTO;
 import com.example.datingappclient.model.LikeDTO;
-import com.example.datingappclient.retrofit.RetrofitService;
-import com.example.datingappclient.retrofit.ServerAPI;
 import com.example.datingappclient.retrofit.repository.ChatsRepository;
 import com.example.datingappclient.retrofit.repository.LikesRepository;
 import com.example.datingappclient.utils.DateUtils;
@@ -38,12 +34,7 @@ import com.example.datingappclient.utils.ImageUtils;
 import com.github.siyamed.shapeimageview.RoundedImageView;
 import com.google.android.material.button.MaterialButton;
 
-import java.util.Base64;
 import java.util.List;
-
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
 
 public class LikeFragment extends Fragment {
 

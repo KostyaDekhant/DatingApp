@@ -17,16 +17,9 @@ import com.example.datingappclient.R;
 import com.example.datingappclient.constants.Constants;
 import com.example.datingappclient.model.ChatDTO;
 import com.example.datingappclient.recyclerViews.chatsList.ChatsAdapter;
-import com.example.datingappclient.retrofit.RetrofitService;
-import com.example.datingappclient.retrofit.ServerAPI;
 import com.example.datingappclient.retrofit.repository.ChatsRepository;
 
-import java.util.ArrayList;
 import java.util.List;
-
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
 
 public class ChatListFragment extends Fragment {
 

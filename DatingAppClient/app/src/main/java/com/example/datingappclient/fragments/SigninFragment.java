@@ -9,26 +9,15 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.example.datingappclient.AuthActivity;
 import com.example.datingappclient.R;
 import com.example.datingappclient.constants.Constants;
-import com.example.datingappclient.retrofit.RetrofitService;
-import com.example.datingappclient.retrofit.ServerAPI;
 import com.example.datingappclient.retrofit.repository.UserRepository;
-import com.example.datingappclient.utils.PasswordUtils;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.gson.JsonObject;
-
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
 
 public class SigninFragment extends Fragment {
 

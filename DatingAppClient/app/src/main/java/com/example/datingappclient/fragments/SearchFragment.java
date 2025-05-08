@@ -51,7 +51,6 @@ public class SearchFragment extends Fragment {
 
     /* === Other === */
     private int userId;         // ID юзера приложения
-    private int prevUserId;     // ID предыдущего юзера (для запроса)
     private int currentUserId ; // ID юзера текущей анкеты
 
     private final List<ProfileCardData> profiles = new ArrayList<>(); // Массив карточек юзеров (заполняется по ходу работы)

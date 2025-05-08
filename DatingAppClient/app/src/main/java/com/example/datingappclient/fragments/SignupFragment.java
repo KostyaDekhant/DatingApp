@@ -20,21 +20,11 @@ import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.snackbar.Snackbar;
 
-import java.time.LocalDate;
 import java.util.Calendar;
 import com.example.datingappclient.AuthActivity;
-import com.example.datingappclient.MainActivity;
 import com.example.datingappclient.R;
-import com.example.datingappclient.retrofit.RetrofitService;
-import com.example.datingappclient.retrofit.ServerAPI;
 import com.google.gson.JsonObject;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
+
 import java.text.SimpleDateFormat;
 import java.util.Locale;
 
@@ -119,9 +109,6 @@ public class SignupFragment extends Fragment {
                 // Хэширование пароля перед отправкой на сервер
                 // pass = PasswordUtils.hashPassword(pass); // разкомментировать для хэширования
 
-                RetrofitService retrofitService = new RetrofitService();
-                ServerAPI serverAPI = retrofitService.getRetrofit().create(ServerAPI.class);
-
                 JsonObject signupJsonObject = new JsonObject();
                 signupJsonObject.addProperty("login", login);
                 signupJsonObject.addProperty("password", pass);
@@ -149,6 +136,7 @@ public class SignupFragment extends Fragment {
             }
         });
     }
+
     private void updateUser(int userId) {
         UserDTO userDTO = new UserDTO(userId, name, DateUtils.stringToLocalDate(birthday));
         String logTag = Constants.GLOBAL_LOG_TAG + "SIGNUP. Update user";
