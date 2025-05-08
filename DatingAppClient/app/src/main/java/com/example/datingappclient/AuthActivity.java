@@ -30,6 +30,4 @@ public class AuthActivity extends AppCompatActivity {
     public void openFragment(Fragment fragment) {
         getSupportFragmentManager().beginTransaction().replace(R.id.auth_fragment_container, fragment).commit();
     }
-
-
 }

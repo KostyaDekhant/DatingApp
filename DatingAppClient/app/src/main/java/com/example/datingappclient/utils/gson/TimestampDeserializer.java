@@ -1,4 +1,4 @@
-package com.example.datingappclient.utils;
+package com.example.datingappclient.utils.gson;
 
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonDeserializer;

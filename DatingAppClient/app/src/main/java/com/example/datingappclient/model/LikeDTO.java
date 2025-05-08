@@ -1,6 +1,6 @@
 package com.example.datingappclient.model;
 
-import com.example.datingappclient.utils.ByteDeserializer;
+import com.example.datingappclient.utils.gson.ByteDeserializer;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.google.gson.annotations.JsonAdapter;
 import com.google.gson.annotations.SerializedName;

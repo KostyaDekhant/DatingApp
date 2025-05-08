@@ -1,14 +1,13 @@
 package com.example.datingappclient.retrofit;
 
 import com.example.datingappclient.constants.Constants;
-import com.example.datingappclient.utils.LocalDateDeserializer;
-import com.example.datingappclient.utils.LocalDateSerializer;
-import com.example.datingappclient.utils.TimestampDeserializer;
-import com.example.datingappclient.utils.TimestampSerializer;
+import com.example.datingappclient.utils.gson.LocalDateDeserializer;
+import com.example.datingappclient.utils.gson.LocalDateSerializer;
+import com.example.datingappclient.utils.gson.TimestampDeserializer;
+import com.example.datingappclient.utils.gson.TimestampSerializer;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
-import java.sql.Time;
 import java.sql.Timestamp;
 import java.time.LocalDate;
 
