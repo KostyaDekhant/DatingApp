@@ -256,7 +256,7 @@ public class LikeFragment extends Fragment {
             public void onSuccess(Integer chatId) {
                 Log.d(logTag, "Чат успешно создан: " + chatId);
 
-                // getChat(chatId, view);
+                getChat(chatId, view);
 
                 deleteLike(view, new LikeDTO(likerId, userId));
             }

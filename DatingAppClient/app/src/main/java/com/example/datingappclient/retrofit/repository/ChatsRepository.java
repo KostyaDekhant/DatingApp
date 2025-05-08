@@ -62,7 +62,7 @@ public class ChatsRepository {
     }
 
     public void fetchUserChat(int userId, int chatId, ChatCallback callback) {
-        chatsAPI.getChat(userId, chatId).enqueue(new Callback<ChatDTO>() {
+        chatsAPI.getChat(userId, chatId).enqueue(new Callback<>() {
             @Override
             public void onResponse(Call<ChatDTO> call, Response<ChatDTO> response) {
                 if (!response.isSuccessful()) callback.onError("Ошибка получения чата (" + chatId +"): " + response.message());

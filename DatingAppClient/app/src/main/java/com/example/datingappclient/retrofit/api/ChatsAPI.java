@@ -14,7 +14,7 @@ public interface ChatsAPI {
     @GET("api/chats/{pk_user}")
     Call<List<ChatDTO>> getChats(@Path("pk_user") int userId);
 
-    @GET("api/chats/")
+    @GET("api/chats/{pk_chat}/users/{pk_user}")
     Call<ChatDTO> getChat(@Path("pk_user") int userId, @Path("pk_chat") int chatId);
 
     // Создание чата с юзером
