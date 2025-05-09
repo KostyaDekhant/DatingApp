@@ -21,6 +21,7 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 public class UserService {
+
     private final UserRepo userRepo;
     private final PasswordService passwordService;
 
@@ -37,8 +38,6 @@ public class UserService {
         String password = user.getPassword();
         String hashedPassword = passwordService.hashPassword(password);
         user.setPassword(hashedPassword);
-        String salt = passwordService.extractSalt(hashedPassword);
-        user.setSalt(salt);
         addUser(user);
         Integer id = userRepo.findByLogin(user.getLogin()).get().getPkUser();
         return id;
