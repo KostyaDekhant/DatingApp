@@ -231,56 +231,52 @@ public class LikeFragment extends Fragment {
 
     private void getChat(int chatId, ChatCallback callback) {
         String logTag = Constants.GLOBAL_LOG_TAG + "GET CHAT AFTER LIKE";
-        chatsRepository.fetchUserChat(userId, chatId, new ChatsRepository.ChatCallback() {
-            @Override
-            public void onSuccess(ChatDTO chat) {
-                callback.onGetChat(chat);
-                Log.i(logTag, "Success get chat");
-            }
-
-            @Override
-            public void onEmpty(String message) {
-                Log.d(logTag, "Чат не найден");
-            }
-
-            @Override
-            public void onError(String errorMessage) {
-                Log.e(logTag, errorMessage);
+        chatsRepository.fetchUserChat(userId, chatId, result -> {
+            switch (result.status) {
+                case SUCCESS:
+                    callback.onGetChat(result.data);
+                    Log.i(logTag, "Success get chat");
+                    break;
+                case ERROR:
+                    Log.e(logTag, result.error);
+                    break;
+                case EMPTY:
+                    Log.i(logTag, "Чат не найден");
+                    break;
             }
         });
     }
 
     private void createChat(View view, int likerId) {
         String logTag = Constants.GLOBAL_LOG_TAG + "LIKE (CREATE CHAT)";
-        chatsRepository.createChat(userId, likerId, new ChatsRepository.CreateChatCallback() {
-            @Override
-            public void onSuccess(Integer chatId) {
-                Log.d(logTag, "Чат успешно создан: " + chatId);
+        chatsRepository.createChat(userId, likerId, result -> {
+            switch (result.status) {
+                case SUCCESS:
+                    int chatId = result.data;
+                    Log.i(logTag, "Чат успешно создан: " + chatId);
 
-                getChat(chatId, (chat) -> {
-                    Context context = view.getContext();
-                    Intent intent = new Intent(context, ChatActivity.class)
-                            .putExtra("senderID", userId)
-                            .putExtra("receiverID", chat.getChatId())
-                            .putExtra("username", chat.getPartnerName())
-                            .putExtra("image", chat.getAvatar());
-                    context.startActivity(intent);
-                });
+                    getChat(chatId, (chat) -> {
+                        Context context = view.getContext();
+                        Intent intent = new Intent(context, ChatActivity.class)
+                                .putExtra("senderID", userId)
+                                .putExtra("receiverID", chat.getChatId())
+                                .putExtra("username", chat.getPartnerName())
+                                .putExtra("image", chat.getAvatar());
+                        context.startActivity(intent);
+                    });
 
-                deleteLike(view, new LikeDTO(likerId, userId));
+                    deleteLike(view, new LikeDTO(likerId, userId));
+                    break;
+                case ERROR:
+                    Log.e(logTag, result.error);
+                    break;
+                case EXISTS:
+                    String message = "Чат уже существует!";
+                    Toast.makeText(activityView.getContext(), message, Toast.LENGTH_LONG).show();
+                    Log.i(logTag, message);
+                    break;
             }
-
-            @Override
-            public void onExists(String message) {
-                Toast.makeText(activityView.getContext(), message, Toast.LENGTH_LONG).show();
-                Log.i(logTag, message);
-            }
-
-            @Override
-            public void onError(String errorMessage) {
-                Log.e(logTag, errorMessage);
-            }
-        }) ;
+        });
     }
 
     private void deleteLike(View view, LikeDTO likeDTO) {

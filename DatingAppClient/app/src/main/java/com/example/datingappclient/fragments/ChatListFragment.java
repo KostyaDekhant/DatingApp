@@ -52,21 +52,18 @@ public class ChatListFragment extends Fragment {
 
     private void getUserChats(int userId) {
         String logTag = Constants.GLOBAL_LOG_TAG + "GET CHATS";
-        chatsRepository.fetchUserChats(userId, new ChatsRepository.ChatsCallback() {
-            @Override
-            public void onSuccess(List<ChatDTO> chats) {
-                Log.d(logTag, chats.toString());
-                populateListView(chats);
-            }
-
-            @Override
-            public void onEmpty(String message) {
-                Log.i(logTag, "userId: " + userId + " - " + message);
-            }
-
-            @Override
-            public void onError(String errorMessage) {
-                Log.e(logTag, errorMessage);
+        chatsRepository.fetchUserChats(userId, result -> {
+            switch (result.status) {
+                case SUCCESS:
+                    Log.d(logTag, "Получено чатов: " + result.data.size());
+                    populateListView(result.data);
+                    break;
+                case EMPTY:
+                    Log.i(logTag, "Чаты для пользователя " + userId + " отсутствуют!");
+                    break;
+                case ERROR:
+                    Log.e(logTag, result.error);
+                    break;
             }
         });
     }

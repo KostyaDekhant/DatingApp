@@ -5,6 +5,8 @@ import android.util.Log;
 import com.example.datingappclient.model.ChatDTO;
 import com.example.datingappclient.retrofit.RetrofitClient;
 import com.example.datingappclient.retrofit.api.ChatsAPI;
+import com.example.datingappclient.retrofit.wrapper.Result;
+import com.example.datingappclient.retrofit.wrapper.ResultCallback;
 
 import java.util.List;
 
@@ -19,84 +21,63 @@ public class ChatsRepository {
         chatsAPI = RetrofitClient.getClient().create(ChatsAPI.class);
     }
 
-    /* === Interfaces === */
-    public interface ChatsCallback {
-        void onSuccess(List<ChatDTO> chats);
-        void onEmpty(String message);
-
-        void onError(String errorMessage);
-    }
-
-    public interface ChatCallback {
-        void onSuccess(ChatDTO chat);
-        void onEmpty(String message);
-
-        void onError(String errorMessage);
-    }
-
-    public interface CreateChatCallback {
-        void onSuccess(Integer chatId);
-        void onExists(String message);
-        void onError(String errorMessage);
-    }
-
     /* === Methods === */
-    public void fetchUserChats(int userId, ChatsCallback callback) {
+    public void fetchUserChats(int userId, ResultCallback<List<ChatDTO>> callback) {
         chatsAPI.getChats(userId).enqueue(new Callback<>() {
             @Override
             public void onResponse(Call<List<ChatDTO>> call, Response<List<ChatDTO>> response) {
-                if (!response.isSuccessful()) callback.onError("Ошибка получения чатов: " + response.message());
+                if (!response.isSuccessful()) callback.onResult(Result.error("Ошибка получения чатов: " + response.message()));
                 if (response.body() != null) {
-                    callback.onSuccess(response.body());
+                    callback.onResult(Result.success(response.body()));
                 }
                 else {
-                    callback.onEmpty("Чаты отсутствуют: " + response.code());
+                    callback.onResult(Result.empty());
                 }
             }
 
             @Override
             public void onFailure(Call<List<ChatDTO>> call, Throwable throwable) {
-                callback.onError("Ошибка сети или ошибка при обработке данных: " + throwable.getMessage());
+                callback.onResult(Result.error("Ошибка сети или ошибка при обработке данных: " + throwable.getMessage()));
             }
         });
     }
 
-    public void fetchUserChat(int userId, int chatId, ChatCallback callback) {
+    public void fetchUserChat(int userId, int chatId, ResultCallback<ChatDTO> callback) {
         chatsAPI.getChat(userId, chatId).enqueue(new Callback<>() {
             @Override
             public void onResponse(Call<ChatDTO> call, Response<ChatDTO> response) {
-                if (!response.isSuccessful()) callback.onError("Ошибка получения чата (" + chatId +"): " + response.message());
+                if (!response.isSuccessful()) callback.onResult(Result.error("Ошибка получения чата (" + chatId +"): " + response.message()));
                 if (response.isSuccessful() && response.body() != null) {
-                    callback.onSuccess(response.body());
+                    callback.onResult(Result.success(response.body()));
                 }
                 else {
-                    callback.onError("Ошибка при получении чата: " + response.code() + " " + response.message());
+                    callback.onResult(Result.error("Ошибка при получении чата: " + response.code() + " " + response.message()));
                 }
             }
 
             @Override
             public void onFailure(Call<ChatDTO> call, Throwable throwable) {
-                callback.onError("Ошибка сети или ошибка при обработке данных: " + throwable.getMessage());
+                callback.onResult(Result.error("Ошибка сети или ошибка при обработке данных: " + throwable.getMessage()));
             }
         });
     }
 
-    public void createChat(int userId, int likerId, CreateChatCallback callback) {
+    public void createChat(int userId, int likerId, ResultCallback<Integer> callback) {
         chatsAPI.createChat(userId, likerId).enqueue(new Callback<>() {
             @Override
             public void onResponse(Call<Integer> call, Response<Integer> response) {
-                if (response.code() == 409) callback.onExists("Чат уже существует!");
+                if (response.code() == 409) callback.onResult(Result.exists());
                 if (response.isSuccessful() && response.body() != null) {
-                    callback.onSuccess(response.body());
+                    callback.onResult(Result.success(response.body()));
                 }
                 else {
-                    callback.onError("Ошибка при создании чата: " + response.code() + " " + response.message());
+                    callback.onResult(Result.error("Ошибка при создании чата: " + response.code() + " " + response.message()));
                 }
             }
 
             @Override
             public void onFailure(Call<Integer> call, Throwable throwable) {
-                callback.onError("Ошибка сети или ошибка при обработке данных: " + throwable.getMessage());
+                callback.onResult(Result.error("Ошибка сети или ошибка при обработке данных: " + throwable.getMessage()));
             }
         });
     }

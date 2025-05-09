@@ -4,7 +4,8 @@ public class Result<T> {
     public enum Status {
         SUCCESS,
         ERROR,
-        EMPTY
+        EMPTY,
+        EXISTS
     }
 
     public final Status status;
@@ -23,6 +24,8 @@ public class Result<T> {
 
     public static <T> Result<T> empty() {
         return new Result<>(Status.EMPTY, null, null);
+    }
+    public static <T> Result<T> exists() {return new Result<>(Status.EXISTS, null, null);
     }
 
     public static <T> Result<T> error(String message) {
