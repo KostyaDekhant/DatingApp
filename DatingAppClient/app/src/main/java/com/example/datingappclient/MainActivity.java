@@ -15,6 +15,7 @@ import com.example.datingappclient.fragments.SearchFragment;
 import com.example.datingappclient.fragments.UserFragment;
 import com.example.datingappclient.model.UserDTO;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.android.material.navigation.NavigationBarView;
 
 import java.util.Objects;
 
@@ -36,9 +37,9 @@ public class MainActivity extends AppCompatActivity {
             return insets;
         });
 
-        // init nav meny
+        // init nav menu
         bottomNavigationView = findViewById(R.id.bottom_nav_menu);
-        bottomNavigationView.setOnNavigationItemSelectedListener(navListener);
+        bottomNavigationView.setOnItemSelectedListener(navListener);
 
         // Get pk_user from auth activity
         Bundle arguments = getIntent().getExtras();
@@ -58,7 +59,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private final BottomNavigationView.OnNavigationItemSelectedListener navListener = item -> {
+    private final NavigationBarView.OnItemSelectedListener navListener = item -> {
         Fragment selectedFragment = null;
         int itemId = item.getItemId();
         if (itemId == R.id.user) {

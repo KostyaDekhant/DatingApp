@@ -52,7 +52,7 @@ public class ChatActivity extends AppCompatActivity {
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_chat);
 
-        // Get pk_user from auth activity
+        // Get args from activity
         Bundle arguments = getIntent().getExtras();
         senderID = arguments.getInt("senderID");
         receiverID = arguments.getInt("receiverID");

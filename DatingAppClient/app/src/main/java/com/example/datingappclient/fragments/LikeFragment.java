@@ -64,8 +64,8 @@ public class LikeFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         activityView = inflater.inflate(R.layout.fragment_like, container, false);
         this.inflater = inflater;
-        Resources resources = getContext().getResources();
-        metrics = resources.getDisplayMetrics();
+
+        metrics = getContext().getResources().getDisplayMetrics();
 
         gridLayout = activityView.findViewById(R.id.likes_grid);
 
@@ -118,66 +118,82 @@ public class LikeFragment extends Fragment {
 
     private View createLikeCard(LikeDTO like, int objNum) {
         try {
-            int likerID = like.getLikerId();
-            String username = like.getName();
-            String birthday = DateUtils.localDateToString(like.getBirthday());
-
-            View cardLike = inflater.inflate(R.layout.user_like_item, gridLayout, false);
-            RoundedImageView roundedImageView = cardLike.findViewById(R.id.userImage);
-            MaterialButton likeButton = cardLike.findViewById(R.id.like_button);
-            MaterialButton dislikeButton = cardLike.findViewById(R.id.dislike_button);
-            TextView usernameLabel = cardLike.findViewById(R.id.username_label);
-            TextView ageLabel = cardLike.findViewById(R.id.age_label);
-
-            cardLike.setId(View.generateViewId());
-            roundedImageView.setId(View.generateViewId());
-            likeButton.setId(View.generateViewId());
-            dislikeButton.setId(View.generateViewId());
-            usernameLabel.setId(View.generateViewId());
-            ageLabel.setId(View.generateViewId());
-
-            ConstraintLayout constraintLayout = (ConstraintLayout) cardLike;
-            ConstraintSet constraintSet = new ConstraintSet();
-            constraintSet.clone(constraintLayout);
-
-            if (like.getImage() != null) {
-                Bitmap image = ImageUtils.convertPrimitiveByteToBitmap(like.getImage());
-                roundedImageView.setImageBitmap(image);
-            }
-
-            usernameLabel.setText(username + ",");
-            ageLabel.setText("" + DateUtils.dateToAge(birthday));
-
-            int pxEnd = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 15, metrics);
-            int pxBottom = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 5, metrics);
-            int pxBottomImage = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 20, metrics);
-            constraintSet.connect(likeButton.getId(), ConstraintSet.END, roundedImageView.getId(), ConstraintSet.END, pxEnd);
-            constraintSet.connect(likeButton.getId(), ConstraintSet.BOTTOM, roundedImageView.getId(), ConstraintSet.BOTTOM, pxBottom);
-            constraintSet.connect(dislikeButton.getId(), ConstraintSet.START, roundedImageView.getId(), ConstraintSet.START, pxEnd);
-            constraintSet.connect(dislikeButton.getId(), ConstraintSet.BOTTOM, roundedImageView.getId(), ConstraintSet.BOTTOM, pxBottom);
-            constraintSet.connect(roundedImageView.getId(), ConstraintSet.BOTTOM, ConstraintSet.PARENT_ID, ConstraintSet.BOTTOM, pxBottomImage);
-            constraintSet.connect(usernameLabel.getId(), ConstraintSet.TOP, roundedImageView.getId(), ConstraintSet.BOTTOM, 0);
-            constraintSet.connect(usernameLabel.getId(), ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START, pxBottomImage);
-            constraintSet.connect(ageLabel.getId(), ConstraintSet.TOP, roundedImageView.getId(), ConstraintSet.BOTTOM, 0);
-            constraintSet.connect(ageLabel.getId(), ConstraintSet.START, usernameLabel.getId(), ConstraintSet.END, pxBottom);
-            constraintSet.applyTo(constraintLayout);
-
-            likeButton.setTag(R.id.TAG_LIKER_ID, likerID);
-            likeButton.setTag(R.id.TAG_CARDLIKE_VIEW, cardLike);
-            likeButton.setTag(R.id.TAG_CARDLIKE_ID, objNum);
-
-            dislikeButton.setTag(R.id.TAG_LIKER_ID, likerID);
-            dislikeButton.setTag(R.id.TAG_CARDLIKE_VIEW, cardLike);
-            dislikeButton.setTag(R.id.TAG_CARDLIKE_ID, objNum);
-
-            likeButton.setOnClickListener(setupLikeButton());
-            dislikeButton.setOnClickListener(setupDislikeButton());
-
-            return cardLike;
-        } catch (Exception exception) {
-            Log.d(Constants.GLOBAL_LOG_TAG + "ERROR GET OBJECT LIKE", exception.getMessage());
+            View card = inflater.inflate(R.layout.user_like_item, gridLayout, false);
+            bindCardData(card, like);
+            applyCardConstraints(card);
+            applyTagsAndListeners(card, like, objNum);
+            return card;
+        } catch (Exception e) {
+            Log.e(Constants.GLOBAL_LOG_TAG + "ERROR GET OBJECT LIKE", e.getMessage());
             return null;
         }
+    }
+
+    private void bindCardData(View card, LikeDTO like) {
+        RoundedImageView imageView = card.findViewById(R.id.userImage);
+        TextView usernameLabel = card.findViewById(R.id.username_label);
+        TextView ageLabel = card.findViewById(R.id.age_label);
+
+        if (like.getImage() != null) {
+            Bitmap image = ImageUtils.convertPrimitiveByteToBitmap(like.getImage());
+            imageView.setImageBitmap(image);
+        }
+
+        String username = like.getName();
+        int age = DateUtils.dateToAge(like.getBirthday());
+
+        usernameLabel.setText(username + ",");
+        ageLabel.setText(String.valueOf(age));
+    }
+
+    private void applyCardConstraints(View card) {
+        ConstraintLayout layout = (ConstraintLayout) card;
+        ConstraintSet set = new ConstraintSet();
+        set.clone(layout);
+
+        RoundedImageView image = layout.findViewById(R.id.userImage);
+        MaterialButton likeBtn = layout.findViewById(R.id.like_button);
+        MaterialButton dislikeBtn = layout.findViewById(R.id.dislike_button);
+        TextView usernameLabel = layout.findViewById(R.id.username_label);
+        TextView ageLabel = layout.findViewById(R.id.age_label);
+
+        int pxEnd = dpToPx(15);
+        int pxBottom = dpToPx(5);
+        int pxBottomImage = dpToPx(20);
+
+        set.connect(likeBtn.getId(), ConstraintSet.END, image.getId(), ConstraintSet.END, pxEnd);
+        set.connect(likeBtn.getId(), ConstraintSet.BOTTOM, image.getId(), ConstraintSet.BOTTOM, pxBottom);
+        set.connect(dislikeBtn.getId(), ConstraintSet.START, image.getId(), ConstraintSet.START, pxEnd);
+        set.connect(dislikeBtn.getId(), ConstraintSet.BOTTOM, image.getId(), ConstraintSet.BOTTOM, pxBottom);
+        set.connect(image.getId(), ConstraintSet.BOTTOM, ConstraintSet.PARENT_ID, ConstraintSet.BOTTOM, pxBottomImage);
+        set.connect(usernameLabel.getId(), ConstraintSet.TOP, image.getId(), ConstraintSet.BOTTOM, 0);
+        set.connect(usernameLabel.getId(), ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START, pxBottomImage);
+        set.connect(ageLabel.getId(), ConstraintSet.TOP, image.getId(), ConstraintSet.BOTTOM, 0);
+        set.connect(ageLabel.getId(), ConstraintSet.START, usernameLabel.getId(), ConstraintSet.END, pxBottom);
+
+        set.applyTo(layout);
+    }
+
+    private int dpToPx(int dp) {
+        return (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dp, metrics);
+    }
+
+    private void applyTagsAndListeners(View card, LikeDTO like, int objNum) {
+        int likerID = like.getLikerId();
+
+        MaterialButton likeBtn = card.findViewById(R.id.like_button);
+        MaterialButton dislikeBtn = card.findViewById(R.id.dislike_button);
+
+        likeBtn.setTag(R.id.TAG_LIKER_ID, likerID);
+        likeBtn.setTag(R.id.TAG_CARDLIKE_VIEW, card);
+        likeBtn.setTag(R.id.TAG_CARDLIKE_ID, objNum);
+
+        dislikeBtn.setTag(R.id.TAG_LIKER_ID, likerID);
+        dislikeBtn.setTag(R.id.TAG_CARDLIKE_VIEW, card);
+        dislikeBtn.setTag(R.id.TAG_CARDLIKE_ID, objNum);
+
+        likeBtn.setOnClickListener(setupLikeButton());
+        dislikeBtn.setOnClickListener(setupDislikeButton());
     }
 
     private GridLayout.LayoutParams setLayoutParams(int elCount) {
@@ -212,19 +228,16 @@ public class LikeFragment extends Fragment {
         };
     }
 
-    private void getChat(int chatId, View view) {
+    interface ChatCallback {
+        void onGetChat(ChatDTO chat);
+    }
+
+    private void getChat(int chatId, ChatCallback callback) {
         String logTag = Constants.GLOBAL_LOG_TAG + "GET CHAT AFTER LIKE";
         chatsRepository.fetchUserChat(userId, chatId, new ChatsRepository.ChatCallback() {
             @Override
             public void onSuccess(ChatDTO chat) {
-                Context context = view.getContext();
-                Intent intent = new Intent(context, ChatActivity.class)
-                        .putExtra("senderID", userId)
-                        .putExtra("receiverID", chat.getPartnerId())
-                        .putExtra("username", chat.getPartnerName())
-                        .putExtra("image", chat.getAvatar());
-                context.startActivity(intent);
-
+                callback.onGetChat(chat);
                 Log.i(logTag, "Success get chat");
             }
 
@@ -247,7 +260,15 @@ public class LikeFragment extends Fragment {
             public void onSuccess(Integer chatId) {
                 Log.d(logTag, "Чат успешно создан: " + chatId);
 
-                getChat(chatId, view);
+                getChat(chatId, (chat) -> {
+                    Context context = view.getContext();
+                    Intent intent = new Intent(context, ChatActivity.class)
+                            .putExtra("senderID", userId)
+                            .putExtra("receiverID", chat.getChatId())
+                            .putExtra("username", chat.getPartnerName())
+                            .putExtra("image", chat.getAvatar());
+                    context.startActivity(intent);
+                });
 
                 deleteLike(view, new LikeDTO(likerId, userId));
             }
