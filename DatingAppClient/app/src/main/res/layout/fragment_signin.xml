@@ -28,7 +28,7 @@
             android:id="@+id/login_inputLayout"
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             android:layout_width="307dp"
-            android:layout_height="?attr/textEditHeight"
+            android:layout_height="match_parent"
             android:layout_marginStart="52dp"
             android:layout_marginEnd="52dp"
             android:hint="ЛОГИН"
@@ -47,7 +47,8 @@
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/login_inputEdit"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="match_parent"
+
                 android:paddingStart="20dp"
                 android:textColor="?attr/textColorFade" />
 
@@ -57,7 +58,7 @@
             android:id="@+id/pass_inputLayout"
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             android:layout_width="307dp"
-            android:layout_height="?attr/textEditHeight"
+            android:layout_height="match_parent"
             android:layout_marginStart="52dp"
             android:layout_marginTop="7dp"
             android:layout_marginEnd="52dp"
@@ -77,7 +78,7 @@
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/pass_inputEdit"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="match_parent"
                 android:inputType="textPassword"
                 android:paddingStart="20dp"
                 android:textColor="?attr/textColorFade" />

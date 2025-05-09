@@ -63,7 +63,7 @@
             android:id="@+id/username_inputLayout"
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             android:layout_width="match_parent"
-            android:layout_height="?attr/textEditHeight"
+            android:layout_height="0dp"
 
             android:layout_marginStart="52dp"
             android:layout_marginEnd="52dp"
@@ -76,6 +76,7 @@
             app:boxStrokeColor="?attr/colorOnPrimary"
             app:boxStrokeWidth="1dp"
             app:cursorColor="?attr/cursorColor"
+            android:padding="0dp"
 
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -84,7 +85,8 @@
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/username_inputEdit"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="match_parent"
+               
                 android:paddingStart="20dp" />
 
         </com.google.android.material.textfield.TextInputLayout>
@@ -93,7 +95,7 @@
             android:id="@+id/age_inputLayout"
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             android:layout_width="match_parent"
-            android:layout_height="?attr/textEditHeight"
+            android:layout_height="0dp"
 
             android:layout_marginStart="52dp"
             android:layout_marginTop="7dp"
@@ -113,8 +115,10 @@
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/age_inputEdit"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="match_parent"
+                android:includeFontPadding="true"
                 android:inputType="number"
+               
                 android:paddingStart="20dp" />
 
         </com.google.android.material.textfield.TextInputLayout>
@@ -123,7 +127,7 @@
             android:id="@+id/height_inputLayout"
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             android:layout_width="0dp"
-            android:layout_height="?attr/textEditHeight"
+            android:layout_height="0dp"
 
             android:layout_marginStart="52dp"
             android:layout_marginEnd="52dp"
@@ -143,8 +147,9 @@
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/height_inputEdit"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="match_parent"
                 android:inputType="number"
+               
                 android:paddingStart="20dp" />
 
         </com.google.android.material.textfield.TextInputLayout>
@@ -153,7 +158,7 @@
             android:id="@+id/education_inputLayout"
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             android:layout_width="match_parent"
-            android:layout_height="?attr/textEditHeight"
+            android:layout_height="0dp"
 
             android:layout_marginStart="52dp"
             android:layout_marginTop="7dp"
@@ -173,7 +178,9 @@
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/education_inputEdit"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="match_parent"
+                android:enabled="false"
+               
                 android:paddingStart="20dp" />
 
         </com.google.android.material.textfield.TextInputLayout>
@@ -204,7 +211,7 @@
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/description_inputEdit"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="match_parent"
                 android:paddingStart="20dp" />
 
         </com.google.android.material.textfield.TextInputLayout>
@@ -269,7 +276,7 @@
             android:id="@+id/role_inputLayout"
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             android:layout_width="match_parent"
-            android:layout_height="?attr/textEditHeight"
+            android:layout_height="0dp"
 
             android:layout_marginStart="52dp"
             android:layout_marginEnd="52dp"
@@ -290,7 +297,8 @@
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/role_inputEdit"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="match_parent"
+
                 android:paddingStart="20dp" />
 
         </com.google.android.material.textfield.TextInputLayout>
@@ -299,7 +307,7 @@
             android:id="@+id/company_inputLayout"
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             android:layout_width="match_parent"
-            android:layout_height="?attr/textEditHeight"
+            android:layout_height="0dp"
 
             android:layout_marginStart="52dp"
             android:layout_marginEnd="52dp"
@@ -320,7 +328,7 @@
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/company_inputEdit"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="match_parent"
                 android:paddingStart="20dp" />
 
         </com.google.android.material.textfield.TextInputLayout>
@@ -328,7 +336,7 @@
             android:id="@+id/departament_inputLayout"
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             android:layout_width="match_parent"
-            android:layout_height="?attr/textEditHeight"
+            android:layout_height="0dp"
 
             android:layout_marginStart="52dp"
             android:layout_marginEnd="52dp"
@@ -349,7 +357,9 @@
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/departament_inputEdit"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="match_parent"
+
+               
                 android:paddingStart="20dp" />
 
         </com.google.android.material.textfield.TextInputLayout>
@@ -358,7 +368,7 @@
             android:id="@+id/office_inputLayout"
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             android:layout_width="match_parent"
-            android:layout_height="?attr/textEditHeight"
+            android:layout_height="0dp"
 
             android:layout_marginStart="52dp"
             android:layout_marginEnd="52dp"
@@ -379,7 +389,9 @@
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/office_inputEdit"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="match_parent"
+
+               
                 android:paddingStart="20dp" />
 
         </com.google.android.material.textfield.TextInputLayout>

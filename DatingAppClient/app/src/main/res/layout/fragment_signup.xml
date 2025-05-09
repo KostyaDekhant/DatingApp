@@ -25,8 +25,6 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center">
 
-
-
         <TextView
             android:id="@+id/signup_label"
             android:layout_width="wrap_content"
@@ -43,7 +41,7 @@
             android:id="@+id/login_inputLayout"
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             android:layout_width="307dp"
-            android:layout_height="?attr/textEditHeight"
+            android:layout_height="0dp"
             android:layout_marginStart="52dp"
             android:layout_marginEnd="52dp"
             android:hint="ЛОГИН"
@@ -61,7 +59,7 @@
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/login_inputEdit"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="match_parent"
                 android:textColor="?attr/textColorFade"
                 android:paddingStart="20dp" />
 
@@ -71,7 +69,7 @@
             android:id="@+id/username_inputLayout"
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             android:layout_width="307dp"
-            android:layout_height="?attr/textEditHeight"
+            android:layout_height="0dp"
             android:layout_marginStart="52dp"
             android:layout_marginTop="7dp"
             android:layout_marginEnd="52dp"
@@ -90,7 +88,7 @@
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/username_inputEdit"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="match_parent"
                 android:textColor="?attr/textColorFade"
                 android:paddingStart="20dp" />
 
@@ -100,7 +98,7 @@
             android:id="@+id/age_inputLayout"
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             android:layout_width="match_parent"
-            android:layout_height="?attr/textEditHeight"
+            android:layout_height="0dp"
             android:layout_marginStart="52dp"
             android:layout_marginEnd="52dp"
             android:layout_marginTop="7dp"
@@ -120,7 +118,7 @@
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/age_inputEdit"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="match_parent"
                 android:focusable="false"
                 android:inputType="date"
                 android:textColor="?attr/textColorFade"
@@ -132,7 +130,7 @@
             android:id="@+id/pass_inputLayout"
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             android:layout_width="307dp"
-            android:layout_height="?attr/textEditHeight"
+            android:layout_height="0dp"
             android:layout_marginStart="52dp"
             android:layout_marginTop="7dp"
             android:layout_marginEnd="52dp"
@@ -152,7 +150,7 @@
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/pass_inputEdit"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="match_parent"
                 android:inputType="textPassword"
                 android:textColor="?attr/textColorFade"
                 android:paddingStart="20dp" />
