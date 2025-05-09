@@ -74,10 +74,11 @@ public class UserController {
         return ResponseEntity.ok(userCompanyInfo);
     }
 
-    @PostMapping("/users/{id}/company_info")
-    public ResponseEntity<Void> setUserCompanyInfo(@PathVariable int id, @RequestBody UserCompanyInfoDto ucfDto)
+    @PatchMapping("/users/{id}/company_info")
+    public ResponseEntity<Void> patchUserCompanyInfo(@PathVariable int id, @RequestBody UserCompanyInfoDto ucfDto)
             throws RuntimeException {
-        userService.setUserCompanyInfo(id, ucfDto);
+        //userService.setUserCompanyInfo(id, ucfDto);
+        userService.upsertUserCompanyInfo(id, ucfDto);
         return ResponseEntity.ok().build();
     }
 }

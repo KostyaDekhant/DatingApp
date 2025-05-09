@@ -153,4 +153,33 @@ public class UserService {
         }
     }
 
+    @Transactional
+    public void upsertUserCompanyInfo(int userId, UserCompanyInfoDto dto) {
+        // 1) Попробовать найти уже существующую запись
+        Optional<UserCompanyInfo> existing = userCompanyRepo.findByPkUser(userId);
+
+        UserCompanyInfo uci = existing
+                // 2а) если есть — обновляем поля
+                .map(e -> {
+                    e.setDolzh(dto.getDolzh());
+                    e.setCompanyName(dto.getCompanyName());
+                    e.setOtdel(dto.getOtdel());
+                    e.setOffice(dto.getOffice());
+                    return e;
+                })
+                // 2б) если нет — создаём новую
+                .orElseGet(() -> {
+                    UserCompanyInfo n = new UserCompanyInfo();
+                    n.setPkUser(userId);
+                    n.setDolzh(dto.getDolzh());
+                    n.setCompanyName(dto.getCompanyName());
+                    n.setOtdel(dto.getOtdel());
+                    n.setOffice(dto.getOffice());
+                    return n;
+                });
+
+        // 3) Сохраняем (у JPA save понимает и insert, и update)
+        userCompanyRepo.save(uci);
+    }
+
 }
