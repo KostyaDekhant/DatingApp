@@ -96,28 +96,26 @@ public class SearchFragment extends Fragment {
     // Метод загрузки следующей анкеты
     private void getForm() {
         String logTag = Constants.GLOBAL_LOG_TAG + "GET FORM";
-        formsRepository.fetchForm(userId, currentUserId, new FormsRepository.FormCallback() {
-            @Override
-            public void onSuccess(FormDTO form) {
-                Log.d(logTag, "Успешно получена анкета юзера: " +  form.getUserId());
-                currentUserId = form.getUserId();
-                getUserImages(currentUserId, (images) -> {
-                    int age = DateUtils.dateToAge(form.getBirthday());
-                    profiles.add(new ProfileCardData(form.getName(), age, form.getDescription(), images));
-                    adapter.notifyItemInserted(profiles.size() - 1);
-                });
-            }
-
-            @Override
-            public void onEmpty(String message) {
-                Log.i(logTag, message);
-                TextView emptyTextView = activityView.findViewById(R.id.empty_text);
-                emptyTextView.setVisibility(View.VISIBLE);
-            }
-
-            @Override
-            public void onError(String errorMessage) {
-                Log.e(logTag, errorMessage);
+        formsRepository.fetchForm(userId, currentUserId, result -> {
+            switch (result.status) {
+                case SUCCESS:
+                    FormDTO form = result.data;
+                    Log.i(logTag, "Успешно получена анкета юзера: " +  form.getUserId());
+                    currentUserId = form.getUserId();
+                    getUserImages(currentUserId, (images) -> {
+                        int age = DateUtils.dateToAge(form.getBirthday());
+                        profiles.add(new ProfileCardData(form.getName(), age, form.getDescription(), images));
+                        adapter.notifyItemInserted(profiles.size() - 1);
+                    });
+                    break;
+                case ERROR:
+                    Log.e(logTag, result.error);
+                    break;
+                case EMPTY:
+                    Log.i(logTag, "Анкет для пользователя " + userId + " нет!");
+                    TextView emptyTextView = activityView.findViewById(R.id.empty_text);
+                    emptyTextView.setVisibility(View.VISIBLE);
+                    break;
             }
         });
     }

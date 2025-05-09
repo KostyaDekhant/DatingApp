@@ -21,22 +21,6 @@ public class ImageRepository {
         imageAPI = RetrofitClient.getClient().create(ImageAPI.class);
     }
 
-    public interface ImagesCallback {
-        void onSuccess(List<Object[]> images);
-        void onEmpty(String message);
-        void onError(String errorMessage);
-    }
-
-    public interface UploadCallback {
-        void onSuccess(int imageId);
-        void onError(String errorMessage);
-    }
-
-    public interface DeleteCallback {
-        void onSuccess();
-        void onError(String errorMessage);
-    }
-
     // Получение изображений пользователя
     public void fetchUserImages(int userID, ResultCallback<List<Object[]>> callback) {
         imageAPI.getUserImages(userID).enqueue(new Callback<>() {
