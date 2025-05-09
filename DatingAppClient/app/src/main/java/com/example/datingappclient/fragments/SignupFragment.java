@@ -119,20 +119,20 @@ public class SignupFragment extends Fragment {
     }
     private void signupUser(JsonObject signupJsonObject){
         String logTag = Constants.GLOBAL_LOG_TAG + "SIGNUP. Create user";
-        userRepository.signup(signupJsonObject, new UserRepository.SignupCallback() {
-            @Override
-            public void onSuccess(int userId) {
-                if (userId > 0) {
-                    updateUser(userId);
-                } else if (userId == -1) {
-                    String errorMessage = "Ошибка регистрации, такой пользователь уже существует!";
-                    Snackbar.make(activityView, errorMessage, Snackbar.LENGTH_LONG).show();
-                    Log.d(logTag, errorMessage);
-                }
-            }
-            @Override
-            public void onError(String errorMessage) {
-                Log.e(logTag, errorMessage);
+        userRepository.signup(signupJsonObject, result -> {
+            int userId = result.data;
+            switch (result.status) {
+                case SUCCESS:
+                    if (userId > 0) {
+                        updateUser(userId);
+                    } else if (userId == -1) {
+                        String errorMessage = "Ошибка регистрации, такой пользователь уже существует!";
+                        Snackbar.make(activityView, errorMessage, Snackbar.LENGTH_LONG).show();
+                        Log.d(logTag, errorMessage);
+                    }
+                    break;
+                case ERROR:
+                    Log.e(logTag, result.error);
             }
         });
     }
@@ -141,20 +141,18 @@ public class SignupFragment extends Fragment {
         UserDTO userDTO = new UserDTO(userId, name, DateUtils.stringToLocalDate(birthday));
         String logTag = Constants.GLOBAL_LOG_TAG + "SIGNUP. Update user";
         Log.d(logTag, userDTO.toString());
-        userRepository.updateUser(userDTO, new UserRepository.UpdateCallback() {
-            @Override
-            public void onSuccess() {
-                Toast.makeText(activityView.getContext(), "Успешная регистрация!", Toast.LENGTH_LONG).show();
-                Log.d(logTag, "Success");
-                ((AuthActivity) getActivity()).startMainActivity(userId);
-            }
 
-            @Override
-            public void onError(String errorMessage) {
-                Log.e(logTag, errorMessage);
+        userRepository.updateUser(userDTO, result -> {
+            switch (result.status) {
+                case SUCCESS:
+                    Toast.makeText(activityView.getContext(), "Успешная регистрация!", Toast.LENGTH_LONG).show();
+                    Log.d(logTag, "Success");
+                    ((AuthActivity) getActivity()).startMainActivity(userId);
+                    break;
+                case ERROR:
+                    Log.e(logTag, result.error);
             }
         });
-
     }
 
 }

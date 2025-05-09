@@ -99,7 +99,7 @@ public class UserFragment extends Fragment implements View.OnClickListener {
 
     private void getUserInfo(int userID){
         String logTag = Constants.GLOBAL_LOG_TAG + "USER_INFO";
-        userRepository.fetchUserInfo(userID, new UserRepository.UserCallback() {
+        /*userRepository.fetchUserInfo(userID, new UserRepository.UserCallback() {
             @Override
             public void onSuccess(UserDTO fetchedUser) {
                 // Сохраняем юзера в поле фрагмента
@@ -113,7 +113,19 @@ public class UserFragment extends Fragment implements View.OnClickListener {
             public void onError(String errorMessage) {
                 Log.e(logTag, errorMessage);
             }
-        });
+        });*/
+        userRepository.fetchUserInfo(userID, result -> {
+            switch (result.status) {
+                case SUCCESS:
+                    user = result.data;
+                    Log.i(logTag, user.toString());
+                    setUserinfo();
+                    break;
+                case ERROR:
+                    Log.e(logTag, result.error);
+                    break;
+            }
+        }) ;
     }
 
     private void getUserImages(int userId) {

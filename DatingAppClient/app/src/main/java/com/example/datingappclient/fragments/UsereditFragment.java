@@ -43,6 +43,7 @@ import com.example.datingappclient.model.PictureDTO;
 import com.example.datingappclient.model.UserDTO;
 import com.example.datingappclient.model.UserImage;
 import com.example.datingappclient.model.UserInterestDTO;
+import com.example.datingappclient.model.UsereditForm;
 import com.example.datingappclient.retrofit.repository.BubblesRepository;
 import com.example.datingappclient.retrofit.repository.ImageRepository;
 import com.example.datingappclient.retrofit.repository.UserRepository;
@@ -84,6 +85,7 @@ public class UsereditFragment extends Fragment {
     private TextInputEditText inputName;
     private TextInputEditText inputDesc;
     private TextInputEditText inputAge;
+    private TextInputEditText inputHeight;
     private View cardAddImage;
     private GridLayout gridLayout;
     private LayoutInflater inflater;
@@ -107,6 +109,7 @@ public class UsereditFragment extends Fragment {
         inputName = activityView.findViewById(R.id.username_inputEdit);
         inputDesc = activityView.findViewById(R.id.description_inputEdit);
         inputAge = activityView.findViewById(R.id.age_inputEdit);
+        inputHeight = activityView.findViewById(R.id.height_inputEdit);
 
         setInputText(activityView);
         setBirthdayPicker(activityView);
@@ -230,7 +233,7 @@ public class UsereditFragment extends Fragment {
     }
 
     private void setupSaveButton() {
-        MaterialButton acceptEdit = activityView.findViewById(R.id.save_button);
+        /*MaterialButton acceptEdit = activityView.findViewById(R.id.save_button);
         acceptEdit.setOnClickListener(view -> {
 
             String username = inputName.getText().toString();
@@ -247,6 +250,20 @@ public class UsereditFragment extends Fragment {
             user.setDescription(description);
             user.setBirthday(DateUtils.stringToLocalDate(birthday));
 
+            // Запрос обновления юзера на сервер
+            updateUser();
+
+            UserFragment userFragment = UserFragment.getInstance(user, false);
+            getParentFragmentManager().beginTransaction().replace(R.id.fragment_container, userFragment).commit();
+        });*/
+
+        MaterialButton acceptEdit = activityView.findViewById(R.id.save_button);
+        acceptEdit.setOnClickListener(view -> {
+            UsereditForm form = new UsereditForm(inputName, inputDesc, inputAge, inputHeight);
+
+            if (!form.isValid(view)) return;
+
+            updateUserFromForm(form);
             updateUser();
 
             UserFragment userFragment = UserFragment.getInstance(user, false);
@@ -262,18 +279,24 @@ public class UsereditFragment extends Fragment {
         });
     }
 
+    private void updateUserFromForm(UsereditForm form) {
+        user.setName(form.username);
+        user.setDescription(form.description);
+        user.setBirthday(DateUtils.stringToLocalDate(form.birthday));
+        user.setHeight(Integer.parseInt(form.height));
+    }
+
     private void updateUser() {
         String logTag = Constants.GLOBAL_LOG_TAG + "UPDATE USER";
         Log.d (logTag, user.toString());
-        userRepository.updateUser(user, new UserRepository.UpdateCallback() {
-            @Override
-            public void onSuccess() {
-                Toast.makeText(activityView.getContext(), "Успешная обновлено!", Toast.LENGTH_LONG).show();
-                Log.d(logTag, "Success");
-            }
-            @Override
-            public void onError(String errorMessage) {
-                Log.e(logTag, errorMessage);
+        userRepository.updateUser(user, result -> {
+            switch (result.status) {
+                case SUCCESS:
+                    Toast.makeText(activityView.getContext(), "Успешная обновлено!", Toast.LENGTH_LONG).show();
+                    Log.d(logTag, "Success update");
+                    break;
+                case ERROR:
+                    Log.e(logTag, result.error);
             }
         });
     }

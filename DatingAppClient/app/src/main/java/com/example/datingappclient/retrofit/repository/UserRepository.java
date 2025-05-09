@@ -5,6 +5,8 @@ import android.util.Log;
 import com.example.datingappclient.model.UserDTO;
 import com.example.datingappclient.retrofit.RetrofitClient;
 import com.example.datingappclient.retrofit.api.UserAPI;
+import com.example.datingappclient.retrofit.wrapper.Result;
+import com.example.datingappclient.retrofit.wrapper.ResultCallback;
 import com.google.gson.JsonObject;
 
 import retrofit2.Call;
@@ -18,104 +20,81 @@ public class UserRepository {
         userAPI = RetrofitClient.getClient().create(UserAPI.class);
     }
 
-    /* === Interfaces === */
-    public interface UserCallback {
-        void onSuccess(UserDTO user);
-        void onError(String errorMessage);
-    }
-
-    public interface LoginCallback {
-        void onSuccess(int userId);
-        void onError(String errorMessage);
-    }
-
-    public interface SignupCallback {
-        void onSuccess(int userId);
-        void onError(String errorMessage);
-    }
-
-    public interface UpdateCallback {
-        void onSuccess();
-        void onError(String errorMessage);
-    }
-
     /* === Methods === */
     // Получение информации о пользователе
-    public void fetchUserInfo(int userID, UserCallback callback) {
-        userAPI.getUser(userID).enqueue(new Callback<UserDTO>() {
+    public void fetchUserInfo(int userId, ResultCallback<UserDTO> callback){
+        userAPI.getUser(userId).enqueue(new Callback<>() {
             @Override
             public void onResponse(Call<UserDTO> call, Response<UserDTO> response) {
                 if (response.isSuccessful() && response.body() != null) {
-                    UserDTO userinfo = response.body();
-                    callback.onSuccess(userinfo);
-                } else {
-                    callback.onError("Ошибка получения пользователя: " + response.message());
+                    callback.onResult(Result.success(response.body()));
+                }
+                else {
+                    callback.onResult(Result.error("Ошибка получения пользователя: " + response.message()));
                 }
             }
 
             @Override
             public void onFailure(Call<UserDTO> call, Throwable throwable) {
-                Log.e("UserRepository", "Ошибка сети или ошибка при обработке данных" + call.toString(), throwable);
-                callback.onError("Ошибка сети или ошибка при обработке данных: " + throwable.getMessage());
+                callback.onResult(Result.error("Ошибка сети или ошибка при обработке данных:" + throwable.getMessage()));
             }
         });
     }
 
     // Логин пользователя
-    public void login(JsonObject loginData, LoginCallback callback) {
-        userAPI.login(loginData).enqueue(new Callback<Integer>() {
+    public void login(JsonObject loginData, ResultCallback<Integer> callback) {
+        userAPI.login(loginData).enqueue(new Callback<>() {
             @Override
             public void onResponse(Call<Integer> call, Response<Integer> response) {
                 if (response.isSuccessful() && response.body() != null) {
-                    callback.onSuccess(response.body());
+                    callback.onResult(Result.success(response.body()));
                 } else {
-                    callback.onError("Ошибка входа: " + response.code());
+                    callback.onResult(Result.error("Ошибка входа: " + response.code()));
                 }
             }
 
             @Override
             public void onFailure(Call<Integer> call, Throwable throwable) {
                 Log.e("UserRepository", "Ошибка при входе", throwable);
-                callback.onError("Ошибка: " + throwable.getMessage());
+                callback.onResult(Result.error("Ошибка: " + throwable.getMessage()));
             }
         });
     }
 
     // Регистрация пользователя
-    public void signup(JsonObject signupData, SignupCallback callback) {
-        userAPI.signup(signupData).enqueue(new Callback<Integer>() {
+    public void signup(JsonObject signupData, ResultCallback<Integer> callback) {
+        userAPI.signup(signupData).enqueue(new Callback<>() {
             @Override
             public void onResponse(Call<Integer> call, Response<Integer> response) {
                 if (response.isSuccessful() && response.body() != null) {
-                    callback.onSuccess(response.body());
+                    callback.onResult(Result.success(response.body()));
                 } else {
-                    callback.onError("Ошибка регистрации: " + response.code());
+                    callback.onResult(Result.error("Ошибка регистрации: " + response.code()));
                 }
             }
 
             @Override
             public void onFailure(Call<Integer> call, Throwable throwable) {
-                Log.e("UserRepository", "Ошибка при регистрации", throwable);
-                callback.onError("Ошибка: " + throwable.getMessage());
+                callback.onResult(Result.error("Ошибка: " + throwable.getMessage()));
             }
         });
     }
 
-    public void updateUser (UserDTO userData, UpdateCallback callback) {
-        userAPI.updateUser(userData).enqueue(new Callback<Void>() {
+    public void updateUser (UserDTO userData, ResultCallback<Void> callback) {
+        userAPI.updateUser(userData).enqueue(new Callback<>() {
             @Override
             public void onResponse(Call<Void> call, Response<Void> response) {
                 if (response.isSuccessful()) {
-                    callback.onSuccess();
+                    callback.onResult(Result.success(null));
                 } else {
-                    callback.onError("Ошибка обновления пользователя: " + response.code());
+                    callback.onResult(Result.error("Ошибка обновления пользователя: " + response.code()));
                 }
             }
 
             @Override
             public void onFailure(Call<Void> call, Throwable throwable) {
                 Log.e("User Repository", "Ошибка при обновлении пользователя", throwable);
-                callback.onError("Ошибка: " + throwable.getMessage());
+                callback.onResult(Result.error("Ошибка: " + throwable.getMessage()));
             }
         });
     }

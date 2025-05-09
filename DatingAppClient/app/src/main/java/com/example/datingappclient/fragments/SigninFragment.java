@@ -46,22 +46,22 @@ public class SigninFragment extends Fragment {
 
     private void loginUser(JsonObject userLoginInfoJson) {
         String logTag = Constants.GLOBAL_LOG_TAG + "SIGNIN";
-        userRepository.login(userLoginInfoJson, new UserRepository.LoginCallback() {
-            @Override
-            public void onSuccess(int userId) {
-                if (userId > 0) {
-                    Log.i(logTag, "User successfully sign in with id: " + userId);
-                    ((AuthActivity) getActivity()).startMainActivity(userId);
-                }
-                else {
-                    Log.i(logTag, "Wrong login or password: " + userId);
-                    Snackbar.make(activityView, "Ошибка входа, неверный логин или пароль!", Snackbar.LENGTH_LONG).show();
-                }
-            }
-
-            @Override
-            public void onError(String errorMessage) {
-                Log.e(logTag, errorMessage);
+        userRepository.login(userLoginInfoJson, result -> {
+            int userId = result.data;
+            switch (result.status) {
+                case SUCCESS:
+                    if (userId > 0) {
+                        Log.i(logTag, "User successfully sign in with id: " + userId);
+                        ((AuthActivity) getActivity()).startMainActivity(userId);
+                    }
+                    else {
+                        Log.i(logTag, "Wrong login or password: " + userId);
+                        Snackbar.make(activityView, "Ошибка входа, неверный логин или пароль!", Snackbar.LENGTH_LONG).show();
+                    }
+                    break;
+                case ERROR:
+                    Log.e(logTag, result.error);
+                    break;
             }
         });
     }

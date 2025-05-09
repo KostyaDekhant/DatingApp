@@ -126,8 +126,8 @@
             android:layout_height="?attr/textEditHeight"
 
             android:layout_marginStart="52dp"
+            android:layout_marginEnd="52dp"
             android:layout_marginTop="7dp"
-            android:layout_marginEnd="2dp"
             android:hint="Рост"
             app:boxCornerRadiusBottomEnd="10dp"
             app:boxCornerRadiusBottomStart="10dp"
@@ -136,42 +136,12 @@
             app:boxStrokeColor="?attr/colorOnPrimary"
             app:boxStrokeWidth="1dp"
             app:cursorColor="?attr/cursorColor"
-            app:layout_constraintEnd_toStartOf="@id/weight_inputLayout"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/education_inputLayout">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/height_inputEdit"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:inputType="number"
-                android:paddingStart="20dp" />
-
-        </com.google.android.material.textfield.TextInputLayout>
-
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/weight_inputLayout"
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-            android:layout_width="0dp"
-            android:layout_height="?attr/textEditHeight"
-
-            android:layout_marginStart="2dp"
-            android:layout_marginTop="7dp"
-            android:layout_marginEnd="52dp"
-            android:hint="Вес"
-            app:boxCornerRadiusBottomEnd="10dp"
-            app:boxCornerRadiusBottomStart="10dp"
-            app:boxCornerRadiusTopEnd="10dp"
-            app:boxCornerRadiusTopStart="10dp"
-            app:boxStrokeColor="?attr/colorOnPrimary"
-            app:boxStrokeWidth="1dp"
-            app:cursorColor="?attr/cursorColor"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@id/height_inputLayout"
-            app:layout_constraintTop_toBottomOf="@+id/education_inputLayout">
-
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/weight_inputEdit"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:inputType="number"
