@@ -1,5 +1,6 @@
 package com.example.datingappclient.retrofit.api;
 
+import com.example.datingappclient.model.CompanyInfoDTO;
 import com.example.datingappclient.model.UserDTO;
 import com.google.gson.JsonObject;
 
@@ -17,8 +18,8 @@ import retrofit2.http.Path;
 
 */
 public interface UserAPI {
-    @GET("api/users/{id}")
-    Call<UserDTO> getUser(@Path("id") int id);
+    @GET("api/users/{userId}")
+    Call<UserDTO> getUser(@Path("userId") int userId);
 
     @PATCH("api/users")
     Call<Void> updateUser(@Body UserDTO userDTO);
@@ -28,4 +29,10 @@ public interface UserAPI {
 
     @POST("api/signup")
     Call<Integer> signup(@Body JsonObject jsonObject);
+
+    @GET("api/users/{userId}/company_info")
+    Call<CompanyInfoDTO> getUserCompany(@Path("userId") int userId);
+
+    @PATCH("api/users/{userId}/company_info")
+    Call<Void> updateUserCompany(@Path("userId") int userId, @Body CompanyInfoDTO companyInfo);
 }

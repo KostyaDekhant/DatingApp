@@ -2,6 +2,7 @@ package com.example.datingappclient.retrofit.repository;
 
 import android.util.Log;
 
+import com.example.datingappclient.model.CompanyInfoDTO;
 import com.example.datingappclient.model.UserDTO;
 import com.example.datingappclient.retrofit.RetrofitClient;
 import com.example.datingappclient.retrofit.api.UserAPI;
@@ -55,8 +56,7 @@ public class UserRepository {
 
             @Override
             public void onFailure(Call<Integer> call, Throwable throwable) {
-                Log.e("UserRepository", "Ошибка при входе", throwable);
-                callback.onResult(Result.error("Ошибка: " + throwable.getMessage()));
+                callback.onResult(Result.error("Ошибка сети или ошибка при обработке данных: " + throwable.getMessage()));
             }
         });
     }
@@ -75,11 +75,12 @@ public class UserRepository {
 
             @Override
             public void onFailure(Call<Integer> call, Throwable throwable) {
-                callback.onResult(Result.error("Ошибка: " + throwable.getMessage()));
+                callback.onResult(Result.error("Ошибка сети или ошибка при обработке данных: " + throwable.getMessage()));
             }
         });
     }
 
+    // Обновление пользователя
     public void updateUser (UserDTO userData, ResultCallback<Void> callback) {
         userAPI.updateUser(userData).enqueue(new Callback<>() {
             @Override
@@ -93,8 +94,40 @@ public class UserRepository {
 
             @Override
             public void onFailure(Call<Void> call, Throwable throwable) {
-                Log.e("User Repository", "Ошибка при обновлении пользователя", throwable);
-                callback.onResult(Result.error("Ошибка: " + throwable.getMessage()));
+                callback.onResult(Result.error("Ошибка сети или ошибка при обработке данных: " + throwable.getMessage()));
+            }
+        });
+    }
+
+    // Получение данных о компании, в которой работает пользователь
+    public void fetchUserCompanyInfo(int userId, ResultCallback<CompanyInfoDTO> callback) {
+        userAPI.getUserCompany(userId).enqueue(new Callback<>() {
+            @Override
+            public void onResponse(Call<CompanyInfoDTO> call, Response<CompanyInfoDTO> response) {
+                if (response.isSuccessful())  {
+                    if (response.body() != null) callback.onResult(Result.success(response.body()));
+                    else callback.onResult(Result.empty());
+                }
+            }
+
+            @Override
+            public void onFailure(Call<CompanyInfoDTO> call, Throwable throwable) {
+                callback.onResult(Result.error("Ошибка сети или ошибка при обработке данных: " + throwable.getMessage()));
+            }
+        });
+    }
+
+    public void updateUserCompanyInfo(int userId, CompanyInfoDTO companyInfo, ResultCallback<Void> callback) {
+        userAPI.updateUserCompany(userId, companyInfo).enqueue(new Callback<>() {
+            @Override
+            public void onResponse(Call<Void> call, Response<Void> response) {
+                if (response.isSuccessful()) callback.onResult(Result.success(null));
+                else callback.onResult(Result.error("Ошибка при обновлении информации о компании: " + response.code() + " " + response.message()));
+            }
+
+            @Override
+            public void onFailure(Call<Void> call, Throwable throwable) {
+                callback.onResult(Result.error("Ошибка сети или ошибка при обработке данных: " + throwable.getMessage()));
             }
         });
     }

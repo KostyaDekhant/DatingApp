@@ -39,6 +39,7 @@ import android.widget.Toast;
 import com.example.datingappclient.R;
 import com.example.datingappclient.constants.Constants;
 import com.example.datingappclient.model.CategoryDTO;
+import com.example.datingappclient.model.CompanyInfoDTO;
 import com.example.datingappclient.model.PictureDTO;
 import com.example.datingappclient.model.UserDTO;
 import com.example.datingappclient.model.UserImage;
@@ -52,7 +53,6 @@ import com.example.datingappclient.utils.ImageUtils;
 import com.google.android.flexbox.FlexboxLayout;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.chip.Chip;
-import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.textfield.TextInputEditText;
 
 import java.io.IOException;
@@ -86,6 +86,10 @@ public class UsereditFragment extends Fragment {
     private TextInputEditText inputDesc;
     private TextInputEditText inputAge;
     private TextInputEditText inputHeight;
+    private TextInputEditText inputOffice;
+    private TextInputEditText inputDepartment;
+    private TextInputEditText inputRole;
+    private TextInputEditText inputCompanyName;
     private View cardAddImage;
     private GridLayout gridLayout;
     private LayoutInflater inflater;
@@ -110,10 +114,13 @@ public class UsereditFragment extends Fragment {
         inputDesc = activityView.findViewById(R.id.description_inputEdit);
         inputAge = activityView.findViewById(R.id.age_inputEdit);
         inputHeight = activityView.findViewById(R.id.height_inputEdit);
+        setBirthdayPicker();
 
-        setInputText(activityView);
-        setBirthdayPicker(activityView);
-        setImages(activityView);
+        renderUserInfo();
+        renderUserCompanyInfo();
+
+        renderUserImages();
+
         setupReturnButton();
         setupSaveButton();
 
@@ -233,38 +240,15 @@ public class UsereditFragment extends Fragment {
     }
 
     private void setupSaveButton() {
-        /*MaterialButton acceptEdit = activityView.findViewById(R.id.save_button);
-        acceptEdit.setOnClickListener(view -> {
-
-            String username = inputName.getText().toString();
-            String description = inputDesc.getText().toString();
-            String birthday = inputAge.getText().toString();
-
-            // !!! Проверка на пустые поля
-            if (username.isEmpty() || birthday.isEmpty()) {
-                Snackbar.make(view, "Все поля должны быть заполнены", Snackbar.LENGTH_LONG).show();
-                return;
-            }
-
-            user.setName(username);
-            user.setDescription(description);
-            user.setBirthday(DateUtils.stringToLocalDate(birthday));
-
-            // Запрос обновления юзера на сервер
-            updateUser();
-
-            UserFragment userFragment = UserFragment.getInstance(user, false);
-            getParentFragmentManager().beginTransaction().replace(R.id.fragment_container, userFragment).commit();
-        });*/
-
         MaterialButton acceptEdit = activityView.findViewById(R.id.save_button);
         acceptEdit.setOnClickListener(view -> {
-            UsereditForm form = new UsereditForm(inputName, inputDesc, inputAge, inputHeight);
+            UsereditForm form = UsereditForm.fromInputs(inputName, inputDesc, inputAge, inputHeight, inputCompanyName, inputOffice, inputDepartment, inputRole);
 
             if (!form.isValid(view)) return;
 
             updateUserFromForm(form);
             updateUser();
+            updateUserCompanyInfo();
 
             UserFragment userFragment = UserFragment.getInstance(user, false);
             getParentFragmentManager().beginTransaction().replace(R.id.fragment_container, userFragment).commit();
@@ -284,6 +268,8 @@ public class UsereditFragment extends Fragment {
         user.setDescription(form.description);
         user.setBirthday(DateUtils.stringToLocalDate(form.birthday));
         user.setHeight(Integer.parseInt(form.height));
+        CompanyInfoDTO companyInfo = new CompanyInfoDTO(form.role, form.companyName, form.department, form.office);
+        user.setCompanyInfo(companyInfo);
     }
 
     private void updateUser() {
@@ -301,9 +287,23 @@ public class UsereditFragment extends Fragment {
         });
     }
 
+    private void updateUserCompanyInfo() {
+        String logTag = Constants.GLOBAL_LOG_TAG + "UPDATE USER COMPANY INFO";
+        userRepository.updateUserCompanyInfo(user.getId(), user.getCompanyInfo(), result -> {
+            switch (result.status) {
+                case SUCCESS:
+                    Log.d(logTag, "Success update");
+                    break;
+                case ERROR:
+                    Log.e(logTag, result.error);
+                    break;
+            }
+        });
+    }
+
     // Установка DatePickerDialog для поля возраста
-    private void setBirthdayPicker(View view) {
-        EditText inputAge = view.findViewById(R.id.age_inputEdit);
+    private void setBirthdayPicker() {
+        EditText inputAge = activityView.findViewById(R.id.age_inputEdit);
         inputAge.setInputType(InputType.TYPE_NULL); // Отключение ручного ввода
         inputAge.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -329,20 +329,37 @@ public class UsereditFragment extends Fragment {
         });
     }
 
-    private void setInputText(View view) {
-        TextInputEditText name_input = view.findViewById(R.id.username_inputEdit);
-        TextInputEditText desc_input = view.findViewById(R.id.description_inputEdit);
-        TextInputEditText age_input = view.findViewById(R.id.age_inputEdit);
+    private void renderUserInfo() {
+        TextInputEditText nameInput = activityView.findViewById(R.id.username_inputEdit);
+        TextInputEditText descInput = activityView.findViewById(R.id.description_inputEdit);
+        TextInputEditText ageInput = activityView.findViewById(R.id.age_inputEdit);
+        TextInputEditText heightInput = activityView.findViewById(R.id.height_inputEdit);
 
-        name_input.setText(user.getName());
-        desc_input.setText(user.getDescription());
+        nameInput.setText(user.getName());
+        descInput.setText(user.getDescription());
         String birthday = DateUtils.localDateToString(user.getBirthday());
-        age_input.setText(birthday);
+        ageInput.setText(birthday);
+        heightInput.setText(String.valueOf(user.getHeight()));
     }
 
+    private void renderUserCompanyInfo() {
+        inputCompanyName = activityView.findViewById(R.id.company_inputEdit);
+        inputOffice = activityView.findViewById(R.id.office_inputEdit);
+        inputDepartment = activityView.findViewById(R.id.departament_inputEdit);
+        inputRole = activityView.findViewById(R.id.role_inputEdit);
+
+        CompanyInfoDTO companyInfo = user.getCompanyInfo();
+        inputCompanyName.setText(companyInfo.getCompanyName());
+        inputOffice.setText(companyInfo.getOffice());
+        inputDepartment.setText(companyInfo.getDepartment());
+        inputRole.setText(companyInfo.getRole());
+    }
+
+    /* === IMAGES === */
+
     // Иницииализация элементов управления для редактирование изобращение(add/remove)
-    private void setImages(View view) {
-        gridLayout = view.findViewById(R.id.images_grid);
+    private void renderUserImages() {
+        gridLayout = activityView.findViewById(R.id.images_grid);
         // Получение LayoutInflater из контекста
         inflater = (LayoutInflater) this.getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
@@ -452,7 +469,7 @@ public class UsereditFragment extends Fragment {
             deleteImage(imageId);
 
             user.removeImage(imageNum);
-            setImages(getView());
+            renderUserImages();
         };
     }
 

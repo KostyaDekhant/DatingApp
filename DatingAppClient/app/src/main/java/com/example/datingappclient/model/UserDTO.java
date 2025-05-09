@@ -6,8 +6,6 @@ import com.example.datingappclient.utils.DateUtils;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.google.gson.annotations.Expose;
 
 import java.sql.Timestamp;
 import java.time.LocalDate;
@@ -16,7 +14,6 @@ import java.util.Comparator;
 import java.util.List;
 
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.Setter;
@@ -26,8 +23,6 @@ import lombok.Setter;
 @AllArgsConstructor
 public class UserDTO
 {
-    //
-    @NonNull
     @JsonProperty("id")
     private int id;
     @NonNull
@@ -48,9 +43,12 @@ public class UserDTO
     private Boolean is_online;
     @JsonProperty("last_online")
     private Timestamp last_online;
-    @Builder.Default
+
     @JsonIgnore
     transient private List<UserImage> images = new ArrayList<>();
+
+    @JsonIgnore
+    transient private CompanyInfoDTO companyInfo;
 
     @Override
     public String toString() {
@@ -68,11 +66,13 @@ public class UserDTO
     public UserDTO(int id) {
         this.id = id;
     }
+
     public UserDTO(int id, String name, LocalDate birthday) {
         this.id = id;
         this.name = name;
         this.birthday = birthday;
     }
+
     public int getAge() {
         return DateUtils.dateToAge(birthday);
     }
@@ -84,22 +84,27 @@ public class UserDTO
         // TODO: изображение по умолчанию можно хранить на клиенте, чтобы не гонять туда-сюда
         sortImages();
     }
+
     public int getListImagesSize() {return images.size();}
+
     public void addUserImage(UserImage image) {
         images.add(image);
     }
+
     public void setUserImageID(int imageID, int imageNum) {
         if (images.isEmpty()) return;
         for (UserImage it : images) {
             if (it.getImageNum() == imageNum) it.setImageID(imageID);
         }
     }
+
     public int getUserImageID(int imageNum) {
         for (UserImage it : images) {
             if (it.getImageNum() == imageNum) return it.getImageID();
         }
         return 0;
     }
+
     public void removeImage(int imageNum) {
         boolean find = false;
         for (int i = images.size() - 1; i >= 0; i--) {
@@ -110,6 +115,7 @@ public class UserDTO
             }
         }
     }
+
     public Bitmap getMainImage() {
         if (images == null || images.isEmpty()) return null;
         for (UserImage it : images) {
@@ -117,6 +123,7 @@ public class UserDTO
         }
         return null;
     }
+
     private void sortImages() {
         images.sort(Comparator.comparingInt(u -> u.getImageNum()));
     }

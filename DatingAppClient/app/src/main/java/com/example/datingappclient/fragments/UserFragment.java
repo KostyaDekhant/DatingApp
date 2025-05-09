@@ -87,6 +87,7 @@ public class UserFragment extends Fragment implements View.OnClickListener {
         if (isLogin) {
             getUserInfo(user.getId());
             getUserImages(user.getId());
+            getUserCompanyInfo(user.getId());
         }
         // Нужно для того, что бы при переходе с другой вкладки проставлялась инфа и изображении
         else {
@@ -97,23 +98,26 @@ public class UserFragment extends Fragment implements View.OnClickListener {
         return activityView;
     }
 
-    private void getUserInfo(int userID){
-        String logTag = Constants.GLOBAL_LOG_TAG + "USER_INFO";
-        /*userRepository.fetchUserInfo(userID, new UserRepository.UserCallback() {
-            @Override
-            public void onSuccess(UserDTO fetchedUser) {
-                // Сохраняем юзера в поле фрагмента
-                user = fetchedUser;
-                Log.i(logTag, user.toString());
-                // Выводим инфу о пользователе в поля
-                setUserinfo();
+    private void getUserCompanyInfo(int userId) {
+        String logTag = Constants.GLOBAL_LOG_TAG + "USER COMPANY INFO";
+        userRepository.fetchUserCompanyInfo(userId, result -> {
+            switch (result.status) {
+                case SUCCESS:
+                    user.setCompanyInfo(result.data);
+                    Log.i(logTag, result.data.toString());
+                    break;
+                case ERROR:
+                    Log.e(logTag, result.error);
+                    break;
+                case EMPTY:
+                    Log.i(logTag, "Информация о компании не найдена для юзера id=" + userId);
+                    break;
             }
+        });
+    }
 
-            @Override
-            public void onError(String errorMessage) {
-                Log.e(logTag, errorMessage);
-            }
-        });*/
+    private void getUserInfo(int userID){
+        String logTag = Constants.GLOBAL_LOG_TAG + "USER INFO";
         userRepository.fetchUserInfo(userID, result -> {
             switch (result.status) {
                 case SUCCESS:
