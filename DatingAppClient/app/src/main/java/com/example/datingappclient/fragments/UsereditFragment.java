@@ -131,19 +131,17 @@ public class UsereditFragment extends Fragment {
 
     private void getCategories() {
         String logTag = Constants.GLOBAL_LOG_TAG + "CATEGORIES";
-        bubblesRepository.fetchCategories(new BubblesRepository.CategoryCallback() {
-            @Override
-            public void onSuccess(List<CategoryDTO> categories) {
-                userCategories = categories;
-                Log.i(logTag, categories.toString());
+        bubblesRepository.fetchCategories(result -> {
+            switch (result.status) {
+                case SUCCESS:
+                    userCategories = result.data;
+                    Log.i(logTag, userCategories.toString());
 
-                // Запрашиваем бабблы ПОСЛЕ категорий
-                getInterests();
-            }
-
-            @Override
-            public void onError(String errorMessage) {
-                Log.e(logTag, errorMessage);
+                    // Запрашиваем бабблы ПОСЛЕ категорий
+                    getInterests();
+                    break;
+                case ERROR:
+                    Log.e(logTag, result.error);
             }
         });
     }
@@ -155,28 +153,26 @@ public class UsereditFragment extends Fragment {
 
         String logTag = Constants.GLOBAL_LOG_TAG + "INTEREST";
         for (CategoryDTO category : userCategories) {
-            bubblesRepository.fetchUserInterestsByCategory(user.getId(), category.getId(),new BubblesRepository.UserInterestCallback() {
-                @Override
-                public void onSuccess(List<UserInterestDTO> interests) {
-                    categoryInterestMap.put(category, interests);
-                    categoriesLoaded++;
-                    Log.i(logTag, category.getName() + ": " + interests);
+            bubblesRepository.fetchUserInterestsByCategory(user.getId(), category.getId(), result -> {
+                switch (result.status) {
+                    case SUCCESS:
+                        categoryInterestMap.put(category, result.data);
+                        categoriesLoaded++;
+                        Log.i(logTag, category.getName() + ": " + result.data);
 
-                    // После получения категорий и бабблов - отрисовка
-                    if (categoriesLoaded == userCategories.size()) {
-                        renderBubbles();
-                    }
+                        // После получения категорий и бабблов - отрисовка
+                        if (categoriesLoaded == userCategories.size()) {
+                            renderBubbles();
+                        }
+                        break;
+                    case ERROR:
+                        Log.e(logTag, result.error);
+                        categoriesLoaded++;
 
-                }
-
-                @Override
-                public void onError(String errorMessage) {
-                    Log.e(logTag, errorMessage);
-                    categoriesLoaded++;
-
-                    if (categoriesLoaded == userCategories.size()) {
-                        renderBubbles();
-                    }
+                        if (categoriesLoaded == userCategories.size()) {
+                            renderBubbles();
+                        }
+                        break;
                 }
             });
         }
