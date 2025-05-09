@@ -76,30 +76,27 @@ public class LikeFragment extends Fragment {
 
     private void getUserLikes(int userId) {
         String logTag = Constants.GLOBAL_LOG_TAG + "GET LIKES";
-        likesRepository.fetchUserLikes(userId, new LikesRepository.LikesCallback() {
-            @Override
-            public void onSuccess(List<LikeDTO> likes) {
-                Log.d(logTag, "Получены лайки: " + likes.size());
+        likesRepository.fetchUserLikes(userId, result -> {
+            switch (result.status) {
+                case SUCCESS:
+                    likesArray = result.data;
+                    Log.i(logTag, "Получены лайки: " + likesArray.size());
 
-                likesArray = likes;
-                TextView noLikesView = activityView.findViewById(R.id.noLikes_label);
+                    TextView noLikesView = activityView.findViewById(R.id.noLikes_label);
 
-                if (likesArray.isEmpty()) {
-                    noLikesView.setVisibility(View.VISIBLE);
-                } else {
-                    noLikesView.setVisibility(View.GONE);
-                    renderLikes();
-                }
-            }
-
-            @Override
-            public void onEmpty(String message) {
-                Log.d(logTag, "Для userId = " + userId + " - " + message);
-            }
-
-            @Override
-            public void onError(String errorMessage) {
-                Log.e(logTag, errorMessage);
+                    if (likesArray.isEmpty()) {
+                        noLikesView.setVisibility(View.VISIBLE);
+                    } else {
+                        noLikesView.setVisibility(View.GONE);
+                        renderLikes();
+                    }
+                    break;
+                case ERROR:
+                    Log.e(logTag, result.error);
+                    break;
+                case EMPTY:
+                    Log.d(logTag, "Для userId = " + userId + " нет лайков!");
+                    break;
             }
         });
     }
@@ -288,20 +285,19 @@ public class LikeFragment extends Fragment {
 
     private void deleteLike(View view, LikeDTO likeDTO) {
         String logTag = Constants.GLOBAL_LOG_TAG + "DISLIKE";
-        likesRepository.deleteLike(likeDTO, new LikesRepository.DislikeCallback() {
-            @Override
-            public void onSuccess(Integer deleteLikesCount) {
-                gridLayout.removeView((View) view.getTag(R.id.TAG_CARDLIKE_VIEW));
-                likesArray.remove((int)view.getTag(R.id.TAG_CARDLIKE_ID));
-                renderLikes();
-                Toast.makeText(activityView.getContext(), "Успешно!", Toast.LENGTH_LONG).show();
+        likesRepository.deleteLike(likeDTO, result -> {
+            switch (result.status) {
+                case SUCCESS:
+                    gridLayout.removeView((View) view.getTag(R.id.TAG_CARDLIKE_VIEW));
+                    likesArray.remove((int)view.getTag(R.id.TAG_CARDLIKE_ID));
+                    renderLikes();
+                    Toast.makeText(activityView.getContext(), "Успешно!", Toast.LENGTH_LONG).show();
 
-                Log.i(logTag, "Удалено " + deleteLikesCount + " лайков");
-            }
-
-            @Override
-            public void onError(String errorMessage) {
-                Log.e(logTag, errorMessage);
+                    Log.i(logTag, "Удалено " + result.data + " лайков");
+                    break;
+                case ERROR:
+                    Log.e(logTag, result.error);
+                    break;
             }
         });
     }

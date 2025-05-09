@@ -3,6 +3,8 @@ package com.example.datingappclient.retrofit.repository;
 import com.example.datingappclient.model.LikeDTO;
 import com.example.datingappclient.retrofit.RetrofitClient;
 import com.example.datingappclient.retrofit.api.LikesAPI;
+import com.example.datingappclient.retrofit.wrapper.Result;
+import com.example.datingappclient.retrofit.wrapper.ResultCallback;
 
 import java.util.List;
 
@@ -35,62 +37,62 @@ public class LikesRepository {
     }
 
     /* === Methods === */
-    public void fetchUserLikes(int userId, LikesCallback callback) {
+    public void fetchUserLikes(int userId, ResultCallback<List<LikeDTO>> callback) {
         likesAPI.getLikes(userId).enqueue(new Callback<>() {
             @Override
             public void onResponse(Call<List<LikeDTO>> call, Response<List<LikeDTO>> response) {
-                if (!response.isSuccessful()) callback.onError("Не удалось получить лайки: " + response.message());
+                if (!response.isSuccessful()) callback.onResult(Result.error("Не удалось получить лайки: " + response.code() + " " + response.message()));
                 if (response.body() != null) {
-                    callback.onSuccess(response.body());
+                    callback.onResult(Result.success(response.body()));
                 }
                 else {
-                    callback.onEmpty("Лайки не найдены: " + response.code());
+                    callback.onResult(Result.empty());
                 }
             }
 
             @Override
             public void onFailure(Call<List<LikeDTO>> call, Throwable throwable) {
-                callback.onError("Ошибка сети или ошибка при обработке данных: " + call + " " + throwable.getMessage());
+                callback.onResult(Result.error("Ошибка сети или ошибка при обработке данных: " + call + " " + throwable.getMessage()));
             }
         });
     }
 
-    public void sendLike(LikeDTO likeDTO, SendLikeCallback callback) {
-        likesAPI.sendLike(likeDTO).enqueue(new Callback<Integer>() {
+    public void sendLike(LikeDTO likeDTO, ResultCallback<Integer> callback) {
+        likesAPI.sendLike(likeDTO).enqueue(new Callback<>() {
             @Override
             public void onResponse(Call<Integer> call, Response<Integer> response) {
-                if (response.code() == 409) callback.onError("Лайк уже был поставлен. " + response.message());
-                else if (!response.isSuccessful()) callback.onError("Не удалось поставить лайк! " + response.code() + " " + response.message());
+                if (response.code() == 409) callback.onResult(Result.error("Лайк уже был поставлен. " + response.message()));
+                else if (!response.isSuccessful()) callback.onResult(Result.error("Не удалось поставить лайк! " + response.code() + " " + response.message()));
                 if (response.body() != null) {
-                    callback.onSuccess(response.body());
+                    callback.onResult(Result.success(response.body()));
                 }
                 else {
-                    callback.onError("Не удалось поставить лайк! " + response.code() + " " + response.message());
+                    callback.onResult(Result.error( "Не удалось поставить лайк! " + response.code() + " " + response.message()));
                 }
             }
 
             @Override
             public void onFailure(Call<Integer> call, Throwable throwable) {
-                callback.onError("Ошибка сети или ошибка при обработке данных: " + throwable.getMessage());
+                callback.onResult(Result.error("Ошибка сети или ошибка при обработке данных: " + throwable.getMessage()));
             }
         });
     }
 
-    public void deleteLike(LikeDTO likeDTO, DislikeCallback callback) {
+    public void deleteLike(LikeDTO likeDTO, ResultCallback<Integer> callback) {
         likesAPI.deleteLike(likeDTO).enqueue(new Callback<>() {
             @Override
             public void onResponse(Call<Integer> call, Response<Integer> response) {
                 if (response.isSuccessful() && response.body() != null) {
-                    callback.onSuccess(response.body());
+                    callback.onResult(Result.success(response.body()));
                 }
                 else {
-                    callback.onError("Ошибка удаления лайка: " + response.code() + " " + response.message());
+                    callback.onResult(Result.error("Ошибка удаления лайка: " + response.code() + " " + response.message()));
                 }
             }
 
             @Override
             public void onFailure(Call<Integer> call, Throwable throwable) {
-                callback.onError("Ошибка сети или ошибка при обработке данных: " + throwable.getMessage());
+                callback.onResult(Result.error("Ошибка сети или ошибка при обработке данных: " + throwable.getMessage()));
             }
         });
     }

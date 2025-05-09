@@ -152,15 +152,14 @@ public class SearchFragment extends Fragment {
     // Метод отправки лайка на сервер
     private void sendLikeToPoster(int likerId, int posterId) {
         String logTag = Constants.GLOBAL_LOG_TAG + "SEND LIKE";
-        likesRepository.sendLike(new LikeDTO(likerId, posterId), new LikesRepository.SendLikeCallback() {
-            @Override
-            public void onSuccess(Integer likeId) {
-                Log.d(logTag, "Успешно поставлен лайк: " + likeId);
-            }
-
-            @Override
-            public void onError(String errorMessage) {
-                Log.e(logTag, errorMessage);
+        likesRepository.sendLike(new LikeDTO(likerId, posterId), result -> {
+            switch (result.status) {
+                case SUCCESS:
+                    Log.i(logTag, "Успешно поставлен лайк: " + result.data);
+                    break;
+                case ERROR:
+                    Log.e(logTag, result.error);
+                    break;
             }
         });
     }
