@@ -19,23 +19,6 @@ public class LikesRepository {
         likesAPI = RetrofitClient.getClient().create(LikesAPI.class);
     }
 
-    /* === Interfaces === */
-    public interface LikesCallback {
-        void onSuccess(List<LikeDTO> likes);
-        void onEmpty(String message);
-        void onError(String errorMessage);
-    }
-
-    public interface SendLikeCallback {
-        void onSuccess(Integer likeId);
-        void onError(String errorMessage);
-    }
-
-    public interface DislikeCallback {
-        void onSuccess(Integer deleteLikesCount);
-        void onError(String errorMessage);
-    }
-
     /* === Methods === */
     public void fetchUserLikes(int userId, ResultCallback<List<LikeDTO>> callback) {
         likesAPI.getLikes(userId).enqueue(new Callback<>() {

@@ -475,32 +475,30 @@ public class UsereditFragment extends Fragment {
 
     private void deleteImage(int imageId) {
         String logTag = Constants.GLOBAL_LOG_TAG + "DELETE USER IMAGE";
-        imageRepository.deleteImage(imageId, new ImageRepository.DeleteCallback() {
-            @Override
-            public void onSuccess() {
-                Toast.makeText(activityView.getContext(), "Изображение удалено!", Toast.LENGTH_LONG).show();
-                Log.d(logTag, "Success");
-            }
-
-            @Override
-            public void onError(String errorMessage) {
-                Log.e(logTag, errorMessage);
+        imageRepository.deleteImage(imageId, result -> {
+            switch (result.status) {
+                case SUCCESS:
+                    Toast.makeText(activityView.getContext(), "Изображение удалено!", Toast.LENGTH_LONG).show();
+                    Log.i(logTag, "Изображение успешно удалено!");
+                    break;
+                case ERROR:
+                    Log.e(logTag, result.error);
+                    break;
             }
         });
     }
 
-    private void sendImageOnServer(byte[] image, int imageNum) {
+    private void uploadImage(byte[] image, int imageNum) {
         String logTag = Constants.GLOBAL_LOG_TAG + "SEND IMAGE";
-        imageRepository.uploadImage(new PictureDTO(imageNum, image, user.getId()), new ImageRepository.UploadCallback() {
-            @Override
-            public void onSuccess(int imageId) {
-                Toast.makeText(activityView.getContext(), "Изображение сохранено!", Toast.LENGTH_LONG).show();
-                Log.d(logTag, "Success");
-            }
-
-            @Override
-            public void onError(String errorMessage) {
-                Log.e(logTag, errorMessage);
+        imageRepository.uploadImage(new PictureDTO(imageNum, image, user.getId()), result -> {
+            switch (result.status) {
+                case SUCCESS:
+                    Toast.makeText(activityView.getContext(), "Изображение сохранено!", Toast.LENGTH_LONG).show();
+                    Log.i(logTag, "Изображение успешно сохранено!");
+                    break;
+                case ERROR:
+                    Log.e(logTag, result.error);
+                    break;
             }
         });
     }
@@ -518,7 +516,7 @@ public class UsereditFragment extends Fragment {
 
                 int imageNum = user.getImages().size() + 1;
 
-                sendImageOnServer(byteImage, imageNum);
+                uploadImage(byteImage, imageNum);
 
                 user.addUserImage(new UserImage(imageNum, 0, bitmapImage));
 

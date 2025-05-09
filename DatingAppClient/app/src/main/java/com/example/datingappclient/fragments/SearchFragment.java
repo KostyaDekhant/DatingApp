@@ -130,21 +130,18 @@ public class SearchFragment extends Fragment {
     // Метод загрузка изображений для юзера из анкеты
     private void getUserImages(int userId, ImageCallback callback) {
         String logTag = Constants.GLOBAL_LOG_TAG + "USER IMAGES (FORMS)";
-        imageRepository.fetchUserImages(userId, new ImageRepository.ImagesCallback() {
-            @Override
-            public void onSuccess(List<Object[]> images) {
-                Log.i(logTag, "For userId = " + userId + " - Count images: " + images.size());
-                callback.onLoaded(ImageUtils.objectListToUserImageList(images));
-            }
-
-            @Override
-            public void onEmpty(String message) {
-                Log.i(logTag, message + " userId :" + userId);
-            }
-
-            @Override
-            public void onError(String errorMessage) {
-                Log.e(logTag, errorMessage);
+        imageRepository.fetchUserImages(userId, result -> {
+            switch (result.status) {
+                case SUCCESS:
+                    Log.i(logTag, "For userId = " + userId + " - Count images: " + result.data.size());
+                    callback.onLoaded(ImageUtils.objectListToUserImageList(result.data));
+                    break;
+                case ERROR:
+                    Log.e(logTag, result.error);
+                    break;
+                case EMPTY:
+                    Log.i(logTag, "Для пользователя " + userId + " не найдено изображений!");
+                    break;
             }
         });
     }

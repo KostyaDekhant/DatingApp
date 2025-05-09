@@ -5,6 +5,8 @@ import android.util.Log;
 import com.example.datingappclient.model.PictureDTO;
 import com.example.datingappclient.retrofit.RetrofitClient;
 import com.example.datingappclient.retrofit.api.ImageAPI;
+import com.example.datingappclient.retrofit.wrapper.Result;
+import com.example.datingappclient.retrofit.wrapper.ResultCallback;
 
 import java.util.List;
 
@@ -36,61 +38,58 @@ public class ImageRepository {
     }
 
     // Получение изображений пользователя
-    public void fetchUserImages(int userID, ImagesCallback callback) {
+    public void fetchUserImages(int userID, ResultCallback<List<Object[]>> callback) {
         imageAPI.getUserImages(userID).enqueue(new Callback<>() {
             @Override
             public void onResponse(Call<List<Object[]>> call, Response<List<Object[]>> response) {
                 if (response.isSuccessful() && response.body() != null) {
-                    callback.onSuccess(response.body());
+                    callback.onResult(Result.success(response.body()));
                 } else {
-                    callback.onEmpty("Для пользователя не найдено изображений: " + response.code());
+                    callback.onResult(Result.empty());
                 }
             }
 
             @Override
             public void onFailure(Call<List<Object[]>> call, Throwable throwable) {
-                Log.e("ImageRepository", "Ошибка сети при получении изображений", throwable);
-                callback.onError("Ошибка сети: " + throwable.getMessage());
+                callback.onResult(Result.error("Ошибка сети или ошибка обработки данных:  " + throwable.getMessage()));
             }
         });
     }
 
     // Загрузка изображения
-    public void uploadImage(PictureDTO picture, UploadCallback callback) {
-        imageAPI.uploadImage(picture).enqueue(new Callback<Integer>() {
+    public void uploadImage(PictureDTO picture, ResultCallback<Integer> callback) {
+        imageAPI.uploadImage(picture).enqueue(new Callback<>() {
             @Override
             public void onResponse(Call<Integer> call, Response<Integer> response) {
                 if (response.isSuccessful() && response.body() != null) {
-                    callback.onSuccess(response.body());
+                    callback.onResult(Result.success(response.body()));
                 } else {
-                    callback.onError("Ошибка загрузки изображения: " + response.message());
+                    callback.onResult(Result.error("Ошибка загрузки изображения: " + response.code() + " " + response.message()));
                 }
             }
 
             @Override
             public void onFailure(Call<Integer> call, Throwable throwable) {
-                Log.e("ImageRepository", "Ошибка сети при загрузке изображения", throwable);
-                callback.onError("Ошибка сети: " + throwable.getMessage());
+                callback.onResult(Result.error("Ошибка сети или ошибка обработки данных:  " + throwable.getMessage()));
             }
         });
     }
 
     // Удаление изображения
-    public void deleteImage(int imageId, DeleteCallback callback) {
+    public void deleteImage(int imageId, ResultCallback<Void> callback) {
         imageAPI.deleteImage(imageId).enqueue(new Callback<>() {
             @Override
             public void onResponse(Call<Void> call, Response<Void> response) {
                 if (response.isSuccessful()) {
-                    callback.onSuccess();
+                    callback.onResult(Result.success(null));
                 } else {
-                    callback.onError("Ошибка удаления изображения: " + response.code());
+                    callback.onResult(Result.error("Ошибка удаления изображения: " + response.code()));
                 }
             }
 
             @Override
             public void onFailure(Call<Void> call, Throwable throwable) {
-                Log.e("ImageRepository", "Ошибка сети при удалении изображения", throwable);
-                callback.onError("Ошибка сети: " + throwable.getMessage());
+                callback.onResult(Result.error("Ошибка сети или ошибка обработки данных:  " + throwable.getMessage()));
             }
         });
     }

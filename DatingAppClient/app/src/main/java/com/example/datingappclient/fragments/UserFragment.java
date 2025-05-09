@@ -135,29 +135,26 @@ public class UserFragment extends Fragment implements View.OnClickListener {
     private void getUserImages(int userId) {
         String logTag = Constants.GLOBAL_LOG_TAG + "USER IMAGES";
         // Загружаем изображения
-        imageRepository.fetchUserImages(userId, new ImageRepository.ImagesCallback() {
-            @Override
-            public void onSuccess(List<Object[]> images) {
-                // сетап изображений
-                user.setListImages(ImageUtils.objectListToUserImageList(images));
-                Log.i(logTag, "For userId = " + userId + " - Count images: " + user.getListImagesSize());
+        imageRepository.fetchUserImages(userId, result -> {
+            switch (result.status) {
+                case SUCCESS:
+                    // сетап изображений
+                    user.setListImages(ImageUtils.objectListToUserImageList(result.data));
+                    Log.i(logTag, "For userId = " + userId + " - Count images: " + user.getListImagesSize());
 
-                // если изображений нет, то выводим дефолтное (возвращается с сервера)
-                // TODO: изображение по умолчанию можно хранить на клиенте, чтобы не гонять туда-сюда
-                if (!user.getImages().isEmpty()) {
-                    setProfileImage();
-                }
-                isLogin = false;
-            }
-
-            @Override
-            public void onEmpty(String message) {
-                Log.i(logTag, message + " userId :" + userId);
-            }
-
-            @Override
-            public void onError(String errorMessage) {
-                Log.e(logTag, errorMessage);
+                    // если изображений нет, то выводим дефолтное (возвращается с сервера)
+                    // TODO: изображение по умолчанию можно хранить на клиенте, чтобы не гонять туда-сюда
+                    if (!user.getImages().isEmpty()) {
+                        setProfileImage();
+                    }
+                    isLogin = false;
+                    break;
+                case ERROR:
+                    Log.e(logTag, result.error);
+                    break;
+                case EMPTY:
+                    Log.i(logTag, "Для пользователя " + userId + " не найдено изображений!");
+                    break;
             }
         });
     }
