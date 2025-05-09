@@ -1,6 +1,7 @@
 package com.example.datingappclient;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
 
@@ -19,7 +20,15 @@ public class AuthActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_auth);
 
-        getSupportFragmentManager().beginTransaction().replace(R.id.auth_fragment_container, new SigninFragment()).commit();
+        SharedPreferences prefs = getSharedPreferences("auth", MODE_PRIVATE);
+        int userId = prefs.getInt("user_id", -1);
+        if (userId != -1) {
+            // пользователь уже вошёл — открыть основной экран
+            startMainActivity(userId);
+        } else {
+            // пользователь не вошёл — показать экран входа
+            getSupportFragmentManager().beginTransaction().replace(R.id.auth_fragment_container, new SigninFragment()).commit();
+        }
     }
 
     public void startMainActivity(int id) {
