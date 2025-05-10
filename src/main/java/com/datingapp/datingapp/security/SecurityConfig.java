@@ -59,7 +59,7 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(
                         SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/auth/**").permitAll()  // эндпойнты логина/регистрации
+                        .requestMatchers("/auth/**", "/datingapp/**").permitAll()  // эндпойнты логина/регистрации
                         .anyRequest().authenticated()
                 )
                 .userDetailsService(userDetailsService)

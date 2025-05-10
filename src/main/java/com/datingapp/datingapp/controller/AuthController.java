@@ -52,6 +52,7 @@ public class AuthController {
             // Если нет исключения — выдаём токен
             String token = jwtUtil.generateToken(login);
             Integer id = userService.getPkUserByLogin(login);
+            log.info("Authentication successful");
             return ResponseEntity.ok(new AuthResponse(token, id)); //Map.of("token", token)
 
         } catch (AuthenticationException ex) {
