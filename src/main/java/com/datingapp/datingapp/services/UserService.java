@@ -152,4 +152,14 @@ public class UserService {
         }
     }
 
+    @Transactional
+    public Integer getPkUserByLogin(String login) throws UserNotExistsExceptions {
+        try {
+            return userRepo.findByLogin(login).get().getPkUser();
+        }
+        catch(Exception e){
+            throw new UserNotExistsExceptions(e.getMessage());
+        }
+    }
+
 }

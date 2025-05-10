@@ -1,6 +1,8 @@
 package com.datingapp.datingapp.controller;
 
 import com.datingapp.datingapp.entity.User;
+import com.datingapp.datingapp.exception.UserNotExistsExceptions;
+import com.datingapp.datingapp.repository.UserRepo;
 import com.datingapp.datingapp.security.JwtUtil;
 import com.datingapp.datingapp.services.UserService;
 import org.slf4j.Logger;
@@ -22,15 +24,19 @@ public class AuthController {
     private final UserService userService;
 
     private static final Logger log = LoggerFactory.getLogger(UserController.class);
+    private final UserRepo userRepo;
+
+    record AuthResponse(String token, Integer userId) {}
 
     public AuthController(
             AuthenticationManager authManager,
             JwtUtil jwtUtil,
-            UserService userService
-    ) {
+            UserService userService,
+            UserRepo userRepo) {
         this.authManager = authManager;
         this.jwtUtil     = jwtUtil;
         this.userService = userService;
+        this.userRepo = userRepo;
     }
 
     @PostMapping("/login")
@@ -45,19 +51,23 @@ public class AuthController {
 
             // Если нет исключения — выдаём токен
             String token = jwtUtil.generateToken(login);
-            return ResponseEntity.ok(Map.of("token", token));
+            Integer id = userService.getPkUserByLogin(login);
+            return ResponseEntity.ok(new AuthResponse(token, id)); //Map.of("token", token)
 
         } catch (AuthenticationException ex) {
             return ResponseEntity
                     .status(401)
                     .body(Map.of("error", "Неверный логин или пароль"));
+        } catch (UserNotExistsExceptions e) {
+            throw new RuntimeException(e);
         }
     }
 
     @PostMapping("/signup")
-    public ResponseEntity<?> signup(@RequestBody User user) {
+    public ResponseEntity<?> signup(@RequestBody User user) throws UserNotExistsExceptions {
         Integer userId = userService.signupUser(user);
         String token = jwtUtil.generateToken(user.getLogin());
-        return ResponseEntity.ok(Map.of("id", userId, "token", token));
+        Integer id = userService.getPkUserByLogin(user.getLogin());
+        return ResponseEntity.ok(new AuthResponse(token, id));
     }
 }
