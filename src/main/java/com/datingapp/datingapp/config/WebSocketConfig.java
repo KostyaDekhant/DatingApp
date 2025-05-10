@@ -1,7 +1,9 @@
 package com.datingapp.datingapp.config;
 
+import com.datingapp.datingapp.security.AuthChannelInterceptor;
 import com.datingapp.datingapp.security.JwtHandshakeInterceptor;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.messaging.simp.config.ChannelRegistration;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;
 import org.springframework.web.socket.WebSocketHandler;
 import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBroker;
@@ -17,11 +19,10 @@ import java.util.Map;
 @EnableWebSocketMessageBroker
 public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
-    private final JwtHandshakeInterceptor jwtHandshakeInterceptor;
+    private final AuthChannelInterceptor authChannelInterceptor;
 
-    // Инжектим твой интерсептор
-    public WebSocketConfig(JwtHandshakeInterceptor jwtHandshakeInterceptor) {
-        this.jwtHandshakeInterceptor = jwtHandshakeInterceptor;
+    public WebSocketConfig(AuthChannelInterceptor authChannelInterceptor) {
+        this.authChannelInterceptor = authChannelInterceptor;
     }
 
     @Override
@@ -34,17 +35,12 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     public void registerStompEndpoints(StompEndpointRegistry registry) {
         registry
                 .addEndpoint("/datingapp")
-                .addInterceptors(jwtHandshakeInterceptor)           // <-- наш интерсептор
-                .setHandshakeHandler(new DefaultHandshakeHandler() { // <-- хэндлера для Principal
-                    @Override
-                    protected Principal determineUser(ServerHttpRequest request,
-                                                      WebSocketHandler wsHandler,
-                                                      Map<String, Object> attributes) {
-                        // JwtHandshakeInterceptor положил сюда атрибут "principal"
-                        return (Principal) attributes.get("principal");
-                    }
-                })
-                .setAllowedOriginPatterns("*")
-                .withSockJS();  // если ты используешь SockJS
+                .setAllowedOriginPatterns("*");
+    }
+
+    // Важный метод — тут «цепляем» наш интерсептор:
+    @Override
+    public void configureClientInboundChannel(ChannelRegistration registration) {
+        registration.interceptors(authChannelInterceptor);
     }
 }

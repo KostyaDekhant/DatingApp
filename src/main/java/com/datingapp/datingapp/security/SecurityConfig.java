@@ -5,6 +5,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
@@ -31,11 +32,6 @@ public class SecurityConfig {
         this.userDetailsService = userDetailsService;
     }
 
-    // Бин для шифрования паролей
-//    @Bean
-//    public PasswordEncoder passwordEncoder() {
-//        return new BCryptPasswordEncoder();
-//    }
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -59,7 +55,9 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(
                         SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/auth/**", "/datingapp/**").permitAll()  // эндпойнты логина/регистрации
+                        .requestMatchers("/auth/**").permitAll()  // эндпойнты логина/регистрации
+                        .requestMatchers(HttpMethod.GET, "/datingapp").permitAll()     // <— handshake
+                        .requestMatchers(HttpMethod.GET, "/datingapp/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .userDetailsService(userDetailsService)
