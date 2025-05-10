@@ -1,54 +1,37 @@
 package com.example.datingappclient.recyclerViews.chatsList;
 
-import static android.content.Context.MODE_PRIVATE;
-
-import android.annotation.SuppressLint;
 import android.graphics.Bitmap;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
-import androidx.recyclerview.widget.RecyclerView;
+import androidx.lifecycle.LifecycleOwner;
+import androidx.recyclerview.widget.DiffUtil;
+import androidx.recyclerview.widget.ListAdapter;
 
 import com.example.datingappclient.R;
-import com.example.datingappclient.constants.Constants;
-import com.example.datingappclient.model.AuthResponse;
 import com.example.datingappclient.model.ChatDTO;
-import com.example.datingappclient.model.MessageDTO;
 import com.example.datingappclient.utils.ImageUtils;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.example.datingappclient.viewmodels.ChatsViewModel;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.schedulers.Schedulers;
-import ua.naiksoftware.stomp.Stomp;
-import ua.naiksoftware.stomp.StompClient;
-import ua.naiksoftware.stomp.dto.StompHeader;
-
-public class ChatsAdapter extends RecyclerView.Adapter<ChatsHolder> {
+public class ChatsAdapter extends ListAdapter<ChatDTO, ChatsHolder> {
 
     public interface OnChatClickListener {
         void onChatClicked(ChatDTO chat, byte[] imageBytes);
     }
 
-    private final List<ChatDTO> chats;
-    private final int senderID;
     private final OnChatClickListener chatClickListener;
-    private String token;
+    private final ChatsViewModel viewModel;
+    private final int senderId;
+    private final LifecycleOwner lifecycleOwner;
 
-    private StompClient stompClient;
-
-    public ChatsAdapter(List<ChatDTO> chats, int senderId, String token, OnChatClickListener chatClickListener) {
-        this.chats = chats;
-        this.senderID = senderId;
-        this.chatClickListener = chatClickListener;
-        this.token = token;
-        initStompClient();
+    public ChatsAdapter(OnChatClickListener listener, ChatsViewModel viewModel, int senderId, LifecycleOwner owner) {
+        super(DIFF_CALLBACK);
+        this.chatClickListener = listener;
+        this.viewModel = viewModel;
+        this.senderId = senderId;
+        this.lifecycleOwner = owner;
     }
 
     @NonNull
@@ -58,83 +41,49 @@ public class ChatsAdapter extends RecyclerView.Adapter<ChatsHolder> {
         return new ChatsHolder(view);
     }
 
-    @SuppressLint("CheckResult")
     @Override
     public void onBindViewHolder(@NonNull ChatsHolder holder, int position) {
-        /*String username = chats.get(position)[0] == null ? null : chats.get(position)[0].toString();
-        Integer userId = chats.get(position)[1] == null ? null : ((Double) chats.get(position)[1]).intValue();*/
+        ChatDTO chat = getItem(position);
 
-        String username = chats.get(position).getPartnerName();
-        Integer userId = chats.get(position).getChatId();
+        holder.username.setText(chat.getPartnerName());
+        holder.setReceiverID(chat.getChatId());
+        // render init last message
+        if (chat.getLastMessage() != null) {
+            String prefix = (chat.getPartnerId() == senderId) ? "Вы: " : "";
+            holder.lastMessage.setText(prefix + chat.getLastMessage());
+        }
 
-        stompClient.topic("/topic/messages/" + userId)
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(topicMessage -> {
-                    Log.d("GETMESS", topicMessage.getPayload());
-                    ObjectMapper mapper = new ObjectMapper();
-                    MessageDTO message = mapper.readValue(topicMessage.getPayload(), new TypeReference<MessageDTO>() {
-                    });
-                    if (senderID == message.getPk_user())
-                        holder.lastMessage.setText("Вы: " + message.getMessage());
-                    else holder.lastMessage.setText(message.getMessage());
+        // Установить изображение, если оно есть
+        if (chat.getAvatar() != null) {
+            Bitmap bitmap = ImageUtils.convertPrimitiveByteToBitmap(chat.getAvatar());
+            Bitmap cropped = ImageUtils.getCroppedBitmap(bitmap);
+            holder.setByteImage(chat.getAvatar());
+            holder.profileImage.setImageBitmap(cropped);
+        }
+
+        // Подписка на LiveData для сообщений этого чата
+        viewModel.getMessageStream(chat.getChatId())
+                .observe(lifecycleOwner, message -> {
+                    if (message != null) {
+                        String prefix = (message.getPk_user() == senderId) ? "Вы: " : "";
+                        holder.lastMessage.setText(prefix + message.getMessage());
+                    }
                 });
 
+        holder.itemView.setOnClickListener(view ->
+                chatClickListener.onChatClicked(chat, holder.getByteImage())
+        );
+    }
 
-        String lastMessage = chats.get(position).getLastMessage();
-        Integer messageSenderID = chats.get(position).getPartnerId();
-        byte[] avatar = chats.get(position).getAvatar();
-
-        if (avatar != null) {
-            holder.setByteImage(avatar);
-            Bitmap bitmapImage = ImageUtils.convertPrimitiveByteToBitmap(avatar);
-            Bitmap croppedImage = ImageUtils.getCroppedBitmap(bitmapImage);
-            holder.profileImage.setImageBitmap(croppedImage);
+    private static final DiffUtil.ItemCallback<ChatDTO> DIFF_CALLBACK = new DiffUtil.ItemCallback<>() {
+        @Override
+        public boolean areItemsTheSame(@NonNull ChatDTO oldItem, @NonNull ChatDTO newItem) {
+            return oldItem.getChatId().equals(newItem.getChatId());
         }
 
-        if (lastMessage != null) {
-            if (senderID == messageSenderID) holder.lastMessage.setText("Вы: " + lastMessage);
-            else holder.lastMessage.setText(lastMessage);
+        @Override
+        public boolean areContentsTheSame(@NonNull ChatDTO oldItem, @NonNull ChatDTO newItem) {
+            return oldItem.equals(newItem); // должен быть переопределён equals
         }
-
-        holder.setReceiverID(userId);
-        holder.username.setText(username);
-
-        holder.itemView.setOnClickListener(view -> {
-            chatClickListener.onChatClicked(chats.get(position), holder.getByteImage());
-        });
-    }
-
-    @Override
-    public int getItemCount() {
-        return chats.size();
-    }
-
-    @SuppressLint("CheckResult")
-    private void initStompClient() {
-        stompClient = Stomp.over(Stomp.ConnectionProvider.OKHTTP, "ws://" + Constants.SERVER_ADDRESS + ":" + Constants.SERVER_PORT + "/datingapp");
-
-        //String token = context.getSharedPreferences("auth", MODE_PRIVATE).getString("token", null);
-        List<StompHeader> headers = new ArrayList<>();
-        headers.add(new StompHeader("Authorization", "Bearer " + token));
-
-        stompClient.connect(headers); // ✅ передаём токен
-
-        stompClient.lifecycle().subscribe(lifecycleEvent -> {
-            switch (lifecycleEvent.getType()) {
-                case OPENED:
-                    Log.d("STOMP", "Открыто");
-                    break;
-                case ERROR:
-                    Throwable ex = lifecycleEvent.getException();
-                    Log.e("STOMP", "Ошибка подключения", ex);
-                    break;
-                case CLOSED:
-                    Log.d("STOMP", "Закрыто");
-                    break;
-            }
-        }, throwable -> {
-            Log.e("STOMP", "FATAL: ошибка в lifecycle подписке", throwable);
-        });
-    }
+    };
 }

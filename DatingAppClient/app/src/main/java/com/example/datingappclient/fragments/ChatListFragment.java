@@ -2,7 +2,6 @@ package com.example.datingappclient.fragments;
 
 import static android.content.Context.MODE_PRIVATE;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -14,6 +13,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -21,8 +21,10 @@ import com.example.datingappclient.ChatActivity;
 import com.example.datingappclient.R;
 import com.example.datingappclient.constants.Constants;
 import com.example.datingappclient.model.ChatDTO;
+import com.example.datingappclient.recyclerViews.chatsList.ChatsAdapter__old;
 import com.example.datingappclient.recyclerViews.chatsList.ChatsAdapter;
 import com.example.datingappclient.retrofit.repository.ChatsRepository;
+import com.example.datingappclient.viewmodels.ChatsViewModel;
 
 import java.util.List;
 
@@ -37,6 +39,9 @@ public class ChatListFragment extends Fragment {
 
     /* === Other === */
     private int userId;
+
+    private ChatsViewModel viewModel;
+    private ChatsAdapter adapter;
 
     public ChatListFragment() {
 
@@ -64,15 +69,45 @@ public class ChatListFragment extends Fragment {
         recyclerView = activityView.findViewById(R.id.chatsList_recyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(activityView.getContext()));
 
-        //getUserChats(userId);
-
         return activityView;
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+
+        String token = requireContext().getSharedPreferences("auth", MODE_PRIVATE).getString("token", null);
+        viewModel = new ViewModelProvider(this, new ViewModelProvider.Factory() {
+            @NonNull
+            @Override
+            public <T extends androidx.lifecycle.ViewModel> T create(@NonNull Class<T> modelClass) {
+                return (T) new ChatsViewModel(token);
+            }
+        }).get(ChatsViewModel.class);
+
+        adapter = new ChatsAdapter((chat, image) -> {
+            startChatActivity(chat, image); // 👉 Обработка клика по чату: открыть диалог, передать chat и image
+        }, viewModel, userId, getViewLifecycleOwner());
+
+        recyclerView.setAdapter(adapter);
+
+        // 📡 Наблюдение за списком чатов
+        viewModel.getChats().observe(getViewLifecycleOwner(), adapter::submitList);
+
+        // Пример начальной загрузки (в реальном коде — через репозиторий)
+        getUserChats(userId);
     }
 
     @Override
     public void onResume() {
         super.onResume();
         getUserChats(userId);
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        viewModel.disconnectWebSocket();
     }
 
     private void setupRepository() {
@@ -85,7 +120,8 @@ public class ChatListFragment extends Fragment {
             switch (result.status) {
                 case SUCCESS:
                     Log.d(logTag, "Получено чатов: " + result.data.size());
-                    populateListView(result.data);
+                    //populateListView(result.data);
+                    viewModel.setChats(result.data);
                     break;
                 case EMPTY:
                     Log.i(logTag, "Чаты для пользователя " + userId + " отсутствуют!");
@@ -101,18 +137,21 @@ public class ChatListFragment extends Fragment {
         TextView noChats = activityView.findViewById(R.id.noChats_label);
         if (chats.isEmpty()) {
             noChats.setVisibility(View.VISIBLE);
-        } else {
+        }
+        else {
             String token = requireContext().getSharedPreferences("auth", MODE_PRIVATE).getString("token", null);
-            ChatsAdapter chatsAdapter = new ChatsAdapter(chats, userId, token, (chat, imageBytes) -> {
-                Intent intent = new Intent(requireContext(), ChatActivity.class);
-                intent.putExtra("senderID", userId);
-                intent.putExtra("receiverID", chat.getChatId());
-                intent.putExtra("username", chat.getPartnerName());
-                intent.putExtra("image", imageBytes);
-                startActivity(intent);
-            });
+            ChatsAdapter__old chatsAdapter = new ChatsAdapter__old(chats, userId, token, this::startChatActivity);
             recyclerView.setAdapter(chatsAdapter);
             noChats.setVisibility(View.GONE);
         }
+    }
+
+    private void startChatActivity(ChatDTO chat, byte[] imageBytes) {
+        Intent intent = new Intent(requireContext(), ChatActivity.class);
+        intent.putExtra("senderID", userId);
+        intent.putExtra("receiverID", chat.getChatId());
+        intent.putExtra("username", chat.getPartnerName());
+        intent.putExtra("image", imageBytes);
+        startActivity(intent);
     }
 }
