@@ -26,18 +26,14 @@ import java.util.List;
 public class MainController {
 
     private final UserRepo userRepo;
-    private final ChatRepo chatRepo;
     private final ResidRepo residRepo;
-    private final PicRepo picRepo;
-    private final LikeRepo likeRepo;
-    private final UserPicRepo userPicRepo;
-    private final ObjectMapper objectMapper;
 
     private static final Logger log = LoggerFactory.getLogger(MainController.class);
 
-
-    @Autowired
-    private PasswordService passwordService;
+    @GetMapping("/api/token/healthcheck")
+    public ResponseEntity<Void> healthcheck(){
+        return ResponseEntity.ok().build();
+    }
 
     //Ненужная штука
     @GetMapping("/api/specific")
