@@ -63,18 +63,21 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
+import lombok.Setter;
+
 public class UsereditFragment extends Fragment {
 
     /* === CONSTANTS === */
     private static final int PICK_IMAGE_REQUEST = 1;
 
     /* === Repository === */
-    private final BubblesRepository bubblesRepository;
-    private final UserRepository userRepository;
-    private final ImageRepository imageRepository;
+    private BubblesRepository bubblesRepository;
+    private UserRepository userRepository;
+    private ImageRepository imageRepository;
 
     /* === DTO Models === */
-    private final UserDTO user;
+    @Setter
+    private UserDTO user;
     private List<CategoryDTO> userCategories;
     private final Map<CategoryDTO, List<UserInterestDTO>> categoryInterestMap = new LinkedHashMap<>();
 
@@ -97,12 +100,14 @@ public class UsereditFragment extends Fragment {
 
 
     /* === Methods === */
-    public UsereditFragment(UserDTO user) {
-        this.user = user;
+    public UsereditFragment() {
 
-        bubblesRepository = new BubblesRepository();
-        userRepository = new UserRepository();
-        imageRepository = new ImageRepository();
+    }
+
+    public static UsereditFragment newInstance(UserDTO user) {
+        UsereditFragment usereditFragment = new UsereditFragment();
+        usereditFragment.setUser(user);
+        return usereditFragment;
     }
 
     @Nullable
@@ -110,15 +115,17 @@ public class UsereditFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         activityView = inflater.inflate(R.layout.fragment_useredit, container, false);
 
+        setupRepository();
+
         inputName = activityView.findViewById(R.id.username_inputEdit);
         inputDesc = activityView.findViewById(R.id.description_inputEdit);
         inputAge = activityView.findViewById(R.id.age_inputEdit);
         inputHeight = activityView.findViewById(R.id.height_inputEdit);
+
         setBirthdayPicker();
 
         renderUserInfo();
         renderUserCompanyInfo();
-
         renderUserImages();
 
         setupReturnButton();
@@ -127,6 +134,12 @@ public class UsereditFragment extends Fragment {
         getCategories();
 
         return activityView;
+    }
+
+    private void setupRepository() {
+        bubblesRepository = new BubblesRepository(requireContext());
+        userRepository = new UserRepository(requireContext());
+        imageRepository = new ImageRepository(requireContext());
     }
 
     private void getCategories() {

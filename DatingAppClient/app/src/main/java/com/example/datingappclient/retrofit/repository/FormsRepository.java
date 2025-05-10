@@ -1,5 +1,7 @@
 package com.example.datingappclient.retrofit.repository;
 
+import android.content.Context;
+
 import com.example.datingappclient.model.FormDTO;
 import com.example.datingappclient.retrofit.RetrofitClient;
 import com.example.datingappclient.retrofit.api.FormsAPI;
@@ -13,8 +15,8 @@ import retrofit2.Response;
 public class FormsRepository {
     private final FormsAPI formsAPI;
 
-    public FormsRepository() {
-        formsAPI = RetrofitClient.getClient().create(FormsAPI.class);
+    public FormsRepository(Context context) {
+        formsAPI = RetrofitClient.getClient(context).create(FormsAPI.class);
     }
 
     public void fetchForm(int userId, int prevUserId, ResultCallback<FormDTO> callback) {

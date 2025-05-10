@@ -1,8 +1,8 @@
 package com.example.datingappclient.recyclerViews.chatsList;
 
+import static android.content.Context.MODE_PRIVATE;
+
 import android.annotation.SuppressLint;
-import android.app.Activity;
-import android.content.Intent;
 import android.graphics.Bitmap;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -12,35 +12,42 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.datingappclient.ChatActivity;
 import com.example.datingappclient.R;
 import com.example.datingappclient.constants.Constants;
+import com.example.datingappclient.model.AuthResponse;
 import com.example.datingappclient.model.ChatDTO;
 import com.example.datingappclient.model.MessageDTO;
 import com.example.datingappclient.utils.ImageUtils;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import java.util.Base64;
+import java.util.ArrayList;
 import java.util.List;
 
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.schedulers.Schedulers;
 import ua.naiksoftware.stomp.Stomp;
 import ua.naiksoftware.stomp.StompClient;
+import ua.naiksoftware.stomp.dto.StompHeader;
 
 public class ChatsAdapter extends RecyclerView.Adapter<ChatsHolder> {
 
+    public interface OnChatClickListener {
+        void onChatClicked(ChatDTO chat, byte[] imageBytes);
+    }
+
     private final List<ChatDTO> chats;
     private final int senderID;
-    private final Activity activity;
+    private final OnChatClickListener chatClickListener;
+    private String token;
 
-    StompClient stompClient;
+    private StompClient stompClient;
 
-    public ChatsAdapter(List<ChatDTO> chats, int senderId, Activity activity) {
+    public ChatsAdapter(List<ChatDTO> chats, int senderId, String token, OnChatClickListener chatClickListener) {
         this.chats = chats;
         this.senderID = senderId;
-        this.activity = activity;
+        this.chatClickListener = chatClickListener;
+        this.token = token;
         initStompClient();
     }
 
@@ -73,9 +80,6 @@ public class ChatsAdapter extends RecyclerView.Adapter<ChatsHolder> {
                     else holder.lastMessage.setText(message.getMessage());
                 });
 
-        /*String lastMessage = chats.get(position)[2] == null ? null : chats.get(position)[2].toString();
-        Integer messageSenderID = chats.get(position)[3] == null ? null : ((Double) chats.get(position)[3]).intValue();
-        String strImage = chats.get(position)[4] == null ? null : chats.get(position)[4].toString();*/
 
         String lastMessage = chats.get(position).getLastMessage();
         Integer messageSenderID = chats.get(position).getPartnerId();
@@ -88,16 +92,7 @@ public class ChatsAdapter extends RecyclerView.Adapter<ChatsHolder> {
             holder.profileImage.setImageBitmap(croppedImage);
         }
 
-        /*if (strImage != null) {
-            byte[] byteImage = Base64.getDecoder().decode(strImage);
-            holder.setByteImage(byteImage);
-
-            Bitmap bitmapImage = ImageUtils.convertPrimitiveByteToBitmap(byteImage);
-            Bitmap croppedImage = ImageUtils.getCroppedBitmap(bitmapImage);
-            holder.profileImage.setImageBitmap(croppedImage);
-        }*/
-
-        if(lastMessage != null) {
+        if (lastMessage != null) {
             if (senderID == messageSenderID) holder.lastMessage.setText("Вы: " + lastMessage);
             else holder.lastMessage.setText(lastMessage);
         }
@@ -106,8 +101,7 @@ public class ChatsAdapter extends RecyclerView.Adapter<ChatsHolder> {
         holder.username.setText(username);
 
         holder.itemView.setOnClickListener(view -> {
-            activity.startActivity(new Intent(activity, ChatActivity.class).putExtra("senderID", senderID).putExtra("receiverID", holder.getReceiverID()).putExtra("username", username).putExtra("image", holder.getByteImage()));
-            activity.finish();
+            chatClickListener.onChatClicked(chats.get(position), holder.getByteImage());
         });
     }
 
@@ -119,22 +113,28 @@ public class ChatsAdapter extends RecyclerView.Adapter<ChatsHolder> {
     @SuppressLint("CheckResult")
     private void initStompClient() {
         stompClient = Stomp.over(Stomp.ConnectionProvider.OKHTTP, "ws://" + Constants.SERVER_ADDRESS + ":" + Constants.SERVER_PORT + "/datingapp");
-        stompClient.connect();
+
+        //String token = context.getSharedPreferences("auth", MODE_PRIVATE).getString("token", null);
+        List<StompHeader> headers = new ArrayList<>();
+        headers.add(new StompHeader("Authorization", "Bearer " + token));
+
+        stompClient.connect(headers); // ✅ передаём токен
 
         stompClient.lifecycle().subscribe(lifecycleEvent -> {
             switch (lifecycleEvent.getType()) {
                 case OPENED:
-                    Log.d("OPEN CONNECTION", "Stomp connection opened");
+                    Log.d("STOMP", "Открыто");
                     break;
-
                 case ERROR:
-                    Log.e("ERROR CONNECTION", "Error", lifecycleEvent.getException());
+                    Throwable ex = lifecycleEvent.getException();
+                    Log.e("STOMP", "Ошибка подключения", ex);
                     break;
-
                 case CLOSED:
-                    Log.d("CLOSE CONNECTION", "Stomp connection closed");
+                    Log.d("STOMP", "Закрыто");
                     break;
             }
+        }, throwable -> {
+            Log.e("STOMP", "FATAL: ошибка в lifecycle подписке", throwable);
         });
     }
 }

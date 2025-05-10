@@ -1,5 +1,6 @@
 package com.example.datingappclient.retrofit.repository;
 
+import android.content.Context;
 import android.util.Log;
 
 import com.example.datingappclient.model.ChatDTO;
@@ -17,8 +18,8 @@ import retrofit2.Response;
 public class ChatsRepository {
     private final ChatsAPI chatsAPI;
 
-    public ChatsRepository() {
-        chatsAPI = RetrofitClient.getClient().create(ChatsAPI.class);
+    public ChatsRepository(Context context) {
+        chatsAPI = RetrofitClient.getClient(context).create(ChatsAPI.class);
     }
 
     /* === Methods === */

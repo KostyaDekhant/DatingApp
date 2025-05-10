@@ -2,6 +2,7 @@ package com.example.datingappclient;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.util.Log;
@@ -15,6 +16,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.datingappclient.constants.Constants;
+import com.example.datingappclient.model.AuthResponse;
 import com.example.datingappclient.recyclerViews.messageList.MessagesAdapter;
 import com.example.datingappclient.model.MessageDTO;
 import com.example.datingappclient.utils.DateUtils;
@@ -27,12 +29,14 @@ import com.google.android.material.textfield.TextInputEditText;
 import net.yslibrary.android.keyboardvisibilityevent.KeyboardVisibilityEvent;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.schedulers.Schedulers;
 import ua.naiksoftware.stomp.Stomp;
 import ua.naiksoftware.stomp.StompClient;
+import ua.naiksoftware.stomp.dto.StompHeader;
 
 public class ChatActivity extends AppCompatActivity {
 
@@ -78,7 +82,6 @@ public class ChatActivity extends AppCompatActivity {
         usernameLabel.setText(username);
 
         returnButton.setOnClickListener(view -> {
-            startActivity(new Intent(ChatActivity.this, MainActivity.class).putExtra("action", "showchats").putExtra("pk_user", senderID));
             finish();
         });
 
@@ -118,10 +121,23 @@ public class ChatActivity extends AppCompatActivity {
             });
     }
 
+    private AuthResponse getAuthResponse() {
+        SharedPreferences prefs = getSharedPreferences("auth", MODE_PRIVATE);
+        int userId = prefs.getInt("userId", -1);
+        String token = prefs.getString("token", null);
+        return new AuthResponse(token, userId);
+    }
+
     @SuppressLint("CheckResult")
     private void initStompClient() {
         stompClient = Stomp.over(Stomp.ConnectionProvider.OKHTTP, "ws://" + Constants.SERVER_ADDRESS + ":" + Constants.SERVER_PORT + "/datingapp");
-        stompClient.connect();
+
+        String token = getSharedPreferences("auth", MODE_PRIVATE).getString("token", null);
+
+        List<StompHeader> headers = new ArrayList<>();
+        headers.add(new StompHeader("Authorization", "Bearer " + token));
+
+        stompClient.connect(headers);
 
         stompClient.lifecycle().subscribe(lifecycleEvent -> {
             switch (lifecycleEvent.getType()) {
@@ -137,6 +153,9 @@ public class ChatActivity extends AppCompatActivity {
                     Log.d("CLOSE CONNECTION", "Stomp connection closed");
                     break;
             }
+        }, throwable -> {
+            // ⚠️ Это перехватывает фатальные ошибки подписки
+            Log.e("STOMP", "Unhandled lifecycle error", throwable);
         });
 
         stompClient.topic("/topic/history/" + receiverID)

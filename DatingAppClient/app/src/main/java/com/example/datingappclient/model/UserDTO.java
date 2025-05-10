@@ -48,7 +48,7 @@ public class UserDTO
     transient private List<UserImage> images = new ArrayList<>();
 
     @JsonIgnore
-    transient private CompanyInfoDTO companyInfo;
+    transient private CompanyInfoDTO companyInfo = new CompanyInfoDTO();
 
     @Override
     public String toString() {
@@ -63,6 +63,7 @@ public class UserDTO
                 ", last_online=" + last_online +
                 '}';
     }
+
     public UserDTO(int id) {
         this.id = id;
     }
@@ -71,6 +72,18 @@ public class UserDTO
         this.id = id;
         this.name = name;
         this.birthday = birthday;
+    }
+
+    public void copyFrom(UserDTO other) {
+        this.id = other.id;
+        this.name = other.name;
+        this.birthday = other.birthday;
+        this.description = other.description;
+        this.height = other.height;
+        this.gender = other.gender;
+        this.is_online = other.is_online;
+        this.last_online = other.last_online;
+        // и т.д.
     }
 
     public int getAge() {

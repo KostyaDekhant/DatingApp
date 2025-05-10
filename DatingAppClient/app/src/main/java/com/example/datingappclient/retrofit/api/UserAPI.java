@@ -1,6 +1,8 @@
 package com.example.datingappclient.retrofit.api;
 
+import com.example.datingappclient.model.AuthResponse;
 import com.example.datingappclient.model.CompanyInfoDTO;
+import com.example.datingappclient.model.AuthDTO;
 import com.example.datingappclient.model.UserDTO;
 import com.google.gson.JsonObject;
 
@@ -24,11 +26,11 @@ public interface UserAPI {
     @PATCH("api/users")
     Call<Void> updateUser(@Body UserDTO userDTO);
 
-    @POST("api/login")
-    Call<Integer> login(@Body JsonObject jsonObject);
+    @POST("auth/login")
+    Call<AuthResponse> login(@Body AuthDTO authDTO);
 
-    @POST("api/signup")
-    Call<Integer> signup(@Body JsonObject jsonObject);
+    @POST("auth/signup")
+    Call<AuthResponse> signup(@Body AuthDTO authDTO);
 
     @GET("api/users/{userId}/company_info")
     Call<CompanyInfoDTO> getUserCompany(@Path("userId") int userId);

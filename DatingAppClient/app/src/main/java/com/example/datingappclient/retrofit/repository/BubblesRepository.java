@@ -1,5 +1,6 @@
 package com.example.datingappclient.retrofit.repository;
 
+import android.content.Context;
 import android.util.Log;
 
 import com.example.datingappclient.model.CategoryDTO;
@@ -19,8 +20,8 @@ import retrofit2.Response;
 public class BubblesRepository {
     private final BubblesAPI bubblesAPI;
 
-    public BubblesRepository() {
-        bubblesAPI = RetrofitClient.getClient().create(BubblesAPI.class);
+    public BubblesRepository(Context context) {
+        bubblesAPI = RetrofitClient.getClient(context).create(BubblesAPI.class);
     }
 
     /* === Methods === */

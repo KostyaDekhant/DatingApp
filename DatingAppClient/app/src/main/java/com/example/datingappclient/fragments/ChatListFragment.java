@@ -1,5 +1,9 @@
 package com.example.datingappclient.fragments;
 
+import static android.content.Context.MODE_PRIVATE;
+
+import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -13,6 +17,7 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.datingappclient.ChatActivity;
 import com.example.datingappclient.R;
 import com.example.datingappclient.constants.Constants;
 import com.example.datingappclient.model.ChatDTO;
@@ -24,30 +29,54 @@ import java.util.List;
 public class ChatListFragment extends Fragment {
 
     /* === Repository === */
-    private final ChatsRepository chatsRepository;
+    private ChatsRepository chatsRepository;
 
     /* === Android Objects === */
     private View activityView;
     private RecyclerView recyclerView;
 
     /* === Other === */
-    private final int userId;
+    private int userId;
 
-    public ChatListFragment(int userID) {
-        this.userId = userID;
-        chatsRepository = new ChatsRepository();
+    public ChatListFragment() {
+
+    }
+
+    public static ChatListFragment newInstance(int userId) {
+        ChatListFragment fragment = new ChatListFragment();
+        Bundle args = new Bundle();
+        args.putInt("userId", userId);
+        fragment.setArguments(args);
+        return fragment;
     }
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         activityView = inflater.inflate(R.layout.fragment_chatlist, container, false);
+
+        if (getArguments() != null) {
+            userId = getArguments().getInt("userId");
+        }
+
+        setupRepository();
+
         recyclerView = activityView.findViewById(R.id.chatsList_recyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(activityView.getContext()));
 
-        getUserChats(userId);
+        //getUserChats(userId);
 
         return activityView;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        getUserChats(userId);
+    }
+
+    private void setupRepository() {
+        chatsRepository = new ChatsRepository(requireContext());
     }
 
     private void getUserChats(int userId) {
@@ -73,7 +102,15 @@ public class ChatListFragment extends Fragment {
         if (chats.isEmpty()) {
             noChats.setVisibility(View.VISIBLE);
         } else {
-            ChatsAdapter chatsAdapter = new ChatsAdapter(chats, userId, getActivity());
+            String token = requireContext().getSharedPreferences("auth", MODE_PRIVATE).getString("token", null);
+            ChatsAdapter chatsAdapter = new ChatsAdapter(chats, userId, token, (chat, imageBytes) -> {
+                Intent intent = new Intent(requireContext(), ChatActivity.class);
+                intent.putExtra("senderID", userId);
+                intent.putExtra("receiverID", chat.getChatId());
+                intent.putExtra("username", chat.getPartnerName());
+                intent.putExtra("image", imageBytes);
+                startActivity(intent);
+            });
             recyclerView.setAdapter(chatsAdapter);
             noChats.setVisibility(View.GONE);
         }

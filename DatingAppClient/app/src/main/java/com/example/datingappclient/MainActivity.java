@@ -3,6 +3,7 @@ package com.example.datingappclient;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
@@ -16,6 +17,7 @@ import com.example.datingappclient.fragments.ChatListFragment;
 import com.example.datingappclient.fragments.LikeFragment;
 import com.example.datingappclient.fragments.SearchFragment;
 import com.example.datingappclient.fragments.UserFragment;
+import com.example.datingappclient.model.AuthResponse;
 import com.example.datingappclient.model.UserDTO;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationView;
@@ -26,8 +28,9 @@ public class MainActivity extends AppCompatActivity {
 
     private int userId;
     private UserDTO user;
-    private BottomNavigationView bottomNavigationView;
+
     private DrawerLayout drawerLayout;
+    private TextView navHeaderNameLabel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,33 +47,21 @@ public class MainActivity extends AppCompatActivity {
         drawerLayout = findViewById(R.id.drawer_layout);
 
         setupBottomnavMenu();
-        setupSlidebarMenu();
+        setupSlideMenu();
 
-        // Get pk_user from auth activity
-        Bundle arguments = getIntent().getExtras();
-        userId = Objects.requireNonNull(arguments).getInt("pk_user");
-
-        SharedPreferences prefs = getSharedPreferences("auth", MODE_PRIVATE);
-        prefs.edit()
-                .putInt("user_id", userId) // или .putString("token", ...)
-                .apply();
+        AuthResponse authResponse = getIntent().getParcelableExtra("authResponse");
+        userId = authResponse.getUserId();
 
         // создания инстанса пользователя
         if (user == null) user = new UserDTO(userId);
         else user.setId(userId);
 
-        // переход в чаты или на страницу пользователя
-        if (Objects.equals(arguments.getString("action"), "showchats")) {
-            getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new ChatListFragment(userId)).commit();
-            bottomNavigationView.setSelectedItemId(R.id.chat);
-        }
-        else {
-            getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, UserFragment.getInstance(user, true)).commit();
-        }
+        getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, UserFragment.getInstance(user, true)).commit();
     }
 
     private void setupBottomnavMenu() {
-        bottomNavigationView = findViewById(R.id.bottom_nav_menu);
+        /* === Android Objects === */
+        BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_nav_menu);
         bottomNavigationView.setOnItemSelectedListener(item -> {
             Fragment selectedFragment = null;
             int itemId = item.getItemId();
@@ -79,9 +70,9 @@ public class MainActivity extends AppCompatActivity {
             } else if (itemId == R.id.like) {
                 selectedFragment = new LikeFragment(userId);
             } else if (itemId == R.id.search) {
-                selectedFragment = SearchFragment.newInstance(userId); // Передаем userID в SearchFragment
+                selectedFragment = SearchFragment.newInstance(userId);
             } else if (itemId == R.id.chat) {
-                selectedFragment = new ChatListFragment(userId);
+                selectedFragment = ChatListFragment.newInstance(userId);
             } else if (itemId == R.id.slidemenu) {
                 drawerLayout.openDrawer(GravityCompat.START);
             }
@@ -92,7 +83,7 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    private void setupSlidebarMenu() {
+    private void setupSlideMenu() {
         NavigationView navView = findViewById(R.id.nav_view);
         navView.setNavigationItemSelectedListener(item -> {
             int id = item.getItemId();
@@ -108,7 +99,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void logout() {
         SharedPreferences prefs = getSharedPreferences("auth", MODE_PRIVATE);
-        prefs.edit().clear().apply(); // или .remove("user_id")
+        prefs.edit().clear().apply();
 
         Intent intent = new Intent(MainActivity.this, AuthActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK); // очистить стек

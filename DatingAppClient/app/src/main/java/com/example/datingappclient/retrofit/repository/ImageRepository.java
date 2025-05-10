@@ -1,5 +1,6 @@
 package com.example.datingappclient.retrofit.repository;
 
+import android.content.Context;
 import android.util.Log;
 
 import com.example.datingappclient.model.PictureDTO;
@@ -17,8 +18,8 @@ import retrofit2.Response;
 public class ImageRepository {
     private final ImageAPI imageAPI;
 
-    public ImageRepository() {
-        imageAPI = RetrofitClient.getClient().create(ImageAPI.class);
+    public ImageRepository(Context context) {
+        imageAPI = RetrofitClient.getClient(context).create(ImageAPI.class);
     }
 
     // Получение изображений пользователя

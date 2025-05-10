@@ -40,9 +40,9 @@ public class SearchFragment extends Fragment {
     private static final String ARG_CLIENT_ID = "client_id";
 
     /* === Repository === */
-    private final ImageRepository imageRepository;
-    private final FormsRepository formsRepository;
-    private final LikesRepository likesRepository;
+    private ImageRepository imageRepository;
+    private FormsRepository formsRepository;
+    private LikesRepository likesRepository;
 
     /* === Android Objects === */
     private View activityView;
@@ -59,9 +59,6 @@ public class SearchFragment extends Fragment {
     /* === Methods === */
     public SearchFragment() {
         // Required empty public constructor
-        imageRepository = new ImageRepository();
-        formsRepository = new FormsRepository();
-        likesRepository = new LikesRepository();
     }
 
     public static SearchFragment newInstance(int userId) {
@@ -81,7 +78,9 @@ public class SearchFragment extends Fragment {
         if (getArguments() != null) {
             userId = getArguments().getInt(ARG_CLIENT_ID);
         }
-
+        
+        setupRepository();
+        
         frameLayout = activityView.findViewById(R.id.search_frame);
         swipeOverlay = activityView.findViewById(R.id.swipe_overlay);
 
@@ -91,6 +90,12 @@ public class SearchFragment extends Fragment {
         setupCardStackView();
 
         return activityView;
+    }
+
+    private void setupRepository() {
+        imageRepository = new ImageRepository(requireContext());
+        formsRepository = new FormsRepository(requireContext());
+        likesRepository = new LikesRepository(requireContext());
     }
 
     // Метод загрузки следующей анкеты

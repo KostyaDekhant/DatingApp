@@ -1,5 +1,7 @@
 package com.example.datingappclient.retrofit.repository;
 
+import android.content.Context;
+
 import com.example.datingappclient.model.LikeDTO;
 import com.example.datingappclient.retrofit.RetrofitClient;
 import com.example.datingappclient.retrofit.api.LikesAPI;
@@ -15,8 +17,8 @@ import retrofit2.Response;
 public class LikesRepository {
     private final LikesAPI likesAPI;
 
-    public LikesRepository() {
-        likesAPI = RetrofitClient.getClient().create(LikesAPI.class);
+    public LikesRepository(Context context) {
+        likesAPI = RetrofitClient.getClient(context).create(LikesAPI.class);
     }
 
     /* === Methods === */

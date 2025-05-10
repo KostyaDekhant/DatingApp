@@ -39,8 +39,8 @@ import java.util.List;
 public class LikeFragment extends Fragment {
 
     /* === Repositories === */
-    private final LikesRepository likesRepository;
-    private final ChatsRepository chatsRepository;
+    private LikesRepository likesRepository;
+    private ChatsRepository chatsRepository;
 
     /* === Android Objects === */
     private GridLayout gridLayout;
@@ -55,8 +55,6 @@ public class LikeFragment extends Fragment {
     /* === Methods === */
     public LikeFragment(int userID) {
         this.userId = userID;
-        likesRepository = new LikesRepository();
-        chatsRepository = new ChatsRepository();
     }
 
     @Nullable
@@ -65,6 +63,8 @@ public class LikeFragment extends Fragment {
         activityView = inflater.inflate(R.layout.fragment_like, container, false);
         this.inflater = inflater;
 
+        setupRepository();
+
         metrics = getContext().getResources().getDisplayMetrics();
 
         gridLayout = activityView.findViewById(R.id.likes_grid);
@@ -72,6 +72,11 @@ public class LikeFragment extends Fragment {
         getUserLikes(userId);
 
         return activityView;
+    }
+
+    private void setupRepository() {
+        likesRepository = new LikesRepository(requireContext());
+        chatsRepository = new ChatsRepository(requireContext());
     }
 
     private void getUserLikes(int userId) {

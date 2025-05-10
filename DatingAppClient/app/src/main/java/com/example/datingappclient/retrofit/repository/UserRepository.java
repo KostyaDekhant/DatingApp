@@ -1,8 +1,10 @@
 package com.example.datingappclient.retrofit.repository;
 
-import android.util.Log;
+import android.content.Context;
 
+import com.example.datingappclient.model.AuthResponse;
 import com.example.datingappclient.model.CompanyInfoDTO;
+import com.example.datingappclient.model.AuthDTO;
 import com.example.datingappclient.model.UserDTO;
 import com.example.datingappclient.retrofit.RetrofitClient;
 import com.example.datingappclient.retrofit.api.UserAPI;
@@ -17,8 +19,8 @@ import retrofit2.Response;
 public class UserRepository {
     private final UserAPI userAPI;
 
-    public UserRepository() {
-        userAPI = RetrofitClient.getClient().create(UserAPI.class);
+    public UserRepository(Context context) {
+        userAPI = RetrofitClient.getClient(context).create(UserAPI.class);
     }
 
     /* === Methods === */
@@ -31,50 +33,50 @@ public class UserRepository {
                     callback.onResult(Result.success(response.body()));
                 }
                 else {
-                    callback.onResult(Result.error("Ошибка получения пользователя: " + response.message()));
+                    callback.onResult(Result.error("Ошибка получения пользователя: " + response.code() + " " + response.message()));
                 }
             }
 
             @Override
             public void onFailure(Call<UserDTO> call, Throwable throwable) {
-                callback.onResult(Result.error("Ошибка сети или ошибка при обработке данных:" + throwable.getMessage()));
+                callback.onResult(Result.error("Ошибка сети или ошибка при обработке данных:" + throwable.getMessage() + "\n" + call));
             }
         });
     }
 
     // Логин пользователя
-    public void login(JsonObject loginData, ResultCallback<Integer> callback) {
-        userAPI.login(loginData).enqueue(new Callback<>() {
+    public void login(AuthDTO loginInfo, ResultCallback<AuthResponse> callback) {
+        userAPI.login(loginInfo).enqueue(new Callback<>() {
             @Override
-            public void onResponse(Call<Integer> call, Response<Integer> response) {
+            public void onResponse(Call<AuthResponse> call, Response<AuthResponse> response) {
                 if (response.isSuccessful() && response.body() != null) {
                     callback.onResult(Result.success(response.body()));
                 } else {
-                    callback.onResult(Result.error("Ошибка входа: " + response.code()));
+                    callback.onResult(Result.error("Ошибка входа: " + response.code() + " " + response.message()));
                 }
             }
 
             @Override
-            public void onFailure(Call<Integer> call, Throwable throwable) {
+            public void onFailure(Call<AuthResponse> call, Throwable throwable) {
                 callback.onResult(Result.error("Ошибка сети или ошибка при обработке данных: " + throwable.getMessage()));
             }
         });
     }
 
     // Регистрация пользователя
-    public void signup(JsonObject signupData, ResultCallback<Integer> callback) {
-        userAPI.signup(signupData).enqueue(new Callback<>() {
+    public void signup(AuthDTO authData, ResultCallback<AuthResponse> callback) {
+        userAPI.signup(authData).enqueue(new Callback<>() {
             @Override
-            public void onResponse(Call<Integer> call, Response<Integer> response) {
+            public void onResponse(Call<AuthResponse> call, Response<AuthResponse> response) {
                 if (response.isSuccessful() && response.body() != null) {
                     callback.onResult(Result.success(response.body()));
                 } else {
-                    callback.onResult(Result.error("Ошибка регистрации: " + response.code()));
+                    callback.onResult(Result.error("Ошибка регистрации: " + response.code() + " " + response.message()));
                 }
             }
 
             @Override
-            public void onFailure(Call<Integer> call, Throwable throwable) {
+            public void onFailure(Call<AuthResponse> call, Throwable throwable) {
                 callback.onResult(Result.error("Ошибка сети или ошибка при обработке данных: " + throwable.getMessage()));
             }
         });
@@ -88,7 +90,7 @@ public class UserRepository {
                 if (response.isSuccessful()) {
                     callback.onResult(Result.success(null));
                 } else {
-                    callback.onResult(Result.error("Ошибка обновления пользователя: " + response.code()));
+                    callback.onResult(Result.error("Ошибка обновления пользователя: " + response.code() + " " + response.message()));
                 }
             }
 

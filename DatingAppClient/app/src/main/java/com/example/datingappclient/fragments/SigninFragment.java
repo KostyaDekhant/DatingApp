@@ -13,11 +13,12 @@ import android.widget.TextView;
 import com.example.datingappclient.AuthActivity;
 import com.example.datingappclient.R;
 import com.example.datingappclient.constants.Constants;
+import com.example.datingappclient.model.AuthDTO;
+import com.example.datingappclient.model.AuthResponse;
 import com.example.datingappclient.retrofit.repository.UserRepository;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.textfield.TextInputEditText;
-import com.google.gson.JsonObject;
 
 public class SigninFragment extends Fragment {
 
@@ -25,7 +26,7 @@ public class SigninFragment extends Fragment {
         // Required empty public constructor
     }
 
-    private final UserRepository userRepository = new UserRepository();;
+    private UserRepository userRepository;
     private TextInputEditText inputLogin;
     private TextInputEditText inputPass;
     private View activityView;
@@ -34,6 +35,8 @@ public class SigninFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         activityView = inflater.inflate(R.layout.fragment_signin, container, false);
+
+        setupRepository();
 
         inputLogin = activityView.findViewById(R.id.login_inputEdit);
         inputPass = activityView.findViewById(R.id.pass_inputEdit);
@@ -44,15 +47,19 @@ public class SigninFragment extends Fragment {
         return activityView;
     }
 
-    private void loginUser(JsonObject userLoginInfoJson) {
+    private void setupRepository() {
+        userRepository = new UserRepository(requireContext());
+    }
+
+    private void loginUser(AuthDTO authData) {
         String logTag = Constants.GLOBAL_LOG_TAG + "SIGNIN";
-        userRepository.login(userLoginInfoJson, result -> {
-            int userId = result.data;
+        userRepository.login(authData, result -> {
             switch (result.status) {
                 case SUCCESS:
+                    int userId = result.data.getUserId();
                     if (userId > 0) {
                         Log.i(logTag, "User successfully sign in with id: " + userId);
-                        ((AuthActivity) getActivity()).startMainActivity(userId);
+                        ((AuthActivity) getActivity()).startMainActivity(result.data);
                     }
                     else {
                         Log.i(logTag, "Wrong login or password: " + userId);
@@ -74,11 +81,7 @@ public class SigninFragment extends Fragment {
             // Хэширование пароля перед отправкой на сервер
             // pass = PasswordUtils.hashPassword(pass); // Расскоментировать для хэширования
 
-            JsonObject userLoginInfoJson = new JsonObject();
-            userLoginInfoJson.addProperty("login", login);
-            userLoginInfoJson.addProperty("password", pass);
-
-            loginUser(userLoginInfoJson);
+            loginUser(new AuthDTO(login, pass));
         });
     }
     private void setupSignupButton() {

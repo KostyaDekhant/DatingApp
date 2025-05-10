@@ -31,8 +31,8 @@ public class UserFragment extends Fragment implements View.OnClickListener {
     private static UserFragment instance;
 
     /* === Repository === */
-    private final UserRepository userRepository;
-    private final ImageRepository imageRepository;
+    private UserRepository userRepository;
+    private ImageRepository imageRepository;
 
     /* === DTO Models === */
     private static UserDTO user;
@@ -47,15 +47,12 @@ public class UserFragment extends Fragment implements View.OnClickListener {
     /* === Methods === */
     @Override
     public void onClick(View view) {
-        getParentFragmentManager().beginTransaction().replace(R.id.fragment_container, new UsereditFragment(user)).commit();
+        getParentFragmentManager().beginTransaction().replace(R.id.fragment_container, UsereditFragment.newInstance(user)).commit();
     }
 
     private UserFragment(UserDTO user, boolean isLogin) {
-        this.user = user;
-        this.isLogin = isLogin;
-
-        userRepository = new UserRepository();
-        imageRepository = new ImageRepository();
+        UserFragment.user = user;
+        UserFragment.isLogin = isLogin;
     }
 
     public static UserFragment getInstance(UserDTO user, boolean isLogin) {
@@ -81,6 +78,8 @@ public class UserFragment extends Fragment implements View.OnClickListener {
         ImageButton button = activityView.findViewById(R.id.edit_button);
         button.setOnClickListener(this);
 
+        setupRepository();
+
         profileImage = activityView.findViewById(R.id.profile_image);
 
         // если только после авторизации, то запрашиваем инфу о пользователе
@@ -88,6 +87,7 @@ public class UserFragment extends Fragment implements View.OnClickListener {
             getUserInfo(user.getId());
             getUserImages(user.getId());
             getUserCompanyInfo(user.getId());
+            isLogin = false;
         }
         // Нужно для того, что бы при переходе с другой вкладки проставлялась инфа и изображении
         else {
@@ -96,6 +96,27 @@ public class UserFragment extends Fragment implements View.OnClickListener {
         }
 
         return activityView;
+    }
+
+    private void setupRepository() {
+        userRepository = new UserRepository(requireContext());
+        imageRepository = new ImageRepository(requireContext());
+    }
+
+    private void getUserInfo(int userID){
+        String logTag = Constants.GLOBAL_LOG_TAG + "USER INFO";
+        userRepository.fetchUserInfo(userID, result -> {
+            switch (result.status) {
+                case SUCCESS:
+                    user.copyFrom(result.data);
+                    Log.i(logTag, user.toString());
+                    setUserinfo();
+                    break;
+                case ERROR:
+                    Log.e(logTag, result.error);
+                    break;
+            }
+        }) ;
     }
 
     private void getUserCompanyInfo(int userId) {
@@ -116,22 +137,6 @@ public class UserFragment extends Fragment implements View.OnClickListener {
         });
     }
 
-    private void getUserInfo(int userID){
-        String logTag = Constants.GLOBAL_LOG_TAG + "USER INFO";
-        userRepository.fetchUserInfo(userID, result -> {
-            switch (result.status) {
-                case SUCCESS:
-                    user = result.data;
-                    Log.i(logTag, user.toString());
-                    setUserinfo();
-                    break;
-                case ERROR:
-                    Log.e(logTag, result.error);
-                    break;
-            }
-        }) ;
-    }
-
     private void getUserImages(int userId) {
         String logTag = Constants.GLOBAL_LOG_TAG + "USER IMAGES";
         // Загружаем изображения
@@ -147,7 +152,6 @@ public class UserFragment extends Fragment implements View.OnClickListener {
                     if (!user.getImages().isEmpty()) {
                         setProfileImage();
                     }
-                    isLogin = false;
                     break;
                 case ERROR:
                     Log.e(logTag, result.error);
