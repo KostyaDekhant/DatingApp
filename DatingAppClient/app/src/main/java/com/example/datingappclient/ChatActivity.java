@@ -1,7 +1,6 @@
 package com.example.datingappclient;
 
 import android.annotation.SuppressLint;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.os.Bundle;
@@ -12,6 +11,7 @@ import android.widget.TextView;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -21,6 +21,8 @@ import com.example.datingappclient.recyclerViews.messageList.MessagesAdapter;
 import com.example.datingappclient.model.MessageDTO;
 import com.example.datingappclient.utils.DateUtils;
 import com.example.datingappclient.utils.ImageUtils;
+import com.example.datingappclient.viewmodels.DialogViewModel;
+import com.example.datingappclient.viewmodels.factory.DialogViewModelFactory;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.android.material.button.MaterialButton;
@@ -40,13 +42,17 @@ import ua.naiksoftware.stomp.dto.StompHeader;
 
 public class ChatActivity extends AppCompatActivity {
 
+    /* === View Models === */
+    private DialogViewModel viewModel;
+
+    /* === Android Objects === */
+    private RecyclerView messagesRecyclerView;
+    private MessagesAdapter messagesAdapter;
+
+    /* === Other === */
     Integer senderID, receiverID;
     String username;
     byte[] byteImage;
-
-    RecyclerView messagesRecyclerView;
-
-    MessagesAdapter messagesAdapter;
 
     StompClient stompClient;
 
@@ -56,6 +62,91 @@ public class ChatActivity extends AppCompatActivity {
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_chat);
 
+        setChatInfo();
+
+        setupMessageRecyclerView();
+
+        AuthResponse authResponse = getAuthResponse();
+
+        // Инициализируем ViewModel с кастомной фабрикой
+        viewModel = new ViewModelProvider(this, new DialogViewModelFactory(authResponse.getToken(), receiverID)).get(DialogViewModel.class);
+
+        renderUsername();
+        renderProfileImage();
+        setupReturnButton();
+        setupSendButton();
+
+        viewModelSubscribe();
+    }
+
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        viewModel.disconnect(); // Закрываем соединение
+    }
+
+    private void viewModelSubscribe() {
+        // Подписка на историю сообщений (запросятся при подписке)
+        viewModel.getHistoryMessages().observe(this, messages -> {
+            messagesAdapter = new MessagesAdapter(messages, senderID);
+            messagesRecyclerView.setAdapter(messagesAdapter);
+            messagesRecyclerView.scrollToPosition(messagesAdapter.getItemCount() - 1);
+        });
+
+        // Подписка на новые входящие сообщения
+        viewModel.getNewMessage().observe(this, message -> {
+            messagesAdapter.addMessage(message);
+            messagesRecyclerView.scrollToPosition(messagesAdapter.getItemCount() - 1);
+        });
+    }
+
+    private void setupMessageRecyclerView() {
+        messagesRecyclerView = findViewById(R.id.messages_recyclerView);
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
+        linearLayoutManager.setStackFromEnd(true);
+        messagesRecyclerView.setLayoutManager(linearLayoutManager);
+    }
+
+    private void setupSendButton() {
+        TextInputEditText messageInput = findViewById(R.id.message_inputEdit);
+        MaterialButton sendButton = findViewById(R.id.sendmess_button);
+        sendButton.setOnClickListener(view -> {
+            String message = messageInput.getText().toString().trim();
+            if (!message.isEmpty()) {
+                MessageDTO messageDTO = new MessageDTO(
+                        message,
+                        DateUtils.getCurrentTimeStamp(),
+                        senderID,
+                        receiverID);
+                viewModel.sendMessage(messageDTO);
+                messageInput.setText("");
+            }
+        });
+    }
+
+    private void renderUsername() {
+        TextView usernameLabel = findViewById(R.id.username_label);
+        usernameLabel.setText(username);
+    }
+
+    private void setupReturnButton() {
+        MaterialButton returnButton = findViewById(R.id.return_button);
+        returnButton.setOnClickListener(view -> {
+            finish();
+        });
+    }
+
+    private void renderProfileImage() {
+        ImageView profileImage = findViewById(R.id.profile_image);
+        if (byteImage != null) {
+            Bitmap croppedImage = ImageUtils.getCroppedBitmap(ImageUtils.convertPrimitiveByteToBitmap(byteImage));
+            profileImage.setImageBitmap(croppedImage);
+            profileImage.setPadding(0, 0, 0, 0);
+        }
+    }
+
+    private void setChatInfo() {
         // Get args from activity
         Bundle arguments = getIntent().getExtras();
         senderID = arguments.getInt("senderID");
@@ -63,63 +154,6 @@ public class ChatActivity extends AppCompatActivity {
         username = arguments.getString("username");
         byteImage = arguments.getByteArray("image");
 
-        TextInputEditText editText = findViewById(R.id.message_inputEdit);
-        TextView usernameLabel = findViewById(R.id.username_label);
-        MaterialButton sendButton = findViewById(R.id.sendmess_button);
-        MaterialButton returnButton = findViewById(R.id.return_button);
-        messagesRecyclerView = findViewById(R.id.messages_recyclerView);
-        ImageView profileImage = findViewById(R.id.profile_image);
-
-        if (byteImage != null) {
-            Bitmap croppedImage = ImageUtils.getCroppedBitmap(ImageUtils.convertPrimitiveByteToBitmap(byteImage));
-            profileImage.setImageBitmap(croppedImage);
-            profileImage.setPadding(0, 0, 0, 0);
-        }
-
-        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
-        linearLayoutManager.setStackFromEnd(true);
-        messagesRecyclerView.setLayoutManager(linearLayoutManager);
-
-        usernameLabel.setText(username);
-
-        returnButton.setOnClickListener(view -> {
-            finish();
-        });
-
-        initStompClient();
-
-        sendButton.setOnClickListener(new View.OnClickListener() {
-            @SuppressLint("CheckResult")
-            @Override
-            public void onClick(View view) {
-                String messageText = editText.getText().toString().trim();
-                if (!messageText.isEmpty()) {
-                    stompClient.send("/app/send", new MessageDTO(messageText, DateUtils.getCurrentTimeStamp(), senderID, receiverID).toString())
-                            .subscribeOn(Schedulers.io())
-                            .observeOn(AndroidSchedulers.mainThread())
-                            .subscribe(() -> {
-                                Log.d("GOOD SEND", "REST echo send successfully");
-                            }, throwable -> {
-                                Log.e("BAD SEND", "Error send REST echo", throwable);
-                            });
-
-                    editText.setText("");
-                    editText.clearFocus();
-                } else {
-                    Log.d("EMPTY MESSAGE", "Cannot send an empty message");
-                }
-            }
-        });
-        stompClient.send("/app/history/" + receiverID)
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe();
-
-        if (messagesAdapter != null)
-            KeyboardVisibilityEvent.setEventListener(this, isOpen -> {
-                if (isOpen)
-                    messagesRecyclerView.scrollToPosition(messagesAdapter.getItemCount() - 1);
-            });
     }
 
     private AuthResponse getAuthResponse() {
@@ -127,74 +161,5 @@ public class ChatActivity extends AppCompatActivity {
         int userId = prefs.getInt("userId", -1);
         String token = prefs.getString("token", null);
         return new AuthResponse(token, userId);
-    }
-
-    @SuppressLint("CheckResult")
-    private void initStompClient() {
-        stompClient = Stomp.over(Stomp.ConnectionProvider.OKHTTP, "ws://" + Constants.SERVER_ADDRESS + ":" + Constants.SERVER_PORT + "/datingapp");
-
-        String token = getSharedPreferences("auth", MODE_PRIVATE).getString("token", null);
-
-        List<StompHeader> headers = new ArrayList<>();
-        headers.add(new StompHeader("Authorization", "Bearer " + token));
-
-        stompClient.connect(headers);
-
-        stompClient.lifecycle().subscribe(lifecycleEvent -> {
-            switch (lifecycleEvent.getType()) {
-                case OPENED:
-                    Log.d("OPEN CONNECTION", "Stomp connection opened");
-                    break;
-
-                case ERROR:
-                    Log.e("ERROR CONNECTION", "Error", lifecycleEvent.getException());
-                    break;
-
-                case CLOSED:
-                    Log.d("CLOSE CONNECTION", "Stomp connection closed");
-                    break;
-            }
-        }, throwable -> {
-            // ⚠️ Это перехватывает фатальные ошибки подписки
-            Log.e("STOMP", "Unhandled lifecycle error", throwable);
-        });
-
-        stompClient.topic("/topic/history/" + receiverID)
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(topicMessage -> {
-                    Log.d("GETMESS", topicMessage.getPayload());
-                    populateListView(stringToList(topicMessage.getPayload()));
-                });
-
-        stompClient.topic("/topic/messages/" + receiverID)
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(topicMessage -> {
-                    Log.d("GETMESS", topicMessage.getPayload());
-                    ObjectMapper mapper = new ObjectMapper();
-                    MessageDTO message = mapper.readValue(topicMessage.getPayload(), new TypeReference<MessageDTO>() {
-                    });
-                    messagesAdapter.addMessage(message);
-                    messagesRecyclerView.scrollToPosition(messagesAdapter.getItemCount() - 1);
-                });
-    }
-
-    private void populateListView(List<MessageDTO> messagesList) {
-        messagesAdapter = new MessagesAdapter(messagesList, senderID);
-        messagesRecyclerView.setAdapter(messagesAdapter);
-        messagesRecyclerView.scrollToPosition(messagesAdapter.getItemCount() - 1);
-    }
-
-    public List<MessageDTO> stringToList(String json) {
-        ObjectMapper mapper = new ObjectMapper();
-        List<MessageDTO> messages = null;
-        try {
-            messages = mapper.readValue(json, new TypeReference<List<MessageDTO>>() {
-            });
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return messages;
     }
 }

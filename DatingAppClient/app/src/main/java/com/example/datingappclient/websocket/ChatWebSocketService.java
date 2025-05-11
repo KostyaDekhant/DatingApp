@@ -93,7 +93,7 @@ public class ChatWebSocketService {
 
     @SuppressLint("CheckResult")
     public void sendMessage(MessageDTO message) {
-        String logTag = Constants.GLOBAL_LOG_TAG + "SEND MESSAGE";
+        String logTag = Constants.GLOBAL_LOG_TAG + "STOMP SEND MESSAGE";
         stompClient.send("/app/send", message.toString())
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
@@ -103,7 +103,7 @@ public class ChatWebSocketService {
 
     @SuppressLint("CheckResult")
     public void getHistory(int chatId, MutableLiveData<List<MessageDTO>> historyLiveData) {
-        String logTag = Constants.GLOBAL_LOG_TAG + "CHAT HISTORY";
+        String logTag = Constants.GLOBAL_LOG_TAG + "STOMP CHAT HISTORY";
         stompClient.topic("/topic/history/" + chatId)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
