@@ -91,6 +91,40 @@ public class ChatWebSocketService {
         return liveData;
     }
 
+    @SuppressLint("CheckResult")
+    public void sendMessage(MessageDTO message) {
+        String logTag = Constants.GLOBAL_LOG_TAG + "SEND MESSAGE";
+        stompClient.send("/app/send", message.toString())
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(() -> Log.d(logTag, "Сообщение отправлено"),
+                        throwable -> Log.e(logTag, "Ошибка при отправке", throwable));
+    }
+
+    @SuppressLint("CheckResult")
+    public void getHistory(int chatId, MutableLiveData<List<MessageDTO>> historyLiveData) {
+        String logTag = Constants.GLOBAL_LOG_TAG + "CHAT HISTORY";
+        stompClient.topic("/topic/history/" + chatId)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(topicMessage -> {
+                    try {
+                        List<MessageDTO> messages = objectMapper.readValue(
+                                topicMessage.getPayload(),
+                                new TypeReference<List<MessageDTO>>() {}
+                        );
+                        historyLiveData.postValue(messages);
+                    } catch (Exception e) {
+                        Log.e(logTag, "Ошибка при разборе истории", e);
+                    }
+                }, throwable -> {
+                    Log.e(logTag, "Ошибка подписки на историю", throwable);
+                });
+
+        // Триггерим сервер, чтобы он отправил историю
+        stompClient.send("/app/history/" + chatId).subscribe();
+    }
+
     /**
      * Закрытие соединения (вызывать при завершении работы Activity/Fragment).
      */
