@@ -1,8 +1,5 @@
 package com.example.datingappclient.fragments;
 
-import static android.content.Context.MODE_PRIVATE;
-
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import androidx.fragment.app.Fragment;
 
@@ -26,9 +23,8 @@ import com.google.android.material.button.MaterialButton;
 import com.google.android.material.snackbar.Snackbar;
 
 import java.util.Calendar;
-import com.example.datingappclient.AuthActivity;
+import com.example.datingappclient.activity.AuthActivity;
 import com.example.datingappclient.R;
-import com.google.gson.JsonObject;
 
 import java.text.SimpleDateFormat;
 import java.util.Locale;

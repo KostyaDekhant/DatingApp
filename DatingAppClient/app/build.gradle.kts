@@ -83,4 +83,6 @@ dependencies {
 
     //
     implementation ("com.github.yuyakaido:cardstackview:2.3.4")
+
+    implementation ("androidx.core:core-splashscreen:1.0.1")
 }

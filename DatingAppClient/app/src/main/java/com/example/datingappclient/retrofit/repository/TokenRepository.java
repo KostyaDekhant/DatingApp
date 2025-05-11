@@ -23,8 +23,8 @@ public class TokenRepository {
             @Override
             public void onResponse(Call<Void> call, Response<Void> response) {
                 if (response.isSuccessful()) callback.onResult(Result.success(true));
-                else if (response.code() == 409) callback.onResult(Result.success(false));
-                else callback.onResult(Result.error("Ошибка при проверке токена!" + response.code() + " " + response.message()));
+                else if (response.code() == 401) callback.onResult(Result.success(false));
+                else callback.onResult(Result.error("Ошибка при проверке токена! " + response.code() + " " + response.message()));
             }
 
             @Override

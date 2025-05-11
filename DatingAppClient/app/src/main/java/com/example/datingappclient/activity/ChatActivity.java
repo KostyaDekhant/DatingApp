@@ -1,11 +1,8 @@
-package com.example.datingappclient;
+package com.example.datingappclient.activity;
 
-import android.annotation.SuppressLint;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.os.Bundle;
-import android.util.Log;
-import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -15,7 +12,7 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.datingappclient.constants.Constants;
+import com.example.datingappclient.R;
 import com.example.datingappclient.model.AuthResponse;
 import com.example.datingappclient.recyclerViews.messageList.MessagesAdapter;
 import com.example.datingappclient.model.MessageDTO;
@@ -23,22 +20,10 @@ import com.example.datingappclient.utils.DateUtils;
 import com.example.datingappclient.utils.ImageUtils;
 import com.example.datingappclient.viewmodels.DialogViewModel;
 import com.example.datingappclient.viewmodels.factory.DialogViewModelFactory;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
 
-import net.yslibrary.android.keyboardvisibilityevent.KeyboardVisibilityEvent;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-
-import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.schedulers.Schedulers;
-import ua.naiksoftware.stomp.Stomp;
 import ua.naiksoftware.stomp.StompClient;
-import ua.naiksoftware.stomp.dto.StompHeader;
 
 public class ChatActivity extends AppCompatActivity {
 

@@ -1,21 +1,17 @@
-package com.example.datingappclient;
+package com.example.datingappclient.activity;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.View;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentActivity;
 
+import com.example.datingappclient.R;
 import com.example.datingappclient.constants.Constants;
 import com.example.datingappclient.fragments.SigninFragment;
-import com.example.datingappclient.fragments.SignupFragment;
 import com.example.datingappclient.model.AuthResponse;
-import com.google.android.material.button.MaterialButton;
-import com.google.android.material.button.MaterialButtonToggleGroup;
 
 public class AuthActivity extends AppCompatActivity {
     @Override
@@ -23,7 +19,9 @@ public class AuthActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_auth);
 
-        String logTag = Constants.GLOBAL_LOG_TAG + "AUTH CHECK";
+        getSupportFragmentManager().beginTransaction().replace(R.id.auth_fragment_container, new SigninFragment()).commit();
+
+        /*String logTag = Constants.GLOBAL_LOG_TAG + "AUTH CHECK";
         AuthResponse authResponse = getAuthResponse();
         if (authResponse.isExists()) {
             // пользователь уже вошёл — открыть основной экран
@@ -33,7 +31,7 @@ public class AuthActivity extends AppCompatActivity {
             // пользователь не вошёл — показать экран входа
             Log.i(logTag, "Пользователь не авторизован, переход на страницу авторизации!");
             getSupportFragmentManager().beginTransaction().replace(R.id.auth_fragment_container, new SigninFragment()).commit();
-        }
+        }*/
     }
 
     private AuthResponse getAuthResponse() {
