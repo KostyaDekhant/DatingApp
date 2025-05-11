@@ -73,6 +73,7 @@ public class ChatActivity extends AppCompatActivity {
         if (byteImage != null) {
             Bitmap croppedImage = ImageUtils.getCroppedBitmap(ImageUtils.convertPrimitiveByteToBitmap(byteImage));
             profileImage.setImageBitmap(croppedImage);
+            profileImage.setPadding(0, 0, 0, 0);
         }
 
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);

@@ -8,7 +8,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -21,7 +20,6 @@ import com.example.datingappclient.ChatActivity;
 import com.example.datingappclient.R;
 import com.example.datingappclient.constants.Constants;
 import com.example.datingappclient.model.ChatDTO;
-import com.example.datingappclient.recyclerViews.chatsList.ChatsAdapter__old;
 import com.example.datingappclient.recyclerViews.chatsList.ChatsAdapter;
 import com.example.datingappclient.retrofit.repository.ChatsRepository;
 import com.example.datingappclient.viewmodels.ChatsViewModel;
@@ -131,19 +129,6 @@ public class ChatListFragment extends Fragment {
                     break;
             }
         });
-    }
-
-    private void populateListView(List<ChatDTO> chats) {
-        TextView noChats = activityView.findViewById(R.id.noChats_label);
-        if (chats.isEmpty()) {
-            noChats.setVisibility(View.VISIBLE);
-        }
-        else {
-            String token = requireContext().getSharedPreferences("auth", MODE_PRIVATE).getString("token", null);
-            ChatsAdapter__old chatsAdapter = new ChatsAdapter__old(chats, userId, token, this::startChatActivity);
-            recyclerView.setAdapter(chatsAdapter);
-            noChats.setVisibility(View.GONE);
-        }
     }
 
     private void startChatActivity(ChatDTO chat, byte[] imageBytes) {

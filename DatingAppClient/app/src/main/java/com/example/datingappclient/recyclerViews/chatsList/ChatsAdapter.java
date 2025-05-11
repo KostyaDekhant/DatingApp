@@ -59,6 +59,7 @@ public class ChatsAdapter extends ListAdapter<ChatDTO, ChatsHolder> {
             Bitmap cropped = ImageUtils.getCroppedBitmap(bitmap);
             holder.setByteImage(chat.getAvatar());
             holder.profileImage.setImageBitmap(cropped);
+            holder.profileImage.setPadding(0, 0, 0, 0); // Убираем паддинги, чтобы не было "обводки"
         }
 
         // Подписка на LiveData для сообщений этого чата

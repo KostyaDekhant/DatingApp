@@ -9,13 +9,18 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.datingappclient.R;
 
+import lombok.Getter;
+import lombok.Setter;
+
+@Getter
+@Setter
 public class ChatsHolder extends RecyclerView.ViewHolder {
 
     private Integer receiverID;
     private byte[] byteImage;
 
-    TextView username, lastMessage;
-    ImageView profileImage;
+    public TextView username, lastMessage;
+    public ImageView profileImage;
 
     public ChatsHolder(@NonNull View itemView) {
         super(itemView);
@@ -24,19 +29,4 @@ public class ChatsHolder extends RecyclerView.ViewHolder {
         profileImage = itemView.findViewById(R.id.profile_image);
     }
 
-    public Integer getReceiverID() {
-        return receiverID;
-    }
-
-    public void setReceiverID(Integer receiverID) {
-        this.receiverID = receiverID;
-    }
-
-    public byte[] getByteImage() {
-        return byteImage;
-    }
-
-    public void setByteImage(byte[] byteImage) {
-        this.byteImage = byteImage;
-    }
 }
