@@ -15,8 +15,8 @@ import androidx.fragment.app.Fragment;
 
 import com.example.datingappclient.R;
 import com.example.datingappclient.constants.Constants;
-import com.example.datingappclient.model.FormDTO;
-import com.example.datingappclient.model.LikeDTO;
+import com.example.datingappclient.model.dto.FormDTO;
+import com.example.datingappclient.model.dto.LikeDTO;
 import com.example.datingappclient.model.ProfileCardData;
 import com.example.datingappclient.model.UserImage;
 import com.example.datingappclient.recyclerViews.ProfileCardAdapter;

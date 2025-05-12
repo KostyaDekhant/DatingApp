@@ -1,8 +1,6 @@
 package com.example.datingappclient.retrofit.api;
 
-import com.example.datingappclient.model.FormDTO;
-
-import java.util.List;
+import com.example.datingappclient.model.dto.FormDTO;
 
 import retrofit2.Call;
 import retrofit2.http.GET;

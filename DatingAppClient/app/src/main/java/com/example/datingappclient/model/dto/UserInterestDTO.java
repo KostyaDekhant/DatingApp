@@ -1,4 +1,4 @@
-package com.example.datingappclient.model;
+package com.example.datingappclient.model.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.gson.annotations.SerializedName;
@@ -8,15 +8,16 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class CategoryDTO {
-    @SerializedName("pk_category")
+public class UserInterestDTO {
+    @SerializedName("pk_interest")
     private Integer id;
 
     @JsonProperty("name")
     private String name;
 
-    @Override
-    public String toString() {
-        return id + ":" + name ;
-    }
+    @JsonProperty("weight")
+    private Integer weight;
+
+    @JsonProperty("description")
+    private String description;
 }

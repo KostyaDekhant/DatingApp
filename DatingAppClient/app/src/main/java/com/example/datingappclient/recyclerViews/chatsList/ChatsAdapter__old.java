@@ -12,8 +12,8 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.datingappclient.R;
 import com.example.datingappclient.constants.Constants;
-import com.example.datingappclient.model.ChatDTO;
-import com.example.datingappclient.model.MessageDTO;
+import com.example.datingappclient.model.dto.ChatDTO;
+import com.example.datingappclient.model.dto.MessageDTO;
 import com.example.datingappclient.utils.ImageUtils;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;

@@ -38,12 +38,12 @@ import android.widget.Toast;
 
 import com.example.datingappclient.R;
 import com.example.datingappclient.constants.Constants;
-import com.example.datingappclient.model.CategoryDTO;
-import com.example.datingappclient.model.CompanyInfoDTO;
-import com.example.datingappclient.model.PictureDTO;
-import com.example.datingappclient.model.UserDTO;
+import com.example.datingappclient.model.dto.CategoryDTO;
+import com.example.datingappclient.model.dto.CompanyInfoDTO;
+import com.example.datingappclient.model.dto.PictureDTO;
+import com.example.datingappclient.model.dto.UserDTO;
 import com.example.datingappclient.model.UserImage;
-import com.example.datingappclient.model.UserInterestDTO;
+import com.example.datingappclient.model.dto.UserInterestDTO;
 import com.example.datingappclient.model.UsereditForm;
 import com.example.datingappclient.retrofit.repository.BubblesRepository;
 import com.example.datingappclient.retrofit.repository.ImageRepository;

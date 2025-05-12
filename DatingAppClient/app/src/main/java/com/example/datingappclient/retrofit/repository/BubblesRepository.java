@@ -1,11 +1,10 @@
 package com.example.datingappclient.retrofit.repository;
 
 import android.content.Context;
-import android.util.Log;
 
-import com.example.datingappclient.model.CategoryDTO;
-import com.example.datingappclient.model.InterestDTO;
-import com.example.datingappclient.model.UserInterestDTO;
+import com.example.datingappclient.model.dto.CategoryDTO;
+import com.example.datingappclient.model.dto.InterestDTO;
+import com.example.datingappclient.model.dto.UserInterestDTO;
 import com.example.datingappclient.retrofit.RetrofitClient;
 import com.example.datingappclient.retrofit.api.BubblesAPI;
 import com.example.datingappclient.retrofit.wrapper.Result;

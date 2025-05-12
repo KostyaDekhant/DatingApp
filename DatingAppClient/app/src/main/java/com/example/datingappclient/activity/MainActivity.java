@@ -19,7 +19,7 @@ import com.example.datingappclient.fragments.LikeFragment;
 import com.example.datingappclient.fragments.SearchFragment;
 import com.example.datingappclient.fragments.UserFragment;
 import com.example.datingappclient.model.AuthResponse;
-import com.example.datingappclient.model.UserDTO;
+import com.example.datingappclient.model.dto.UserDTO;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationView;
 

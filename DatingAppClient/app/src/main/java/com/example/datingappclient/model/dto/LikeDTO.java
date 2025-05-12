@@ -1,4 +1,4 @@
-package com.example.datingappclient.model;
+package com.example.datingappclient.model.dto;
 
 import com.example.datingappclient.utils.gson.ByteDeserializer;
 import com.fasterxml.jackson.annotation.JsonFormat;

@@ -15,7 +15,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.datingappclient.R;
 import com.example.datingappclient.model.AuthResponse;
 import com.example.datingappclient.recyclerViews.messageList.MessagesAdapter;
-import com.example.datingappclient.model.MessageDTO;
+import com.example.datingappclient.model.dto.MessageDTO;
 import com.example.datingappclient.utils.DateUtils;
 import com.example.datingappclient.utils.ImageUtils;
 import com.example.datingappclient.viewmodels.DialogViewModel;

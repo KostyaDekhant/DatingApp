@@ -1,9 +1,8 @@
 package com.example.datingappclient.retrofit.repository;
 
 import android.content.Context;
-import android.util.Log;
 
-import com.example.datingappclient.model.PictureDTO;
+import com.example.datingappclient.model.dto.PictureDTO;
 import com.example.datingappclient.retrofit.RetrofitClient;
 import com.example.datingappclient.retrofit.api.ImageAPI;
 import com.example.datingappclient.retrofit.wrapper.Result;

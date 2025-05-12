@@ -1,6 +1,5 @@
-package com.example.datingappclient.model;
+package com.example.datingappclient.model.dto;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.gson.annotations.SerializedName;
 
 import lombok.Getter;

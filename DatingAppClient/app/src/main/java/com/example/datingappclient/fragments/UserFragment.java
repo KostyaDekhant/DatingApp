@@ -16,15 +16,13 @@ import androidx.viewpager2.widget.ViewPager2;
 
 import com.example.datingappclient.R;
 import com.example.datingappclient.constants.Constants;
-import com.example.datingappclient.model.UserDTO;
+import com.example.datingappclient.model.dto.UserDTO;
 import com.example.datingappclient.recyclerViews.UserImageAdapter;
 import com.example.datingappclient.retrofit.repository.ImageRepository;
 import com.example.datingappclient.retrofit.repository.UserRepository;
 import com.example.datingappclient.utils.ImageUtils;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
-
-import java.util.List;
 
 public class UserFragment extends Fragment implements View.OnClickListener {
 

@@ -1,7 +1,8 @@
-package com.example.datingappclient.model;
+package com.example.datingappclient.model.dto;
 
 import android.graphics.Bitmap;
 
+import com.example.datingappclient.model.UserImage;
 import com.example.datingappclient.utils.DateUtils;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;

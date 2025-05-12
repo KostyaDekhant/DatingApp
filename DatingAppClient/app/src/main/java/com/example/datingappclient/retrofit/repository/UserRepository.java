@@ -3,14 +3,13 @@ package com.example.datingappclient.retrofit.repository;
 import android.content.Context;
 
 import com.example.datingappclient.model.AuthResponse;
-import com.example.datingappclient.model.CompanyInfoDTO;
-import com.example.datingappclient.model.AuthDTO;
-import com.example.datingappclient.model.UserDTO;
+import com.example.datingappclient.model.dto.CompanyInfoDTO;
+import com.example.datingappclient.model.dto.AuthDTO;
+import com.example.datingappclient.model.dto.UserDTO;
 import com.example.datingappclient.retrofit.RetrofitClient;
 import com.example.datingappclient.retrofit.api.UserAPI;
 import com.example.datingappclient.retrofit.wrapper.Result;
 import com.example.datingappclient.retrofit.wrapper.ResultCallback;
-import com.google.gson.JsonObject;
 
 import retrofit2.Call;
 import retrofit2.Callback;

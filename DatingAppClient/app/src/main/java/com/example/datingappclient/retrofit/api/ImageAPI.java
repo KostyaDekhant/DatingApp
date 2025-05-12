@@ -1,6 +1,6 @@
 package com.example.datingappclient.retrofit.api;
 
-import com.example.datingappclient.model.PictureDTO;
+import com.example.datingappclient.model.dto.PictureDTO;
 
 import java.util.List;
 

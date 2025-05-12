@@ -13,9 +13,9 @@ import android.text.InputType;
 import android.widget.DatePicker;
 
 import com.example.datingappclient.constants.Constants;
-import com.example.datingappclient.model.AuthDTO;
+import com.example.datingappclient.model.dto.AuthDTO;
 import com.example.datingappclient.model.AuthResponse;
-import com.example.datingappclient.model.UserDTO;
+import com.example.datingappclient.model.dto.UserDTO;
 import com.example.datingappclient.retrofit.repository.UserRepository;
 import com.example.datingappclient.utils.DateUtils;
 import com.google.android.material.textfield.TextInputEditText;

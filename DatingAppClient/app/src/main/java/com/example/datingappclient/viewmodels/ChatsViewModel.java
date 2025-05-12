@@ -4,8 +4,8 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
-import com.example.datingappclient.model.ChatDTO;
-import com.example.datingappclient.model.MessageDTO;
+import com.example.datingappclient.model.dto.ChatDTO;
+import com.example.datingappclient.model.dto.MessageDTO;
 import com.example.datingappclient.websocket.ChatWebSocketService;
 
 import java.util.List;

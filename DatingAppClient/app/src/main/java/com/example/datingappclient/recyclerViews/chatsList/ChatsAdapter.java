@@ -11,7 +11,7 @@ import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.ListAdapter;
 
 import com.example.datingappclient.R;
-import com.example.datingappclient.model.ChatDTO;
+import com.example.datingappclient.model.dto.ChatDTO;
 import com.example.datingappclient.utils.ImageUtils;
 import com.example.datingappclient.viewmodels.ChatsViewModel;
 

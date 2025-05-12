@@ -13,7 +13,7 @@ import android.widget.TextView;
 import com.example.datingappclient.activity.AuthActivity;
 import com.example.datingappclient.R;
 import com.example.datingappclient.constants.Constants;
-import com.example.datingappclient.model.AuthDTO;
+import com.example.datingappclient.model.dto.AuthDTO;
 import com.example.datingappclient.retrofit.repository.UserRepository;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.snackbar.Snackbar;

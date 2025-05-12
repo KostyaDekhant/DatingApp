@@ -1,4 +1,4 @@
-package com.example.datingappclient.model;
+package com.example.datingappclient.model.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.google.gson.annotations.SerializedName;

@@ -1,7 +1,6 @@
 package com.example.datingappclient.retrofit.api;
 
-import com.example.datingappclient.model.LikeDTO;
-import com.google.gson.JsonObject;
+import com.example.datingappclient.model.dto.LikeDTO;
 
 import java.util.List;
 

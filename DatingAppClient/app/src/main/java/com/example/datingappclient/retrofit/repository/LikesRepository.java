@@ -2,7 +2,7 @@ package com.example.datingappclient.retrofit.repository;
 
 import android.content.Context;
 
-import com.example.datingappclient.model.LikeDTO;
+import com.example.datingappclient.model.dto.LikeDTO;
 import com.example.datingappclient.retrofit.RetrofitClient;
 import com.example.datingappclient.retrofit.api.LikesAPI;
 import com.example.datingappclient.retrofit.wrapper.Result;

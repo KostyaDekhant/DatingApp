@@ -1,8 +1,8 @@
 package com.example.datingappclient.retrofit.api;
 
-import com.example.datingappclient.model.CategoryDTO;
-import com.example.datingappclient.model.InterestDTO;
-import com.example.datingappclient.model.UserInterestDTO;
+import com.example.datingappclient.model.dto.CategoryDTO;
+import com.example.datingappclient.model.dto.InterestDTO;
+import com.example.datingappclient.model.dto.UserInterestDTO;
 
 import java.util.List;
 

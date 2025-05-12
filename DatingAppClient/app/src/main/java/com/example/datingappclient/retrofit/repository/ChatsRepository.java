@@ -1,9 +1,8 @@
 package com.example.datingappclient.retrofit.repository;
 
 import android.content.Context;
-import android.util.Log;
 
-import com.example.datingappclient.model.ChatDTO;
+import com.example.datingappclient.model.dto.ChatDTO;
 import com.example.datingappclient.retrofit.RetrofitClient;
 import com.example.datingappclient.retrofit.api.ChatsAPI;
 import com.example.datingappclient.retrofit.wrapper.Result;

@@ -1,10 +1,9 @@
 package com.example.datingappclient.retrofit.api;
 
 import com.example.datingappclient.model.AuthResponse;
-import com.example.datingappclient.model.CompanyInfoDTO;
-import com.example.datingappclient.model.AuthDTO;
-import com.example.datingappclient.model.UserDTO;
-import com.google.gson.JsonObject;
+import com.example.datingappclient.model.dto.CompanyInfoDTO;
+import com.example.datingappclient.model.dto.AuthDTO;
+import com.example.datingappclient.model.dto.UserDTO;
 
 import retrofit2.Call;
 import retrofit2.http.Body;
