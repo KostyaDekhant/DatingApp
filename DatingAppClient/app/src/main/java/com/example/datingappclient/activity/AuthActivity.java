@@ -3,12 +3,14 @@ package com.example.datingappclient.activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.util.Log;
 
 import androidx.core.splashscreen.SplashScreen;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 
 import com.example.datingappclient.R;
+import com.example.datingappclient.constants.Constants;
 import com.example.datingappclient.fragments.SigninFragment;
 import com.example.datingappclient.model.AuthResponse;
 
@@ -17,10 +19,8 @@ public class AuthActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         SplashScreen.installSplashScreen(this);
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_auth);
-        getSupportFragmentManager().beginTransaction().replace(R.id.auth_fragment_container, new SigninFragment()).commit();
 
-        /*String logTag = Constants.GLOBAL_LOG_TAG + "AUTH CHECK";
+        String logTag = Constants.GLOBAL_LOG_TAG + "AUTH CHECK";
         AuthResponse authResponse = getAuthResponse();
         if (authResponse.isExists()) {
             // пользователь уже вошёл — открыть основной экран
@@ -29,8 +29,9 @@ public class AuthActivity extends AppCompatActivity {
         } else {
             // пользователь не вошёл — показать экран входа
             Log.i(logTag, "Пользователь не авторизован, переход на страницу авторизации!");
+            setContentView(R.layout.activity_auth);
             getSupportFragmentManager().beginTransaction().replace(R.id.auth_fragment_container, new SigninFragment()).commit();
-        }*/
+        }
     }
 
     private AuthResponse getAuthResponse() {
