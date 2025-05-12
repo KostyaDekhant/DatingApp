@@ -13,8 +13,12 @@ import com.example.datingappclient.R;
 import com.example.datingappclient.constants.Constants;
 import com.example.datingappclient.fragments.SigninFragment;
 import com.example.datingappclient.model.AuthResponse;
+import com.example.datingappclient.retrofit.repository.TokenRepository;
 
 public class AuthActivity extends AppCompatActivity {
+
+    private TokenRepository tokenRepository;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         SplashScreen.installSplashScreen(this);
@@ -23,15 +27,24 @@ public class AuthActivity extends AppCompatActivity {
         String logTag = Constants.GLOBAL_LOG_TAG + "AUTH CHECK";
         AuthResponse authResponse = getAuthResponse();
         if (authResponse.isExists()) {
+            tokenRepository = new TokenRepository(getApplicationContext());
             // пользователь уже вошёл — открыть основной экран
-            Log.i(logTag, "Пользователь авторизован: userId=" + authResponse.getUserId() + " token=" + authResponse.getToken());
-            startMainActivity(authResponse);
-        } else {
-            // пользователь не вошёл — показать экран входа
-            Log.i(logTag, "Пользователь не авторизован, переход на страницу авторизации!");
-            setContentView(R.layout.activity_auth);
-            getSupportFragmentManager().beginTransaction().replace(R.id.auth_fragment_container, new SigninFragment()).commit();
+            tokenRepository.tokenIsValid(result -> {
+                if (result.data) {
+                    Log.i(logTag, "Пользователь авторизован: userId=" + authResponse.getUserId() + " token=" + authResponse.getToken());
+                    startMainActivity(authResponse);
+                }
+            });
         }
+        startAuth();
+    }
+
+    private void startAuth() {
+        String logTag = Constants.GLOBAL_LOG_TAG + "AUTH CHECK";
+        // пользователь не вошёл — показать экран входа
+        Log.i(logTag, "Пользователь не авторизован, переход на страницу авторизации!");
+        setContentView(R.layout.activity_auth);
+        openFragment(new SigninFragment());
     }
 
     private AuthResponse getAuthResponse() {
