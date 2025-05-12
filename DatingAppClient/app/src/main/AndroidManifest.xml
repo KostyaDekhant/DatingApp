@@ -11,23 +11,16 @@
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
         android:icon="@mipmap/ic_launcher"
-        android:label="DatingAppClient"
         android:roundIcon="@mipmap/ic_launcher_round"
+        android:label="DatingAppClient"
         android:supportsRtl="true"
         android:theme="@style/Theme.DatingAppClient.Default"
         android:usesCleartextTraffic="true"
         tools:targetApi="31">
-        <activity
-            android:name=".activity.ChatActivity"
-            android:windowSoftInputMode="adjustResize"/>
+
         <activity
             android:name=".activity.AuthActivity"
             android:windowSoftInputMode="adjustResize"
-            >
-
-        </activity>
-        <activity android:name=".activity.MainActivity"/>
-        <activity android:name=".activity.SplashActivity"
             android:exported="true"
             android:theme="@style/Theme.DatingAppClient.Splash">
             <intent-filter>
@@ -35,6 +28,14 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-    </application>
 
+        <activity
+            android:name=".activity.ChatActivity"
+            android:windowSoftInputMode="adjustResize">
+
+        </activity>
+
+        <activity android:name=".activity.MainActivity">
+        </activity>
+    </application>
 </manifest>

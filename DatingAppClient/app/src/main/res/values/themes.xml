@@ -41,4 +41,11 @@
     <style name="Theme.DatingAppClient.Default" parent="Base.Theme.DatingAppClient">
 
     </style>
+
+    <style name="Theme.DatingAppClient.Splash" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenAnimatedIcon">@drawable/ic_logo</item>
+        <item name="windowSplashScreenBackground">@color/white</item>
+        <item name="postSplashScreenTheme">@style/Theme.DatingAppClient.Default</item>
+    </style>
+
 </resources>
