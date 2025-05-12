@@ -1,15 +1,23 @@
 package com.datingapp.datingapp.services;
 
-import com.datingapp.datingapp.entity.Chat;
-import com.datingapp.datingapp.entity.ChatDTO;
+import com.datingapp.datingapp.controller.MessageController;
+import com.datingapp.datingapp.entity.*;
 import com.datingapp.datingapp.exception.ChatAlreadyExistsException;
 import com.datingapp.datingapp.exception.ChatNotFoundException;
+import com.datingapp.datingapp.repository.ChatMemberRepo;
 import com.datingapp.datingapp.repository.ChatRepo;
+import com.datingapp.datingapp.repository.GroupChatRepo;
 import com.datingapp.datingapp.repository.UserRepo;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import jakarta.persistence.Column;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -17,6 +25,10 @@ import java.util.List;
 public class ChatService {
     private final ChatRepo chatRepo;
     private final UserRepo userRepo;
+    private final GroupChatRepo groupChatRepo;
+    private final ChatMemberRepo chatMemberRepo;
+
+    private static final Logger log = LoggerFactory.getLogger(MessageController.class);
 
     @Transactional(readOnly = true)
     public List<ChatDTO> findChatUsers(int userId) {
@@ -80,5 +92,55 @@ public class ChatService {
         catch (Exception e) {
             throw new RuntimeException("Ошибка при создании общего чата: " + e.getMessage());
         }
+    }
+
+    @Transactional(readOnly = true)
+    public List<GroupChatDto> getChats(int userId){
+        try {
+            List<ChatMember> members = chatMemberRepo.findByUserId(userId);
+            List<Integer> chatIds = members.stream()
+                    .map(ChatMember::getChatId)
+                    .toList();
+            List<GroupChat> groupChats = groupChatRepo.findAllById(chatIds);
+            List<GroupChatDto> groupChatDtos = new ArrayList<>();
+            for(GroupChat groupChat : groupChats){
+                String name = groupChat.getName();
+                byte[] image = groupChat.getImage();
+                Integer pkGroupChat = groupChat.getPkGroupChat();
+                GroupChatDto groupChatDto = new GroupChatDto(pkGroupChat, name, image);
+                groupChatDtos.add(groupChatDto);
+            }
+            return groupChatDtos;
+        }
+        catch (Exception e) {
+            throw new ChatNotFoundException("Ошибка при поиске чата: " + e.getMessage());
+        }
+    }
+
+    @Transactional(readOnly = true)
+    public GroupChatInfoDto getChatInfo(int chatId){
+        try {
+            List<ChatMemberDTO> chatMember = getChatMembersFromObject(chatMemberRepo.findByChatId(chatId));
+            GroupChat groupChat = groupChatRepo.findById(chatId).orElse(null);
+            Integer createdBy = groupChat.getCreatedBy();
+            Timestamp createdAt = groupChat.getCreatedAt();
+            GroupChatInfoDto groupChatInfoDto = new GroupChatInfoDto(createdBy, createdAt, chatMember);
+            return groupChatInfoDto;
+        }
+        catch (Exception e) {
+            throw new ChatNotFoundException("Ошибка при поиске чата: " + e.getMessage());
+        }
+    }
+
+    private List<ChatMemberDTO> getChatMembersFromObject(List<Object[]> chatMembers) {
+        List<ChatMemberDTO> chatMemberDTOs = new ArrayList<>();
+        for (var chatMember : chatMembers) {
+            ChatMemberDTO chatMemberDTO = new ChatMemberDTO();
+            chatMemberDTO.setUsername((String) chatMember[0]);
+            chatMemberDTO.setUserId(((Number) chatMember[1]).intValue());
+            chatMemberDTO.setAvatar((byte[]) chatMember[2]);
+            chatMemberDTOs.add(chatMemberDTO);
+        }
+        return chatMemberDTOs;
     }
 }

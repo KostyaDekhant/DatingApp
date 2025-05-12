@@ -67,8 +67,4 @@ public class MessageController {
         log.info("История отправлена " + messageService.getChatHistory(chatId).toString());
         return messageService.getChatHistory(chatId);
     }
-
-
-
-
 }
