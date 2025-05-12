@@ -12,9 +12,13 @@ import java.sql.Timestamp;
 public class ChatMember {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "chat_id")
+    private Long id;
+
+    // связь с группой
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "chat_id", nullable = false)
     @JsonProperty("chat_id")
-    private Integer chatId;
+    private GroupChat chatId;
 
     @Column(name = "user_id")
     @JsonProperty("user_id")
@@ -28,7 +32,7 @@ public class ChatMember {
     @JsonProperty("role")
     private String role;
 
-    public ChatMember(int chatId, int userId, Timestamp joinedAt, String role) {
+    public ChatMember(GroupChat chatId, int userId, Timestamp joinedAt, String role) {
         this.chatId = chatId;
         this.userId = userId;
         this.joinedAt = joinedAt;
@@ -36,7 +40,6 @@ public class ChatMember {
     }
 
     public ChatMember() {
-        this.chatId = -1;
         this.userId = -1;
         this.joinedAt = null;
         this.role = "";

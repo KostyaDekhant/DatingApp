@@ -94,16 +94,16 @@ public class ChatService {
         }
     }
 
-    @Transactional(readOnly = true)
+    @Transactional
     public List<GroupChatDto> getChats(int userId){
         try {
             List<ChatMember> members = chatMemberRepo.findByUserId(userId);
-            List<Integer> chatIds = members.stream()
+            List<GroupChat> chatIds = members.stream()
                     .map(ChatMember::getChatId)
                     .toList();
-            List<GroupChat> groupChats = groupChatRepo.findAllById(chatIds);
+            //List<GroupChat> groupChats = groupChatRepo.findAllById(chatIds);
             List<GroupChatDto> groupChatDtos = new ArrayList<>();
-            for(GroupChat groupChat : groupChats){
+            for(GroupChat groupChat : chatIds){//groupChats
                 String name = groupChat.getName();
                 byte[] image = groupChat.getImage();
                 Integer pkGroupChat = groupChat.getPkGroupChat();
@@ -117,14 +117,15 @@ public class ChatService {
         }
     }
 
-    @Transactional(readOnly = true)
+    @Transactional
     public GroupChatInfoDto getChatInfo(int chatId){
         try {
             List<ChatMemberDTO> chatMember = getChatMembersFromObject(chatMemberRepo.findByChatId(chatId));
             GroupChat groupChat = groupChatRepo.findById(chatId).orElse(null);
             Integer createdBy = groupChat.getCreatedBy();
             Timestamp createdAt = groupChat.getCreatedAt();
-            GroupChatInfoDto groupChatInfoDto = new GroupChatInfoDto(createdBy, createdAt, chatMember);
+            Boolean isGroup = groupChat.getIsGroup();
+            GroupChatInfoDto groupChatInfoDto = new GroupChatInfoDto(createdBy, createdAt, chatMember, isGroup);
             return groupChatInfoDto;
         }
         catch (Exception e) {
@@ -143,4 +144,32 @@ public class ChatService {
         }
         return chatMemberDTOs;
     }
+
+    @Transactional
+    public void saveGroupChat(GroupChatDto groupChatDto) {
+        try {
+            GroupChat groupChat = new GroupChat();
+            GroupChatInfoDto groupChatInfoDto = groupChatDto.getGroupChatInfoDto();
+
+            groupChat.setName(groupChatDto.getName());
+            groupChat.setCreatedAt(groupChatInfoDto.getCreatedAt());
+            groupChat.setCreatedBy(groupChatInfoDto.getCreatedBy());
+            groupChat.setIsGroup(groupChatInfoDto.getIsGroup());
+            groupChat.setImage(groupChatDto.getImage());
+            groupChatRepo.save(groupChat);
+
+            for(ChatMemberDTO chatMemberDTO : groupChatInfoDto.getMembers()){
+                ChatMember chatMember = new ChatMember();
+                chatMember.setChatId(groupChat);
+                chatMember.setUserId(chatMemberDTO.getUserId());
+                chatMember.setJoinedAt(new Timestamp(System.currentTimeMillis()));
+                //chatMember.setRole("");
+                chatMemberRepo.save(chatMember);
+            }
+        }
+        catch (Exception e) {
+            throw new RuntimeException("Ошибка при сохранении информации о групповых чатах: " + e.getMessage());
+        }
+    }
+
 }

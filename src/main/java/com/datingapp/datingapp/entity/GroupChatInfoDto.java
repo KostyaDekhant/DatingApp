@@ -17,12 +17,26 @@ public class GroupChatInfoDto {
     @JsonProperty("members")
     private List<ChatMemberDTO> members;
 
-    public GroupChatInfoDto(Integer createdBy, Timestamp createdAt, List<ChatMemberDTO> members) {
+    @JsonProperty("isGroup")
+    private Boolean isGroup;
+
+    public GroupChatInfoDto(Integer createdBy, Timestamp createdAt, List<ChatMemberDTO> members, Boolean isGroup) {
         this.createdBy = createdBy;
         this.createdAt = createdAt;
         this.members = members;
+        this.isGroup = isGroup;
     }
 
     public GroupChatInfoDto() {
+    }
+
+    @Override
+    public String toString() {
+        return "GroupChatInfoDto{" +
+                "createdBy=" + createdBy +
+                ", createdAt=" + createdAt +
+                ", members=" + members +
+                ", isGroup=" + isGroup +
+                '}';
     }
 }

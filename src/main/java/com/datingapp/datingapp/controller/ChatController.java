@@ -51,4 +51,10 @@ public class ChatController {
         return ResponseEntity.ok(groupChatDtos);
     }
 
+    @PostMapping("/group_chats")
+    public ResponseEntity<Void> addChat(@RequestBody GroupChatDto groupChatDto) {
+        chatService.saveGroupChat(groupChatDto);
+        return ResponseEntity.ok().build();
+    }
+
 }

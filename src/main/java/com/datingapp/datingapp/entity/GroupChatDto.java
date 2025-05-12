@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
 import java.sql.Timestamp;
+import java.util.Arrays;
 import java.util.List;
 
 @Data
@@ -14,17 +15,12 @@ public class GroupChatDto{
     @JsonProperty("name")
     private String name;
 
-//    @JsonProperty("created_by")
-//    private Integer createdBy;
-//
-//    @JsonProperty("created_at")
-//    private Timestamp createdAt;
-
     @JsonProperty("image")
     private byte[] image;
 
-//    @JsonProperty("members")
-//    private List<ChatMemberDTO> members;
+    @JsonProperty("group_chat_info")
+    private GroupChatInfoDto groupChatInfoDto;
+
 
     public GroupChatDto() {
         this.pkGroupChat = -1;
@@ -46,4 +42,5 @@ public class GroupChatDto{
         this.image = image;
         //this.members = members;
     }
+
 }

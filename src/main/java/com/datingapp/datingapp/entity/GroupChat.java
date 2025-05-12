@@ -38,7 +38,6 @@ public class GroupChat {
     private byte[] image;
 
     public GroupChat() {
-        this.pkGroupChat = -1;
         this.name = "";
         this.isGroup = false;
         this.createdBy = -1;
