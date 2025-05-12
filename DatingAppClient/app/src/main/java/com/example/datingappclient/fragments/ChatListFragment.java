@@ -2,6 +2,7 @@ package com.example.datingappclient.fragments;
 
 import static android.content.Context.MODE_PRIVATE;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -20,14 +21,19 @@ import com.example.datingappclient.activity.ChatActivity;
 import com.example.datingappclient.R;
 import com.example.datingappclient.constants.Constants;
 import com.example.datingappclient.model.dto.ChatDTO;
+import com.example.datingappclient.model.dto.GroupChatDTO;
 import com.example.datingappclient.recyclerViews.chatsList.ChatsAdapter;
+import com.example.datingappclient.recyclerViews.chatsList.GroupChatsAdapter;
 import com.example.datingappclient.retrofit.repository.ChatsRepository;
+import com.example.datingappclient.retrofit.repository.GroupChatsRepository;
 import com.example.datingappclient.viewmodels.ChatsViewModel;
+import com.example.datingappclient.viewmodels.GroupChatsViewModel;
 
 public class ChatListFragment extends Fragment {
 
     /* === Repository === */
     private ChatsRepository chatsRepository;
+    private GroupChatsRepository groupChatsRepository;
 
     /* === Android Objects === */
     private View activityView;
@@ -38,6 +44,9 @@ public class ChatListFragment extends Fragment {
 
     private ChatsViewModel viewModel;
     private ChatsAdapter adapter;
+
+    private GroupChatsViewModel groupChatsViewModel;
+    private GroupChatsAdapter groupChatsAdapter;
 
     public ChatListFragment() {
 
@@ -73,6 +82,8 @@ public class ChatListFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         String token = requireContext().getSharedPreferences("auth", MODE_PRIVATE).getString("token", null);
+
+        /*// OLD CHATS
         viewModel = new ViewModelProvider(this, new ViewModelProvider.Factory() {
             @NonNull
             @Override
@@ -91,13 +102,34 @@ public class ChatListFragment extends Fragment {
         viewModel.getChats().observe(getViewLifecycleOwner(), adapter::submitList);
 
         // Пример начальной загрузки (в реальном коде — через репозиторий)
-        getUserChats(userId);
+        getUserChats();*/
+
+        // NEW CHATS
+
+        groupChatsViewModel = new ViewModelProvider(this, new ViewModelProvider.Factory() {
+            @NonNull
+            @Override
+            public <T extends androidx.lifecycle.ViewModel> T create(@NonNull Class<T> modelClass) {
+                return (T) new GroupChatsViewModel(token);
+            }
+        }).get(GroupChatsViewModel.class);
+
+        groupChatsAdapter = new GroupChatsAdapter((chat, image) -> {
+            startChatActivity(chat, image); // 👉 Обработка клика по чату: открыть диалог, передать chat и image
+        }, groupChatsViewModel, userId, getViewLifecycleOwner());
+
+        recyclerView.setAdapter(groupChatsAdapter);
+
+        groupChatsViewModel.getChats().observe(getViewLifecycleOwner(), groupChatsAdapter::submitList);
+
+        getUserGroupChats();
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        getUserChats(userId);
+        //getUserChats();
+        getUserGroupChats();
     }
 
     @Override
@@ -107,10 +139,12 @@ public class ChatListFragment extends Fragment {
     }
 
     private void setupRepository() {
-        chatsRepository = new ChatsRepository(requireContext());
+        Context context = requireContext();
+        chatsRepository = new ChatsRepository(context);
+        groupChatsRepository = new GroupChatsRepository(context);
     }
 
-    private void getUserChats(int userId) {
+    private void getUserChats() {
         String logTag = Constants.GLOBAL_LOG_TAG + "GET CHATS";
         chatsRepository.fetchUserChats(userId, result -> {
             switch (result.status) {
@@ -128,12 +162,38 @@ public class ChatListFragment extends Fragment {
             }
         });
     }
+    private void getUserGroupChats() {
+        String logTag = Constants.GLOBAL_LOG_TAG + "GET GROUP CHATS";
+        groupChatsRepository.fetchUserGroupChats(userId, result -> {
+            switch (result.status) {
+                case SUCCESS:
+                    Log.d(logTag, "Получено чатов: " + result.data.size());
+                    groupChatsViewModel.setChats(result.data);
+                    break;
+                case EMPTY:
+                    Log.i(logTag, "Чаты для пользователя " + userId + " отсутствуют!");
+                    break;
+                case ERROR:
+                    Log.e(logTag, result.error);
+                    break;
+            }
+        });
+    }
 
     private void startChatActivity(ChatDTO chat, byte[] imageBytes) {
         Intent intent = new Intent(requireContext(), ChatActivity.class);
         intent.putExtra("senderID", userId);
         intent.putExtra("receiverID", chat.getChatId());
         intent.putExtra("username", chat.getPartnerName());
+        intent.putExtra("image", imageBytes);
+        startActivity(intent);
+    }
+
+    private void startChatActivity(GroupChatDTO chat, byte[] imageBytes) {
+        Intent intent = new Intent(requireContext(), ChatActivity.class);
+        intent.putExtra("senderID", userId);
+        intent.putExtra("receiverID", chat.getGroupChatId());
+        intent.putExtra("username", chat.getName());
         intent.putExtra("image", imageBytes);
         startActivity(intent);
     }

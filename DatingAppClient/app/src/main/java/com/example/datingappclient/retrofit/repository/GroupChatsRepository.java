@@ -28,19 +28,7 @@ public class GroupChatsRepository {
 
 
     /* === Group Chats === */
-    /*@GET("api/group_chats/{chatId}")
-    Call<GroupChatInfoDTO> getChatInfo(@Path("chatId") int chatId);
-
-    @GET("api/group_chats/users/{userId}")
-    Call<List<GroupChatDTO>> getGroupChats(@Path("userId") int userId);
-
-    @POST("/api/group_chats")
-    Call <Void> addChat(@Body GroupChatDTO groupChatDto);
-
-    @POST("/api/group_chats/{chatId}/users/{userId}")
-    Call <Void> addMemberToChat(@Path("chatId") int chatId, @Path("userId") int userId);*/
-
-    private void fetchChatInfo(int chatId, ResultCallback<GroupChatInfoDTO> callback) {
+    public void fetchChatInfo(int chatId, ResultCallback<GroupChatInfoDTO> callback) {
         chatsAPI.getChatInfo(chatId).enqueue(new Callback<>() {
             @Override
             public void onResponse(Call<GroupChatInfoDTO> call, Response<GroupChatInfoDTO> response) {
@@ -62,7 +50,7 @@ public class GroupChatsRepository {
         });
     }
 
-    private void fetchUserGroupChats(int userId, ResultCallback<List<GroupChatDTO>> callback) {
+    public void fetchUserGroupChats(int userId, ResultCallback<List<GroupChatDTO>> callback) {
         chatsAPI.getGroupChats(userId).enqueue(new Callback<>() {
             @Override
             public void onResponse(Call<List<GroupChatDTO>> call, Response<List<GroupChatDTO>> response) {
@@ -83,7 +71,7 @@ public class GroupChatsRepository {
         });
     }
 
-    private void addChat(GroupChatDTO groupChatDto, ResultCallback<Void> callback) {
+    public void addChat(GroupChatDTO groupChatDto, ResultCallback<Void> callback) {
         chatsAPI.addChat(groupChatDto).enqueue(new Callback<>() {
             @Override
             public void onResponse(Call<Void> call, Response<Void> response) {
@@ -101,7 +89,7 @@ public class GroupChatsRepository {
         });
     }
 
-    private void addMemberToChat(int chatId, int userId, ResultCallback<Void> callback) {
+    public void addMemberToChat(int chatId, int userId, ResultCallback<Void> callback) {
         chatsAPI.addMemberToChat(chatId, userId).enqueue(new Callback<>() {
             @Override
             public void onResponse(Call<Void> call, Response<Void> response) {

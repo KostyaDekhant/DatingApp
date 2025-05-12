@@ -5,6 +5,9 @@ import com.google.gson.annotations.SerializedName;
 import java.sql.Timestamp;
 import java.util.List;
 
+import lombok.Getter;
+
+@Getter
 public class GroupChatInfoDTO {
     @SerializedName("created_by")
     private Integer createdBy;
