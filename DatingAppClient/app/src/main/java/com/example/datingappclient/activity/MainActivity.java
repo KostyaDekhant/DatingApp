@@ -43,17 +43,17 @@ public class MainActivity extends AppCompatActivity {
             return insets;
         });
 
-        drawerLayout = findViewById(R.id.drawer_layout);
-
-        setupBottomnavMenu();
-        setupSlideMenu();
-
         AuthResponse authResponse = getIntent().getParcelableExtra("authResponse");
         userId = authResponse.getUserId();
 
         // создания инстанса пользователя
         if (user == null) user = new UserDTO(userId);
         else user.setId(userId);
+
+        drawerLayout = findViewById(R.id.drawer_layout);
+
+        setupBottomnavMenu();
+        setupSlideMenu();
 
         getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, UserFragment.getInstance(user, true)).commit();
     }
@@ -67,7 +67,7 @@ public class MainActivity extends AppCompatActivity {
             if (itemId == R.id.user) {
                 selectedFragment = UserFragment.getInstance();
             } else if (itemId == R.id.like) {
-                selectedFragment = new LikeFragment(userId);
+                selectedFragment = LikeFragment.newInstance(user);
             } else if (itemId == R.id.search) {
                 selectedFragment = SearchFragment.newInstance(userId);
             } else if (itemId == R.id.chat) {
@@ -84,6 +84,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void setupSlideMenu() {
         NavigationView navView = findViewById(R.id.nav_view);
+
         navView.setNavigationItemSelectedListener(item -> {
             int id = item.getItemId();
             if (id == R.id.groupchat_create) {

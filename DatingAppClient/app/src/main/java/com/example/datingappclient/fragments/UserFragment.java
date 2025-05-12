@@ -7,6 +7,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -15,12 +16,14 @@ import androidx.fragment.app.Fragment;
 import androidx.viewpager2.widget.ViewPager2;
 
 import com.example.datingappclient.R;
+import com.example.datingappclient.activity.MainActivity;
 import com.example.datingappclient.constants.Constants;
 import com.example.datingappclient.model.dto.UserDTO;
 import com.example.datingappclient.recyclerViews.UserImageAdapter;
 import com.example.datingappclient.retrofit.repository.ImageRepository;
 import com.example.datingappclient.retrofit.repository.UserRepository;
 import com.example.datingappclient.utils.ImageUtils;
+import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
 
@@ -38,6 +41,7 @@ public class UserFragment extends Fragment implements View.OnClickListener {
     /* === Android Objects === */
     private ViewPager2 profileImage;
     private View activityView;
+    private NavigationView navView;
 
     /* === Other === */
     private static boolean isLogin;
@@ -76,6 +80,8 @@ public class UserFragment extends Fragment implements View.OnClickListener {
         ImageButton button = activityView.findViewById(R.id.edit_button);
         button.setOnClickListener(this);
 
+        navView = ((MainActivity) requireActivity()).findViewById(R.id.nav_view);
+
         setupRepository();
 
         profileImage = activityView.findViewById(R.id.profile_image);
@@ -109,6 +115,9 @@ public class UserFragment extends Fragment implements View.OnClickListener {
                     user.copyFrom(result.data);
                     Log.i(logTag, user.toString());
                     setUserinfo();
+
+                    TextView headerName = navView.findViewById(R.id.nav_header_name);
+                    headerName.setText(user.getName());
                     break;
                 case ERROR:
                     Log.e(logTag, result.error);
@@ -149,6 +158,9 @@ public class UserFragment extends Fragment implements View.OnClickListener {
                     // TODO: изображение по умолчанию можно хранить на клиенте, чтобы не гонять туда-сюда
                     if (!user.getImages().isEmpty()) {
                         setProfileImage();
+
+                        ImageView headerUserImage = navView.findViewById(R.id.nav_header_avatar);
+                        headerUserImage.setImageBitmap(ImageUtils.getCroppedBitmap(user.getMainImage()));
                     }
                     break;
                 case ERROR:
