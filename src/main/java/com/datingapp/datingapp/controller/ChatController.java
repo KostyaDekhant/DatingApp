@@ -57,4 +57,10 @@ public class ChatController {
         return ResponseEntity.ok().build();
     }
 
+    @PostMapping("/group_chats/{chatId}/users/{userId}")
+    public ResponseEntity<Void> addMemberToChat(@PathVariable int chatId, @PathVariable int userId) {
+        chatService.addMember(chatId, userId);
+        return ResponseEntity.ok().build();
+    }
+
 }

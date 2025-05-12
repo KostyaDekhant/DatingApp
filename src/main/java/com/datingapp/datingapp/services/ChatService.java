@@ -172,4 +172,19 @@ public class ChatService {
         }
     }
 
+    @Transactional
+    public void addMember(int chat_id, int user_id) {
+        try {
+            GroupChat groupChat = groupChatRepo.findById(chat_id).orElse(null);
+            ChatMember chatMember = new ChatMember();
+            chatMember.setChatId(groupChat);
+            chatMember.setUserId(user_id);
+            chatMember.setJoinedAt(new Timestamp(System.currentTimeMillis()));
+            chatMemberRepo.save(chatMember);
+        }
+        catch (Exception e) {
+            throw new RuntimeException("Ошибка при добавлении юзера: " + e.getMessage());
+        }
+    }
+
 }
