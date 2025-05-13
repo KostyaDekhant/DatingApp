@@ -15,5 +15,16 @@ public interface MessRepo extends JpaRepository<Message, Integer>{
             "END as pk_user2 " +*/
             "FROM \"message\" m INNER JOIN \"chat\" c ON m.pk_chat = c.pk_chat " +
             "WHERE m.pk_chat = :chat_id", nativeQuery = true)
+    List<Message> findChatMessagesOld(@Param("chat_id") int pk_chat);
+
+    @Query(value = "SELECT m.pk_message, m.message, m.time, m.pk_user, m.pk_chat " + //
+            /*"CASE " +
+            "WHEN m.pk_user = c.pk_user THEN c.pk_user1 " +
+            "WHEN m.pk_user = c.pk_user1 THEN c.pk_user " +
+            "END as pk_user2 " +*/
+            "FROM \"message\" m INNER JOIN \"group_chat\" c ON m.pk_chat = c.pk_group_chat " +
+            "WHERE m.pk_chat = :chat_id", nativeQuery = true)
     List<Message> findChatMessages(@Param("chat_id") int pk_chat);
 }
+
+

@@ -14,7 +14,6 @@ public class MessageService {
     private static final Logger log = LoggerFactory.getLogger(MessageService.class);
     private final MessRepo messRepo;
 
-    @Autowired
     public MessageService(MessRepo messRepo) {
         this.messRepo = messRepo;
     }
