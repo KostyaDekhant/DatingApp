@@ -15,6 +15,7 @@ import androidx.fragment.app.Fragment;
 
 import com.example.datingappclient.R;
 import com.example.datingappclient.fragments.ChatListFragment;
+import com.example.datingappclient.fragments.GroupChatMembersFragment;
 import com.example.datingappclient.fragments.LikeFragment;
 import com.example.datingappclient.fragments.SearchFragment;
 import com.example.datingappclient.fragments.UserFragment;
@@ -88,7 +89,9 @@ public class MainActivity extends AppCompatActivity {
         navView.setNavigationItemSelectedListener(item -> {
             int id = item.getItemId();
             if (id == R.id.groupchat_create) {
-                // открыть профиль
+                getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, GroupChatMembersFragment.newInstance(user.getId()))
+                        .addToBackStack(null)
+                        .commit();
             } else if (id == R.id.nav_logout) {
                 logout();
             }

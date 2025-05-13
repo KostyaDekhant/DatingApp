@@ -5,9 +5,11 @@ import com.google.gson.annotations.SerializedName;
 import java.util.Arrays;
 import java.util.Objects;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 @Getter
+@AllArgsConstructor
 public class GroupChatDTO {
     @SerializedName("pk_group_chat")
     private Integer groupChatId;

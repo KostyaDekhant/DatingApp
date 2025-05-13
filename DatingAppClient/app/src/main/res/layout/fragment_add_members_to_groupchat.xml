@@ -1,0 +1,73 @@
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <!-- Toolbar -->
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:background="?attr/colorOnPrimary"
+            app:title="Новая группа"
+            app:subtitle="Выберите участников"
+            app:titleTextColor="?attr/textColorMainReverse"
+            app:subtitleTextColor="?attr/textColorMainReverse"
+            app:navigationIcon="@drawable/return_arrow" />
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+            <!-- Search -->
+            <EditText
+                android:id="@+id/searchEditText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="14dp"
+                android:paddingVertical="10dp"
+                android:layout_weight="1"
+                android:textCursorDrawable="@drawable/cursor_custom"
+                android:background="@android:color/transparent"
+                android:hint="Кого добавить?"
+                android:inputType="textCapSentences"
+                android:textColor="?attr/textColorMain"
+                android:textColorHint="?attr/textColorFade" />
+
+            <!-- Полоска снизу -->
+            <View
+                android:id="@+id/underlineView"
+                android:layout_width="match_parent"
+                android:layout_height="3dp"
+                android:layout_marginStart="14dp"
+                android:layout_marginEnd="14dp"
+                android:background="?attr/colorOnPrimary" />
+        </LinearLayout>
+
+        <!-- RecyclerView with users -->
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/usersRecyclerView"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:layout_marginTop="10dp"/>
+    </LinearLayout>
+
+    <!-- Floating action button -->
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fabNext"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_margin="16dp"
+        android:src="@drawable/arrow"
+        app:tint="?attr/textColorMainReverse"
+        android:contentDescription="Далее"
+        android:backgroundTint="?attr/colorPrimary" />
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

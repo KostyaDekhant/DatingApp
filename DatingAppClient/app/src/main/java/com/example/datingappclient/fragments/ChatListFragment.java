@@ -28,6 +28,7 @@ import com.example.datingappclient.retrofit.repository.ChatsRepository;
 import com.example.datingappclient.retrofit.repository.GroupChatsRepository;
 import com.example.datingappclient.viewmodels.ChatsViewModel;
 import com.example.datingappclient.viewmodels.GroupChatsViewModel;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 public class ChatListFragment extends Fragment {
 
@@ -70,11 +71,21 @@ public class ChatListFragment extends Fragment {
         }
 
         setupRepository();
+        setupCreateChatButton();
 
         recyclerView = activityView.findViewById(R.id.chatsList_recyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(activityView.getContext()));
 
         return activityView;
+    }
+
+    private void setupCreateChatButton() {
+        FloatingActionButton fabCreateChat = activityView.findViewById(R.id.createChat);
+        fabCreateChat.setOnClickListener(v -> {
+            getParentFragmentManager().beginTransaction().replace(R.id.fragment_container, GroupChatMembersFragment.newInstance(userId))
+                    .addToBackStack(null)
+                    .commit();
+        });
     }
 
     @Override
@@ -135,7 +146,8 @@ public class ChatListFragment extends Fragment {
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        viewModel.disconnectWebSocket();
+        //viewModel.disconnectWebSocket();
+        groupChatsViewModel.disconnectWebSocket();
     }
 
     private void setupRepository() {
@@ -162,6 +174,7 @@ public class ChatListFragment extends Fragment {
             }
         });
     }
+
     private void getUserGroupChats() {
         String logTag = Constants.GLOBAL_LOG_TAG + "GET GROUP CHATS";
         groupChatsRepository.fetchUserGroupChats(userId, result -> {

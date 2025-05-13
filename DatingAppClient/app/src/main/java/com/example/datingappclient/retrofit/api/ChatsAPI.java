@@ -23,17 +23,4 @@ public interface ChatsAPI {
     // Создание чата с юзером
     @POST("api/chats")
     Call<Integer> createChat(@Query("userA") int userId, @Query("userB") int likerId);
-
-    /* === Group Chats === */
-    @GET("api/group_chats/{chatId}")
-    Call<GroupChatInfoDTO> getChatInfo(@Path("chatId") int chatId);
-
-    @GET("api/group_chats/users/{userId}")
-    Call< List<GroupChatDTO>> getGroupChats(@Path("userId") int userId);
-
-    @POST("/api/group_chats")
-    Call <Void> addChat(@Body GroupChatDTO groupChatDto);
-
-    @POST("/api/group_chats/{chatId}/users/{userId}")
-    Call <Void> addMemberToChat(@Path("chatId") int chatId, @Path("userId") int userId);
 }
