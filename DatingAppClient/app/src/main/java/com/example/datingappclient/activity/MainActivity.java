@@ -72,7 +72,7 @@ public class MainActivity extends AppCompatActivity {
             } else if (itemId == R.id.search) {
                 selectedFragment = SearchFragment.newInstance(userId);
             } else if (itemId == R.id.chat) {
-                selectedFragment = ChatListFragment.newInstance(userId);
+                selectedFragment = ChatListFragment.newInstance(user);
             } else if (itemId == R.id.slidemenu) {
                 drawerLayout.openDrawer(GravityCompat.START);
             }
@@ -89,7 +89,7 @@ public class MainActivity extends AppCompatActivity {
         navView.setNavigationItemSelectedListener(item -> {
             int id = item.getItemId();
             if (id == R.id.groupchat_create) {
-                getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, GroupChatMembersFragment.newInstance(user.getId()))
+                getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, GroupChatMembersFragment.newInstance(user))
                         .addToBackStack(null)
                         .commit();
             } else if (id == R.id.nav_logout) {

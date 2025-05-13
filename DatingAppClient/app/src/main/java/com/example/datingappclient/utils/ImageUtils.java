@@ -39,6 +39,12 @@ public class ImageUtils {
         return convertPrimitiveByteToBitmap(array);
     }
 
+    public static byte[] convertBitmapToPrimitiveBytes(Bitmap bitmap) {
+        ByteArrayOutputStream stream = new ByteArrayOutputStream();
+        bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream); // можно JPEG
+        return stream.toByteArray();
+    }
+
     public static List<UserImage> objectListToUserImageList(List<Object[]> objects) {
         List<UserImage> userImages = new ArrayList<>();
         if (objects == null) return userImages;

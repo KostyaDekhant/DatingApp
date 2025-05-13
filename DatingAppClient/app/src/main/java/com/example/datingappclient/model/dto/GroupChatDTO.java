@@ -7,8 +7,10 @@ import java.util.Objects;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.Setter;
 
 @Getter
+@Setter
 @AllArgsConstructor
 public class GroupChatDTO {
     @SerializedName("pk_group_chat")

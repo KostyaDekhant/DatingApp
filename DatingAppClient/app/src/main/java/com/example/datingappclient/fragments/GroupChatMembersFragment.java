@@ -27,6 +27,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.datingappclient.R;
 import com.example.datingappclient.constants.Constants;
 import com.example.datingappclient.model.dto.ChatMemberDTO;
+import com.example.datingappclient.model.dto.UserDTO;
 import com.example.datingappclient.recyclerViews.ChatMembersAdapter;
 import com.example.datingappclient.retrofit.repository.GroupChatsRepository;
 import com.example.datingappclient.viewmodels.ChatMembersViewModel;
@@ -43,13 +44,13 @@ public class GroupChatMembersFragment extends Fragment {
     private ChatMembersViewModel viewModel;
     private ChatMembersAdapter adapter;
 
-    private int userId;
+    private UserDTO user;
 
     private GroupChatMembersFragment() {};
 
-    public static GroupChatMembersFragment newInstance(int userId) {
+    public static GroupChatMembersFragment newInstance(UserDTO user) {
         GroupChatMembersFragment fragment = new GroupChatMembersFragment();
-        fragment.userId = userId;
+        fragment.user = user;
         return fragment;
     }
 
@@ -114,7 +115,7 @@ public class GroupChatMembersFragment extends Fragment {
 
     private void getChatMembers() {
         String logTag = Constants.GLOBAL_LOG_TAG + "GET CHAT MEMBERS";
-        groupChatsRepository.fetchChatMembers(userId, 0, result -> {
+        groupChatsRepository.fetchChatMembers(user.getId(), 0, result -> {
             switch (result.status) {
                 case SUCCESS:
                     Log.i(logTag, "Получено " + result.data.size() + " участников чата!");
@@ -139,7 +140,7 @@ public class GroupChatMembersFragment extends Fragment {
     private void setupNextButton() {
         FloatingActionButton fabCreateChat = activityView.findViewById(R.id.fabNext);
         fabCreateChat.setOnClickListener(v -> {
-            getParentFragmentManager().beginTransaction().replace(R.id.fragment_container, CreateGroupChatFragment.newInstance(adapter.getSelectedMembers()))
+            getParentFragmentManager().beginTransaction().replace(R.id.fragment_container, CreateGroupChatFragment.newInstance(user, adapter.getSelectedMembers()))
                     .addToBackStack(null)
                     .commit();
         });
