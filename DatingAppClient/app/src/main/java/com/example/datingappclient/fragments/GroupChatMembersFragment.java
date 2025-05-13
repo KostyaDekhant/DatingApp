@@ -139,7 +139,7 @@ public class GroupChatMembersFragment extends Fragment {
     private void setupNextButton() {
         FloatingActionButton fabCreateChat = activityView.findViewById(R.id.fabNext);
         fabCreateChat.setOnClickListener(v -> {
-            getParentFragmentManager().beginTransaction().replace(R.id.fragment_container, new CreateGroupChatFragment())
+            getParentFragmentManager().beginTransaction().replace(R.id.fragment_container, CreateGroupChatFragment.newInstance(adapter.getSelectedMembers()))
                     .addToBackStack(null)
                     .commit();
         });

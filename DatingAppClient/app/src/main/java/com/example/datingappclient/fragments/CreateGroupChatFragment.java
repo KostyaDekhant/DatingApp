@@ -18,12 +18,22 @@ import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
 import com.example.datingappclient.R;
+import com.example.datingappclient.model.dto.ChatMemberDTO;
+
+import java.util.List;
 
 public class CreateGroupChatFragment extends Fragment {
 
     private View activityView;
+    private List<ChatMemberDTO> chatMembers;
 
-    public CreateGroupChatFragment() {};
+    private CreateGroupChatFragment() {};
+
+    public static CreateGroupChatFragment newInstance(List<ChatMemberDTO> chatMembers) {
+        CreateGroupChatFragment fragment = new CreateGroupChatFragment();
+        fragment.chatMembers = chatMembers;
+        return fragment;
+    }
 
     @Nullable
     @Override

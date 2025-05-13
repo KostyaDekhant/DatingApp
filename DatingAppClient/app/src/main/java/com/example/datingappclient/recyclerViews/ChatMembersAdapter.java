@@ -21,8 +21,10 @@ import com.example.datingappclient.utils.ImageUtils;
 import com.example.datingappclient.viewmodels.ChatMembersViewModel;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import lombok.Getter;
@@ -32,6 +34,7 @@ public class ChatMembersAdapter extends ListAdapter<ChatMemberDTO, ChatMembersAd
 
     private final Set<Integer> selectedUserIds = new HashSet<>();
     private final List<ChatMemberDTO> allMembers = new ArrayList<>();
+    private final Map<Integer, ChatMemberDTO> userMap = new HashMap<>();
 
     public ChatMembersAdapter() {
         super(DIFF_CALLBACK);
@@ -77,6 +80,12 @@ public class ChatMembersAdapter extends ListAdapter<ChatMemberDTO, ChatMembersAd
     public void setFullList(List<ChatMemberDTO> members) {
         allMembers.clear();
         allMembers.addAll(members);
+
+        userMap.clear();
+        for (ChatMemberDTO member : members) {
+            userMap.put(member.getUserId(), member);
+        }
+
         submitList(new ArrayList<>(members)); // копия для мутабельности
     }
 
@@ -93,6 +102,17 @@ public class ChatMembersAdapter extends ListAdapter<ChatMemberDTO, ChatMembersAd
             }
         }
         submitList(filtered);
+    }
+
+    public List<ChatMemberDTO> getSelectedMembers() {
+        List<ChatMemberDTO> selected = new ArrayList<>();
+        for (Integer id : selectedUserIds) {
+            ChatMemberDTO member = userMap.get(id);
+            if (member != null) {
+                selected.add(member);
+            }
+        }
+        return selected;
     }
 
     static class ViewHolder extends RecyclerView.ViewHolder {
