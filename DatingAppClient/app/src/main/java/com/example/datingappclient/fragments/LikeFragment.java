@@ -310,7 +310,7 @@ public class LikeFragment extends Fragment {
         chatMembers.add(new ChatMemberDTO(user.getName(), user.getId(), null));
 
         java.sql.Timestamp timestamp = new Timestamp(System.currentTimeMillis());
-        GroupChatInfoDTO groupChatInfo = new GroupChatInfoDTO(user.getId(),timestamp , chatMembers, true);
+        GroupChatInfoDTO groupChatInfo = new GroupChatInfoDTO(user.getId(),timestamp , chatMembers, false);
 
         GroupChatDTO groupChat = new GroupChatDTO(null, null, null, groupChatInfo);
 
