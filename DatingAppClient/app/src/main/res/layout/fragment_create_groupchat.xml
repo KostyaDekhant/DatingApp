@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/createChatLayout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <!-- Floating action button -->
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="806dp"
+        android:orientation="vertical">
+
+        <!-- Toolbar -->
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:background="?attr/colorOnPrimary"
+            android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
+            app:navigationIcon="@drawable/return_arrow"
+            app:title="Новая группа" />
+
+        <!-- Контейнер аватара и имени -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:padding="16dp">
+
+            <!-- Кнопка выбора фото -->
+            <ImageView
+                android:id="@+id/avatarImageView"
+                android:layout_width="72dp"
+                android:layout_height="72dp"
+                android:background="@drawable/bg_cameraicon_circle"
+                android:contentDescription="Выбрать фото"
+                android:padding="16dp"
+                android:scaleType="centerCrop"
+                android:src="@drawable/ic_camera_add" />
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:orientation="vertical">
+                <!-- Поле ввода названия -->
+                <EditText
+                    android:id="@+id/chatNameEditText"
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_marginStart="14dp"
+                    android:layout_weight="1"
+                    android:background="@android:color/transparent"
+                    android:textCursorDrawable="@drawable/cursor_custom"
+                    android:hint="Введите название группы"
+                    android:inputType="textCapSentences"
+                    android:textColor="?attr/textColorMain"
+                    android:textColorHint="?attr/textColorFade" />
+
+                <!-- Полоска снизу -->
+                <View
+                    android:id="@+id/underlineView"
+                    android:layout_width="match_parent"
+                    android:layout_height="3dp"
+                    android:layout_marginStart="14dp"
+                    android:layout_marginEnd="14dp"
+                    android:background="?attr/colorOnPrimary" />
+            </LinearLayout>
+        </LinearLayout>
+    </LinearLayout>
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fabCreateChat"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_margin="16dp"
+        android:src="@drawable/arrow"
+        android:contentDescription="Создать чат"
+        app:tint="?attr/textColorMainReverse"
+        android:backgroundTint="?attr/colorPrimary" />
+</androidx.coordinatorlayout.widget.CoordinatorLayout>
