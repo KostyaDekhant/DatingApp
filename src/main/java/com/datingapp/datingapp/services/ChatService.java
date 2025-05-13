@@ -42,6 +42,17 @@ public class ChatService {
     }
 
     @Transactional(readOnly = true)
+    public List<ChatMemberDTO> findGroupChatUsers(int userId, int chatId) {
+        try {
+            List<ChatMemberDTO> usersChats = getChatMembersFromObject(userRepo.findGroupChatPartners(userId,chatId));
+            return usersChats;
+        }
+        catch (Exception e) {
+            throw new RuntimeException("Ошибка при поиске чатов: " + e.getMessage());
+        }
+    }
+
+    @Transactional(readOnly = true)
     public ChatDTO getChatById(int userId, int chatId){
         try {
             ChatDTO chat = getChatFromObject(userRepo.findChat(userId, chatId));

@@ -1,9 +1,6 @@
 package com.datingapp.datingapp.controller;
 
-import com.datingapp.datingapp.entity.ChatDTO;
-import com.datingapp.datingapp.entity.GroupChat;
-import com.datingapp.datingapp.entity.GroupChatDto;
-import com.datingapp.datingapp.entity.GroupChatInfoDto;
+import com.datingapp.datingapp.entity.*;
 import com.datingapp.datingapp.services.ChatService;
 import com.datingapp.datingapp.services.MessageService;
 import lombok.RequiredArgsConstructor;
@@ -24,6 +21,11 @@ public class ChatController {
     @GetMapping("/chats/{userId}") //users
     public ResponseEntity<List<ChatDTO>> findChatUsers(@PathVariable int userId) {
         return ResponseEntity.ok(chatService.findChatUsers(userId));
+    }
+
+    @GetMapping("/group_chats/{chatId}/users/{userId}") //users
+    public ResponseEntity<List<ChatMemberDTO>> findGroupChatUsers(@PathVariable int userId, @PathVariable int chatId) {
+        return ResponseEntity.ok(chatService.findGroupChatUsers(userId, chatId));
     }
 
     @GetMapping("/chats/{chatId}/users/{userId}") //users
