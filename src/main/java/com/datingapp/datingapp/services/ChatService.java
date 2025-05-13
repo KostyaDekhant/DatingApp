@@ -146,7 +146,7 @@ public class ChatService {
     }
 
     @Transactional
-    public void saveGroupChat(GroupChatDto groupChatDto) {
+    public Integer saveGroupChat(GroupChatDto groupChatDto) {
         try {
             GroupChat groupChat = new GroupChat();
             GroupChatInfoDto groupChatInfoDto = groupChatDto.getGroupChatInfoDto();
@@ -166,6 +166,8 @@ public class ChatService {
                 //chatMember.setRole("");
                 chatMemberRepo.save(chatMember);
             }
+
+            return groupChat.getPkGroupChat();
         }
         catch (Exception e) {
             throw new RuntimeException("Ошибка при сохранении информации о групповых чатах: " + e.getMessage());

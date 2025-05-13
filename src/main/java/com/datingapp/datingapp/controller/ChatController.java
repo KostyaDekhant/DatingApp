@@ -39,7 +39,7 @@ public class ChatController {
         return ResponseEntity.ok(chatId);
     }
 
-    @GetMapping("/group_chats/{chatId}")
+    @GetMapping("/group_chats/{chatId}/info")
     public ResponseEntity<GroupChatInfoDto> getChatInfo(@PathVariable int chatId) {
         GroupChatInfoDto groupChatInfoDto = chatService.getChatInfo(chatId);
         return ResponseEntity.ok(groupChatInfoDto);
@@ -52,9 +52,9 @@ public class ChatController {
     }
 
     @PostMapping("/group_chats")
-    public ResponseEntity<Void> addChat(@RequestBody GroupChatDto groupChatDto) {
-        chatService.saveGroupChat(groupChatDto);
-        return ResponseEntity.ok().build();
+    public ResponseEntity<Integer> addChat(@RequestBody GroupChatDto groupChatDto) {
+        Integer id = chatService.saveGroupChat(groupChatDto);
+        return ResponseEntity.ok(id);
     }
 
     @PostMapping("/group_chats/{chatId}/users/{userId}")
