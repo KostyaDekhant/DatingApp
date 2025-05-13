@@ -25,21 +25,31 @@ import com.example.datingappclient.activity.ChatActivity;
 import com.example.datingappclient.R;
 import com.example.datingappclient.constants.Constants;
 import com.example.datingappclient.model.dto.ChatDTO;
+import com.example.datingappclient.model.dto.ChatMemberDTO;
+import com.example.datingappclient.model.dto.GroupChatDTO;
+import com.example.datingappclient.model.dto.GroupChatInfoDTO;
 import com.example.datingappclient.model.dto.LikeDTO;
+import com.example.datingappclient.model.dto.UserDTO;
 import com.example.datingappclient.retrofit.repository.ChatsRepository;
+import com.example.datingappclient.retrofit.repository.GroupChatsRepository;
 import com.example.datingappclient.retrofit.repository.LikesRepository;
 import com.example.datingappclient.utils.DateUtils;
 import com.example.datingappclient.utils.ImageUtils;
 import com.github.siyamed.shapeimageview.RoundedImageView;
 import com.google.android.material.button.MaterialButton;
 
+import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.List;
+
+import lombok.Setter;
 
 public class LikeFragment extends Fragment {
 
     /* === Repositories === */
     private LikesRepository likesRepository;
     private ChatsRepository chatsRepository;
+    private GroupChatsRepository groupChatsRepository;
 
     /* === Android Objects === */
     private GridLayout gridLayout;
@@ -48,12 +58,19 @@ public class LikeFragment extends Fragment {
     private View activityView;
 
     /* === Other === */
-    private final int userId;
+    @Setter
+    private UserDTO user;
     private List<LikeDTO> likesArray;
 
     /* === Methods === */
-    public LikeFragment(int userID) {
-        this.userId = userID;
+    private LikeFragment() {
+
+    }
+
+    public static LikeFragment newInstance(UserDTO user) {
+        LikeFragment likeFragment = new LikeFragment();
+        likeFragment.user = user;
+        return likeFragment;
     }
 
     @Nullable
@@ -68,19 +85,21 @@ public class LikeFragment extends Fragment {
 
         gridLayout = activityView.findViewById(R.id.likes_grid);
 
-        getUserLikes(userId);
+        getUserLikes();
 
         return activityView;
     }
 
     private void setupRepository() {
-        likesRepository = new LikesRepository(requireContext());
-        chatsRepository = new ChatsRepository(requireContext());
+        Context context = requireContext();
+        likesRepository = new LikesRepository(context);
+        chatsRepository = new ChatsRepository(context);
+        groupChatsRepository = new GroupChatsRepository(context);
     }
 
-    private void getUserLikes(int userId) {
+    private void getUserLikes() {
         String logTag = Constants.GLOBAL_LOG_TAG + "GET LIKES";
-        likesRepository.fetchUserLikes(userId, result -> {
+        likesRepository.fetchUserLikes(user.getId(), result -> {
             switch (result.status) {
                 case SUCCESS:
                     likesArray = result.data;
@@ -99,7 +118,7 @@ public class LikeFragment extends Fragment {
                     Log.e(logTag, result.error);
                     break;
                 case EMPTY:
-                    Log.d(logTag, "Для userId = " + userId + " нет лайков!");
+                    Log.d(logTag, "Для user.getId() = " + user.getId() + " нет лайков!");
                     break;
             }
         });
@@ -180,16 +199,14 @@ public class LikeFragment extends Fragment {
     }
 
     private void applyTagsAndListeners(View card, LikeDTO like, int objNum) {
-        int likerID = like.getLikerId();
-
         MaterialButton likeBtn = card.findViewById(R.id.like_button);
         MaterialButton dislikeBtn = card.findViewById(R.id.dislike_button);
 
-        likeBtn.setTag(R.id.TAG_LIKER_ID, likerID);
+        likeBtn.setTag(R.id.TAG_LIKER_ID, like);
         likeBtn.setTag(R.id.TAG_CARDLIKE_VIEW, card);
         likeBtn.setTag(R.id.TAG_CARDLIKE_ID, objNum);
 
-        dislikeBtn.setTag(R.id.TAG_LIKER_ID, likerID);
+        dislikeBtn.setTag(R.id.TAG_LIKER_ID, like);
         dislikeBtn.setTag(R.id.TAG_CARDLIKE_VIEW, card);
         dislikeBtn.setTag(R.id.TAG_CARDLIKE_ID, objNum);
 
@@ -217,15 +234,17 @@ public class LikeFragment extends Fragment {
 
     private View.OnClickListener setupLikeButton() {
         return view -> {
-            int likerId = ((int) view.getTag(R.id.TAG_LIKER_ID));
-            createChat(view, likerId);
+            LikeDTO like = (LikeDTO) view.getTag(R.id.TAG_LIKER_ID);
+            //int likerId = like.getLikerId();
+            //createChat(view, likerId);
+            createGroupChat(view, like);
         };
     }
 
     private View.OnClickListener setupDislikeButton() {
         return view -> {
-            int likerID = ((int) view.getTag(R.id.TAG_LIKER_ID));
-            deleteLike(view, new LikeDTO(likerID, userId));
+            int likerID = ((LikeDTO) view.getTag(R.id.TAG_LIKER_ID)).getLikerId();
+            deleteLike(view, new LikeDTO(likerID, user.getId()));
         };
     }
 
@@ -235,7 +254,7 @@ public class LikeFragment extends Fragment {
 
     private void getChat(int chatId, ChatCallback callback) {
         String logTag = Constants.GLOBAL_LOG_TAG + "GET CHAT AFTER LIKE";
-        chatsRepository.fetchUserChat(userId, chatId, result -> {
+        chatsRepository.fetchUserChat(user.getId(), chatId, result -> {
             switch (result.status) {
                 case SUCCESS:
                     callback.onGetChat(result.data);
@@ -253,7 +272,7 @@ public class LikeFragment extends Fragment {
 
     private void createChat(View view, int likerId) {
         String logTag = Constants.GLOBAL_LOG_TAG + "LIKE (CREATE CHAT)";
-        chatsRepository.createChat(userId, likerId, result -> {
+        chatsRepository.createChat(user.getId(), likerId, result -> {
             switch (result.status) {
                 case SUCCESS:
                     int chatId = result.data;
@@ -262,14 +281,54 @@ public class LikeFragment extends Fragment {
                     getChat(chatId, (chat) -> {
                         Context context = view.getContext();
                         Intent intent = new Intent(context, ChatActivity.class)
-                                .putExtra("senderID", userId)
+                                .putExtra("senderID", user.getId())
                                 .putExtra("receiverID", chat.getChatId())
                                 .putExtra("username", chat.getPartnerName())
                                 .putExtra("image", chat.getAvatar());
                         context.startActivity(intent);
                     });
 
-                    deleteLike(view, new LikeDTO(likerId, userId));
+                    deleteLike(view, new LikeDTO(likerId, user.getId()));
+                    break;
+                case ERROR:
+                    Log.e(logTag, result.error);
+                    break;
+                case EXISTS:
+                    String message = "Чат уже существует!";
+                    Toast.makeText(activityView.getContext(), message, Toast.LENGTH_LONG).show();
+                    Log.i(logTag, message);
+                    break;
+            }
+        });
+    }
+
+    private void createGroupChat(View view, LikeDTO like) {
+        String logTag = Constants.GLOBAL_LOG_TAG + "LIKE (CREATE CHAT)";
+
+        List<ChatMemberDTO> chatMembers = new ArrayList<>();
+        chatMembers.add(new ChatMemberDTO(like.getName(), like.getLikerId(), null)); // TODO: передача изображения
+        chatMembers.add(new ChatMemberDTO(user.getName(), user.getId(), null));
+
+        java.sql.Timestamp timestamp = new Timestamp(System.currentTimeMillis());
+        GroupChatInfoDTO groupChatInfo = new GroupChatInfoDTO(user.getId(),timestamp , chatMembers, true);
+
+        GroupChatDTO groupChat = new GroupChatDTO(null, null, null, groupChatInfo);
+
+        groupChatsRepository.createChat(groupChat, result -> {
+            switch (result.status) {
+                case SUCCESS:
+                    int chatId = result.data;
+                    Log.i(logTag, "Чат успешно создан: " + chatId);
+
+                    Context context = view.getContext();
+                    Intent intent = new Intent(context, ChatActivity.class)
+                            .putExtra("senderID", user.getId())
+                            .putExtra("receiverID", chatId)
+                            .putExtra("username", like.getName())
+                            .putExtra("image", like.getImage());
+                    context.startActivity(intent);
+
+                    deleteLike(view, new LikeDTO(like.getLikerId(), user.getId()));
                     break;
                 case ERROR:
                     Log.e(logTag, result.error);
