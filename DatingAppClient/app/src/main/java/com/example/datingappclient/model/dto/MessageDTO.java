@@ -38,7 +38,6 @@ public class MessageDTO {
 
     }
 
-
     @Override
     public String toString() {
         return "Message{" +

@@ -16,7 +16,6 @@ import androidx.fragment.app.Fragment;
 import androidx.viewpager2.widget.ViewPager2;
 
 import com.example.datingappclient.R;
-import com.example.datingappclient.activity.MainActivity;
 import com.example.datingappclient.constants.Constants;
 import com.example.datingappclient.model.dto.UserDTO;
 import com.example.datingappclient.recyclerViews.UserImageAdapter;
@@ -80,7 +79,7 @@ public class UserFragment extends Fragment implements View.OnClickListener {
         ImageButton button = activityView.findViewById(R.id.edit_button);
         button.setOnClickListener(this);
 
-        navView = ((MainActivity) requireActivity()).findViewById(R.id.nav_view);
+        navView = requireActivity().findViewById(R.id.nav_view);
 
         setupRepository();
 

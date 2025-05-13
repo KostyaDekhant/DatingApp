@@ -43,7 +43,8 @@ public class MessagesAdapter extends RecyclerView.Adapter<MessagesHolder> {
         String textDateTime = messageList.get(position).getTime();
 
         holder.textMessage.setText(textMessage);
-        holder.textDateTime.setText(textDateTime.substring(11, 16));
+        if (textDateTime != null)
+            holder.textDateTime.setText(textDateTime.substring(11, 16));
     }
 
     @Override
