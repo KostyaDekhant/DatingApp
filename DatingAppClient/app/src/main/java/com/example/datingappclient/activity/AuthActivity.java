@@ -18,10 +18,16 @@ import com.example.datingappclient.retrofit.repository.TokenRepository;
 public class AuthActivity extends AppCompatActivity {
 
     private TokenRepository tokenRepository;
+    private boolean isAppReady = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        SplashScreen.installSplashScreen(this);
+        SplashScreen splashScreen = SplashScreen.installSplashScreen(this);
+        splashScreen.setKeepOnScreenCondition(() -> {
+            // Верни true — сплеш остаётся, false — исчезает
+            return !isAppReady;
+        });
+
         super.onCreate(savedInstanceState);
 
         String logTag = Constants.GLOBAL_LOG_TAG + "AUTH CHECK";
@@ -34,12 +40,14 @@ public class AuthActivity extends AppCompatActivity {
                     Log.i(logTag, "Пользователь авторизован: userId=" + authResponse.getUserId() + " token=" + authResponse.getToken());
                     startMainActivity(authResponse);
                 }
+                else startAuth();
             });
         }
-        startAuth();
+        else startAuth();
     }
 
     private void startAuth() {
+        isAppReady = true;
         String logTag = Constants.GLOBAL_LOG_TAG + "AUTH CHECK";
         // пользователь не вошёл — показать экран входа
         Log.i(logTag, "Пользователь не авторизован, переход на страницу авторизации!");
