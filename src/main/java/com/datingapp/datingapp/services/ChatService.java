@@ -140,6 +140,7 @@ public class ChatService {
                 GroupChatDto groupChatDto = new GroupChatDto(pkGroupChat, name, image, message);
                 groupChatDtos.add(groupChatDto);
             }
+            log.info("Полученные чаты: " + groupChatDtos.toString());
             return groupChatDtos;
         }
         catch (Exception e) {
@@ -156,6 +157,7 @@ public class ChatService {
             Timestamp createdAt = groupChat.getCreatedAt();
             Boolean isGroup = groupChat.getIsGroup();
             GroupChatInfoDto groupChatInfoDto = new GroupChatInfoDto(createdBy, createdAt, chatMember, isGroup);
+            log.info("Полученная доп. информация о чате с id " + chatId + ": " + groupChatInfoDto.toString());
             return groupChatInfoDto;
         }
         catch (Exception e) {
@@ -196,7 +198,7 @@ public class ChatService {
                 //chatMember.setRole("");
                 chatMemberRepo.save(chatMember);
             }
-
+            log.info("Создан чат: " + groupChat.toString());
             return groupChat.getPkGroupChat();
         }
         catch (Exception e) {
@@ -213,6 +215,7 @@ public class ChatService {
             chatMember.setUserId(user_id);
             chatMember.setJoinedAt(new Timestamp(System.currentTimeMillis()));
             chatMemberRepo.save(chatMember);
+            log.info("Добавлен пользователь с id "+ user_id + " в чат с id " +chat_id + ": " + chatMember.toString());
         }
         catch (Exception e) {
             throw new RuntimeException("Ошибка при добавлении юзера: " + e.getMessage());

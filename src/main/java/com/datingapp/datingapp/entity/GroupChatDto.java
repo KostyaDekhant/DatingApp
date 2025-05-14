@@ -48,4 +48,15 @@ public class GroupChatDto{
         //this.members = members;
     }
 
+
+    @Override
+    public String toString() {
+        return "GroupChatDto{" +
+                "pkGroupChat=" + pkGroupChat +
+                ", name='" + name + '\'' +
+                ", image=" + Arrays.toString(image) +
+                ", lastMessage='" + lastMessage + '\'' +
+                ", groupChatInfoDto=" + groupChatInfoDto +
+                '}';
+    }
 }
