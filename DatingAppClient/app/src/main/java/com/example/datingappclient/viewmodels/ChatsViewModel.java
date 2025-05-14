@@ -11,7 +11,6 @@ import com.example.datingappclient.websocket.ChatWebSocketService;
 import java.util.List;
 
 public class ChatsViewModel extends ViewModel {
-
     private final MutableLiveData<List<ChatDTO>> chats = new MutableLiveData<>();
     private final ChatWebSocketService webSocketService;
 

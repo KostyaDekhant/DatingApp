@@ -31,13 +31,12 @@ import androidx.fragment.app.FragmentManager;
 
 import com.example.datingappclient.R;
 import com.example.datingappclient.activity.ChatActivity;
-import com.example.datingappclient.activity.MainActivity;
 import com.example.datingappclient.constants.Constants;
+import com.example.datingappclient.model.dto.ChatDTO;
 import com.example.datingappclient.model.dto.ChatMemberDTO;
-import com.example.datingappclient.model.dto.GroupChatDTO;
-import com.example.datingappclient.model.dto.GroupChatInfoDTO;
+import com.example.datingappclient.model.dto.ChatInfoDTO;
 import com.example.datingappclient.model.dto.UserDTO;
-import com.example.datingappclient.retrofit.repository.GroupChatsRepository;
+import com.example.datingappclient.retrofit.repository.ChatsRepository;
 import com.example.datingappclient.utils.ImageUtils;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
@@ -49,7 +48,7 @@ public class CreateGroupChatFragment extends Fragment {
     private View activityView;
     private List<ChatMemberDTO> chatMembers;
     private UserDTO user;
-    private GroupChatsRepository groupChatsRepository;
+    private ChatsRepository chatsRepository;
     private ActivityResultLauncher<Intent> imagePickerLauncher;
     private ImageView avatarImageView;
     private Bitmap selectedAvatarBitmap;
@@ -111,7 +110,7 @@ public class CreateGroupChatFragment extends Fragment {
     }
 
     private void setupRepository() {
-        groupChatsRepository = new GroupChatsRepository(requireContext());
+        chatsRepository = new ChatsRepository(requireContext());
     }
 
     private void setupToolbar() {
@@ -125,14 +124,14 @@ public class CreateGroupChatFragment extends Fragment {
         FloatingActionButton fabCreateChat = activityView.findViewById(R.id.createChat);
         fabCreateChat.setOnClickListener(v -> {
 
-            createGroupChat(getGroupChatDTO());
+            createGroupChat(getChatDTO());
             /*etParentFragmentManager().beginTransaction().replace(R.id.fragment_container, CreateGroupChatFragment.newInstance(adapter.getSelectedMembers()))
                     .addToBackStack(null)
                     .commit();*/
         });
     }
 
-    private GroupChatDTO getGroupChatDTO() {
+    private ChatDTO getChatDTO() {
         // get chat name
         EditText chatnameInput = activityView.findViewById(R.id.chatNameEditText);
         String chatname = chatnameInput.getText().toString();
@@ -144,13 +143,13 @@ public class CreateGroupChatFragment extends Fragment {
         chatMembers.add(new ChatMemberDTO(user.getName(), user.getId(), userImage));
 
         // create group chat
-        GroupChatInfoDTO groupChatInfo = new GroupChatInfoDTO(user.getId(), null, chatMembers, true);
-        return new GroupChatDTO(null, chatname, null, chatImage, groupChatInfo);
+        ChatInfoDTO groupChatInfo = new ChatInfoDTO(user.getId(), null, chatMembers, true);
+        return new ChatDTO(null, chatname, null, chatImage, groupChatInfo);
     }
 
-    private void createGroupChat(GroupChatDTO groupChat) {
+    private void createGroupChat(ChatDTO groupChat) {
         String logTag = Constants.GLOBAL_LOG_TAG + "CREATE GROUP CHAT";
-        groupChatsRepository.createChat(groupChat, result -> {
+        chatsRepository.createChat(groupChat, result -> {
             switch (result.status) {
                 case SUCCESS:
                     groupChat.setGroupChatId(result.data);
@@ -163,7 +162,7 @@ public class CreateGroupChatFragment extends Fragment {
         });
     }
 
-    private void goToChatActivity(GroupChatDTO groupChat) {
+    private void goToChatActivity(ChatDTO groupChat) {
         Context context = activityView.getContext();
         Intent intent = new Intent(context, ChatActivity.class)
                 .putExtra("senderID", user.getId())

@@ -8,17 +8,13 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.lifecycle.Lifecycle;
-import androidx.lifecycle.LifecycleOwner;
 import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.ListAdapter;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.datingappclient.R;
 import com.example.datingappclient.model.dto.ChatMemberDTO;
-import com.example.datingappclient.model.dto.GroupChatDTO;
 import com.example.datingappclient.utils.ImageUtils;
-import com.example.datingappclient.viewmodels.ChatMembersViewModel;
 
 import java.util.ArrayList;
 import java.util.HashMap;

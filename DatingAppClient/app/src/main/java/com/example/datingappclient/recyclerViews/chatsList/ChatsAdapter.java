@@ -21,12 +21,12 @@ public class ChatsAdapter extends ListAdapter<ChatDTO, ChatsHolder> {
         void onChatClicked(ChatDTO chat, byte[] imageBytes);
     }
 
-    private final OnChatClickListener chatClickListener;
+    private final ChatsAdapter.OnChatClickListener chatClickListener;
     private final ChatsViewModel viewModel;
     private final int senderId;
     private final LifecycleOwner lifecycleOwner;
 
-    public ChatsAdapter(OnChatClickListener listener, ChatsViewModel viewModel, int senderId, LifecycleOwner owner) {
+    public ChatsAdapter(ChatsAdapter.OnChatClickListener listener, ChatsViewModel viewModel, int senderId, LifecycleOwner owner) {
         super(DIFF_CALLBACK);
         this.chatClickListener = listener;
         this.viewModel = viewModel;
@@ -45,27 +45,25 @@ public class ChatsAdapter extends ListAdapter<ChatDTO, ChatsHolder> {
     public void onBindViewHolder(@NonNull ChatsHolder holder, int position) {
         ChatDTO chat = getItem(position);
 
-        holder.username.setText(chat.getPartnerName());
-        holder.setReceiverID(chat.getChatId());
+        holder.username.setText(chat.getName());
+        holder.setReceiverID(chat.getGroupChatId());
         // render init last message
-        if (chat.getLastMessage() != null) {
-            String prefix = (chat.getPartnerId() == senderId) ? "Вы: " : "";
-            holder.lastMessage.setText(prefix + chat.getLastMessage());
-        }
+        holder.lastMessage.setText(chat.getLastMessage());
 
         // Установить изображение, если оно есть
-        if (chat.getAvatar() != null) {
-            Bitmap bitmap = ImageUtils.convertPrimitiveByteToBitmap(chat.getAvatar());
+        byte[] chatImage = chat.getImage();
+        if (chatImage != null) {
+            Bitmap bitmap = ImageUtils.convertPrimitiveByteToBitmap(chatImage);
             Bitmap cropped = ImageUtils.getCroppedBitmap(bitmap);
-            holder.setByteImage(chat.getAvatar());
+            holder.setByteImage(chatImage);
             holder.profileImage.setImageBitmap(cropped);
             holder.profileImage.setPadding(0, 0, 0, 0); // Убираем паддинги, чтобы не было "обводки"
         }
 
         // Подписка на LiveData для сообщений этого чата
-        viewModel.getMessageStream(chat.getChatId())
+        viewModel.getMessageStream(chat.getGroupChatId())
                 .observe(lifecycleOwner, message -> {
-                    if (message != null) {
+                    if (message != null && !chat.getGroupChatInfo().getIsGroup()) {
                         String prefix = (message.getPk_user() == senderId) ? "Вы: " : "";
                         holder.lastMessage.setText(prefix + message.getMessage());
                     }
@@ -79,7 +77,7 @@ public class ChatsAdapter extends ListAdapter<ChatDTO, ChatsHolder> {
     private static final DiffUtil.ItemCallback<ChatDTO> DIFF_CALLBACK = new DiffUtil.ItemCallback<>() {
         @Override
         public boolean areItemsTheSame(@NonNull ChatDTO oldItem, @NonNull ChatDTO newItem) {
-            return oldItem.getChatId().equals(newItem.getChatId());
+            return oldItem.getGroupChatId().equals(newItem.getGroupChatId());
         }
 
         @Override
@@ -88,3 +86,4 @@ public class ChatsAdapter extends ListAdapter<ChatDTO, ChatsHolder> {
         }
     };
 }
+

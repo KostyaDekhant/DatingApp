@@ -10,7 +10,7 @@ import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
-public class GroupChatInfoDTO {
+public class ChatInfoDTO {
     @SerializedName("created_by")
     private Integer createdBy;
 

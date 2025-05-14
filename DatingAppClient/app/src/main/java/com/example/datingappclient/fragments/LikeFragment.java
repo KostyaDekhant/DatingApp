@@ -26,12 +26,10 @@ import com.example.datingappclient.R;
 import com.example.datingappclient.constants.Constants;
 import com.example.datingappclient.model.dto.ChatDTO;
 import com.example.datingappclient.model.dto.ChatMemberDTO;
-import com.example.datingappclient.model.dto.GroupChatDTO;
-import com.example.datingappclient.model.dto.GroupChatInfoDTO;
+import com.example.datingappclient.model.dto.ChatInfoDTO;
 import com.example.datingappclient.model.dto.LikeDTO;
 import com.example.datingappclient.model.dto.UserDTO;
 import com.example.datingappclient.retrofit.repository.ChatsRepository;
-import com.example.datingappclient.retrofit.repository.GroupChatsRepository;
 import com.example.datingappclient.retrofit.repository.LikesRepository;
 import com.example.datingappclient.utils.DateUtils;
 import com.example.datingappclient.utils.ImageUtils;
@@ -49,7 +47,6 @@ public class LikeFragment extends Fragment {
     /* === Repositories === */
     private LikesRepository likesRepository;
     private ChatsRepository chatsRepository;
-    private GroupChatsRepository groupChatsRepository;
 
     /* === Android Objects === */
     private GridLayout gridLayout;
@@ -94,7 +91,6 @@ public class LikeFragment extends Fragment {
         Context context = requireContext();
         likesRepository = new LikesRepository(context);
         chatsRepository = new ChatsRepository(context);
-        groupChatsRepository = new GroupChatsRepository(context);
     }
 
     private void getUserLikes() {
@@ -235,8 +231,7 @@ public class LikeFragment extends Fragment {
     private View.OnClickListener setupLikeButton() {
         return view -> {
             LikeDTO like = (LikeDTO) view.getTag(R.id.TAG_LIKER_ID);
-            //int likerId = like.getLikerId();
-            //createChat(view, likerId);
+
             createGroupChat(view, like);
         };
     }
@@ -248,86 +243,17 @@ public class LikeFragment extends Fragment {
         };
     }
 
-    interface ChatCallback {
-        void onGetChat(ChatDTO chat);
-    }
-
-    private void getChat(int chatId, ChatCallback callback) {
-        String logTag = Constants.GLOBAL_LOG_TAG + "GET CHAT AFTER LIKE";
-        chatsRepository.fetchUserChat(user.getId(), chatId, result -> {
-            switch (result.status) {
-                case SUCCESS:
-                    callback.onGetChat(result.data);
-                    Log.i(logTag, "Success get chat");
-                    break;
-                case ERROR:
-                    Log.e(logTag, result.error);
-                    break;
-                case EMPTY:
-                    Log.i(logTag, "Чат не найден");
-                    break;
-            }
-        });
-    }
-
-    private void createChat(View view, int likerId) {
-        String logTag = Constants.GLOBAL_LOG_TAG + "LIKE (CREATE CHAT)";
-        chatsRepository.createChat(user.getId(), likerId, result -> {
-            switch (result.status) {
-                case SUCCESS:
-                    int chatId = result.data;
-                    Log.i(logTag, "Чат успешно создан: " + chatId);
-
-                    getChat(chatId, (chat) -> {
-                        Context context = view.getContext();
-                        Intent intent = new Intent(context, ChatActivity.class)
-                                .putExtra("senderID", user.getId())
-                                .putExtra("receiverID", chat.getChatId())
-                                .putExtra("username", chat.getPartnerName())
-                                .putExtra("image", chat.getAvatar());
-                        context.startActivity(intent);
-                    });
-
-                    deleteLike(view, new LikeDTO(likerId, user.getId()));
-                    break;
-                case ERROR:
-                    Log.e(logTag, result.error);
-                    break;
-                case EXISTS:
-                    String message = "Чат уже существует!";
-                    Toast.makeText(activityView.getContext(), message, Toast.LENGTH_LONG).show();
-                    Log.i(logTag, message);
-                    break;
-            }
-        });
-    }
-
     private void createGroupChat(View view, LikeDTO like) {
         String logTag = Constants.GLOBAL_LOG_TAG + "LIKE (CREATE CHAT)";
 
-        List<ChatMemberDTO> chatMembers = new ArrayList<>();
-        chatMembers.add(new ChatMemberDTO(like.getName(), like.getLikerId(), null)); // TODO: передача изображения
-        chatMembers.add(new ChatMemberDTO(user.getName(), user.getId(), null));
+        ChatDTO groupChat = getGroupChatFromLike(like);
 
-        java.sql.Timestamp timestamp = new Timestamp(System.currentTimeMillis());
-        GroupChatInfoDTO groupChatInfo = new GroupChatInfoDTO(user.getId(),timestamp , chatMembers, false);
-
-        GroupChatDTO groupChat = new GroupChatDTO(null, null, null, null, groupChatInfo);
-
-        groupChatsRepository.createChat(groupChat, result -> {
+        chatsRepository.createChat(groupChat, result -> {
             switch (result.status) {
                 case SUCCESS:
                     int chatId = result.data;
                     Log.i(logTag, "Чат успешно создан: " + chatId);
-
-                    Context context = view.getContext();
-                    Intent intent = new Intent(context, ChatActivity.class)
-                            .putExtra("senderID", user.getId())
-                            .putExtra("receiverID", chatId)
-                            .putExtra("username", like.getName())
-                            .putExtra("image", like.getImage());
-                    context.startActivity(intent);
-
+                    startChatActivity(view, chatId, like);
                     deleteLike(view, new LikeDTO(like.getLikerId(), user.getId()));
                     break;
                 case ERROR:
@@ -337,9 +263,31 @@ public class LikeFragment extends Fragment {
                     String message = "Чат уже существует!";
                     Toast.makeText(activityView.getContext(), message, Toast.LENGTH_LONG).show();
                     Log.i(logTag, message);
+                    deleteLike(view, new LikeDTO(like.getLikerId(), user.getId()));
                     break;
             }
         });
+    }
+
+    private ChatDTO getGroupChatFromLike(LikeDTO like) {
+        List<ChatMemberDTO> chatMembers = new ArrayList<>();
+        chatMembers.add(new ChatMemberDTO(like.getName(), like.getLikerId(), like.getImage())); // TODO: передача изображения
+        chatMembers.add(new ChatMemberDTO(user.getName(), user.getId(), ImageUtils.convertBitmapToPrimitiveBytes(user.getMainImage())));
+
+        java.sql.Timestamp timestamp = new Timestamp(System.currentTimeMillis());
+        ChatInfoDTO groupChatInfo = new ChatInfoDTO(user.getId(), timestamp , chatMembers, false);
+
+        return new ChatDTO(null, null, null, null, groupChatInfo);
+    }
+
+    private void startChatActivity(View view, int chatId, LikeDTO like) {
+        Context context = view.getContext();
+        Intent intent = new Intent(context, ChatActivity.class)
+                .putExtra("senderID", user.getId())
+                .putExtra("receiverID", chatId)
+                .putExtra("username", like.getName())
+                .putExtra("image", like.getImage());
+        context.startActivity(intent);
     }
 
     private void deleteLike(View view, LikeDTO likeDTO) {

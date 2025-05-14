@@ -26,19 +26,15 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.datingappclient.R;
 import com.example.datingappclient.constants.Constants;
-import com.example.datingappclient.model.dto.ChatMemberDTO;
 import com.example.datingappclient.model.dto.UserDTO;
 import com.example.datingappclient.recyclerViews.ChatMembersAdapter;
-import com.example.datingappclient.retrofit.repository.GroupChatsRepository;
+import com.example.datingappclient.retrofit.repository.ChatsRepository;
 import com.example.datingappclient.viewmodels.ChatMembersViewModel;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class GroupChatMembersFragment extends Fragment {
 
-    private GroupChatsRepository groupChatsRepository;
+    private ChatsRepository chatsRepository;
     private View activityView;
 
     private ChatMembersViewModel viewModel;
@@ -110,12 +106,12 @@ public class GroupChatMembersFragment extends Fragment {
     }
 
     private void setupRepository() {
-        groupChatsRepository = new GroupChatsRepository(requireContext());
+        chatsRepository = new ChatsRepository(requireContext());
     }
 
     private void getChatMembers() {
         String logTag = Constants.GLOBAL_LOG_TAG + "GET CHAT MEMBERS";
-        groupChatsRepository.fetchChatMembers(user.getId(), 0, result -> {
+        chatsRepository.fetchChatMembers(user.getId(), 0, result -> {
             switch (result.status) {
                 case SUCCESS:
                     Log.i(logTag, "Получено " + result.data.size() + " участников чата!");

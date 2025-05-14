@@ -7,41 +7,44 @@ import com.google.gson.annotations.SerializedName;
 import java.util.Arrays;
 import java.util.Objects;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.Setter;
 
 @Getter
+@Setter
+@AllArgsConstructor
 public class ChatDTO {
-    @SerializedName("partnerName")
-    private String partnerName;
+    @SerializedName("pk_group_chat")
+    private Integer groupChatId;
 
-    @SerializedName("chatId")
-    private Integer chatId;
+    @SerializedName("name")
+    private String name;
 
-    @SerializedName("lastMessage")
+    @SerializedName("last_message")
     private String lastMessage;
 
-    @SerializedName("partnerId")
-    private Integer partnerId;
-
-    @SerializedName("avatar")
+    @SerializedName("image")
     @JsonAdapter(ByteDeserializer.class)
-    private byte[] avatar;
+    private byte[] image;
+
+    @SerializedName("group_chat_info")
+    private ChatInfoDTO groupChatInfo;
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (!(o instanceof ChatDTO chat)) return false;
-        return Objects.equals(partnerName, chat.partnerName) &&
-                Objects.equals(chatId, chat.chatId) &&
-                Objects.equals(lastMessage, chat.lastMessage) &&
-                Objects.equals(partnerId, chat.partnerId) &&
-                Arrays.equals(avatar, chat.avatar);
+        return Objects.equals(groupChatId, chat.groupChatId) &&
+                Objects.equals(name, chat.name) &&
+                Objects.equals(groupChatInfo, chat.groupChatInfo) &&
+                Arrays.equals(image, chat.image);
     }
 
     @Override
     public int hashCode() {
-        int result = Objects.hash(partnerName, chatId, lastMessage, partnerId);
-        result = 31 * result + Arrays.hashCode(avatar);
+        int result = Objects.hash(groupChatId, name, groupChatInfo);
+        result = 31 * result + Arrays.hashCode(image);
         return result;
     }
 }

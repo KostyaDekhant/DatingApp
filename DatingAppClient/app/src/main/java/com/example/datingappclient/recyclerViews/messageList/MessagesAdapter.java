@@ -7,8 +7,8 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.datingappclient.model.dto.MessageDTO;
 import com.example.datingappclient.R;
+import com.example.datingappclient.model.dto.MessageDTO;
 
 import java.util.List;
 

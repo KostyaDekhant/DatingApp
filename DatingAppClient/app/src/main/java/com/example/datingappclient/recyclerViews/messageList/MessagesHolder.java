@@ -1,12 +1,12 @@
 package com.example.datingappclient.recyclerViews.messageList;
 
-import com.example.datingappclient.R;
-
 import android.view.View;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.example.datingappclient.R;
 
 public class MessagesHolder extends RecyclerView.ViewHolder {
 

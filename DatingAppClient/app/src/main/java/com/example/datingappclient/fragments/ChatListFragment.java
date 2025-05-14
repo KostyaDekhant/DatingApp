@@ -21,21 +21,16 @@ import com.example.datingappclient.activity.ChatActivity;
 import com.example.datingappclient.R;
 import com.example.datingappclient.constants.Constants;
 import com.example.datingappclient.model.dto.ChatDTO;
-import com.example.datingappclient.model.dto.GroupChatDTO;
 import com.example.datingappclient.model.dto.UserDTO;
 import com.example.datingappclient.recyclerViews.chatsList.ChatsAdapter;
-import com.example.datingappclient.recyclerViews.chatsList.GroupChatsAdapter;
 import com.example.datingappclient.retrofit.repository.ChatsRepository;
-import com.example.datingappclient.retrofit.repository.GroupChatsRepository;
 import com.example.datingappclient.viewmodels.ChatsViewModel;
-import com.example.datingappclient.viewmodels.GroupChatsViewModel;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 public class ChatListFragment extends Fragment {
 
     /* === Repository === */
     private ChatsRepository chatsRepository;
-    private GroupChatsRepository groupChatsRepository;
 
     /* === Android Objects === */
     private View activityView;
@@ -44,15 +39,11 @@ public class ChatListFragment extends Fragment {
     /* === Other === */
     private UserDTO user;
 
-    private ChatsViewModel viewModel;
-    private ChatsAdapter adapter;
+    /* === Server exchange === */
+    private ChatsViewModel chatsViewModel;
+    private ChatsAdapter chatsAdapter;
 
-    private GroupChatsViewModel groupChatsViewModel;
-    private GroupChatsAdapter groupChatsAdapter;
-
-    public ChatListFragment() {
-
-    }
+    public ChatListFragment() {}
 
     public static ChatListFragment newInstance(UserDTO user) {
         ChatListFragment fragment = new ChatListFragment();
@@ -86,11 +77,14 @@ public class ChatListFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        setupViewModel();
+        getUserChats();
+    }
 
+    private void setupViewModel() {
         String token = requireContext().getSharedPreferences("auth", MODE_PRIVATE).getString("token", null);
 
-        /*// OLD CHATS
-        viewModel = new ViewModelProvider(this, new ViewModelProvider.Factory() {
+        chatsViewModel = new ViewModelProvider(this, new ViewModelProvider.Factory() {
             @NonNull
             @Override
             public <T extends androidx.lifecycle.ViewModel> T create(@NonNull Class<T> modelClass) {
@@ -98,57 +92,28 @@ public class ChatListFragment extends Fragment {
             }
         }).get(ChatsViewModel.class);
 
-        adapter = new ChatsAdapter((chat, image) -> {
-            startChatActivity(chat, image); // 👉 Обработка клика по чату: открыть диалог, передать chat и image
-        }, viewModel, user.getId(), getViewLifecycleOwner());
+        chatsAdapter = new ChatsAdapter(this::startChatActivity, chatsViewModel, user.getId(), getViewLifecycleOwner());
 
-        recyclerView.setAdapter(adapter);
+        recyclerView.setAdapter(chatsAdapter);
 
-        // 📡 Наблюдение за списком чатов
-        viewModel.getChats().observe(getViewLifecycleOwner(), adapter::submitList);
-
-        // Пример начальной загрузки (в реальном коде — через репозиторий)
-        getUserChats();*/
-
-        // NEW CHATS
-
-        groupChatsViewModel = new ViewModelProvider(this, new ViewModelProvider.Factory() {
-            @NonNull
-            @Override
-            public <T extends androidx.lifecycle.ViewModel> T create(@NonNull Class<T> modelClass) {
-                return (T) new GroupChatsViewModel(token);
-            }
-        }).get(GroupChatsViewModel.class);
-
-        groupChatsAdapter = new GroupChatsAdapter((chat, image) -> {
-            startChatActivity(chat, image); // 👉 Обработка клика по чату: открыть диалог, передать chat и image
-        }, groupChatsViewModel, user.getId(), getViewLifecycleOwner());
-
-        recyclerView.setAdapter(groupChatsAdapter);
-
-        groupChatsViewModel.getChats().observe(getViewLifecycleOwner(), groupChatsAdapter::submitList);
-
-        getUserGroupChats();
+        chatsViewModel.getChats().observe(getViewLifecycleOwner(), chatsAdapter::submitList);
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        //getUserChats();
-        getUserGroupChats();
+        getUserChats();
     }
 
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        //viewModel.disconnectWebSocket();
-        groupChatsViewModel.disconnectWebSocket();
+        chatsViewModel.disconnectWebSocket();
     }
 
     private void setupRepository() {
         Context context = requireContext();
         chatsRepository = new ChatsRepository(context);
-        groupChatsRepository = new GroupChatsRepository(context);
     }
 
     private void getUserChats() {
@@ -157,26 +122,7 @@ public class ChatListFragment extends Fragment {
             switch (result.status) {
                 case SUCCESS:
                     Log.d(logTag, "Получено чатов: " + result.data.size());
-                    //populateListView(result.data);
-                    viewModel.setChats(result.data);
-                    break;
-                case EMPTY:
-                    Log.i(logTag, "Чаты для пользователя " + user.getId() + " отсутствуют!");
-                    break;
-                case ERROR:
-                    Log.e(logTag, result.error);
-                    break;
-            }
-        });
-    }
-
-    private void getUserGroupChats() {
-        String logTag = Constants.GLOBAL_LOG_TAG + "GET GROUP CHATS";
-        groupChatsRepository.fetchUserGroupChats(user.getId(), result -> {
-            switch (result.status) {
-                case SUCCESS:
-                    Log.d(logTag, "Получено чатов: " + result.data.size());
-                    groupChatsViewModel.setChats(result.data);
+                    chatsViewModel.setChats(result.data);
                     break;
                 case EMPTY:
                     Log.i(logTag, "Чаты для пользователя " + user.getId() + " отсутствуют!");
@@ -189,15 +135,6 @@ public class ChatListFragment extends Fragment {
     }
 
     private void startChatActivity(ChatDTO chat, byte[] imageBytes) {
-        Intent intent = new Intent(requireContext(), ChatActivity.class);
-        intent.putExtra("senderID", user.getId());
-        intent.putExtra("receiverID", chat.getChatId());
-        intent.putExtra("username", chat.getPartnerName());
-        intent.putExtra("image", imageBytes);
-        startActivity(intent);
-    }
-
-    private void startChatActivity(GroupChatDTO chat, byte[] imageBytes) {
         Intent intent = new Intent(requireContext(), ChatActivity.class);
         intent.putExtra("senderID", user.getId());
         intent.putExtra("receiverID", chat.getGroupChatId());

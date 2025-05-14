@@ -40,6 +40,7 @@ public class ImageUtils {
     }
 
     public static byte[] convertBitmapToPrimitiveBytes(Bitmap bitmap) {
+        if (bitmap == null) return null;
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
         bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream); // можно JPEG
         return stream.toByteArray();
