@@ -123,8 +123,18 @@ public class ChatService {
                 else{
                     log.info(pkGroupChat + " " + userId);
                     Object[] nameImage = groupChatRepo.getUserInfo(pkGroupChat, userId);
-                    name = nameImage[0].toString();
-                    image = (byte[]) nameImage[1];
+                    // Если результат NULL (например, пользователь не найден)
+                    if (nameImage == null || nameImage.length < 2) {
+                        name = "";
+                        image = new byte[0];
+                    } else {
+                        name = (nameImage[0] != null) ? nameImage[0].toString() : "";
+                        try {
+                            image = (nameImage[1] != null) ? (byte[]) nameImage[1] : new byte[0];
+                        } catch (ClassCastException e) {
+                            image = new byte[0];
+                        }
+                    }
                 }
                 String message = messRepo.getLastMessage(pkGroupChat);
                 GroupChatDto groupChatDto = new GroupChatDto(pkGroupChat, name, image, message);

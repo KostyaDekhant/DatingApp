@@ -16,12 +16,13 @@ public interface GroupChatRepo extends JpaRepository<GroupChat, Integer> {
 
     @Query(value = """
 SELECT
-u.name, p.image
+COALESCE(u.name, '') AS name,           -- Пустая строка вместо NULL
+COALESCE(p.image, '\\\\x'::bytea) AS image -- Пустой bytea вместо NULL (PostgreSQL)
 FROM chat_member cm
 LEFT JOIN "user" u ON cm.user_id = u.pk_user
 LEFT JOIN user_pic up ON u.pk_user = up.pk_user
 LEFT JOIN picture p ON up.pk_picture = p.pk_picture AND p.id = 1
-WHERE cm.user_id != :userId AND cm.chat_id = :chatId
+WHERE cm.user_id != :userId AND cm.chat_id = :chatId LIMIT 1
 """, nativeQuery = true)
     Object[] getUserInfo(int chatId, int userId);
 
