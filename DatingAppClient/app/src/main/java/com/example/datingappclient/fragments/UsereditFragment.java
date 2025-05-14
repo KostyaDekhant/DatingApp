@@ -12,6 +12,8 @@ import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.constraintlayout.widget.ConstraintLayout;
@@ -93,16 +95,17 @@ public class UsereditFragment extends Fragment {
     private TextInputEditText inputDepartment;
     private TextInputEditText inputRole;
     private TextInputEditText inputCompanyName;
+
     private View cardAddImage;
     private GridLayout gridLayout;
     private LayoutInflater inflater;
     private View activityView;
 
+    private ActivityResultLauncher<Intent> imagePickerLauncher;
+
 
     /* === Methods === */
-    public UsereditFragment() {
-
-    }
+    public UsereditFragment() {}
 
     public static UsereditFragment newInstance(UserDTO user) {
         UsereditFragment usereditFragment = new UsereditFragment();
@@ -123,7 +126,7 @@ public class UsereditFragment extends Fragment {
         inputHeight = activityView.findViewById(R.id.height_inputEdit);
 
         setBirthdayPicker();
-
+        setupImagePicker();
         renderUserInfo();
         renderUserCompanyInfo();
         renderUserImages();
@@ -134,6 +137,47 @@ public class UsereditFragment extends Fragment {
         getCategories();
 
         return activityView;
+    }
+
+    private void setupImagePicker() {
+        String logTag = Constants.GLOBAL_LOG_TAG + "SETUP IMAGE AFTER GET";
+        imagePickerLauncher = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                result -> {
+                    if (result.getResultCode() == Activity.RESULT_OK && result.getData() != null) {
+                        Uri selectedImage = result.getData().getData();
+                        try {
+                            byte[] byteImage = ImageUtils.uriToByteArray(requireContext(), selectedImage);
+                            Bitmap bitmapImage = ImageUtils.convertPrimitiveByteToBitmap(byteImage);
+
+                            int imageNum = user.getImages().size() + 1;
+
+                            uploadImage(byteImage, imageNum);
+                            user.addUserImage(new UserImage(imageNum, 0, bitmapImage));
+
+                            // Добавляем карточку изображения
+                            addCardImage(imageNum);
+                            Log.i(logTag, "Succeess");
+                        } catch (IOException e) {
+                            Log.e(logTag, "Ошибка обработки изображения", e);
+                            Toast.makeText(requireContext(), "Не удалось загрузить изображение", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                }
+        );
+    }
+
+    private void addCardImage(int imageNum) {
+        View cardImage = createCardImage(inflater, imageNum - 1);
+        cardImage.setLayoutParams(setLayoutParams(imageNum - 1));
+
+        gridLayout.removeView(cardAddImage);
+        gridLayout.addView(cardImage);
+
+        if (imageNum < 6) {
+            cardAddImage.setLayoutParams(setLayoutParams(imageNum));
+            gridLayout.addView(cardAddImage);
+        }
     }
 
     private void setupRepository() {
@@ -160,7 +204,6 @@ public class UsereditFragment extends Fragment {
     }
 
     private void getInterests() {
-
         categoryInterestMap.clear();
         categoriesLoaded = 0;
 
@@ -385,18 +428,7 @@ public class UsereditFragment extends Fragment {
         if (gridLayout.getChildCount() < 6) {
             cardAddImage = inflater.inflate(R.layout.add_photo_item, gridLayout, false);
 
-            MaterialButton addButton = cardAddImage.findViewById(R.id.addImage_button);
-            addButton.setId(View.generateViewId());
-            addButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    Log.i("ADD IMAGE", "" + view.getId());
-
-                    Intent intent = new Intent(Intent.ACTION_PICK);
-                    intent.setType("image/*");
-                    startActivityForResult(intent, PICK_IMAGE_REQUEST);
-                }
-            });
+            setupAddImageButton(cardAddImage);
 
             cardAddImage.setLayoutParams(setLayoutParams(gridLayout.getChildCount()));
             gridLayout.addView(cardAddImage);
@@ -409,6 +441,18 @@ public class UsereditFragment extends Fragment {
             gridLayout.addView(space);
         }
 
+    }
+
+    private void setupAddImageButton(View cardAddImage) {
+        String logTag = Constants.GLOBAL_LOG_TAG + "GET IMAGE FROM DEVICE";
+        MaterialButton addButton = cardAddImage.findViewById(R.id.addImage_button);
+        addButton.setId(View.generateViewId());
+        addButton.setOnClickListener(view -> {
+            Log.i(logTag, String.valueOf(view.getId()));
+            Intent intent = new Intent(Intent.ACTION_PICK);
+            intent.setType("image/*");
+            imagePickerLauncher.launch(intent);
+        });
     }
 
     // Установка параметров Layout'а для элемента с номером elCount
@@ -510,41 +554,6 @@ public class UsereditFragment extends Fragment {
                     break;
             }
         });
-    }
-
-    // Обработка выбранного пользователем изображения
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data){
-        super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == PICK_IMAGE_REQUEST && resultCode == Activity.RESULT_OK && data != null) {
-            Log.d ("GET USER IMAGE", data.toString());
-            Uri selectedImage = data.getData();
-            try {
-                byte[] byteImage = ImageUtils.uriToByteArray(getContext(), selectedImage);
-                Bitmap bitmapImage = ImageUtils.convertPrimitiveByteToBitmap(byteImage);
-
-                int imageNum = user.getImages().size() + 1;
-
-                uploadImage(byteImage, imageNum);
-
-                user.addUserImage(new UserImage(imageNum, 0, bitmapImage));
-
-                // Создаем карточку
-                View cardImage = createCardImage(inflater, imageNum - 1);
-                cardImage.setLayoutParams(setLayoutParams(imageNum - 1));
-
-                gridLayout.removeView(cardAddImage);
-                gridLayout.addView(cardImage);
-
-                if (imageNum != 6) {
-                    cardAddImage.setLayoutParams(setLayoutParams(imageNum));
-                    gridLayout.addView(cardAddImage);
-                }
-            } catch (IOException e) {
-                Log.d("GET USER IMAGE ERROR", e.toString());
-                throw new RuntimeException(e);
-            }
-        }
     }
 
 }
