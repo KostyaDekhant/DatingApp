@@ -126,13 +126,13 @@ public class ChatService {
                     // Если результат NULL (например, пользователь не найден)
                     if (nameImage == null || nameImage.length < 2) {
                         name = "";
-                        image = new byte[0];
+                        image = null;
                     } else {
                         name = (nameImage[0] != null) ? nameImage[0].toString() : "";
                         try {
-                            image = (nameImage[1] != null) ? (byte[]) nameImage[1] : new byte[0];
+                            image = (nameImage[1] != null) ? (byte[]) nameImage[1] : null;
                         } catch (ClassCastException e) {
-                            image = new byte[0];
+                            image = null;
                         }
                     }
                 }
