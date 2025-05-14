@@ -122,8 +122,8 @@ public class ChatService {
                 }
                 else{
                     log.info(pkGroupChat + " " + userId);
-                    Object[] nameImage = groupChatRepo.getUserInfo(pkGroupChat, userId);
-
+                    List<Object[]> nameImages = groupChatRepo.getUserInfo(pkGroupChat, userId);
+                    Object[] nameImage = nameImages.get(0);
                     for (var Obj : nameImage) {
                         log.info("получаемый объект: " + Obj.toString());
                     }

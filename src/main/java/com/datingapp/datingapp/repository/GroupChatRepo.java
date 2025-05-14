@@ -24,6 +24,6 @@ LEFT JOIN user_pic up ON u.pk_user = up.pk_user
 LEFT JOIN picture p ON up.pk_picture = p.pk_picture AND p.id = 1
 WHERE cm.user_id != :userId AND cm.chat_id = :chatId LIMIT 1
 """, nativeQuery = true)
-    Object[] getUserInfo(int chatId, int userId);
+    List<Object[]> getUserInfo(int chatId, int userId);
 
 }
