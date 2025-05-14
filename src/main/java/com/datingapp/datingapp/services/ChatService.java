@@ -113,9 +113,18 @@ public class ChatService {
             //List<GroupChat> groupChats = groupChatRepo.findAllById(chatIds);
             List<GroupChatDto> groupChatDtos = new ArrayList<>();
             for(GroupChat groupChat : chatIds){//groupChats
-                String name = groupChat.getName();
-                byte[] image = groupChat.getImage();
                 Integer pkGroupChat = groupChat.getPkGroupChat();
+                String name = "";
+                byte[] image = null;
+                if(groupChat.getIsGroup()) {
+                    name = groupChat.getName();
+                    image = groupChat.getImage();
+                }
+                else{
+                    Object[] nameImage = groupChatRepo.getUserInfo(pkGroupChat, userId);
+                    name = nameImage[0].toString();
+                    image = (byte[]) nameImage[1];
+                }
                 String message = messRepo.getLastMessage(pkGroupChat);
                 GroupChatDto groupChatDto = new GroupChatDto(pkGroupChat, name, image, message);
                 groupChatDtos.add(groupChatDto);
