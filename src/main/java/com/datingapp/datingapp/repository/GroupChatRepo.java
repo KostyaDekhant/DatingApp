@@ -16,8 +16,8 @@ public interface GroupChatRepo extends JpaRepository<GroupChat, Integer> {
 
     @Query(value = """
 SELECT
-COALESCE(u.name, '') AS name,           -- Пустая строка вместо NULL
-COALESCE(p.image, '\\\\x'::bytea) AS image -- Пустой bytea вместо NULL (PostgreSQL)
+COALESCE(u.name, '') AS name,          
+COALESCE(p.image, '\\\\x'::bytea) AS image 
 FROM chat_member cm
 LEFT JOIN "user" u ON cm.user_id = u.pk_user
 LEFT JOIN user_pic up ON u.pk_user = up.pk_user

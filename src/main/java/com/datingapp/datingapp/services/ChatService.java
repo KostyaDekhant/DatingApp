@@ -121,12 +121,8 @@ public class ChatService {
                     image = groupChat.getImage();
                 }
                 else{
-                    log.info(pkGroupChat + " " + userId);
                     List<Object[]> nameImages = groupChatRepo.getUserInfo(pkGroupChat, userId);
                     Object[] nameImage = nameImages.get(0);
-                    for (var Obj : nameImage) {
-                        log.info("получаемый объект: " + Obj.toString());
-                    }
                     // Если результат NULL (например, пользователь не найден)
                     if (nameImage == null || nameImage.length < 2) {
                         name = "";
