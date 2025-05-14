@@ -121,6 +121,7 @@ public class ChatService {
                     image = groupChat.getImage();
                 }
                 else{
+                    log.info(pkGroupChat + " " + userId);
                     Object[] nameImage = groupChatRepo.getUserInfo(pkGroupChat, userId);
                     name = nameImage[0].toString();
                     image = (byte[]) nameImage[1];
