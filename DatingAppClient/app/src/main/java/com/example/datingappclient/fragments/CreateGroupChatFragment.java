@@ -4,16 +4,24 @@ import android.animation.AnimatorSet;
 import android.animation.ArgbEvaluator;
 import android.animation.ObjectAnimator;
 import android.animation.ValueAnimator;
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.drawable.ColorDrawable;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.Toast;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.Toolbar;
@@ -23,6 +31,7 @@ import androidx.fragment.app.FragmentManager;
 
 import com.example.datingappclient.R;
 import com.example.datingappclient.activity.ChatActivity;
+import com.example.datingappclient.activity.MainActivity;
 import com.example.datingappclient.constants.Constants;
 import com.example.datingappclient.model.dto.ChatMemberDTO;
 import com.example.datingappclient.model.dto.GroupChatDTO;
@@ -32,6 +41,7 @@ import com.example.datingappclient.retrofit.repository.GroupChatsRepository;
 import com.example.datingappclient.utils.ImageUtils;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
+import java.io.InputStream;
 import java.util.List;
 
 public class CreateGroupChatFragment extends Fragment {
@@ -40,6 +50,9 @@ public class CreateGroupChatFragment extends Fragment {
     private List<ChatMemberDTO> chatMembers;
     private UserDTO user;
     private GroupChatsRepository groupChatsRepository;
+    private ActivityResultLauncher<Intent> imagePickerLauncher;
+    private ImageView avatarImageView;
+    private Bitmap selectedAvatarBitmap;
 
     private CreateGroupChatFragment() {};
 
@@ -59,8 +72,42 @@ public class CreateGroupChatFragment extends Fragment {
         setupToolbar();
         animUnderlineEdit();
         setupCreateChatButton();
+        setupImagePicker();
+        setupAddImageButton();
 
         return activityView;
+    }
+
+    private void setupImagePicker() {
+        String logTag = Constants.GLOBAL_LOG_TAG + "GET IMAGE FOR CHAT";
+        imagePickerLauncher = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                result -> {
+                    if (result.getResultCode() == Activity.RESULT_OK && result.getData() != null) {
+                        Uri uri = result.getData().getData();
+                        try {
+                            InputStream inputStream = requireContext().getContentResolver().openInputStream(uri);
+                            selectedAvatarBitmap = BitmapFactory.decodeStream(inputStream);
+                            avatarImageView.setImageBitmap(ImageUtils.getCroppedBitmap(selectedAvatarBitmap));
+                            avatarImageView.setPadding(0,0,0,0);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                            Log.e(logTag, e.getMessage());
+                            Toast.makeText(requireContext(), "Не удалось загрузить изображение", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                }
+        );
+
+    }
+
+    private void setupAddImageButton() {
+        avatarImageView = activityView.findViewById(R.id.avatarImageView);
+        avatarImageView.setOnClickListener(v -> {
+            Intent intent = new Intent(Intent.ACTION_PICK);
+            intent.setType("image/*");
+            imagePickerLauncher.launch(intent);
+        });
     }
 
     private void setupRepository() {
@@ -90,7 +137,7 @@ public class CreateGroupChatFragment extends Fragment {
         EditText chatnameInput = activityView.findViewById(R.id.chatNameEditText);
         String chatname = chatnameInput.getText().toString();
         // get chat image
-        // TODO:
+        byte[] chatImage = ImageUtils.convertBitmapToPrimitiveBytes(selectedAvatarBitmap);
 
         // add user to chat members
         byte[] userImage = ImageUtils.convertBitmapToPrimitiveBytes(user.getMainImage());
@@ -98,7 +145,7 @@ public class CreateGroupChatFragment extends Fragment {
 
         // create group chat
         GroupChatInfoDTO groupChatInfo = new GroupChatInfoDTO(user.getId(), null, chatMembers, true);
-        return new GroupChatDTO(null, chatname, null, null, groupChatInfo);
+        return new GroupChatDTO(null, chatname, null, chatImage, groupChatInfo);
     }
 
     private void createGroupChat(GroupChatDTO groupChat) {

@@ -65,7 +65,7 @@ public class GroupChatsAdapter extends ListAdapter<GroupChatDTO, ChatsHolder> {
         // Подписка на LiveData для сообщений этого чата
         viewModel.getMessageStream(chat.getGroupChatId())
                 .observe(lifecycleOwner, message -> {
-                    if (message != null) {
+                    if (message != null && !chat.getGroupChatInfo().getIsGroup()) {
                         String prefix = (message.getPk_user() == senderId) ? "Вы: " : "";
                         holder.lastMessage.setText(prefix + message.getMessage());
                     }
