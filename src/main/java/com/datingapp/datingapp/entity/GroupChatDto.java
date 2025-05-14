@@ -18,6 +18,9 @@ public class GroupChatDto{
     @JsonProperty("image")
     private byte[] image;
 
+    @JsonProperty("last_message")
+    private String lastMessage;
+
     @JsonProperty("group_chat_info")
     private GroupChatInfoDto groupChatInfoDto;
 
@@ -25,6 +28,7 @@ public class GroupChatDto{
     public GroupChatDto() {
         this.pkGroupChat = -1;
         this.name = "";
+        this.lastMessage = "";
         //this.createdBy = -1;
         //this.createdAt = null;
         this.image = null;
@@ -33,10 +37,11 @@ public class GroupChatDto{
 
     public GroupChatDto(Integer pkGroupChat, String name
             //, int createdBy, Timestamp createdAt
-            , byte[] image) {
+            , byte[] image, String lastMessage) {
                         //, List<ChatMemberDTO> members) {
         this.pkGroupChat = pkGroupChat;
         this.name = name;
+        this.lastMessage = lastMessage;
 //        this.createdBy = createdBy;
 //        this.createdAt = createdAt;
         this.image = image;

@@ -4,10 +4,7 @@ import com.datingapp.datingapp.controller.MessageController;
 import com.datingapp.datingapp.entity.*;
 import com.datingapp.datingapp.exception.ChatAlreadyExistsException;
 import com.datingapp.datingapp.exception.ChatNotFoundException;
-import com.datingapp.datingapp.repository.ChatMemberRepo;
-import com.datingapp.datingapp.repository.ChatRepo;
-import com.datingapp.datingapp.repository.GroupChatRepo;
-import com.datingapp.datingapp.repository.UserRepo;
+import com.datingapp.datingapp.repository.*;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.Column;
 import lombok.RequiredArgsConstructor;
@@ -24,6 +21,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ChatService {
     private final ChatRepo chatRepo;
+    private final MessRepo messRepo;
     private final UserRepo userRepo;
     private final GroupChatRepo groupChatRepo;
     private final ChatMemberRepo chatMemberRepo;
@@ -118,7 +116,8 @@ public class ChatService {
                 String name = groupChat.getName();
                 byte[] image = groupChat.getImage();
                 Integer pkGroupChat = groupChat.getPkGroupChat();
-                GroupChatDto groupChatDto = new GroupChatDto(pkGroupChat, name, image);
+                String message = messRepo.getLastMessage(pkGroupChat);
+                GroupChatDto groupChatDto = new GroupChatDto(pkGroupChat, name, image, message);
                 groupChatDtos.add(groupChatDto);
             }
             return groupChatDtos;

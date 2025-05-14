@@ -25,6 +25,17 @@ public interface MessRepo extends JpaRepository<Message, Integer>{
             "FROM \"message\" m INNER JOIN \"group_chat\" c ON m.pk_chat = c.pk_group_chat " +
             "WHERE m.pk_chat = :chat_id", nativeQuery = true)
     List<Message> findChatMessages(@Param("chat_id") int pk_chat);
+
+
+    @Query(value= """
+SELECT m.message
+FROM message m
+WHERE pk_chat = :chatId
+ORDER BY time DESC
+LIMIT 1;
+""", nativeQuery = true)
+    String getLastMessage(int chatId);
+
 }
 
 
