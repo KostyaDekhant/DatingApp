@@ -98,7 +98,7 @@ public class CreateGroupChatFragment extends Fragment {
 
         // create group chat
         GroupChatInfoDTO groupChatInfo = new GroupChatInfoDTO(user.getId(), null, chatMembers, true);
-        return new GroupChatDTO(null, chatname, null, groupChatInfo);
+        return new GroupChatDTO(null, chatname, null, null, groupChatInfo);
     }
 
     private void createGroupChat(GroupChatDTO groupChat) {

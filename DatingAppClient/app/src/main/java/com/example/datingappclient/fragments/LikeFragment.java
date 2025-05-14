@@ -312,7 +312,7 @@ public class LikeFragment extends Fragment {
         java.sql.Timestamp timestamp = new Timestamp(System.currentTimeMillis());
         GroupChatInfoDTO groupChatInfo = new GroupChatInfoDTO(user.getId(),timestamp , chatMembers, false);
 
-        GroupChatDTO groupChat = new GroupChatDTO(null, null, null, groupChatInfo);
+        GroupChatDTO groupChat = new GroupChatDTO(null, null, null, null, groupChatInfo);
 
         groupChatsRepository.createChat(groupChat, result -> {
             switch (result.status) {

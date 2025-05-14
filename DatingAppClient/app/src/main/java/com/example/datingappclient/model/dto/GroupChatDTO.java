@@ -1,5 +1,7 @@
 package com.example.datingappclient.model.dto;
 
+import com.example.datingappclient.utils.gson.ByteDeserializer;
+import com.google.gson.annotations.JsonAdapter;
 import com.google.gson.annotations.SerializedName;
 
 import java.util.Arrays;
@@ -19,7 +21,11 @@ public class GroupChatDTO {
     @SerializedName("name")
     private String name;
 
+    @SerializedName("last_message")
+    private String lastMessage;
+
     @SerializedName("image")
+    @JsonAdapter(ByteDeserializer.class)
     private byte[] image;
 
     @SerializedName("group_chat_info")

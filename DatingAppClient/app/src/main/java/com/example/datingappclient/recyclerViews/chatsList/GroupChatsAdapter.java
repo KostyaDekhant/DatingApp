@@ -50,8 +50,7 @@ public class GroupChatsAdapter extends ListAdapter<GroupChatDTO, ChatsHolder> {
         holder.username.setText(chat.getName());
         holder.setReceiverID(chat.getGroupChatId());
         // render init last message
-        String lastMessage = "LAST MESSAGE"; // TODO: Получать позже из chat
-        if (lastMessage != null) holder.lastMessage.setText(lastMessage);
+        holder.lastMessage.setText(chat.getLastMessage());
 
         // Установить изображение, если оно есть
         byte[] chatImage = chat.getImage();
