@@ -102,7 +102,6 @@ public class ChatListFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        getUserChats();
     }
 
     @Override
