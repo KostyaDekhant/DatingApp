@@ -66,13 +66,13 @@ public class ChatController {
         return ResponseEntity.ok().build();
     }
 
-    @DeleteMapping("/group_chats/{chatId}/users/{userId}/creator/{creatorID}")
+    @DeleteMapping("/group_chats/{chatId}/users/{userId}/creator/{creatorId}")
     public ResponseEntity<Void> removeMemberFromChat(@PathVariable int chatId, @PathVariable int userId, @PathVariable int creatorId) throws UserNotExistsExceptions {
         chatService.deleteChatMember(chatId, userId, creatorId);
         return ResponseEntity.ok().build();
     }
 
-    @DeleteMapping("/group_chats/{chatId}/creator/{creatorID}")
+    @DeleteMapping("/group_chats/{chatId}/creator/{creatorId}")
     public ResponseEntity<Void> removeChat(@PathVariable int chatId, @PathVariable int creatorId) {
         chatService.deleteChat(chatId, creatorId);
         return ResponseEntity.ok().build();
