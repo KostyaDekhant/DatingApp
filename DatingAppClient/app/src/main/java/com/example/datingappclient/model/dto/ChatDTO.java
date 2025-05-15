@@ -1,5 +1,11 @@
 package com.example.datingappclient.model.dto;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
+import androidx.annotation.NonNull;
+
+import com.example.datingappclient.model.AuthResponse;
 import com.example.datingappclient.utils.gson.ByteDeserializer;
 import com.google.gson.annotations.JsonAdapter;
 import com.google.gson.annotations.SerializedName;
@@ -31,6 +37,8 @@ public class ChatDTO {
     @SerializedName("group_chat_info")
     private ChatInfoDTO groupChatInfo;
 
+    public static ChatDTO selectedChat;
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -47,4 +55,5 @@ public class ChatDTO {
         result = 31 * result + Arrays.hashCode(image);
         return result;
     }
+
 }

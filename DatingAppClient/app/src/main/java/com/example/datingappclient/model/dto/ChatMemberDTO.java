@@ -1,5 +1,7 @@
 package com.example.datingappclient.model.dto;
 
+import com.example.datingappclient.utils.gson.ByteDeserializer;
+import com.google.gson.annotations.JsonAdapter;
 import com.google.gson.annotations.SerializedName;
 
 import java.util.Arrays;
@@ -13,9 +15,12 @@ import lombok.Getter;
 public class ChatMemberDTO {
     @SerializedName("username")
     private String username;
+
     @SerializedName("userId")
     private Integer userId;
+
     @SerializedName("avatar")
+    @JsonAdapter(ByteDeserializer.class)
     private byte[]  avatar;
 
     @Override

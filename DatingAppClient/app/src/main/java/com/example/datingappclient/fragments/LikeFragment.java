@@ -253,7 +253,7 @@ public class LikeFragment extends Fragment {
                 case SUCCESS:
                     int chatId = result.data;
                     Log.i(logTag, "Чат успешно создан: " + chatId);
-                    startChatActivity(view, chatId, like);
+                    startChatActivity(chatId, like);
                     deleteLike(view, new LikeDTO(like.getLikerId(), user.getId()));
                     break;
                 case ERROR:
@@ -280,14 +280,12 @@ public class LikeFragment extends Fragment {
         return new ChatDTO(null, null, null, null, groupChatInfo);
     }
 
-    private void startChatActivity(View view, int chatId, LikeDTO like) {
-        Context context = view.getContext();
-        Intent intent = new Intent(context, ChatActivity.class)
-                .putExtra("senderID", user.getId())
-                .putExtra("receiverID", chatId)
-                .putExtra("username", like.getName())
-                .putExtra("image", like.getImage());
-        context.startActivity(intent);
+    private void startChatActivity(int chatId, LikeDTO like) {
+        ChatDTO chat = new ChatDTO(chatId, like.getName(), null, like.getImage(), null);
+        Intent intent = new Intent(requireContext(), ChatActivity.class);
+        intent.putExtra("userId", user.getId());
+        ChatDTO.selectedChat = chat;
+        startActivity(intent);
     }
 
     private void deleteLike(View view, LikeDTO likeDTO) {

@@ -162,14 +162,20 @@ public class CreateGroupChatFragment extends Fragment {
         });
     }
 
-    private void goToChatActivity(ChatDTO groupChat) {
-        Context context = activityView.getContext();
+    private void goToChatActivity(ChatDTO chat) {
+       /* Context context = activityView.getContext();
         Intent intent = new Intent(context, ChatActivity.class)
                 .putExtra("senderID", user.getId())
                 .putExtra("receiverID", groupChat.getGroupChatId())
                 .putExtra("username", groupChat.getName())
                 .putExtra("image", groupChat.getImage());
-        context.startActivity(intent);
+        context.startActivity(intent);*/
+        Intent intent = new Intent(requireContext(), ChatActivity.class);
+        intent.putExtra("userId", user.getId());
+        ChatDTO.selectedChat = chat;
+        startActivity(intent);
+
+
         requireActivity().getSupportFragmentManager().popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
     }
 

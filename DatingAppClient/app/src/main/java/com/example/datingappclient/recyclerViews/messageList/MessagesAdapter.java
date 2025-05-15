@@ -1,5 +1,9 @@
 package com.example.datingappclient.recyclerViews.messageList;
 
+import static android.view.View.VISIBLE;
+
+import android.graphics.Bitmap;
+import android.opengl.Visibility;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -8,7 +12,10 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.datingappclient.R;
+import com.example.datingappclient.model.dto.ChatInfoDTO;
+import com.example.datingappclient.model.dto.ChatMemberDTO;
 import com.example.datingappclient.model.dto.MessageDTO;
+import com.example.datingappclient.utils.ImageUtils;
 
 import java.util.List;
 
@@ -16,13 +23,15 @@ public class MessagesAdapter extends RecyclerView.Adapter<MessagesHolder> {
 
     List<MessageDTO> messageList;
     Integer senderID;
+    ChatInfoDTO chatInfo ;
 
     public static final int VIEW_TYPE_SENT = 1;
     public static final int VIEW_TYPE_RECEIVED = 2;
 
-    public MessagesAdapter(List<MessageDTO> messageList, Integer senderID) {
+    public MessagesAdapter(List<MessageDTO> messageList, Integer senderID, ChatInfoDTO chatInfo) {
         this.messageList = messageList;
         this.senderID = senderID;
+        this.chatInfo = chatInfo;
     }
 
     @NonNull
@@ -39,12 +48,19 @@ public class MessagesAdapter extends RecyclerView.Adapter<MessagesHolder> {
 
     @Override
     public void onBindViewHolder(@NonNull MessagesHolder holder, int position) {
-        String textMessage = messageList.get(position).getMessage();
-        String textDateTime = messageList.get(position).getTime();
+        MessageDTO message = messageList.get(position);
 
-        holder.textMessage.setText(textMessage);
-        if (textDateTime != null)
-            holder.textDateTime.setText(textDateTime.substring(11, 16));
+        holder.textMessage.setText(message.getMessage());
+
+        if (message.getTime() != null)
+            holder.textDateTime.setText(message.getTime().substring(11, 16));
+
+        if (chatInfo != null && chatInfo.getIsGroup() && getItemViewType(position) == VIEW_TYPE_RECEIVED) {
+            ChatMemberDTO member = chatInfo.findMemberById(message.getPk_user());
+            Bitmap avatar = ImageUtils.convertPrimitiveByteToBitmap(member.getAvatar());
+            holder.avatarView.setImageBitmap(ImageUtils.getCroppedBitmap(avatar));
+            holder.avatarView.setVisibility(VISIBLE);
+        }
     }
 
     @Override

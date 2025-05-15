@@ -4,14 +4,26 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
 
+    <!-- Аватар -->
+    <ImageView
+        android:id="@+id/avatarImageView"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_marginStart="5dp"
+        android:layout_marginTop="10dp"
+        android:scaleType="centerCrop"
+        android:src="@drawable/ic_user"
+        android:background="@drawable/bg_user_circle"
+        android:visibility="gone"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
     <TextView
         android:id="@+id/textMessage"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-
         android:layout_marginStart="10dp"
         android:layout_marginTop="10dp"
-
         android:background="@drawable/background_item_received_message"
         android:paddingStart="20dp"
         android:paddingEnd="20dp"
@@ -20,19 +32,17 @@
         android:text="СООБЩЕНИЕ"
         android:textColor="@color/white"
         android:textSize="16sp"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintStart_toEndOf="@id/avatarImageView"
         app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
         android:id="@+id/textDateTime"
-        android:layout_width="300dp"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-
         android:layout_marginStart="10dp"
-
         android:text="Время отправки"
         android:textColor="#262626"
         app:layout_constraintTop_toBottomOf="@id/textMessage"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintStart_toEndOf="@id/avatarImageView" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

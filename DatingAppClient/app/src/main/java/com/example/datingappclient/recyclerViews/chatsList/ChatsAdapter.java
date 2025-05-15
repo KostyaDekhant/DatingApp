@@ -18,7 +18,7 @@ import com.example.datingappclient.viewmodels.ChatsViewModel;
 public class ChatsAdapter extends ListAdapter<ChatDTO, ChatsHolder> {
 
     public interface OnChatClickListener {
-        void onChatClicked(ChatDTO chat, byte[] imageBytes);
+        void onChatClicked(ChatDTO chat);
     }
 
     private final ChatsAdapter.OnChatClickListener chatClickListener;
@@ -63,14 +63,14 @@ public class ChatsAdapter extends ListAdapter<ChatDTO, ChatsHolder> {
         // Подписка на LiveData для сообщений этого чата
         viewModel.getMessageStream(chat.getGroupChatId())
                 .observe(lifecycleOwner, message -> {
-                    if (message != null && !chat.getGroupChatInfo().getIsGroup()) {
+                    if (message != null && chat.getGroupChatInfo() != null && !chat.getGroupChatInfo().getIsGroup()) {
                         String prefix = (message.getPk_user() == senderId) ? "Вы: " : "";
                         holder.lastMessage.setText(prefix + message.getMessage());
                     }
                 });
 
         holder.itemView.setOnClickListener(view ->
-                chatClickListener.onChatClicked(chat, holder.getByteImage())
+                chatClickListener.onChatClicked(chat)
         );
     }
 

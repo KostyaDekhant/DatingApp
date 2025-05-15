@@ -14,6 +14,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.datingappclient.R;
 import com.example.datingappclient.model.AuthResponse;
+import com.example.datingappclient.model.dto.ChatDTO;
 import com.example.datingappclient.recyclerViews.messageList.MessagesAdapter;
 import com.example.datingappclient.model.dto.MessageDTO;
 import com.example.datingappclient.utils.DateUtils;
@@ -22,8 +23,6 @@ import com.example.datingappclient.viewmodels.DialogViewModel;
 import com.example.datingappclient.viewmodels.factory.DialogViewModelFactory;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
-
-import ua.naiksoftware.stomp.StompClient;
 
 public class ChatActivity extends AppCompatActivity {
 
@@ -35,11 +34,8 @@ public class ChatActivity extends AppCompatActivity {
     private MessagesAdapter messagesAdapter;
 
     /* === Other === */
-    Integer senderID, receiverID;
-    String username;
-    byte[] byteImage;
-
-    StompClient stompClient;
+    Integer userId;
+    private ChatDTO chat;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,14 +43,14 @@ public class ChatActivity extends AppCompatActivity {
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_chat);
 
-        setChatInfo();
+        setChat();
 
         setupMessageRecyclerView();
 
         AuthResponse authResponse = getAuthResponse();
 
         // Инициализируем ViewModel с кастомной фабрикой
-        viewModel = new ViewModelProvider(this, new DialogViewModelFactory(authResponse.getToken(), receiverID)).get(DialogViewModel.class);
+        viewModel = new ViewModelProvider(this, new DialogViewModelFactory(authResponse.getToken(), chat.getGroupChatId())).get(DialogViewModel.class);
 
         renderUsername();
         renderProfileImage();
@@ -69,12 +65,13 @@ public class ChatActivity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
         viewModel.disconnect(); // Закрываем соединение
+        ChatDTO.selectedChat = null;
     }
 
     private void viewModelSubscribe() {
         // Подписка на историю сообщений (запросятся при подписке)
         viewModel.getHistoryMessages().observe(this, messages -> {
-            messagesAdapter = new MessagesAdapter(messages, senderID);
+            messagesAdapter = new MessagesAdapter(messages, userId, chat.getGroupChatInfo());
             messagesRecyclerView.setAdapter(messagesAdapter);
             messagesRecyclerView.scrollToPosition(messagesAdapter.getItemCount() - 1);
         });
@@ -102,8 +99,8 @@ public class ChatActivity extends AppCompatActivity {
                 MessageDTO messageDTO = new MessageDTO(
                         message,
                         DateUtils.getCurrentTimeStamp(),
-                        senderID,
-                        receiverID);
+                        userId,
+                        chat.getGroupChatId());
                 viewModel.sendMessage(messageDTO);
                 messageInput.setText("");
             }
@@ -112,7 +109,7 @@ public class ChatActivity extends AppCompatActivity {
 
     private void renderUsername() {
         TextView usernameLabel = findViewById(R.id.username_label);
-        usernameLabel.setText(username);
+        usernameLabel.setText(chat.getName());
     }
 
     private void setupReturnButton() {
@@ -124,21 +121,18 @@ public class ChatActivity extends AppCompatActivity {
 
     private void renderProfileImage() {
         ImageView profileImage = findViewById(R.id.profile_image);
-        if (byteImage != null) {
-            Bitmap croppedImage = ImageUtils.getCroppedBitmap(ImageUtils.convertPrimitiveByteToBitmap(byteImage));
+        if (chat.getImage() != null) {
+            Bitmap croppedImage = ImageUtils.getCroppedBitmap(ImageUtils.convertPrimitiveByteToBitmap(chat.getImage()));
             profileImage.setImageBitmap(croppedImage);
             profileImage.setPadding(0, 0, 0, 0);
         }
     }
 
-    private void setChatInfo() {
+    private void setChat() {
         // Get args from activity
         Bundle arguments = getIntent().getExtras();
-        senderID = arguments.getInt("senderID");
-        receiverID = arguments.getInt("receiverID");
-        username = arguments.getString("username");
-        byteImage = arguments.getByteArray("image");
-
+        chat = ChatDTO.selectedChat;
+        userId = arguments.getInt("userId");
     }
 
     private AuthResponse getAuthResponse() {

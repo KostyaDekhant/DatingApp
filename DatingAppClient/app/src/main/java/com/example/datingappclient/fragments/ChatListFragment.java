@@ -21,6 +21,7 @@ import com.example.datingappclient.activity.ChatActivity;
 import com.example.datingappclient.R;
 import com.example.datingappclient.constants.Constants;
 import com.example.datingappclient.model.dto.ChatDTO;
+import com.example.datingappclient.model.dto.ChatInfoDTO;
 import com.example.datingappclient.model.dto.UserDTO;
 import com.example.datingappclient.recyclerViews.chatsList.ChatsAdapter;
 import com.example.datingappclient.retrofit.repository.ChatsRepository;
@@ -133,12 +134,38 @@ public class ChatListFragment extends Fragment {
         });
     }
 
-    private void startChatActivity(ChatDTO chat, byte[] imageBytes) {
+    private void startChatActivity(ChatDTO chat) {
         Intent intent = new Intent(requireContext(), ChatActivity.class);
-        intent.putExtra("senderID", user.getId());
-        intent.putExtra("receiverID", chat.getGroupChatId());
-        intent.putExtra("username", chat.getName());
-        intent.putExtra("image", imageBytes);
-        startActivity(intent);
+        intent.putExtra("userId", user.getId());
+        getChatInfo(chat.getGroupChatId(), chatInfo -> {
+            chat.setGroupChatInfo(chatInfo);
+            ChatDTO.selectedChat = chat;
+            startActivity(intent);
+        });
+
+    }
+
+    public interface ChatInfoCallback {
+        void onResult(ChatInfoDTO chatInfo);
+    }
+
+    private void getChatInfo(int chatId, ChatInfoCallback callback) {
+        String logTag = Constants.GLOBAL_LOG_TAG + "GET CHAT INFO";
+        chatsRepository.fetchChatInfo(chatId, result -> {
+            switch (result.status) {
+                case SUCCESS:
+                    Log.i(logTag, "Получена информация о чате " + chatId);
+                    callback.onResult(result.data);
+                    break;
+                case ERROR:
+                    Log.e(logTag, result.error);
+                    callback.onResult(null);
+                    break;
+                case EMPTY:
+                    Log.i(logTag, "Не найдена информация о чате  " + chatId);
+                    callback.onResult(result.data);
+                    break;
+            }
+        });
     }
 }

@@ -14,7 +14,7 @@ import retrofit2.http.Path;
 
 public interface ChatsAPI {
     /* === Group Chats === */
-    @GET("api/group_chats/{chatId}")
+    @GET("api/group_chats/{chatId}/info")
     Call<ChatInfoDTO> getChatInfo(@Path("chatId") int chatId);
 
     @GET("api/group_chats/users/{userId}")
