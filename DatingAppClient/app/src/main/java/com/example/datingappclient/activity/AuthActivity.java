@@ -30,20 +30,31 @@ public class AuthActivity extends AppCompatActivity {
 
         super.onCreate(savedInstanceState);
 
-        String logTag = Constants.GLOBAL_LOG_TAG + "AUTH CHECK";
+
         AuthResponse authResponse = getAuthResponse();
         if (authResponse.isExists()) {
             tokenRepository = new TokenRepository(getApplicationContext());
             // пользователь уже вошёл — открыть основной экран
-            tokenRepository.tokenIsValid(result -> {
-                if (result.data) {
-                    Log.i(logTag, "Пользователь авторизован: userId=" + authResponse.getUserId() + " token=" + authResponse.getToken());
-                    startMainActivity(authResponse);
-                }
-                else startAuth();
-            });
+            checkToken(authResponse);
         }
         else startAuth();
+    }
+
+    private void checkToken(AuthResponse authResponse) {
+        String logTag = Constants.GLOBAL_LOG_TAG + "AUTH CHECK";
+        tokenRepository.tokenIsValid(result -> {
+            switch (result.status) {
+                case SUCCESS:
+                    if (result.data) {
+                        Log.i(logTag, "Пользователь авторизован: userId=" + authResponse.getUserId() + " token=" + authResponse.getToken());
+                        startMainActivity(authResponse);
+                    }
+                    else startAuth();
+                    break;
+                case ERROR:
+                    Log.e(logTag, result.error);
+            }
+        });
     }
 
     private void startAuth() {
