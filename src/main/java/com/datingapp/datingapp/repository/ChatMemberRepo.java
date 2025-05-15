@@ -14,7 +14,7 @@ import java.util.List;
 @Repository
 public interface ChatMemberRepo extends JpaRepository<ChatMember, Integer> {
     @Query(value = """
-SELECT DISTINCT u.name AS username, u.pk_user AS userId
+SELECT DISTINCT u.name AS username, u.pk_user AS userId, p.image AS avatar
 FROM "user" u
 JOIN chat_member cm ON cm.user_id = u.pk_user
 LEFT JOIN user_pic up ON up.pk_user = cm.user_id
