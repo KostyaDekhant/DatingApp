@@ -27,6 +27,8 @@ WHERE cm.chat_id = :chatId;
 
     List<ChatMember> findByUserId(Integer userId);
 
-    @Query("DELETE FROM ChatMember cm WHERE cm.userId = :userId AND cm.chatId = :groupChat")
-    void deleteByUserIdAndChat_Id(Integer userId, GroupChat groupChat);
+    @Query(value = """
+DELETE FROM chat_member cm WHERE cm.userId = :userId AND cm.chatId = :chatId;
+""", nativeQuery = true)
+    void deleteMember(Integer userId, Integer chatId);
 }

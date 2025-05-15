@@ -226,8 +226,7 @@ public class ChatService {
     @Transactional
     public void deleteChatMember(int chat_id, int user_id) {
         try{
-            GroupChat groupChat = groupChatRepo.findById(chat_id).orElse(null);
-            chatMemberRepo.deleteByUserIdAndChat_Id(user_id, groupChat);
+            chatMemberRepo.deleteMember(user_id, chat_id);
             log.info("Удалён пользователь с id " + user_id + " из чата с id " + chat_id);
         }
         catch (Exception e) {
