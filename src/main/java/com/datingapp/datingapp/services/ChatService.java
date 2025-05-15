@@ -222,4 +222,28 @@ public class ChatService {
         }
     }
 
+
+    @Transactional
+    public void deleteChatMember(int chat_id, int user_id) {
+        try{
+            chatMemberRepo.deleteByUserIdAndChatId(user_id, chat_id);
+            log.info("Удалён пользователь с id " + user_id + " из чата с id " + chat_id);
+        }
+        catch (Exception e) {
+            throw new RuntimeException("Ошибка при удалении пользователя из чата: " + e.getMessage());
+        }
+    }
+
+    @Transactional
+    public void deleteChat(int chat_id) {
+        try{
+            groupChatRepo.deleteById(chat_id);
+            log.info("Удалён чат с id " + chat_id);
+        }
+        catch (Exception e) {
+            throw new RuntimeException("Ошибка при удалении чата: " + e.getMessage());
+        }
+
+    }
+
 }

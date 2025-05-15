@@ -65,4 +65,15 @@ public class ChatController {
         return ResponseEntity.ok().build();
     }
 
+    @DeleteMapping("/group_chats/{chatId}/users/{userId}")
+    public ResponseEntity<Void> removeMemberFromChat(@PathVariable int chatId, @PathVariable int userId) {
+        chatService.deleteChatMember(chatId, userId);
+        return ResponseEntity.ok().build();
+    }
+
+    @DeleteMapping("/group_chats/{chatId}")
+    public ResponseEntity<Void> removeChat(@PathVariable int chatId) {
+        chatService.deleteChat(chatId);
+        return ResponseEntity.ok().build();
+    }
 }

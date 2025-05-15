@@ -26,4 +26,6 @@ WHERE cm.chat_id = :chatId;
     List<Object[]> findByChatId(Integer chatId);
 
     List<ChatMember> findByUserId(Integer userId);
+
+    void deleteByUserIdAndChatId(Integer userId, Integer chatId);
 }
