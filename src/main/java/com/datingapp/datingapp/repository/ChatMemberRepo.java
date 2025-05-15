@@ -30,5 +30,5 @@ WHERE cm.chat_id = :chatId;
     @Query(value = """
 DELETE FROM chat_member cm WHERE cm.user_id = :userId AND cm.chat_id = :chatId;
 """, nativeQuery = true)
-    void deleteMember(Integer userId, Integer chatId);
+    int deleteMember(Integer userId, Integer chatId);
 }

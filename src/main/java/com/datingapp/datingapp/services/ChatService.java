@@ -226,7 +226,10 @@ public class ChatService {
     @Transactional
     public void deleteChatMember(int chat_id, int user_id) {
         try{
-            chatMemberRepo.deleteMember(user_id, chat_id);
+            int count = chatMemberRepo.deleteMember(user_id, chat_id);
+            if (count < 1) {
+                log.info("Нет такого пользователя или чата!");
+            }
             log.info("Удалён пользователь с id " + user_id + " из чата с id " + chat_id);
         }
         catch (Exception e) {
