@@ -4,10 +4,12 @@ import com.datingapp.datingapp.controller.MessageController;
 import com.datingapp.datingapp.entity.*;
 import com.datingapp.datingapp.exception.ChatAlreadyExistsException;
 import com.datingapp.datingapp.exception.ChatNotFoundException;
+import com.datingapp.datingapp.exception.UserNotExistsExceptions;
 import com.datingapp.datingapp.repository.*;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.Column;
 import lombok.RequiredArgsConstructor;
+import org.hibernate.grammars.hql.HqlParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -224,13 +226,23 @@ public class ChatService {
 
 
     @Transactional
-    public void deleteChatMember(int chat_id, int user_id) {
+    public void deleteChatMember(int chat_id, int user_id, int creator_id) throws UserNotExistsExceptions {
+        GroupChat groupChat = groupChatRepo.getGroupChatByPkGroupChat(chat_id);
+        if(groupChat == null){
+            throw new ChatNotFoundException("Нет чата с таким id + " +chat_id);
+        }
+        if(!groupChat.getCreatedBy().equals(creator_id)){
+            throw new RuntimeException("Удалять участников чата может только создатель чата!");
+        }
         try{
             int count = chatMemberRepo.deleteMember(user_id, chat_id);
             if (count < 1) {
-                log.info("Нет такого пользователя или чата!");
+                throw new UserNotExistsExceptions("Нет такого пользователя или чата");
             }
             log.info("Удалён пользователь с id " + user_id + " из чата с id " + chat_id);
+        }
+        catch (UserNotExistsExceptions ex){
+            throw new UserNotExistsExceptions("Ошибка при удалении пользователя чата: " + ex.getMessage());
         }
         catch (Exception e) {
             throw new RuntimeException("Ошибка при удалении пользователя из чата: " + e.getMessage());
@@ -238,7 +250,14 @@ public class ChatService {
     }
 
     @Transactional
-    public void deleteChat(int chat_id) {
+    public void deleteChat(int chat_id, int creator_id) {
+        GroupChat groupChat = groupChatRepo.getGroupChatByPkGroupChat(chat_id);
+        if(groupChat == null){
+            throw new ChatNotFoundException("Нет чата с таким id + " +chat_id);
+        }
+        if(!groupChat.getCreatedBy().equals(creator_id)){
+            throw new RuntimeException("Удалять чат может только создатель чата!");
+        }
         try{
             groupChatRepo.deleteById(chat_id);
             log.info("Удалён чат с id " + chat_id);

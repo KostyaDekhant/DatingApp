@@ -1,6 +1,7 @@
 package com.datingapp.datingapp.controller;
 
 import com.datingapp.datingapp.entity.*;
+import com.datingapp.datingapp.exception.UserNotExistsExceptions;
 import com.datingapp.datingapp.services.ChatService;
 import com.datingapp.datingapp.services.MessageService;
 import lombok.RequiredArgsConstructor;
@@ -65,15 +66,15 @@ public class ChatController {
         return ResponseEntity.ok().build();
     }
 
-    @DeleteMapping("/group_chats/{chatId}/users/{userId}")
-    public ResponseEntity<Void> removeMemberFromChat(@PathVariable int chatId, @PathVariable int userId) {
-        chatService.deleteChatMember(chatId, userId);
+    @DeleteMapping("/group_chats/{chatId}/users/{userId}/creator/{creatorID}")
+    public ResponseEntity<Void> removeMemberFromChat(@PathVariable int chatId, @PathVariable int userId, @PathVariable int creatorId) throws UserNotExistsExceptions {
+        chatService.deleteChatMember(chatId, userId, creatorId);
         return ResponseEntity.ok().build();
     }
 
-    @DeleteMapping("/group_chats/{chatId}")
-    public ResponseEntity<Void> removeChat(@PathVariable int chatId) {
-        chatService.deleteChat(chatId);
+    @DeleteMapping("/group_chats/{chatId}/creator/{creatorID}")
+    public ResponseEntity<Void> removeChat(@PathVariable int chatId, @PathVariable int creatorId) {
+        chatService.deleteChat(chatId, creatorId);
         return ResponseEntity.ok().build();
     }
 }
