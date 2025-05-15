@@ -5,6 +5,7 @@ import com.datingapp.datingapp.entity.ChatMemberDTO;
 import com.datingapp.datingapp.entity.GroupChat;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -30,5 +31,5 @@ WHERE cm.chat_id = :chatId;
     @Query(value = """
 DELETE FROM chat_member cm WHERE cm.user_id = :userId AND cm.chat_id = :chatId;
 """, nativeQuery = true)
-    int deleteMember(Integer userId, Integer chatId);
+    int deleteMember(@Param("userId") Integer userId, @Param("chatId") Integer chatId);
 }
