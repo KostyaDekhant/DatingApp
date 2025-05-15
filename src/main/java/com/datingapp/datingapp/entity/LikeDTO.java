@@ -35,4 +35,15 @@ public class LikeDTO {
         this.image = image;
         this.birthday = birthday;
     }
+
+    @Override
+    public String toString() {
+        return "LikeDTO{" +
+                "liker=" + liker +
+                ", poster=" + poster +
+                ", time=" + time +
+                ", name='" + name + '\'' +
+                ", birthday=" + birthday +
+                '}';
+    }
 }

@@ -54,7 +54,6 @@ public class GroupChatDto{
         return "GroupChatDto{" +
                 "pkGroupChat=" + pkGroupChat +
                 ", name='" + name + '\'' +
-                ", image=" + Arrays.toString(image) +
                 ", lastMessage='" + lastMessage + '\'' +
                 ", groupChatInfoDto=" + groupChatInfoDto +
                 '}';

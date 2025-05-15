@@ -31,7 +31,6 @@ public class ChatMemberDTO {
         return "ChatMemberDTO{" +
                 "username='" + username + '\'' +
                 ", userId=" + userId +
-                ", avatar=" + Arrays.toString(avatar) +
                 '}';
     }
 }
