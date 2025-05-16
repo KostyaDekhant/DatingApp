@@ -21,14 +21,18 @@ import com.google.android.material.textfield.TextInputEditText;
 
 public class SigninFragment extends Fragment {
 
+    /* === Repository === */
+    private UserRepository userRepository;
+
+    /* === Android Objects === */
+    private TextInputEditText inputLogin;
+    private TextInputEditText inputPass;
+    private View activityView;
+
     public SigninFragment() {
         // Required empty public constructor
     }
 
-    private UserRepository userRepository;
-    private TextInputEditText inputLogin;
-    private TextInputEditText inputPass;
-    private View activityView;
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {

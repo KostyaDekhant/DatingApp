@@ -44,12 +44,17 @@ import java.util.List;
 
 public class CreateGroupChatFragment extends Fragment {
 
-    private View activityView;
-    private List<ChatMemberDTO> chatMembers;
-    private UserDTO user;
+    /* === Repository === */
     private ChatsRepository chatsRepository;
+
+    /* === Android Objects === */
     private ActivityResultLauncher<Intent> imagePickerLauncher;
     private ImageView avatarImageView;
+    private View activityView;
+
+    /* === Other === */
+    private List<ChatMemberDTO> chatMembers;
+    private UserDTO user;
     private Bitmap selectedAvatarBitmap;
 
     private CreateGroupChatFragment() {};

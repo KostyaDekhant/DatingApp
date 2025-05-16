@@ -31,18 +31,22 @@ import java.util.Locale;
 
 public class SignupFragment extends Fragment {
 
-    public SignupFragment() {
-        // Required empty public constructor
-    }
-
+    /* === Repository === */
     private UserRepository userRepository;
 
+    /* === Android Objects === */
     private View activityView;
     private TextInputEditText inputAge;
     private TextInputEditText inputLogin;
     private TextInputEditText inputPass;
     private TextInputEditText inputName;
+
+    /* === Other === */
     private String login, pass, name, birthday;
+
+    public SignupFragment() {
+        // Required empty public constructor
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,

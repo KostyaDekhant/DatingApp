@@ -34,9 +34,13 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 public class GroupChatMembersFragment extends Fragment {
 
+    /* === Repository === */
     private ChatsRepository chatsRepository;
+
+    /* === Android Objects === */
     private View activityView;
 
+    /* === Other === */
     private ChatMembersViewModel viewModel;
     private ChatMembersAdapter adapter;
 

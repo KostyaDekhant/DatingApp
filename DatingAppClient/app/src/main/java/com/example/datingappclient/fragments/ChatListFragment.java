@@ -66,6 +66,24 @@ public class ChatListFragment extends Fragment {
         return activityView;
     }
 
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        setupViewModel();
+        getUserChats();
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        chatsViewModel.disconnectWebSocket();
+    }
+
     private void setupCreateChatButton() {
         FloatingActionButton fabCreateChat = activityView.findViewById(R.id.createChat);
         fabCreateChat.setOnClickListener(v -> {
@@ -73,13 +91,6 @@ public class ChatListFragment extends Fragment {
                     .addToBackStack(null)
                     .commit();
         });
-    }
-
-    @Override
-    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
-        setupViewModel();
-        getUserChats();
     }
 
     private void setupViewModel() {
@@ -98,17 +109,6 @@ public class ChatListFragment extends Fragment {
         recyclerView.setAdapter(chatsAdapter);
 
         chatsViewModel.getChats().observe(getViewLifecycleOwner(), chatsAdapter::submitList);
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-    }
-
-    @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-        chatsViewModel.disconnectWebSocket();
     }
 
     private void setupRepository() {
