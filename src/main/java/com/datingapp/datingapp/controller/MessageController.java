@@ -43,7 +43,7 @@ public class MessageController {
 
     @MessageMapping("/send")
     //@SendToUser("/topic/messages/{chat_id}")
-    public void sendMessage(@RequestBody MessageDTO messageDTO) { //Message
+    public void sendMessage(@RequestBody MessageDTO messageDTO) { //MessageDTO
         log.info(messageDTO.toString());
         Message mess = new Message(messageDTO);
         int chat_id = mess.getPkChat();
