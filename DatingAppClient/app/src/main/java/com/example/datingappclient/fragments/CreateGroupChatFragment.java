@@ -123,11 +123,7 @@ public class CreateGroupChatFragment extends Fragment {
     private void setupCreateChatButton() {
         FloatingActionButton fabCreateChat = activityView.findViewById(R.id.createChat);
         fabCreateChat.setOnClickListener(v -> {
-
             createGroupChat(getChatDTO());
-            /*etParentFragmentManager().beginTransaction().replace(R.id.fragment_container, CreateGroupChatFragment.newInstance(adapter.getSelectedMembers()))
-                    .addToBackStack(null)
-                    .commit();*/
         });
     }
 
@@ -139,8 +135,7 @@ public class CreateGroupChatFragment extends Fragment {
         byte[] chatImage = ImageUtils.convertBitmapToPrimitiveBytes(selectedAvatarBitmap);
 
         // add user to chat members
-        byte[] userImage = ImageUtils.convertBitmapToPrimitiveBytes(user.getMainImage());
-        chatMembers.add(new ChatMemberDTO(user.getName(), user.getId(), userImage));
+        chatMembers.add(new ChatMemberDTO(null, user.getId(), null));
 
         // create group chat
         ChatInfoDTO groupChatInfo = new ChatInfoDTO(user.getId(), null, chatMembers, true);
@@ -163,19 +158,10 @@ public class CreateGroupChatFragment extends Fragment {
     }
 
     private void goToChatActivity(ChatDTO chat) {
-       /* Context context = activityView.getContext();
-        Intent intent = new Intent(context, ChatActivity.class)
-                .putExtra("senderID", user.getId())
-                .putExtra("receiverID", groupChat.getGroupChatId())
-                .putExtra("username", groupChat.getName())
-                .putExtra("image", groupChat.getImage());
-        context.startActivity(intent);*/
         Intent intent = new Intent(requireContext(), ChatActivity.class);
         intent.putExtra("userId", user.getId());
         ChatDTO.selectedChat = chat;
         startActivity(intent);
-
-
         requireActivity().getSupportFragmentManager().popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
     }
 

@@ -17,7 +17,6 @@ import com.example.datingappclient.model.AuthResponse;
 import com.example.datingappclient.model.dto.ChatDTO;
 import com.example.datingappclient.recyclerViews.messageList.MessagesAdapter;
 import com.example.datingappclient.model.dto.MessageDTO;
-import com.example.datingappclient.utils.DateUtils;
 import com.example.datingappclient.utils.ImageUtils;
 import com.example.datingappclient.viewmodels.DialogViewModel;
 import com.example.datingappclient.viewmodels.factory.DialogViewModelFactory;
@@ -25,7 +24,9 @@ import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
 
 import java.sql.Timestamp;
-import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 
 public class ChatActivity extends AppCompatActivity {
 
@@ -99,9 +100,12 @@ public class ChatActivity extends AppCompatActivity {
         sendButton.setOnClickListener(view -> {
             String message = messageInput.getText().toString().trim();
             if (!message.isEmpty()) {
+                LocalDateTime dateTime = LocalDateTime.now(ZoneId.systemDefault());
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+                Timestamp timestamp = Timestamp.valueOf(dateTime.format(formatter));
                 MessageDTO messageDTO = new MessageDTO(
                         message,
-                        (Timestamp) Timestamp.from(Instant.now()),
+                        timestamp,
                         userId,
                         chat.getGroupChatId());
                 viewModel.sendMessage(messageDTO);
