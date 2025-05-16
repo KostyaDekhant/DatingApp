@@ -17,14 +17,17 @@ import com.example.datingappclient.retrofit.repository.TokenRepository;
 
 public class AuthActivity extends AppCompatActivity {
 
+    /* === Repository === */
     private TokenRepository tokenRepository;
+
+    /* === Other === */
     private boolean isAppReady = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         SplashScreen splashScreen = SplashScreen.installSplashScreen(this);
+        // Верни true — сплеш остаётся, false — исчезает
         splashScreen.setKeepOnScreenCondition(() -> {
-            // Верни true — сплеш остаётся, false — исчезает
             return !isAppReady;
         });
 
@@ -34,7 +37,6 @@ public class AuthActivity extends AppCompatActivity {
         AuthResponse authResponse = getAuthResponse();
         if (authResponse.isExists()) {
             tokenRepository = new TokenRepository(getApplicationContext());
-            // пользователь уже вошёл — открыть основной экран
             checkToken(authResponse);
         }
         else startAuth();
@@ -46,6 +48,7 @@ public class AuthActivity extends AppCompatActivity {
             switch (result.status) {
                 case SUCCESS:
                     if (result.data) {
+                        // пользователь уже вошёл — открыть основной экран
                         Log.i(logTag, "Пользователь авторизован: userId=" + authResponse.getUserId() + " token=" + authResponse.getToken());
                         startMainActivity(authResponse);
                     }

@@ -1,7 +1,5 @@
 package com.example.datingappclient.model;
 
-import android.graphics.Bitmap;
-
 import java.util.List;
 
 import lombok.AllArgsConstructor;

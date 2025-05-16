@@ -26,17 +26,17 @@ import com.google.android.material.navigation.NavigationView;
 
 public class MainActivity extends AppCompatActivity {
 
+    /* === Android Object === */
+    private DrawerLayout drawerLayout;
+
+    /* === Other === */
     private int userId;
     private UserDTO user;
-
-    private DrawerLayout drawerLayout;
-    private TextView navHeaderNameLabel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         // init view
         super.onCreate(savedInstanceState);
-        //  EdgeToEdge.enable(this);
         setContentView(R.layout.activity_main);
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
