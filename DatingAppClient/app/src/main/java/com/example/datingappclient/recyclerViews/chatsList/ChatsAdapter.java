@@ -46,7 +46,7 @@ public class ChatsAdapter extends ListAdapter<ChatDTO, ChatsHolder> {
         ChatDTO chat = getItem(position);
 
         holder.username.setText(chat.getName());
-        holder.setReceiverID(chat.getGroupChatId());
+        holder.setReceiverID(chat.getId());
         // render init last message
         holder.lastMessage.setText(chat.getLastMessage());
 
@@ -61,9 +61,9 @@ public class ChatsAdapter extends ListAdapter<ChatDTO, ChatsHolder> {
         }
 
         // Подписка на LiveData для сообщений этого чата
-        viewModel.getMessageStream(chat.getGroupChatId())
+        viewModel.getMessageStream(chat.getId())
                 .observe(lifecycleOwner, message -> {
-                    if (message != null && chat.getGroupChatInfo() != null && !chat.getGroupChatInfo().getIsGroup()) {
+                    if (message != null && chat.getChatInfo() != null && !chat.getChatInfo().getIsGroup()) {
                         String prefix = (message.getSenderId() == senderId) ? "Вы: " : "";
                         holder.lastMessage.setText(prefix + message.getMessage());
                     }
@@ -77,7 +77,7 @@ public class ChatsAdapter extends ListAdapter<ChatDTO, ChatsHolder> {
     private static final DiffUtil.ItemCallback<ChatDTO> DIFF_CALLBACK = new DiffUtil.ItemCallback<>() {
         @Override
         public boolean areItemsTheSame(@NonNull ChatDTO oldItem, @NonNull ChatDTO newItem) {
-            return oldItem.getGroupChatId().equals(newItem.getGroupChatId());
+            return oldItem.getId().equals(newItem.getId());
         }
 
         @Override

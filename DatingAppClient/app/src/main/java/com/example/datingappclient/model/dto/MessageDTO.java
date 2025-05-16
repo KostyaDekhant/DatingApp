@@ -1,7 +1,7 @@
 package com.example.datingappclient.model.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.google.gson.annotations.SerializedName;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.sql.Timestamp;
 
@@ -14,20 +14,20 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 public class MessageDTO {
-    @SerializedName("pk_message")
+    @JsonProperty("pk_message")
     private int id;
 
-    @SerializedName("message")
+    @JsonProperty("message")
     private String message;
 
-    @SerializedName("time")
+    @JsonProperty("time")
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX")
     private Timestamp sendtime;
 
-    @SerializedName("pk_user")
+    @JsonProperty("pk_user")
     private int senderId;
 
-    @SerializedName("pk_chat")
+    @JsonProperty("pk_chat")
     private int chatId;
 
     public MessageDTO(String message, Timestamp sendtime, int senderId, int chatId) {
@@ -35,5 +35,16 @@ public class MessageDTO {
         this.sendtime = sendtime;
         this.senderId = senderId;
         this.chatId = chatId;
+    }
+
+    @Override
+    public String toString() {
+        return "MessageDTO{" +
+                "id=" + id +
+                ", message='" + message + '\'' +
+                ", sendtime=" + sendtime +
+                ", senderId=" + senderId +
+                ", chatId=" + chatId +
+                '}';
     }
 }

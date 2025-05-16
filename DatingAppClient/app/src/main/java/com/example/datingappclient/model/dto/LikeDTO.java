@@ -22,7 +22,7 @@ public class LikeDTO {
     private int posterId;
 
     @SerializedName("name")
-    private String name;
+    private String userName;
 
     @SerializedName("image")
     @JsonAdapter(ByteDeserializer.class)

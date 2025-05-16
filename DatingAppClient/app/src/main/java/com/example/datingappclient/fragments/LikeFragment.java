@@ -155,7 +155,7 @@ public class LikeFragment extends Fragment {
             imageView.setImageBitmap(image);
         }
 
-        String username = like.getName();
+        String username = like.getUserName();
         int age = DateUtils.dateToAge(like.getBirthday());
 
         usernameLabel.setText(username + ",");
@@ -271,7 +271,7 @@ public class LikeFragment extends Fragment {
 
     private ChatDTO getGroupChatFromLike(LikeDTO like) {
         List<ChatMemberDTO> chatMembers = new ArrayList<>();
-        chatMembers.add(new ChatMemberDTO(like.getName(), like.getLikerId(), like.getImage())); // TODO: передача изображения
+        chatMembers.add(new ChatMemberDTO(like.getUserName(), like.getLikerId(), like.getImage())); // TODO: передача изображения
         chatMembers.add(new ChatMemberDTO(user.getName(), user.getId(), ImageUtils.convertBitmapToPrimitiveBytes(user.getMainImage())));
 
         java.sql.Timestamp timestamp = new Timestamp(System.currentTimeMillis());
@@ -281,7 +281,7 @@ public class LikeFragment extends Fragment {
     }
 
     private void startChatActivity(int chatId, LikeDTO like) {
-        ChatDTO chat = new ChatDTO(chatId, like.getName(), null, like.getImage(), null);
+        ChatDTO chat = new ChatDTO(chatId, like.getUserName(), null, like.getImage(), null);
         Intent intent = new Intent(requireContext(), ChatActivity.class);
         intent.putExtra("userId", user.getId());
         ChatDTO.selectedChat = chat;

@@ -47,17 +47,17 @@ public class ChatMembersAdapter extends ListAdapter<ChatMemberDTO, ChatMembersAd
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         ChatMemberDTO chatMemberDTO = getItem(position);
-        holder.nameTextView.setText(chatMemberDTO.getUsername());
+        holder.nameTextView.setText(chatMemberDTO.getName());
         //holder.statusTextView.setText(chatMemberDTO.get());
 
         // аватар
-        if (chatMemberDTO.getAvatar() != null) {
-            Bitmap bmp = ImageUtils.convertPrimitiveByteToBitmap(chatMemberDTO.getAvatar());
+        if (chatMemberDTO.getImage() != null) {
+            Bitmap bmp = ImageUtils.convertPrimitiveByteToBitmap(chatMemberDTO.getImage());
             holder.avatarImageView.setImageBitmap(ImageUtils.getCroppedBitmap(bmp));
         }
 
         // установить состояние выбора
-        boolean isSelected = selectedUserIds.contains(chatMemberDTO.getUserId());
+        boolean isSelected = selectedUserIds.contains(chatMemberDTO.getId());
         holder.container.setSelected(isSelected);
         holder.checkmark.setVisibility(isSelected ? View.VISIBLE : View.GONE);
         holder.avatarBorder.setVisibility(isSelected ? View.VISIBLE : View.GONE);
@@ -65,9 +65,9 @@ public class ChatMembersAdapter extends ListAdapter<ChatMemberDTO, ChatMembersAd
         // клик по элементу
         holder.itemView.setOnClickListener(v -> {
             if (isSelected) {
-                selectedUserIds.remove(chatMemberDTO.getUserId());
+                selectedUserIds.remove(chatMemberDTO.getId());
             } else {
-                selectedUserIds.add(chatMemberDTO.getUserId());
+                selectedUserIds.add(chatMemberDTO.getId());
             }
             notifyItemChanged(position);
         });
@@ -79,7 +79,7 @@ public class ChatMembersAdapter extends ListAdapter<ChatMemberDTO, ChatMembersAd
 
         userMap.clear();
         for (ChatMemberDTO member : members) {
-            userMap.put(member.getUserId(), member);
+            userMap.put(member.getId(), member);
         }
 
         submitList(new ArrayList<>(members)); // копия для мутабельности
@@ -92,7 +92,7 @@ public class ChatMembersAdapter extends ListAdapter<ChatMemberDTO, ChatMembersAd
         } else {
             String lower = query.toLowerCase();
             for (ChatMemberDTO member : allMembers) {
-                if (member.getUsername() != null && member.getUsername().toLowerCase().contains(lower)) {
+                if (member.getName() != null && member.getName().toLowerCase().contains(lower)) {
                     filtered.add(member);
                 }
             }
@@ -131,7 +131,7 @@ public class ChatMembersAdapter extends ListAdapter<ChatMemberDTO, ChatMembersAd
     static final DiffUtil.ItemCallback<ChatMemberDTO> DIFF_CALLBACK = new DiffUtil.ItemCallback<>() {
         @Override
         public boolean areItemsTheSame(@NonNull ChatMemberDTO oldItem, @NonNull ChatMemberDTO newItem) {
-            return oldItem.getUserId().equals(newItem.getUserId());
+            return oldItem.getId().equals(newItem.getId());
         }
 
         @Override

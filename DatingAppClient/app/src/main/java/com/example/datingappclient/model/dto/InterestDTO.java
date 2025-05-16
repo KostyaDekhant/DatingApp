@@ -10,7 +10,7 @@ import lombok.Setter;
 public class InterestDTO{
 
     @SerializedName("pk_interest")
-    private Integer interestId;
+    private Integer id;
 
     @SerializedName("pk_category")
     private Integer categoryId;

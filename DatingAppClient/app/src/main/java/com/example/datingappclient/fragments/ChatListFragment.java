@@ -137,8 +137,8 @@ public class ChatListFragment extends Fragment {
     private void startChatActivity(ChatDTO chat) {
         Intent intent = new Intent(requireContext(), ChatActivity.class);
         intent.putExtra("userId", user.getId());
-        getChatInfo(chat.getGroupChatId(), chatInfo -> {
-            chat.setGroupChatInfo(chatInfo);
+        getChatInfo(chat.getId(), chatInfo -> {
+            chat.setChatInfo(chatInfo);
             ChatDTO.selectedChat = chat;
             startActivity(intent);
         });

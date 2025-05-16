@@ -5,7 +5,6 @@ import android.animation.ArgbEvaluator;
 import android.animation.ObjectAnimator;
 import android.animation.ValueAnimator;
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -147,7 +146,7 @@ public class CreateGroupChatFragment extends Fragment {
         chatsRepository.createChat(groupChat, result -> {
             switch (result.status) {
                 case SUCCESS:
-                    groupChat.setGroupChatId(result.data);
+                    groupChat.setId(result.data);
                     goToChatActivity(groupChat);
                     break;
                 case ERROR:

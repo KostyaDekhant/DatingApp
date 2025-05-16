@@ -56,7 +56,7 @@ public class ChatActivity extends AppCompatActivity {
         AuthResponse authResponse = getAuthResponse();
 
         // Инициализируем ViewModel с кастомной фабрикой
-        viewModel = new ViewModelProvider(this, new DialogViewModelFactory(authResponse.getToken(), chat.getGroupChatId())).get(DialogViewModel.class);
+        viewModel = new ViewModelProvider(this, new DialogViewModelFactory(authResponse.getToken(), chat.getId())).get(DialogViewModel.class);
 
         renderUsername();
         renderProfileImage();
@@ -77,7 +77,7 @@ public class ChatActivity extends AppCompatActivity {
     private void viewModelSubscribe() {
         // Подписка на историю сообщений (запросятся при подписке)
         viewModel.getHistoryMessages().observe(this, messages -> {
-            messagesAdapter = new MessagesAdapter(messages, userId, chat.getGroupChatInfo());
+            messagesAdapter = new MessagesAdapter(messages, userId, chat.getChatInfo());
             messagesRecyclerView.setAdapter(messagesAdapter);
             messagesRecyclerView.scrollToPosition(messagesAdapter.getItemCount() - 1);
         });
@@ -102,7 +102,6 @@ public class ChatActivity extends AppCompatActivity {
         sendButton.setOnClickListener(view -> {
             TextInputEditText messageInput = findViewById(R.id.message_inputEdit);
             String message = messageInput.getText().toString().trim();
-
             if (!message.isEmpty()) {
                 LocalDateTime dateTime = LocalDateTime.now(ZoneId.systemDefault());
                 DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
@@ -111,7 +110,7 @@ public class ChatActivity extends AppCompatActivity {
                         message,
                         timestamp,
                         userId,
-                        chat.getGroupChatId());
+                        chat.getId());
                 viewModel.sendMessage(messageDTO);
                 messageInput.setText("");
                 Log.i(logTag, messageDTO.toString());
@@ -141,7 +140,6 @@ public class ChatActivity extends AppCompatActivity {
     }
 
     private void setChat() {
-        // Get args from activity
         Bundle arguments = getIntent().getExtras();
         chat = ChatDTO.selectedChat;
         userId = arguments.getInt("userId");

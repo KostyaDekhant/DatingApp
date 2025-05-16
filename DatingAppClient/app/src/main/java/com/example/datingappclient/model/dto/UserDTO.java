@@ -41,9 +41,9 @@ public class UserDTO
     @JsonProperty("gender")
     private String gender;
     @JsonProperty("is_online")
-    private Boolean is_online;
+    private Boolean isOnline;
     @JsonProperty("last_online")
-    private Timestamp last_online;
+    private Timestamp lastOnline;
 
     @JsonIgnore
     transient private List<UserImage> images = new ArrayList<>();
@@ -60,8 +60,8 @@ public class UserDTO
                 ", birthday=" + birthday +
                 ", height=" + height +
                 ", gender='" + gender + '\'' +
-                ", is_online=" + is_online +
-                ", last_online=" + last_online +
+                ", is_online=" + isOnline +
+                ", last_online=" + lastOnline +
                 '}';
     }
 
@@ -82,8 +82,8 @@ public class UserDTO
         this.description = other.description;
         this.height = other.height;
         this.gender = other.gender;
-        this.is_online = other.is_online;
-        this.last_online = other.last_online;
+        this.isOnline = other.isOnline;
+        this.lastOnline = other.lastOnline;
         // и т.д.
     }
 

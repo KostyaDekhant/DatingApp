@@ -14,28 +14,28 @@ import lombok.Getter;
 @AllArgsConstructor
 public class ChatMemberDTO {
     @SerializedName("username")
-    private String username;
+    private String name;
 
     @SerializedName("userId")
-    private Integer userId;
+    private Integer id;
 
     @SerializedName("avatar")
     @JsonAdapter(ByteDeserializer.class)
-    private byte[]  avatar;
+    private byte[] image;
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (!(o instanceof ChatMemberDTO chatMember)) return false;
-        return Objects.equals(userId, chatMember.userId) &&
-                Objects.equals(username, chatMember.username) &&
-                Arrays.equals(avatar, chatMember.avatar);
+        return Objects.equals(id, chatMember.id) &&
+                Objects.equals(name, chatMember.name) &&
+                Arrays.equals(image, chatMember.image);
     }
 
     @Override
     public int hashCode() {
-        int result = Objects.hash(username, userId);
-        result = 31 * result + Arrays.hashCode(avatar);
+        int result = Objects.hash(name, id);
+        result = 31 * result + Arrays.hashCode(image);
         return result;
     }
 }
