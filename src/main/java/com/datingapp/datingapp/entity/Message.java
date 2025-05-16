@@ -55,6 +55,14 @@ public class Message {
         this.pkChat = -1;
     }
 
+    public Message(MessageDTO messageDTO) {
+        this.message = messageDTO.getMessage();
+        this.time = messageDTO.getTime();
+        this.pkUser = messageDTO.getPkUser();
+        this.pkChat = messageDTO.getPkChat();
+    }
+
+
     @Override
     public String toString() {
         return "Message{" +
