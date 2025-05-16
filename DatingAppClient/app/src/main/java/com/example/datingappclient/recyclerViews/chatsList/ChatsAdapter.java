@@ -64,7 +64,7 @@ public class ChatsAdapter extends ListAdapter<ChatDTO, ChatsHolder> {
         viewModel.getMessageStream(chat.getGroupChatId())
                 .observe(lifecycleOwner, message -> {
                     if (message != null && chat.getGroupChatInfo() != null && !chat.getGroupChatInfo().getIsGroup()) {
-                        String prefix = (message.getPk_user() == senderId) ? "Вы: " : "";
+                        String prefix = (message.getSenderId() == senderId) ? "Вы: " : "";
                         holder.lastMessage.setText(prefix + message.getMessage());
                     }
                 });

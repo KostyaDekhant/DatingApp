@@ -53,14 +53,14 @@ public class MessagesAdapter extends RecyclerView.Adapter<MessagesHolder> {
 
         holder.textMessage.setText(message.getMessage());
 
-        if (message.getTime() != null) {
+        if (message.getSendtime() != null) {
             @SuppressLint("SimpleDateFormat") SimpleDateFormat sdf = new SimpleDateFormat("HH:mm");
-            String time = sdf.format(message.getTime());
+            String time = sdf.format(message.getSendtime());
             holder.textDateTime.setText(time);
         }
 
         if (chatInfo != null && chatInfo.getIsGroup() && getItemViewType(position) == VIEW_TYPE_RECEIVED) {
-            ChatMemberDTO member = chatInfo.findMemberById(message.getPk_user());
+            ChatMemberDTO member = chatInfo.findMemberById(message.getSenderId());
             Bitmap avatar = ImageUtils.convertPrimitiveByteToBitmap(member.getAvatar());
             holder.avatarView.setImageBitmap(ImageUtils.getCroppedBitmap(avatar));
             holder.avatarView.setVisibility(VISIBLE);
@@ -74,7 +74,7 @@ public class MessagesAdapter extends RecyclerView.Adapter<MessagesHolder> {
 
     @Override
     public int getItemViewType(int position) {
-        if (messageList.get(position).getPk_user() == senderID) return VIEW_TYPE_SENT;
+        if (messageList.get(position).getSenderId() == senderID) return VIEW_TYPE_SENT;
         else return VIEW_TYPE_RECEIVED;
     }
 

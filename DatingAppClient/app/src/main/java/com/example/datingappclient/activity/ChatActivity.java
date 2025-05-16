@@ -3,6 +3,7 @@ package com.example.datingappclient.activity;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -13,6 +14,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.datingappclient.R;
+import com.example.datingappclient.constants.Constants;
 import com.example.datingappclient.model.AuthResponse;
 import com.example.datingappclient.model.dto.ChatDTO;
 import com.example.datingappclient.recyclerViews.messageList.MessagesAdapter;
@@ -95,10 +97,12 @@ public class ChatActivity extends AppCompatActivity {
     }
 
     private void setupSendButton() {
-        TextInputEditText messageInput = findViewById(R.id.message_inputEdit);
+        String logTag = Constants.GLOBAL_LOG_TAG + "CLICK SEND MESS";
         MaterialButton sendButton = findViewById(R.id.sendmess_button);
         sendButton.setOnClickListener(view -> {
+            TextInputEditText messageInput = findViewById(R.id.message_inputEdit);
             String message = messageInput.getText().toString().trim();
+
             if (!message.isEmpty()) {
                 LocalDateTime dateTime = LocalDateTime.now(ZoneId.systemDefault());
                 DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
@@ -110,6 +114,7 @@ public class ChatActivity extends AppCompatActivity {
                         chat.getGroupChatId());
                 viewModel.sendMessage(messageDTO);
                 messageInput.setText("");
+                Log.i(logTag, messageDTO.toString());
             }
         });
     }

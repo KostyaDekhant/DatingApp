@@ -15,25 +15,25 @@ import lombok.Setter;
 @NoArgsConstructor
 public class MessageDTO {
     @SerializedName("pk_message")
-    private int pk_message;
+    private int id;
 
     @SerializedName("message")
     private String message;
 
     @SerializedName("time")
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX")
-    private Timestamp time;
+    private Timestamp sendtime;
 
     @SerializedName("pk_user")
-    private int pk_user;
+    private int senderId;
 
     @SerializedName("pk_chat")
-    private int pk_chat;
+    private int chatId;
 
-    public MessageDTO(String message, Timestamp time, int pk_user, int pk_chat) {
+    public MessageDTO(String message, Timestamp sendtime, int senderId, int chatId) {
         this.message = message;
-        this.time = time;
-        this.pk_user = pk_user;
-        this.pk_chat = pk_chat;
+        this.sendtime = sendtime;
+        this.senderId = senderId;
+        this.chatId = chatId;
     }
 }
