@@ -94,11 +94,17 @@ public class ChatWebSocketService {
     @SuppressLint("CheckResult")
     public void sendMessage(MessageDTO message) {
         String logTag = Constants.GLOBAL_LOG_TAG + "STOMP SEND MESSAGE";
-        stompClient.send("/app/send", message.toString())
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(() -> Log.d(logTag, "Сообщение отправлено"),
-                        throwable -> Log.e(logTag, "Ошибка при отправке", throwable));
+        try {
+            String jsonMessage = objectMapper.writeValueAsString(message); // ✅ это корректный JSON
+            stompClient.send("/app/send", jsonMessage)
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(() -> Log.d(logTag, "Сообщение отправлено"),
+                            throwable -> Log.e(logTag, "Ошибка при отправке", throwable));
+
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @SuppressLint("CheckResult")

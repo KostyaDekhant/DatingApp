@@ -24,6 +24,9 @@ import com.example.datingappclient.viewmodels.factory.DialogViewModelFactory;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
 
+import java.sql.Timestamp;
+import java.time.Instant;
+
 public class ChatActivity extends AppCompatActivity {
 
     /* === View Models === */
@@ -98,7 +101,7 @@ public class ChatActivity extends AppCompatActivity {
             if (!message.isEmpty()) {
                 MessageDTO messageDTO = new MessageDTO(
                         message,
-                        DateUtils.getCurrentTimeStamp(),
+                        (Timestamp) Timestamp.from(Instant.now()),
                         userId,
                         chat.getGroupChatId());
                 viewModel.sendMessage(messageDTO);

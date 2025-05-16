@@ -2,8 +2,8 @@ package com.example.datingappclient.recyclerViews.messageList;
 
 import static android.view.View.VISIBLE;
 
+import android.annotation.SuppressLint;
 import android.graphics.Bitmap;
-import android.opengl.Visibility;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,6 +17,7 @@ import com.example.datingappclient.model.dto.ChatMemberDTO;
 import com.example.datingappclient.model.dto.MessageDTO;
 import com.example.datingappclient.utils.ImageUtils;
 
+import java.text.SimpleDateFormat;
 import java.util.List;
 
 public class MessagesAdapter extends RecyclerView.Adapter<MessagesHolder> {
@@ -52,8 +53,11 @@ public class MessagesAdapter extends RecyclerView.Adapter<MessagesHolder> {
 
         holder.textMessage.setText(message.getMessage());
 
-        if (message.getTime() != null)
-            holder.textDateTime.setText(message.getTime().substring(11, 16));
+        if (message.getTime() != null) {
+            @SuppressLint("SimpleDateFormat") SimpleDateFormat sdf = new SimpleDateFormat("HH:mm");
+            String time = sdf.format(message.getTime());
+            holder.textDateTime.setText(time);
+        }
 
         if (chatInfo != null && chatInfo.getIsGroup() && getItemViewType(position) == VIEW_TYPE_RECEIVED) {
             ChatMemberDTO member = chatInfo.findMemberById(message.getPk_user());
