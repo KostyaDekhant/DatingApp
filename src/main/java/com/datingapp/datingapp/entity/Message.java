@@ -23,7 +23,7 @@ public class Message {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "pk_message")
     @JsonProperty("pk_message")
-    private int pkMessage;
+    private Integer pkMessage;
 
     @Column(name = "message")
     @JsonProperty("message")
@@ -48,7 +48,6 @@ public class Message {
     }
 
     public Message() {
-        this.pkMessage = -1;
         this.message = "";
         this.time = new Timestamp(0);
         this.pkUser = -1;

@@ -24,6 +24,9 @@ public class MessageDTO {
     @JsonProperty("pk_chat")
     private int pkChat;
 
+    public MessageDTO() {
+    }
+
     public MessageDTO(Message message) {
         this.pk_message = message.getPkMessage();
         this.message = message.getMessage();
