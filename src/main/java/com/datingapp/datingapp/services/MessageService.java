@@ -1,6 +1,5 @@
 package com.datingapp.datingapp.services;
 
-import com.datingapp.datingapp.entity.MessageDTO;
 import com.datingapp.datingapp.repository.MessRepo;
 import com.datingapp.datingapp.entity.Message;
 import org.slf4j.Logger;
@@ -23,12 +22,7 @@ public class MessageService {
         return messRepo.save(message);
     }
 
-    public List<MessageDTO> getChatHistory(int chatId) {
-        List<Message> messages = messRepo.findChatMessages(chatId);
-        List<MessageDTO> messageDTO = List.of();
-        for (Message message : messages) {
-            messageDTO.add(new MessageDTO(message));
-        }
-        return messageDTO;
+    public List<Message> getChatHistory(int chatId) {
+        return messRepo.findChatMessages(chatId);
     }
 }

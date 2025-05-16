@@ -1,6 +1,5 @@
 package com.datingapp.datingapp.controller;
 
-import com.datingapp.datingapp.entity.MessageDTO;
 import com.datingapp.datingapp.services.MessageService;
 import com.datingapp.datingapp.entity.Message;
 import org.slf4j.Logger;
@@ -13,7 +12,6 @@ import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 
 import java.util.List;
 
@@ -43,9 +41,9 @@ public class MessageController {
 
     @MessageMapping("/send")
     //@SendToUser("/topic/messages/{chat_id}")
-    public void sendMessage(@RequestBody MessageDTO messageDTO) { //Message
-        log.info(messageDTO.toString());
-        Message mess = new Message(messageDTO);
+    public void sendMessage(@Payload String stompMessage) { //Message
+        log.info(stompMessage);
+        Message mess = Message.fromString(stompMessage);
         int chat_id = mess.getPkChat();
         try {
             simpMessagingTemplate.convertAndSend("/topic/messages/" + chat_id, messageService.saveMessage(mess));
@@ -65,7 +63,7 @@ public class MessageController {
 
     @MessageMapping("/history/{chatId}")
     @SendTo(value = "/topic/history/{chatId}") //
-    public List<MessageDTO> getChatHistory(@DestinationVariable int chatId) { //
+    public List<Message> getChatHistory(@DestinationVariable int chatId) { //
         log.info("История отправлена " + messageService.getChatHistory(chatId).toString());
         return messageService.getChatHistory(chatId);
     }
