@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -25,7 +26,7 @@ public class MessageService {
 
     public List<MessageDTO> getChatHistory(int chatId) {
         List<Message> messages = messRepo.findChatMessages(chatId);
-        List<MessageDTO> messageDTO = List.of();
+        List<MessageDTO> messageDTO = new ArrayList<>();
         for (Message message : messages) {
             messageDTO.add(new MessageDTO(message));
         }
