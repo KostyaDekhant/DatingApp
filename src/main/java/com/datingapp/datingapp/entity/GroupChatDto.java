@@ -3,10 +3,6 @@ package com.datingapp.datingapp.entity;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
-import java.sql.Timestamp;
-import java.util.Arrays;
-import java.util.List;
-
 @Data
 public class GroupChatDto{
     @JsonProperty("pk_group_chat")
@@ -26,12 +22,12 @@ public class GroupChatDto{
 
 
     public GroupChatDto() {
-        this.pkGroupChat = -1;
         this.name = "";
         this.lastMessage = "";
         //this.createdBy = -1;
         //this.createdAt = null;
         this.image = null;
+        this.groupChatInfoDto = null;
         //this.members = null;
     }
 

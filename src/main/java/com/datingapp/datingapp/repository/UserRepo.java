@@ -178,8 +178,53 @@ WHERE :chatId = c.pk_chat
                 (SELECT MIN(RowNum) FROM OrderedUsers WHERE pk_user > :prev_user_id),  
                 (SELECT MIN(RowNum) FROM OrderedUsers))
             """, nativeQuery = true)
-    List<Object[]> findQuestUsers(@Param("user_id") int pk_user,
+    List<Object[]> findQuestUsers1(@Param("user_id") int pk_user,
                                   @Param("prev_user_id") int prev_pk_user);
+
+
+    @Query(value = """  
+            SELECT u.pk_user, u.name, u.birthday, u.gender, u.height, u.description  
+            FROM "user" u  
+            WHERE u.pk_user = :user_id;
+            """, nativeQuery = true)
+    List<Object[]> findQuestUsersById(@Param("user_id") int pk_user);
+
+
+
+
+    @Query(value = """
+SELECT u.pk_user,
+       COALESCE(SUM(mi.weight * ui.weight),0) AS score
+FROM "user" u
+  LEFT JOIN user_interest ui
+    ON ui.pk_user = :user_id
+  -- джоин по интересам кандидата
+  LEFT JOIN user_interest mi
+    ON mi.pk_interest = ui.pk_interest
+   AND mi.pk_user = u.pk_user
+
+WHERE u.pk_user <> :user_id
+  AND date_part('year', age(current_date, u.birthday))::INT
+      BETWEEN :age_min AND :age_max
+  AND u.height BETWEEN :height_min AND :height_max
+  AND (
+       :gender = 'Both'      -- если параметр Both — не фильтруем по полу
+    OR u.gender = :gender    -- иначе оставляем только совпадающий
+  )
+
+GROUP BY u.pk_user, u.birthday, u.height
+HAVING COALESCE(SUM(mi.weight * ui.weight),0) >= 0   -- только с ненулевым совпадением
+ORDER BY score DESC
+LIMIT :limit OFFSET :offset;    
+    """, nativeQuery = true)
+    List<Object[]> findQuestUsers(@Param("user_id") int user_id,
+                                  @Param("age_min") int age_min,
+                                  @Param("age_max") int age_max,
+                                  @Param("height_min") int height_min,
+                                  @Param("height_max") int height_max,
+                                  @Param("gender") String gender,
+                                  @Param("limit") int limit,
+                                  @Param("offset") int offset);
 
 }
 

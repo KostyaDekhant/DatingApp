@@ -9,11 +9,13 @@ import lombok.RequiredArgsConstructor;
 import org.hibernate.query.NativeQuery;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Timestamp;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -23,10 +25,27 @@ public class FormsService {
     private static final Logger log = LoggerFactory.getLogger(UserController.class);
 
     @Transactional(readOnly = true)
-    public FormDTO findQuestUsers(int userId, int prevUserId) {
-        FormDTO result = getFormsFromObject(userRepo.findQuestUsers(userId, prevUserId));
+    public FormDTO findQuestUsers1(int userId, int prevUserId) {
+        FormDTO result = getFormsFromObject(userRepo.findQuestUsers1(userId, prevUserId));
         if (result == null) {
             throw new FormsNotFoundException("Анкеты не найдены для userId=" + userId);
+        }
+        return result;
+    }
+
+    @Transactional(readOnly = true)
+    public List<FormDTO> findQuestUsers(int userId, int age_min, int age_max, int height_min,
+                                        int height_max, int limit, int offset, String gender) {
+        List<Object[]> users = userRepo.findQuestUsers(userId, age_min, age_max, height_min,
+                height_max, gender, limit, offset);
+
+        if (users == null) {
+            throw new FormsNotFoundException("Анкеты не найдены для userId=" + userId);
+        }
+        List<FormDTO> result = new ArrayList<>();
+        for(int i = 0; i < limit; i++) {
+            Integer userIdForm = (Integer) users.get(i)[0];
+            result.add(getFormsFromObject(userRepo.findQuestUsersById(userIdForm)));
         }
         return result;
     }
@@ -42,4 +61,5 @@ public class FormsService {
         String    description     = (String)    object[5];
         return new FormDTO(name, birthday, gender, height, description, pk_user);
     }
+
 }

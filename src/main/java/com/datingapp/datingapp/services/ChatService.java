@@ -106,49 +106,75 @@ public class ChatService {
     }
 
     @Transactional
-    public List<GroupChatDto> getChats(int userId){
+    public List<GroupChatDto> getChats1(int userId){
         try {
             List<ChatMember> members = chatMemberRepo.findByUserId(userId);
             List<GroupChat> chatIds = members.stream()
                     .map(ChatMember::getChatId)
                     .toList();
-            //List<GroupChat> groupChats = groupChatRepo.findAllById(chatIds);
             List<GroupChatDto> groupChatDtos = new ArrayList<>();
             for(GroupChat groupChat : chatIds){//groupChats
                 Integer pkGroupChat = groupChat.getPkGroupChat();
                 String name = "";
-                byte[] image = null;
+                //byte[] image = null;
                 if(groupChat.getIsGroup()) {
                     name = groupChat.getName();
-                    image = groupChat.getImage();
+                    //image = groupChat.getImage();
                 }
                 else{
-                    List<Object[]> nameImages = groupChatRepo.getUserInfo(pkGroupChat, userId);
-                    Object[] nameImage = nameImages.get(0);
+                    //List<Object[]> nameImages = groupChatRepo.getUserInfo(pkGroupChat, userId);
+                    //Object[] nameImage = nameImages.get(0);
+                    name = groupChatRepo.getUserName(pkGroupChat, userId).getFirst();
                     // Если результат NULL (например, пользователь не найден)
-                    if (nameImage == null || nameImage.length < 2) {
-                        name = "";
-                        image = null;
-                    } else {
-                        name = (nameImage[0] != null) ? nameImage[0].toString() : "";
-                        try {
-                            image = (nameImage[1] != null) ? (byte[]) nameImage[1] : null;
-                        } catch (ClassCastException e) {
-                            image = null;
-                        }
-                    }
+//                    if (nameImage == null || nameImage.length < 2) {
+//                        name = "";
+//                        //image = null;
+//                    } else {
+//                        name = (nameImage[0] != null) ? nameImage[0].toString() : "";
+////                        try {
+////                            image = (nameImage[1] != null) ? (byte[]) nameImage[1] : null;
+////                        } catch (ClassCastException e) {
+////                            image = null;
+////                        }
+//                    }
                 }
                 String message = messRepo.getLastMessage(pkGroupChat);
-                GroupChatDto groupChatDto = new GroupChatDto(pkGroupChat, name, image, message);
+                GroupChatDto groupChatDto = new GroupChatDto(pkGroupChat, name,null, message);
                 groupChatDtos.add(groupChatDto);
             }
-            log.info("Полученные чаты: " + groupChatDtos.toString());
+            //log.info("Полученные чаты: " + groupChatDtos.toString());
             return groupChatDtos;
         }
         catch (Exception e) {
             throw new ChatNotFoundException("Ошибка при поиске чата: " + e.getMessage());
         }
     }
+
+    @Transactional
+    public List<GroupChatDto> getChats(int userId){
+        try {
+            List<GroupChatDto> groupChatDtos =
+                    getChatsInfoFromObject(groupChatRepo.getChatsInfo(userId));
+            return groupChatDtos;
+        }
+        catch (Exception e) {
+            throw new ChatNotFoundException("Ошибка при поиске чата: " + e.getMessage());
+        }
+    }
+
+    private List<GroupChatDto> getChatsInfoFromObject(List<Object[]> chatsInfo) {
+        List<GroupChatDto> groupChatDtos = new ArrayList<>();
+        for (var chatInfo : chatsInfo) {
+            GroupChatDto groupChatDto = new GroupChatDto();
+            groupChatDto.setPkGroupChat((((Number) chatInfo[0]).intValue()));
+            groupChatDto.setName((String) chatInfo[1]);
+            groupChatDto.setLastMessage(((String) chatInfo[2]));
+            groupChatDtos.add(groupChatDto);
+        }
+        return groupChatDtos;
+    }
+
+
 
     @Transactional
     public GroupChatInfoDto getChatInfo(int chatId){

@@ -36,4 +36,8 @@ public class FormDTO {
         this.description = description;
         this.pk_user = pk_user;
     }
+
+    public FormDTO() {
+
+    }
 }
