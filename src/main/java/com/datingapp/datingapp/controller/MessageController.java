@@ -1,5 +1,6 @@
 package com.datingapp.datingapp.controller;
 
+import com.datingapp.datingapp.entity.HistoryRequest;
 import com.datingapp.datingapp.entity.MessageDTO;
 import com.datingapp.datingapp.services.MessageService;
 import com.datingapp.datingapp.entity.Message;
@@ -63,9 +64,8 @@ public class MessageController {
     @MessageMapping("/history/{chatId}")
     @SendTo(value = "/topic/history/{chatId}") //
     public List<MessageDTO> getChatHistory(@DestinationVariable int chatId,
-                                           @Header("limit")  int limit,
-                                           @Header("offset") int offset) { //
+                                           @Payload HistoryRequest req) { //
         //log.info("История отправлена " + messageService.getChatHistory(chatId).toString());
-        return messageService.getChatHistory(chatId, limit, offset);
+        return messageService.getChatHistory(chatId, req.getLimit(), req.getOffset());
     }
 }
