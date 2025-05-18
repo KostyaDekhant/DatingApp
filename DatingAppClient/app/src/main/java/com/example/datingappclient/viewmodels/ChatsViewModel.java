@@ -8,6 +8,7 @@ import com.example.datingappclient.model.dto.ChatDTO;
 import com.example.datingappclient.model.dto.MessageDTO;
 import com.example.datingappclient.websocket.ChatWebSocketService;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class ChatsViewModel extends ViewModel {
@@ -30,6 +31,17 @@ public class ChatsViewModel extends ViewModel {
      */
     public void setChats(List<ChatDTO> chatList) {
         chats.setValue(chatList);
+    }
+
+    public void addChats(List<ChatDTO> newChats) {
+        List<ChatDTO> currentList = chats.getValue();
+
+        if (currentList == null || currentList.isEmpty()) {
+            chats.setValue(new ArrayList<>(newChats));
+        } else {
+            currentList.addAll(newChats);
+            chats.setValue(currentList);
+        }
     }
 
     /**

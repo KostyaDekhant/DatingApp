@@ -1,6 +1,7 @@
 package com.example.datingappclient.recyclerViews.chatsList;
 
 import android.graphics.Bitmap;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -44,6 +45,8 @@ public class ChatsAdapter extends ListAdapter<ChatDTO, ChatsHolder> {
     @Override
     public void onBindViewHolder(@NonNull ChatsHolder holder, int position) {
         ChatDTO chat = getItem(position);
+        Log.d("ADAPTER", "Отображается чат: " + chat.getName() + " [" + position + "]");
+        Log.d("RV_ITEM_HEIGHT", "itemView height: " + holder.itemView.getHeight());
 
         holder.username.setText(chat.getName());
         holder.setReceiverID(chat.getId());
@@ -77,12 +80,14 @@ public class ChatsAdapter extends ListAdapter<ChatDTO, ChatsHolder> {
     private static final DiffUtil.ItemCallback<ChatDTO> DIFF_CALLBACK = new DiffUtil.ItemCallback<>() {
         @Override
         public boolean areItemsTheSame(@NonNull ChatDTO oldItem, @NonNull ChatDTO newItem) {
-            return oldItem.getId().equals(newItem.getId());
+            return false;
+            //return oldItem.getId().equals(newItem.getId());
         }
 
         @Override
         public boolean areContentsTheSame(@NonNull ChatDTO oldItem, @NonNull ChatDTO newItem) {
-            return oldItem.equals(newItem); // должен быть переопределён equals
+            return false;
+            //return oldItem.equals(newItem); // должен быть переопределён equals
         }
     };
 }

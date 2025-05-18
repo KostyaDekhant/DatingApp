@@ -11,6 +11,7 @@ import retrofit2.http.Body;
 import retrofit2.http.GET;
 import retrofit2.http.POST;
 import retrofit2.http.Path;
+import retrofit2.http.Query;
 
 public interface ChatsAPI {
     /* === Group Chats === */
@@ -19,6 +20,9 @@ public interface ChatsAPI {
 
     @GET("api/group_chats/users/{userId}")
     Call<List<ChatDTO>> getGroupChats(@Path("userId") int userId);
+
+    @GET("api/group_chats")
+    Call<List<ChatDTO>> getGroupChats(@Query("userId") int userId, @Query("limit") int limit, @Query("offset") int offset);
 
     @GET("api/group_chats/{chatId}/users/{userId}")
     Call<List<ChatMemberDTO>> getChatMembers(@Path("userId") int userId, @Path("chatId") int chatId);

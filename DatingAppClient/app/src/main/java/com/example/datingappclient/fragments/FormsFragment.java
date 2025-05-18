@@ -98,7 +98,7 @@ public class FormsFragment extends Fragment {
         setupCardStackView();
 
         // Загружаем первую анкету при создании фрагмента
-        getForms(LIMIT, () -> {});
+        getForms(() -> {});
 
         return activityView;
     }
@@ -139,7 +139,8 @@ public class FormsFragment extends Fragment {
     interface LoadInterface { void onLoad(); }
     // TODO: передавать фильтры из отдельной формы
     private int offset = 0;
-    private void getForms(int limit, LoadInterface callback) {
+    private void getForms(LoadInterface callback) {
+        int limit = Constants.FORMS_LIMIT;
         String logTag = Constants.GLOBAL_LOG_TAG + "GET FORMS";
         formsRepository.fetchForms(userId, 0, 100, 0, 200, "Both", limit, offset, result -> {
             switch (result.status) {
@@ -335,7 +336,7 @@ public class FormsFragment extends Fragment {
 
     private void checkFormsCount() {
         if (adapter.getItemCount() < LIMIT) {
-            getForms(LIMIT, () -> {});
+            getForms(() -> {});
         }
     }
 

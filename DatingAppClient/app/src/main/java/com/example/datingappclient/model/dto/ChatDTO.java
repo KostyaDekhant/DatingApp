@@ -40,15 +40,12 @@ public class ChatDTO {
         if (!(o instanceof ChatDTO chat)) return false;
         return Objects.equals(id, chat.id) &&
                 Objects.equals(name, chat.name) &&
-                Objects.equals(chatInfo, chat.chatInfo) &&
-                Arrays.equals(image, chat.image);
+                Objects.equals(lastMessage, chat.lastMessage);
     }
 
     @Override
     public int hashCode() {
-        int result = Objects.hash(id, name, chatInfo);
-        result = 31 * result + Arrays.hashCode(image);
-        return result;
+        return Objects.hash(id, name, lastMessage);
     }
 
 }

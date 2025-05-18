@@ -47,8 +47,8 @@ public class ChatsRepository {
         });
     }
 
-    public void fetchUserChats(int userId, ResultCallback<List<ChatDTO>> callback) {
-        chatsAPI.getGroupChats(userId).enqueue(new Callback<>() {
+    public void fetchUserChats(int userId, int limit, int offset, ResultCallback<List<ChatDTO>> callback) {
+        chatsAPI.getGroupChats(userId, limit, offset).enqueue(new Callback<>() {
             @Override
             public void onResponse(Call<List<ChatDTO>> call, Response<List<ChatDTO>> response) {
                 if (response.isSuccessful()) {

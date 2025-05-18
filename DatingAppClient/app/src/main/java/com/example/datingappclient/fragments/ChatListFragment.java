@@ -39,6 +39,7 @@ public class ChatListFragment extends Fragment {
 
     /* === Other === */
     private UserDTO user;
+    private int offset;
 
     /* === Server exchange === */
     private ChatsViewModel chatsViewModel;
@@ -61,7 +62,10 @@ public class ChatListFragment extends Fragment {
         setupCreateChatButton();
 
         recyclerView = activityView.findViewById(R.id.chatsList_recyclerView);
-        recyclerView.setLayoutManager(new LinearLayoutManager(activityView.getContext()));
+        recyclerView.setHasFixedSize(false);
+        recyclerView.setItemViewCacheSize(20);
+        recyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
+        recyclerView.getRecycledViewPool().setMaxRecycledViews(0, 0);
 
         return activityView;
     }
@@ -108,7 +112,10 @@ public class ChatListFragment extends Fragment {
 
         recyclerView.setAdapter(chatsAdapter);
 
-        chatsViewModel.getChats().observe(getViewLifecycleOwner(), chatsAdapter::submitList);
+        chatsViewModel.getChats().observe(getViewLifecycleOwner(), chatList -> {
+            chatsAdapter.submitList(chatList);
+            chatsAdapter.notifyDataSetChanged();
+        });
     }
 
     private void setupRepository() {
@@ -117,12 +124,17 @@ public class ChatListFragment extends Fragment {
     }
 
     private void getUserChats() {
+        int limit = Constants.CHATS_LIMIT;
         String logTag = Constants.GLOBAL_LOG_TAG + "GET CHATS";
-        chatsRepository.fetchUserChats(user.getId(), result -> {
+        chatsRepository.fetchUserChats(user.getId(), limit, offset, result -> {
             switch (result.status) {
                 case SUCCESS:
                     Log.d(logTag, "Получено чатов: " + result.data.size());
-                    chatsViewModel.setChats(result.data);
+                    offset += limit;
+                    // Если получили кол-во чатов = offset, то запрашиваем еще раз
+                    if (result.data.size() == limit) getUserChats();
+                    //chatsViewModel.setChats(result.data);
+                    chatsViewModel.addChats(result.data);
                     break;
                 case EMPTY:
                     Log.i(logTag, "Чаты для пользователя " + user.getId() + " отсутствуют!");
