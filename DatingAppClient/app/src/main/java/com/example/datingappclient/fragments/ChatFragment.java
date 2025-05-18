@@ -1,28 +1,30 @@
-package com.example.datingappclient.activity;
+package com.example.datingappclient.fragments;
+
+import static android.content.Context.MODE_PRIVATE;
 
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import androidx.activity.EdgeToEdge;
-import androidx.appcompat.app.AppCompatActivity;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.datingappclient.R;
 import com.example.datingappclient.constants.Constants;
-import com.example.datingappclient.fragments.ChatEditFragment;
-import com.example.datingappclient.fragments.ChatFragment;
-import com.example.datingappclient.fragments.UserFragment;
 import com.example.datingappclient.model.AuthResponse;
 import com.example.datingappclient.model.dto.ChatDTO;
-import com.example.datingappclient.recyclerViews.messageList.MessagesAdapter;
 import com.example.datingappclient.model.dto.MessageDTO;
+import com.example.datingappclient.recyclerViews.messageList.MessagesAdapter;
 import com.example.datingappclient.utils.ImageUtils;
 import com.example.datingappclient.viewmodels.DialogViewModel;
 import com.example.datingappclient.viewmodels.factory.DialogViewModelFactory;
@@ -34,12 +36,11 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 
-public class ChatActivity extends AppCompatActivity {
-
-    /* === View Models === */
-    private DialogViewModel viewModel;
+public class ChatFragment extends Fragment {
+    /* === Repository === */
 
     /* === Android Objects === */
+    private View activityView;
     private RecyclerView messagesRecyclerView;
     private MessagesAdapter messagesAdapter;
 
@@ -47,17 +48,25 @@ public class ChatActivity extends AppCompatActivity {
     Integer userId;
     private ChatDTO chat;
 
+    /* === View Models === */
+    private DialogViewModel viewModel;
+
+
+    private ChatFragment() {}
+
+    public static ChatFragment newInstance (Integer userId, ChatDTO chat) {
+        ChatFragment chatFragment = new ChatFragment();
+        chatFragment.chat = chat;
+        chatFragment.userId = userId;
+        return chatFragment;
+    }
+
+    @Nullable
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        EdgeToEdge.enable(this);
-        setContentView(R.layout.activity_chat);
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        activityView = inflater.inflate(R.layout.fragment_dialog, container, false);
 
-        setChat();
-
-        getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, ChatFragment.newInstance(userId, chat)).commit();
-
-        /*setupMessageRecyclerView();
+        setupMessageRecyclerView();
 
         AuthResponse authResponse = getAuthResponse();
 
@@ -70,49 +79,54 @@ public class ChatActivity extends AppCompatActivity {
         setupSendButton();
         openChatEdit();
 
-        viewModelSubscribe();*/
+        viewModelSubscribe();
+
+        return activityView;
     }
 
-    /*@Override
-    protected void onDestroy() {
+    @Override
+    public void onDestroy() {
         super.onDestroy();
         viewModel.disconnect(); // Закрываем соединение
         ChatDTO.selectedChat = null;
-    }*/
-
-    private void setChat() {
-        Bundle arguments = getIntent().getExtras();
-        chat = ChatDTO.selectedChat;
-        userId = arguments.getInt("userId");
     }
 
-    /*private void viewModelSubscribe() {
+    private void openChatEdit() {
+        View field = activityView.findViewById(R.id.userinfo);
+        field.setOnClickListener((view -> {
+            getParentFragmentManager().beginTransaction().replace(R.id.fragment_container, ChatEditFragment.newInstance())
+                    .addToBackStack(null)
+                    .commit();
+        }));
+    }
+
+    private void viewModelSubscribe() {
         // Подписка на историю сообщений (запросятся при подписке)
-        viewModel.getHistoryMessages().observe(this, messages -> {
+        viewModel.getHistoryMessages().observe(this.getViewLifecycleOwner(), messages -> {
             messagesAdapter = new MessagesAdapter(messages, userId, chat.getChatInfo());
             messagesRecyclerView.setAdapter(messagesAdapter);
             messagesRecyclerView.scrollToPosition(messagesAdapter.getItemCount() - 1);
         });
 
         // Подписка на новые входящие сообщения
-        viewModel.getNewMessage().observe(this, message -> {
+        viewModel.getNewMessage().observe(this.getViewLifecycleOwner(), message -> {
             messagesAdapter.addMessage(message);
             messagesRecyclerView.scrollToPosition(messagesAdapter.getItemCount() - 1);
         });
-    }*/
+    }
 
-    /*private void setupMessageRecyclerView() {
-        messagesRecyclerView = findViewById(R.id.messages_recyclerView);
-        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
+    private void setupMessageRecyclerView() {
+        messagesRecyclerView = activityView.findViewById(R.id.messages_recyclerView);
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(requireContext());
         linearLayoutManager.setStackFromEnd(true);
         messagesRecyclerView.setLayoutManager(linearLayoutManager);
     }
 
     private void setupSendButton() {
         String logTag = Constants.GLOBAL_LOG_TAG + "CLICK SEND MESS";
-        MaterialButton sendButton = findViewById(R.id.sendmess_button);
+        MaterialButton sendButton = activityView.findViewById(R.id.sendmess_button);
         sendButton.setOnClickListener(view -> {
-            TextInputEditText messageInput = findViewById(R.id.message_inputEdit);
+            TextInputEditText messageInput = activityView.findViewById(R.id.message_inputEdit);
             String message = messageInput.getText().toString().trim();
             if (!message.isEmpty()) {
                 LocalDateTime dateTime = LocalDateTime.now(ZoneId.systemDefault());
@@ -131,17 +145,17 @@ public class ChatActivity extends AppCompatActivity {
     }
 
     private void renderUsername() {
-        TextView usernameLabel = findViewById(R.id.username_label);
+        TextView usernameLabel = activityView.findViewById(R.id.username_label);
         usernameLabel.setText(chat.getName());
     }
 
     private void setupReturnButton() {
-        MaterialButton returnButton = findViewById(R.id.return_button);
-        returnButton.setOnClickListener(view -> finish());
+        MaterialButton returnButton = activityView.findViewById(R.id.return_button);
+        returnButton.setOnClickListener(view -> getActivity().finish());
     }
 
     private void renderChatImage() {
-        ImageView profileImage = findViewById(R.id.profile_image);
+        ImageView profileImage = activityView.findViewById(R.id.profile_image);
         if (chat.getImage() != null) {
             Bitmap croppedImage = ImageUtils.getCroppedBitmap(ImageUtils.convertPrimitiveByteToBitmap(chat.getImage()));
             profileImage.setImageBitmap(croppedImage);
@@ -152,9 +166,9 @@ public class ChatActivity extends AppCompatActivity {
 
 
     private AuthResponse getAuthResponse() {
-        SharedPreferences prefs = getSharedPreferences("auth", MODE_PRIVATE);
+        SharedPreferences prefs = requireContext().getSharedPreferences("auth", MODE_PRIVATE);
         int userId = prefs.getInt("userId", -1);
         String token = prefs.getString("token", null);
         return new AuthResponse(token, userId);
-    }*/
+    }
 }

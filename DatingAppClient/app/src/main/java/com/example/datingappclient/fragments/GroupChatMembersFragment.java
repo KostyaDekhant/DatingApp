@@ -57,7 +57,7 @@ public class GroupChatMembersFragment extends Fragment {
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        activityView = inflater.inflate(R.layout.fragment_add_members_to_groupchat, container, false);
+        activityView = inflater.inflate(R.layout.fragment_add_members_to_new_chat, container, false);
         setupRepository();
         setupToolbar();
         setupNextButton();
