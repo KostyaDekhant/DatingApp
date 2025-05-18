@@ -91,7 +91,7 @@ public class ChatsAdapter extends ListAdapter<ChatDTO, ChatsHolder> {
         chatsRepository.fetchChatAvatar(senderId, chat.getId(), result -> {
             switch (result.status) {
                 case SUCCESS:
-                    Log.i(logTag, "Получено изображение");
+                    Log.i(logTag, "Получено изображение для чата " + chat.getId());
                     chat.setImage(result.data.get(0).getImage());
                     break;
                 case ERROR:
