@@ -3,7 +3,6 @@ package com.example.datingappclient.activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
@@ -17,7 +16,7 @@ import com.example.datingappclient.R;
 import com.example.datingappclient.fragments.ChatListFragment;
 import com.example.datingappclient.fragments.GroupChatMembersFragment;
 import com.example.datingappclient.fragments.LikeFragment;
-import com.example.datingappclient.fragments.SearchFragment;
+import com.example.datingappclient.fragments.FormsFragment;
 import com.example.datingappclient.fragments.UserFragment;
 import com.example.datingappclient.model.AuthResponse;
 import com.example.datingappclient.model.dto.UserDTO;
@@ -70,7 +69,7 @@ public class MainActivity extends AppCompatActivity {
             } else if (itemId == R.id.like) {
                 selectedFragment = LikeFragment.newInstance(user);
             } else if (itemId == R.id.search) {
-                selectedFragment = SearchFragment.newInstance(userId);
+                selectedFragment = FormsFragment.newInstance(userId);
             } else if (itemId == R.id.chat) {
                 selectedFragment = ChatListFragment.newInstance(user);
             } else if (itemId == R.id.slidemenu) {

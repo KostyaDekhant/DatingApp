@@ -4,13 +4,19 @@
     android:id="@+id/search_frame"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".fragments.SearchFragment">
+    tools:context=".fragments.FormsFragment">
 
     <View
         android:id="@+id/swipe_overlay"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:visibility="gone" />
+
+    <com.yuyakaido.android.cardstackview.CardStackView
+        android:id="@+id/profile_image"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
 
     <TextView
         android:id="@+id/empty_text"
@@ -21,9 +27,4 @@
         android:textStyle="bold"
         android:textSize="?attr/textSizeLarge"
         android:visibility="gone" />
-
-    <com.yuyakaido.android.cardstackview.CardStackView
-        android:id="@+id/profile_image"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent" />
 </FrameLayout>

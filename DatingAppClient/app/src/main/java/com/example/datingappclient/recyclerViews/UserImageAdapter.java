@@ -1,5 +1,6 @@
 package com.example.datingappclient.recyclerViews;
 
+import android.graphics.Bitmap;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -31,11 +32,13 @@ public class UserImageAdapter extends RecyclerView.Adapter<UserImageAdapter.View
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        holder.imageView.setImageBitmap(images.get(position).getImage());
+        Bitmap image = images.get(position).getImage();
+        holder.imageView.setImageBitmap(image);
     }
 
     @Override
     public int getItemCount() {
+        if (images == null) return 0;
         return images.size();
     }
 

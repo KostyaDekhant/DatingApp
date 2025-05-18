@@ -1,11 +1,16 @@
 package com.example.datingappclient.fragments;
 
+import static android.view.View.GONE;
+import static android.view.View.VISIBLE;
+
+import android.annotation.SuppressLint;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Interpolator;
 import android.widget.FrameLayout;
 import android.widget.TextView;
 
@@ -30,11 +35,12 @@ import com.yuyakaido.android.cardstackview.CardStackListener;
 import com.yuyakaido.android.cardstackview.CardStackView;
 import com.yuyakaido.android.cardstackview.Direction;
 import com.yuyakaido.android.cardstackview.StackFrom;
+import com.yuyakaido.android.cardstackview.SwipeableMethod;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class SearchFragment extends Fragment {
+public class FormsFragment extends Fragment {
 
     /* === CONSTANTS === */
     private static final String ARG_CLIENT_ID = "client_id";
@@ -48,21 +54,24 @@ public class SearchFragment extends Fragment {
     private View activityView;
     private FrameLayout frameLayout;
     private View swipeOverlay;
+    private CardStackView cardStackView;
+    private CardStackLayoutManager layoutManager;
 
     /* === Other === */
     private int userId;         // ID юзера приложения
     private int currentUserId ; // ID юзера текущей анкеты
+    private final int LIMIT = 5;
 
     private final List<ProfileCardData> profiles = new ArrayList<>(); // Массив карточек юзеров (заполняется по ходу работы)
     private ProfileCardAdapter adapter;
 
     /* === Methods === */
-    public SearchFragment() {
+    public FormsFragment() {
         // Required empty public constructor
     }
 
-    public static SearchFragment newInstance(int userId) {
-        SearchFragment fragment = new SearchFragment();
+    public static FormsFragment newInstance(int userId) {
+        FormsFragment fragment = new FormsFragment();
         Bundle args = new Bundle();
         args.putInt(ARG_CLIENT_ID, userId);
         fragment.setArguments(args);
@@ -78,16 +87,18 @@ public class SearchFragment extends Fragment {
         if (getArguments() != null) {
             userId = getArguments().getInt(ARG_CLIENT_ID);
         }
-        
+
         setupRepository();
-        
+
         frameLayout = activityView.findViewById(R.id.search_frame);
         swipeOverlay = activityView.findViewById(R.id.swipe_overlay);
 
-        // Загружаем первую анкету при создании фрагмента
-        getForm();
-        // Задаем параметры карточки анкеты
+        adapter = new ProfileCardAdapter(new ArrayList<>());
+
         setupCardStackView();
+
+        // Загружаем первую анкету при создании фрагмента
+        getForms(LIMIT, () -> {});
 
         return activityView;
     }
@@ -99,9 +110,9 @@ public class SearchFragment extends Fragment {
     }
 
     // Метод загрузки следующей анкеты
-    private void getForm() {
+    private void getForm__old() {
         String logTag = Constants.GLOBAL_LOG_TAG + "GET FORM";
-        formsRepository.fetchForm(userId, currentUserId, result -> {
+        formsRepository.fetchForm__old(userId, currentUserId, result -> {
             switch (result.status) {
                 case SUCCESS:
                     FormDTO form = result.data;
@@ -109,7 +120,7 @@ public class SearchFragment extends Fragment {
                     currentUserId = form.getUserId();
                     getUserImages(currentUserId, (images) -> {
                         int age = DateUtils.dateToAge(form.getBirthday());
-                        profiles.add(new ProfileCardData(form.getName(), age, form.getDescription(), images));
+                        profiles.add(new ProfileCardData(form.getUserId(), form.getName(), age, form.getDescription(), images));
                         adapter.notifyItemInserted(profiles.size() - 1);
                     });
                     break;
@@ -119,10 +130,90 @@ public class SearchFragment extends Fragment {
                 case EMPTY:
                     Log.i(logTag, "Анкет для пользователя " + userId + " нет!");
                     TextView emptyTextView = activityView.findViewById(R.id.empty_text);
-                    emptyTextView.setVisibility(View.VISIBLE);
+                    emptyTextView.setVisibility(VISIBLE);
                     break;
             }
         });
+    }
+
+    interface LoadInterface { void onLoad(); }
+    // TODO: передавать фильтры из отдельной формы
+    private int offset = 0;
+    private void getForms(int limit, LoadInterface callback) {
+        String logTag = Constants.GLOBAL_LOG_TAG + "GET FORMS";
+        formsRepository.fetchForms(userId, 0, 100, 0, 200, "Both", limit, offset, result -> {
+            switch (result.status) {
+                case SUCCESS:
+                    offset += limit;
+                    Log.i(logTag, "Успешно получены анкеты " +  result.data.size());
+
+                    List<ProfileCardData> old = adapter.getProfiles();
+                    List<ProfileCardData> updated = new ArrayList<>(old);
+
+                    List<ProfileCardData> newForms = parseForms(result.data);
+
+                    // Отложим добавление в конец, чтобы избежать "всплытия"
+                    cardStackView.post(() -> {
+                        int currentPosition = layoutManager.getTopPosition();
+
+                        updated.addAll(newForms);
+                        adapter.setProfiles(updated);
+
+                        layoutManager.scrollToPosition(currentPosition);
+                        cardStackView.setVisibility(VISIBLE);
+                    });
+
+                    // Загружаем изображения после безопасного обновления
+                    for (FormDTO form : result.data) {
+                        getUserImages(form.getUserId(), (images) -> adapter.updateImages(form.getUserId(), images));
+                    }
+                    break;
+                case ERROR:
+                    Log.e(logTag, result.error);
+                    break;
+                case EMPTY:
+                    Log.i(logTag, "Анкет не найдено");
+                    break;
+            }
+            callback.onLoad();
+        });
+    }
+
+    private List<ProfileCardData> parseForms(List<FormDTO> data) {
+        List<ProfileCardData> newForms = new ArrayList<>();
+        for (FormDTO form : data) {
+            int age = DateUtils.dateToAge(form.getBirthday());
+            ProfileCardData profile = new ProfileCardData(
+                    form.getUserId(),
+                    form.getName(),
+                    age,
+                    form.getDescription(),
+                    null);
+            newForms.add(profile);
+        }
+        return newForms;
+    }
+
+    private void setUserImages(Integer userId, List<UserImage> images) {
+        List<ProfileCardData> current = adapter.getProfiles();
+        List<ProfileCardData> updated = new ArrayList<>(current);
+
+        for (int i = 0; i < updated.size(); i++) {
+            ProfileCardData profile = updated.get(i);
+            if (userId.equals(profile.getUserId())) {
+                // заменяем объект на новый (важно для корректного equals)
+                updated.set(i, new ProfileCardData(
+                        profile.getUserId(),
+                        profile.getName(),
+                        profile.getAge(),
+                        profile.getDescription(),
+                        images // новые изображения
+                ));
+                break;
+            }
+        }
+
+        adapter.setProfiles(updated); // 🔁 через DiffUtil, безопасно
     }
 
     // Колбэк ответа получения изображений
@@ -166,25 +257,23 @@ public class SearchFragment extends Fragment {
 
     // Тут можно задать параметры самого свайпа
     private void setupCardStackView() {
-        CardStackView cardStackView = activityView.findViewById(R.id.profile_image);
-
-        CardStackLayoutManager layoutManager = new CardStackLayoutManager(activityView.getContext(), setupCardStackListener());
+        cardStackView = activityView.findViewById(R.id.profile_image);
+        layoutManager = new CardStackLayoutManager(requireContext(), setupCardStackListener());
 
         layoutManager.setStackFrom(StackFrom.None);
         layoutManager.setVisibleCount(3);
-        layoutManager.setTranslationInterval(8.0f);
-        layoutManager.setScaleInterval(0.95f);
+        layoutManager.setScaleInterval(0.6f);
         layoutManager.setSwipeThreshold(0.3f);
-        layoutManager.setMaxDegree(20.0f);
+        layoutManager.setMaxDegree(10.0f);
         layoutManager.setDirections(Direction.HORIZONTAL);
         layoutManager.setCanScrollVertical(false);
 
+        cardStackView.setVisibility(View.INVISIBLE);
         cardStackView.setLayoutManager(layoutManager);
-        adapter = new ProfileCardAdapter(profiles);
+        cardStackView.setItemAnimator(null);
         cardStackView.setAdapter(adapter);
     }
 
-    // Тут можно настроить все действия при свайпе
     private CardStackListener setupCardStackListener() {
         return new CardStackListener() {
             @Override
@@ -204,18 +293,22 @@ public class SearchFragment extends Fragment {
             }
 
             @Override public void onCardSwiped(Direction direction) {
+                // animate
                 swipeAnimateFlash(direction);
-                getForm();
-                if (direction == Direction.Right) {
-                    sendLikeToPoster(userId, currentUserId);
-                }
                 frameLayout.setBackgroundColor(Color.TRANSPARENT);
+
+                // send like
+                if (direction == Direction.Right) sendLikeToPoster(userId, (int)adapter.getItemId(0));
+
+                // remove card
+                removeCard();
+
+                // check count
+                checkFormsCount();
             }
 
             @Override
-            public void onCardRewound() {
-
-            }
+            public void onCardRewound() {}
 
             @Override
             public void onCardCanceled() {
@@ -223,15 +316,39 @@ public class SearchFragment extends Fragment {
             }
 
             @Override
-            public void onCardAppeared(View view, int position) {
-
-            }
+            public void onCardAppeared(View view, int position) {}
 
             @Override
-            public void onCardDisappeared(View view, int position) {
-
-            }
+            public void onCardDisappeared(View view, int position) {}
         };
+    }
+
+    private void removeCard() {
+        List<ProfileCardData> newList = new ArrayList<>(adapter.getProfiles());
+        newList.remove(0);
+        adapter.setProfiles(newList);
+
+        if (newList.isEmpty()) {
+            renderEmptyLabel();
+        }
+    }
+
+    private void checkFormsCount() {
+        if (adapter.getItemCount() < LIMIT) {
+            getForms(LIMIT, () -> {});
+        }
+    }
+
+    private void renderEmptyLabel() {
+        TextView emptyTextView = activityView.findViewById(R.id.empty_text);
+        if (adapter.getItemCount() == 0) {
+            cardStackView.setVisibility(GONE);
+            emptyTextView.setVisibility(VISIBLE);
+        }
+        else {
+            cardStackView.setVisibility(VISIBLE);
+            emptyTextView.setVisibility(GONE);
+        }
     }
 
     // Анимация вспышки при свайпе в сторону
@@ -247,13 +364,13 @@ public class SearchFragment extends Fragment {
 
         swipeOverlay.setBackgroundColor(flashColor);
         swipeOverlay.setAlpha(1f);
-        swipeOverlay.setVisibility(View.VISIBLE);
+        swipeOverlay.setVisibility(VISIBLE);
 
         swipeOverlay.animate()
                 .alpha(0f)
                 .setDuration(400)
                 .withEndAction(() -> {
-                    swipeOverlay.setVisibility(View.GONE);
+                    swipeOverlay.setVisibility(GONE);
                     swipeOverlay.setAlpha(1f);
                 })
                 .start();

@@ -8,6 +8,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager2.widget.ViewPager2;
 
@@ -19,12 +20,21 @@ import com.google.android.material.tabs.TabLayoutMediator;
 
 import java.util.List;
 
+import lombok.Getter;
+
 public class ProfileCardAdapter extends RecyclerView.Adapter<ProfileCardAdapter.ViewHolder> {
 
+    @Getter
     private final List<ProfileCardData> profiles;
 
     public ProfileCardAdapter(List<ProfileCardData> profiles) {
         this.profiles = profiles;
+        setHasStableIds(true);
+    }
+
+    @Override
+    public long getItemId(int position) {
+        return profiles.get(position).getUserId(); // уникальный ID
     }
 
     @NonNull
@@ -38,13 +48,47 @@ public class ProfileCardAdapter extends RecyclerView.Adapter<ProfileCardAdapter.
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         holder.bind(profiles.get(position));
-        UserImageAdapter imageAdapter = new UserImageAdapter(profiles.get(position).getImages());
-        holder.setProfileImage(imageAdapter);
+        holder.setProfileImage(new UserImageAdapter(profiles.get(position).getImages()));
+    }
+
+    @Override
+    public void onBindViewHolder(@NonNull ViewHolder holder, int position, @NonNull List<Object> payloads) {
+        if (!payloads.isEmpty() && payloads.contains("images_only")) {
+            holder.updateImagesOnly(profiles.get(position).getImages());
+        } else {
+            super.onBindViewHolder(holder, position, payloads);
+        }
     }
 
     @Override
     public int getItemCount() {
         return profiles.size();
+    }
+
+    public void setProfiles(List<ProfileCardData> newProfiles) {
+        // Сначала считаем разницу
+        DiffUtil.DiffResult diffResult = DiffUtil.calculateDiff(
+                new ProfileDiffCallback(this.profiles, newProfiles)
+        );
+
+        // Потом применяем разницу к адаптеру
+        diffResult.dispatchUpdatesTo(this);
+
+        // И только после этого обновляем список
+        this.profiles.clear();
+        this.profiles.addAll(newProfiles);
+    }
+
+    public void updateImages(int userId, List<UserImage> images) {
+        for (int i = 0; i < profiles.size(); i++) {
+            ProfileCardData profile = profiles.get(i);
+            if (profile.getUserId() == userId) {
+                profile.setImages(images);
+
+                notifyItemChanged(i, "images_only");
+                break;
+            }
+        }
     }
 
     static class ViewHolder extends RecyclerView.ViewHolder {
@@ -72,7 +116,7 @@ public class ProfileCardAdapter extends RecyclerView.Adapter<ProfileCardAdapter.
             // Обрабатываем переключение фоток
             setupImageViewTouchListener();
 
-            if (!images.isEmpty()) {
+            if (images != null && !images.isEmpty()) {
                 imageView.setCurrentItem(0);
             }
         }
@@ -118,6 +162,44 @@ public class ProfileCardAdapter extends RecyclerView.Adapter<ProfileCardAdapter.
                 }
                 return true;
             });
+        }
+
+        public void updateImagesOnly(List<UserImage> images) {
+            this.images = images;
+            setProfileImage(new UserImageAdapter(images));
+        }
+    }
+
+    static class ProfileDiffCallback extends DiffUtil.Callback {
+        private final List<ProfileCardData> oldList;
+        private final List<ProfileCardData> newList;
+
+        public ProfileDiffCallback(List<ProfileCardData> oldList, List<ProfileCardData> newList) {
+            this.oldList = oldList;
+            this.newList = newList;
+        }
+
+        @Override
+        public int getOldListSize() {
+            return oldList.size();
+        }
+
+        @Override
+        public int getNewListSize() {
+            return newList.size();
+        }
+
+        @Override
+        public boolean areItemsTheSame(int oldItemPosition, int newItemPosition) {
+            // Предположим, что userId уникален
+            return oldList.get(oldItemPosition).getUserId() ==
+                    newList.get(newItemPosition).getUserId();
+        }
+
+        @Override
+        public boolean areContentsTheSame(int oldItemPosition, int newItemPosition) {
+            // Проверяем, изменились ли данные полностью
+            return oldList.get(oldItemPosition).equals(newList.get(newItemPosition));
         }
     }
 }
