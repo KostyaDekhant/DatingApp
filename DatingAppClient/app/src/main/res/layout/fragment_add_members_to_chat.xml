@@ -15,39 +15,60 @@
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
             android:background="?attr/colorOnPrimary"
-            app:title="Новая группа"
-            app:subtitle="Выберите участников"
-            app:titleTextColor="?attr/textColorMainReverse"
-            app:subtitleTextColor="?attr/textColorMainReverse"
+            app:title=""
             app:navigationIcon="@drawable/return_arrow" />
 
+
+        <!-- Контейнер аватара и имени -->
         <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:orientation="vertical">
-            <!-- Search -->
-            <EditText
-                android:id="@+id/searchEditText"
-                android:layout_width="match_parent"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:padding="16dp">
+
+            <!-- Фото чата -->
+            <ImageView
+                android:id="@+id/avatarImageView"
+                android:layout_width="72dp"
+                android:layout_height="72dp"
+                android:background="@drawable/bg_cameraicon_circle"
+                android:padding="16dp"
+                android:scaleType="centerCrop"
+                android:src="@drawable/ic_camera_add" />
+            <TextView
+                android:id="@+id/chatNameEditText"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="14dp"
-                android:paddingVertical="10dp"
                 android:layout_weight="1"
-                android:textCursorDrawable="@drawable/cursor_custom"
-                android:background="@android:color/transparent"
-                android:hint="Кого добавить?"
-                android:inputType="textCapSentences"
-                android:textColor="?attr/textColorMain"
-                android:textColorHint="?attr/textColorFade" />
+                android:text="GROUP NAME"
+                android:textSize="?attr/textSizeMedium"
+                android:textColor="?attr/textColorMain" />
+        </LinearLayout>
 
-            <!-- Полоска снизу -->
-            <View
-                android:id="@+id/underlineView"
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="10dp"
+            android:background="?attr/colorOnPrimary"/>
+
+        <LinearLayout
+            android:id="@+id/add_members"
+            android:gravity="center_vertical"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <ImageView
+                android:layout_width="48dp"
+                android:layout_height="46dp"
+                android:layout_marginHorizontal="16dp"
+                android:src="@drawable/ic_add_member" />
+
+            <TextView
                 android:layout_width="match_parent"
-                android:layout_height="3dp"
-                android:layout_marginStart="14dp"
-                android:layout_marginEnd="14dp"
-                android:background="?attr/colorOnPrimary" />
+                android:layout_height="wrap_content"
+                android:text="Добавить участников"
+                android:textColor="?textColorContrast"
+                android:textSize="?attr/textSizeMedium"/>
         </LinearLayout>
 
         <!-- RecyclerView with users -->
@@ -58,16 +79,4 @@
             android:layout_weight="1"
             android:layout_marginTop="10dp"/>
     </LinearLayout>
-
-    <!-- Floating action button -->
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/fabNext"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom|end"
-        android:layout_margin="16dp"
-        android:src="@drawable/arrow"
-        app:tint="?attr/textColorMainReverse"
-        android:contentDescription="Далее"
-        android:backgroundTint="?attr/colorPrimary" />
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
