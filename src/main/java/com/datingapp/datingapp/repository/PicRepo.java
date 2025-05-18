@@ -24,8 +24,8 @@ public interface  PicRepo extends JpaRepository<Picture, Integer> {
     @Modifying
     @Query(value = """
 SELECT DISTINCT ON (p.id)
-       p.id,
        p.pk_picture,
+        p.id,
        p.image
 FROM picture p
 JOIN user_pic up
