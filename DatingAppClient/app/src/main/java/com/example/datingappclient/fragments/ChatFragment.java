@@ -51,7 +51,6 @@ public class ChatFragment extends Fragment {
     /* === View Models === */
     private DialogViewModel viewModel;
 
-
     private ChatFragment() {}
 
     public static ChatFragment newInstance (Integer userId, ChatDTO chat) {
@@ -94,7 +93,7 @@ public class ChatFragment extends Fragment {
     private void openChatEdit() {
         View field = activityView.findViewById(R.id.userinfo);
         field.setOnClickListener((view -> {
-            getParentFragmentManager().beginTransaction().replace(R.id.fragment_container, ChatEditFragment.newInstance())
+            getParentFragmentManager().beginTransaction().replace(R.id.fragment_container, ChatEditFragment.newInstance(chat))
                     .addToBackStack(null)
                     .commit();
         }));
@@ -162,8 +161,6 @@ public class ChatFragment extends Fragment {
             profileImage.setPadding(0, 0, 0, 0);
         }
     }
-
-
 
     private AuthResponse getAuthResponse() {
         SharedPreferences prefs = requireContext().getSharedPreferences("auth", MODE_PRIVATE);
