@@ -85,10 +85,10 @@ public class ImageService {
     }
 
     @Transactional
-    public List<Object[]> getImages(int user_id){
+    public List<Object[]> getImages(int userId, int limit){
         try {
-            List<Object[]> obj = picRepo.findByUserId(user_id);
-            log.info("Получены фотографии для пользователя: " + obj);
+            List<Object[]> obj = picRepo.findByUserId(userId, limit);
+            //log.info("Получены фотографии для пользователя: " + obj);
             return obj;
         }
         catch (Exception e){

@@ -53,10 +53,11 @@ public class ImageController {
 
 
     //Получить фотки конкретного пользователя
-    @GetMapping("/user_images/{user_id}")
-    public ResponseEntity<List<Object[]>> getImages(@PathVariable int user_id){
-        List<Object[]> obj = picRepo.findByUserId(user_id);
-        log.info("Получены фотографии для пользователя: " + obj);
+    @GetMapping("/user_images")
+    public ResponseEntity<List<Object[]>> getImages(@RequestParam("user_id") int user_id,
+                                                    @RequestParam("limit") int limit){
+        List<Object[]> obj = imageService.getImages(user_id, limit);
+        log.info("Получены фотографии для пользователя c id " + user_id + ": " + obj);
         return ResponseEntity.ok(obj);
     }
 

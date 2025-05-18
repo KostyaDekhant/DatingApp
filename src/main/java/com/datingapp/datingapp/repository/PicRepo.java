@@ -21,13 +21,20 @@ public interface  PicRepo extends JpaRepository<Picture, Integer> {
             , nativeQuery = true)
     Picture findById(@Param("id") int id);
 
-    @Query(value = "SELECT p.pk_picture, p.id, p.image " +
-            "FROM \"picture\" p " +
-            "INNER JOIN \"user_pic\" up " +
-            "ON up.pk_picture = p.pk_picture " +
-            "WHERE up.pk_user = :id"
-            , nativeQuery = true)
-    List<Object[]> findByUserId(@Param("id") int id);
+    @Modifying
+    @Query(value = """
+SELECT DISTINCT ON (p.id)
+       p.id,
+       p.pk_picture,
+       p.image
+FROM picture p
+JOIN user_pic up
+  ON up.pk_picture = p.pk_picture
+WHERE up.pk_user = :userId
+ORDER BY p.id, p.pk_picture DESC  -- или по времени: p.time DESC
+LIMIT :limit
+""", nativeQuery = true)
+    List<Object[]> findByUserId(@Param("userId") int id, @Param("limit") int limit);
 
 
     @Query(value = "SELECT p.image  " +
