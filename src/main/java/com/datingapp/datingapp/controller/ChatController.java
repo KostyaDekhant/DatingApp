@@ -48,9 +48,18 @@ public class ChatController {
         return ResponseEntity.ok(groupChatInfoDto);
     }
 
-    @GetMapping("/group_chats/users/{userId}")
-    public ResponseEntity< List<GroupChatDto>> getChats(@PathVariable int userId) {
-        List<GroupChatDto> groupChatDtos = chatService.getChats(userId);
+    @GetMapping("/group_chats")
+    public ResponseEntity< List<GroupChatDto>> getChats(@RequestParam("userId") int userId,
+                                                        @RequestParam("limit") int limit,
+                                                        @RequestParam("offset") int offset) {
+        List<GroupChatDto> groupChatDtos = chatService.getChats(userId, limit, offset);
+        return ResponseEntity.ok(groupChatDtos);
+    }
+
+    @GetMapping("/group_chats/avatars")
+    public ResponseEntity< List<GroupChatDto>> getChatAvatars(@RequestParam("userId") int userId,
+                                                              @RequestParam("chatIds") List<Integer> chatIds) {
+        List<GroupChatDto> groupChatDtos = chatService.getChatAvatars(userId, chatIds);
         return ResponseEntity.ok(groupChatDtos);
     }
 

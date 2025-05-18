@@ -151,16 +151,35 @@ public class ChatService {
     }
 
     @Transactional
-    public List<GroupChatDto> getChats(int userId){
+    public List<GroupChatDto> getChats(int userId, int limit, int offset){
         try {
             List<GroupChatDto> groupChatDtos =
-                    getChatsInfoFromObject(groupChatRepo.getChatsInfo(userId));
+                    getChatsInfoFromObject(groupChatRepo.getChatsInfo(userId, limit, offset));
             return groupChatDtos;
         }
         catch (Exception e) {
             throw new ChatNotFoundException("Ошибка при поиске чата: " + e.getMessage());
         }
     }
+
+    @Transactional
+    public List<GroupChatDto> getChatAvatars(int userId, List<Integer> chatIds){
+        try {
+            List<GroupChatDto> groupChatDtos = new ArrayList<>();
+            List<Object[]> avatars = groupChatRepo.findAvatars(chatIds, userId);
+            for (Object[] avatar : avatars) {
+                GroupChatDto groupChatDto = new GroupChatDto();
+                groupChatDto.setPkGroupChat((Integer) avatar[0]);
+                groupChatDto.setImage((byte[]) avatar[1]);
+                groupChatDtos.add(groupChatDto);
+            }
+            return groupChatDtos;
+        }
+        catch (Exception e) {
+            throw new RuntimeException("Ошибка при получении аватарок чатов: " + e.getMessage());
+        }
+    }
+
 
     private List<GroupChatDto> getChatsInfoFromObject(List<Object[]> chatsInfo) {
         List<GroupChatDto> groupChatDtos = new ArrayList<>();

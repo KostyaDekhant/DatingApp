@@ -4,6 +4,7 @@ import com.datingapp.datingapp.entity.Chat;
 import com.datingapp.datingapp.entity.GroupChat;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -23,7 +24,7 @@ WHEN gc.is_group THEN gc.name
 ELSE other_user.name
 END                     AS chat_name,
 lm.message              AS last_message,
-lm.time                 AS last_time
+  COALESCE(lm.time, gc.created_at)            AS last_time
 FROM
 chat_member cm
   -- нужные нам чаты
@@ -52,9 +53,10 @@ LEFT JOIN LATERAL (
 ) other_user ON TRUE
 
 ORDER BY
-lm.time DESC  -- сортируем чаты от самых «свежих»
+last_time DESC  -- сортируем чаты от самых «свежих»
+LIMIT :limit OFFSET :offset
 """, nativeQuery = true)
-    List<Object[]> getChatsInfo(int userId);
+    List<Object[]> getChatsInfo(int userId, int limit, int offset);
 
 
 
@@ -92,7 +94,44 @@ WHERE cm.user_id != :userId AND cm.chat_id = :chatId LIMIT 1
 """, nativeQuery = true)
     List<String> getUserName(int chatId, int userId);
 
-}
+    @Query(value = """
+            SELECT
+          gc.pk_group_chat AS chatId,
+          gc.image         AS avatar
+        FROM group_chat gc
+        WHERE
+          gc.is_group = TRUE
+          AND gc.pk_group_chat IN (:chatIds)
+        
+        UNION ALL
+        
+        -- Приватные чаты: возвращаем chat_id и, возможно, NULL в avatar
+        SELECT
+          cm.chat_id        AS chatId,
+          p.image           AS avatar
+        FROM chat_member cm
+          JOIN group_chat gc
+            ON gc.pk_group_chat = cm.chat_id
+           AND gc.is_group     = FALSE
+        
+          -- Левый джойн, чтобы даже без записей в user_pic/picture вернуть строку
+          LEFT JOIN user_pic up
+            ON up.pk_user = cm.user_id
+          LEFT JOIN picture p
+            ON p.pk_picture = up.pk_picture
+           AND p.id = 1        -- «главная» фотография
+        
+        WHERE
+          cm.user_id <> :userId
+          AND cm.chat_id  IN (:chatIds)
+""", nativeQuery = true)
+    List<Object[]> findAvatars(
+            @Param("chatIds") List<Integer> chatIds,
+            @Param("userId")  int userId
+    );
 
+
+
+}
 
 
