@@ -6,10 +6,7 @@ import com.datingapp.datingapp.entity.Message;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.messaging.handler.annotation.DestinationVariable;
-import org.springframework.messaging.handler.annotation.MessageMapping;
-import org.springframework.messaging.handler.annotation.Payload;
-import org.springframework.messaging.handler.annotation.SendTo;
+import org.springframework.messaging.handler.annotation.*;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -65,8 +62,10 @@ public class MessageController {
 
     @MessageMapping("/history/{chatId}")
     @SendTo(value = "/topic/history/{chatId}") //
-    public List<MessageDTO> getChatHistory(@DestinationVariable int chatId) { //
-        log.info("История отправлена " + messageService.getChatHistory(chatId).toString());
-        return messageService.getChatHistory(chatId);
+    public List<MessageDTO> getChatHistory(@DestinationVariable int chatId,
+                                           @Header("limit")  int limit,
+                                           @Header("offset") int offset) { //
+        //log.info("История отправлена " + messageService.getChatHistory(chatId).toString());
+        return messageService.getChatHistory(chatId, limit, offset);
     }
 }

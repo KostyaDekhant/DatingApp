@@ -24,8 +24,8 @@ public class MessageService {
         return messRepo.save(message);
     }
 
-    public List<MessageDTO> getChatHistory(int chatId) {
-        List<Message> messages = messRepo.findChatMessages(chatId);
+    public List<MessageDTO> getChatHistory(int chatId, int limit, int offset) {
+        List<Message> messages = messRepo.findChatMessages(chatId, limit, offset);
         List<MessageDTO> messageDTO = new ArrayList<>();
         for (Message message : messages) {
             messageDTO.add(new MessageDTO(message));
