@@ -10,6 +10,7 @@ import com.example.datingappclient.retrofit.api.ChatsAPI;
 import com.example.datingappclient.retrofit.wrapper.Result;
 import com.example.datingappclient.retrofit.wrapper.ResultCallback;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import retrofit2.Call;
@@ -48,7 +49,7 @@ public class ChatsRepository {
     }
 
     public void fetchUserChats(int userId, int limit, int offset, ResultCallback<List<ChatDTO>> callback) {
-        chatsAPI.getGroupChats(userId, limit, offset).enqueue(new Callback<>() {
+        chatsAPI.getChats(userId, limit, offset).enqueue(new Callback<>() {
             @Override
             public void onResponse(Call<List<ChatDTO>> call, Response<List<ChatDTO>> response) {
                 if (response.isSuccessful()) {
@@ -68,15 +69,34 @@ public class ChatsRepository {
         });
     }
 
+    public void fetchChatAvatar(int userId, int chatId, ResultCallback<List<ChatDTO>> callback) {
+        List<Integer> ids = new ArrayList<>();
+        ids.add(chatId);
+        chatsAPI.getChatsAvatars(userId, ids).enqueue(new Callback<>() {
+            @Override
+            public void onResponse(Call<List<ChatDTO>> call, Response<List<ChatDTO>> response) {
+                if (response.isSuccessful()) {
+                    if (response.body() != null) callback.onResult(Result.success(response.body()));
+                    else callback.onResult(Result.empty());
+                } else
+                    callback.onResult(Result.error("Ошибка при получении изображений чата " + response.code() + " " + response.message()));
+            }
+
+            @Override
+            public void onFailure(Call<List<ChatDTO>> call, Throwable throwable) {
+                callback.onResult(Result.error("Ошибка сети или ошибка при обработке данных: " + throwable.getMessage()));
+            }
+        });
+    }
+
     public void fetchChatMembers(int userId, int chatId, ResultCallback<List<ChatMemberDTO>> callback) {
-        chatsAPI.getChatMembers(userId, chatId).enqueue(new Callback<List<ChatMemberDTO>>() {
+        chatsAPI.getChatMembers(userId, chatId).enqueue(new Callback<>() {
             @Override
             public void onResponse(Call<List<ChatMemberDTO>> call, Response<List<ChatMemberDTO>> response) {
                 if (response.isSuccessful()) {
                     if (response.body() != null) callback.onResult(Result.success(response.body()));
                     else callback.onResult(Result.empty());
-                }
-                else {
+                } else {
                     callback.onResult(Result.error("Не удалось получить участников чата! " + response.code() + " " + response.message()));
                 }
             }

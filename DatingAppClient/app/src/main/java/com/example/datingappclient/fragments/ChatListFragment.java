@@ -108,7 +108,7 @@ public class ChatListFragment extends Fragment {
             }
         }).get(ChatsViewModel.class);
 
-        chatsAdapter = new ChatsAdapter(this::startChatActivity, chatsViewModel, user.getId(), getViewLifecycleOwner());
+        chatsAdapter = new ChatsAdapter(this::startChatActivity, chatsViewModel, user.getId(), requireContext() , getViewLifecycleOwner());
 
         recyclerView.setAdapter(chatsAdapter);
 
@@ -153,13 +153,11 @@ public class ChatListFragment extends Fragment {
             ChatDTO.selectedChat = chat;
             startActivity(intent);
         });
-
     }
 
     public interface ChatInfoCallback {
         void onResult(ChatInfoDTO chatInfo);
     }
-
     private void getChatInfo(int chatId, ChatInfoCallback callback) {
         String logTag = Constants.GLOBAL_LOG_TAG + "GET CHAT INFO";
         chatsRepository.fetchChatInfo(chatId, result -> {

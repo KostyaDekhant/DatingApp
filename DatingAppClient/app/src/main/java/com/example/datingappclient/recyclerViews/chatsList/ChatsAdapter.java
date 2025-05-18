@@ -1,5 +1,6 @@
 package com.example.datingappclient.recyclerViews.chatsList;
 
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -12,7 +13,9 @@ import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.ListAdapter;
 
 import com.example.datingappclient.R;
+import com.example.datingappclient.constants.Constants;
 import com.example.datingappclient.model.dto.ChatDTO;
+import com.example.datingappclient.retrofit.repository.ChatsRepository;
 import com.example.datingappclient.utils.ImageUtils;
 import com.example.datingappclient.viewmodels.ChatsViewModel;
 
@@ -26,12 +29,14 @@ public class ChatsAdapter extends ListAdapter<ChatDTO, ChatsHolder> {
     private final ChatsViewModel viewModel;
     private final int senderId;
     private final LifecycleOwner lifecycleOwner;
+    private final Context context;
 
-    public ChatsAdapter(ChatsAdapter.OnChatClickListener listener, ChatsViewModel viewModel, int senderId, LifecycleOwner owner) {
+    public ChatsAdapter(ChatsAdapter.OnChatClickListener listener, ChatsViewModel viewModel, int senderId, Context context, LifecycleOwner owner) {
         super(DIFF_CALLBACK);
         this.chatClickListener = listener;
         this.viewModel = viewModel;
         this.senderId = senderId;
+        this.context = context;
         this.lifecycleOwner = owner;
     }
 
@@ -45,8 +50,6 @@ public class ChatsAdapter extends ListAdapter<ChatDTO, ChatsHolder> {
     @Override
     public void onBindViewHolder(@NonNull ChatsHolder holder, int position) {
         ChatDTO chat = getItem(position);
-        Log.d("ADAPTER", "Отображается чат: " + chat.getName() + " [" + position + "]");
-        Log.d("RV_ITEM_HEIGHT", "itemView height: " + holder.itemView.getHeight());
 
         holder.username.setText(chat.getName());
         holder.setReceiverID(chat.getId());
@@ -54,15 +57,16 @@ public class ChatsAdapter extends ListAdapter<ChatDTO, ChatsHolder> {
         holder.lastMessage.setText(chat.getLastMessage());
 
         // Установить изображение, если оно есть
-        byte[] chatImage = chat.getImage();
-        if (chatImage != null) {
-            Bitmap bitmap = ImageUtils.convertPrimitiveByteToBitmap(chatImage);
-            Bitmap cropped = ImageUtils.getCroppedBitmap(bitmap);
-            holder.setByteImage(chatImage);
-            holder.profileImage.setImageBitmap(cropped);
-            holder.profileImage.setPadding(0, 0, 0, 0); // Убираем паддинги, чтобы не было "обводки"
-        }
-
+        getChatImage(position, () -> {
+            byte[] chatImage = chat.getImage();
+            if (chatImage != null) {
+                Bitmap bitmap = ImageUtils.convertPrimitiveByteToBitmap(chatImage);
+                Bitmap cropped = ImageUtils.getCroppedBitmap(bitmap);
+                holder.setByteImage(chatImage);
+                holder.profileImage.setImageBitmap(cropped);
+                holder.profileImage.setPadding(0, 0, 0, 0); // Убираем паддинги, чтобы не было "обводки"
+            }
+        });
         // Подписка на LiveData для сообщений этого чата
         viewModel.getMessageStream(chat.getId())
                 .observe(lifecycleOwner, message -> {
@@ -75,6 +79,30 @@ public class ChatsAdapter extends ListAdapter<ChatDTO, ChatsHolder> {
         holder.itemView.setOnClickListener(view ->
                 chatClickListener.onChatClicked(chat)
         );
+    }
+
+    interface ChatImageCallback {
+        void onImage();
+    }
+    private void getChatImage(int position, ChatImageCallback callback) {
+        ChatDTO chat = getItem(position);
+        String logTag = Constants.GLOBAL_LOG_TAG + "GET CHAT AVATAR";
+        ChatsRepository chatsRepository = new ChatsRepository(context);
+        chatsRepository.fetchChatAvatar(senderId, chat.getId(), result -> {
+            switch (result.status) {
+                case SUCCESS:
+                    Log.i(logTag, "Получено изображение");
+                    chat.setImage(result.data.get(0).getImage());
+                    break;
+                case ERROR:
+                    Log.e(logTag, result.error);
+                    break;
+                case EMPTY:
+                    Log.i(logTag, "Изображение для чата" + chat.getId() + "не найдено");
+                    break;
+            }
+            callback.onImage();
+        });
     }
 
     private static final DiffUtil.ItemCallback<ChatDTO> DIFF_CALLBACK = new DiffUtil.ItemCallback<>() {

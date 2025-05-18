@@ -19,7 +19,10 @@ public interface ChatsAPI {
     Call<ChatInfoDTO> getChatInfo(@Query("chatId") int chatId);
 
     @GET("api/group_chats")
-    Call<List<ChatDTO>> getGroupChats(@Query("userId") int userId, @Query("limit") int limit, @Query("offset") int offset);
+    Call<List<ChatDTO>> getChats(@Query("userId") int userId, @Query("limit") int limit, @Query("offset") int offset);
+
+    @GET("api/group_chats/avatars")
+    Call<List<ChatDTO>> getChatsAvatars(@Query("userId") int userId, @Query("chatIds") List<Integer> chatIds);
 
     @GET("api/group_chats/{chatId}/users/{userId}")
     Call<List<ChatMemberDTO>> getChatMembers(@Path("userId") int userId, @Path("chatId") int chatId);

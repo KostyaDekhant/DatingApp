@@ -66,8 +66,8 @@ public class MessagesAdapter extends RecyclerView.Adapter<MessagesHolder> {
             if (member != null && member.getImage() != null) {
                 Bitmap avatar = ImageUtils.convertPrimitiveByteToBitmap(member.getImage());
                 holder.avatarView.setImageBitmap(ImageUtils.getCroppedBitmap(avatar));
-                holder.avatarView.setVisibility(VISIBLE);
             }
+            holder.avatarView.setVisibility(VISIBLE);
         }
     }
 

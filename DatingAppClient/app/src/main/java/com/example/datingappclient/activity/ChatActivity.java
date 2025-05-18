@@ -59,7 +59,7 @@ public class ChatActivity extends AppCompatActivity {
         viewModel = new ViewModelProvider(this, new DialogViewModelFactory(authResponse.getToken(), chat.getId())).get(DialogViewModel.class);
 
         renderUsername();
-        renderProfileImage();
+        renderChatImage();
         setupReturnButton();
         setupSendButton();
 
@@ -130,7 +130,7 @@ public class ChatActivity extends AppCompatActivity {
         });
     }
 
-    private void renderProfileImage() {
+    private void renderChatImage() {
         ImageView profileImage = findViewById(R.id.profile_image);
         if (chat.getImage() != null) {
             Bitmap croppedImage = ImageUtils.getCroppedBitmap(ImageUtils.convertPrimitiveByteToBitmap(chat.getImage()));
