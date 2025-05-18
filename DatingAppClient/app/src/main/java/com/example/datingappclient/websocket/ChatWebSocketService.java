@@ -7,10 +7,13 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
 import com.example.datingappclient.constants.Constants;
+import com.example.datingappclient.model.dto.HistoryDTO;
 import com.example.datingappclient.model.dto.MessageDTO;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -25,7 +28,9 @@ public class ChatWebSocketService {
 
     private final StompClient stompClient;
     private final Map<Integer, MutableLiveData<MessageDTO>> messageStreams = new HashMap<>();
+    private final List<MessageDTO> fullHistory = new ArrayList<>();
     private final ObjectMapper objectMapper = new ObjectMapper();
+    private int offset;
 
     @SuppressLint("CheckResult")
     public ChatWebSocketService(String token) {
@@ -107,10 +112,15 @@ public class ChatWebSocketService {
         }
     }
 
+    private final String getHistory = "/topic/history/";
+    private final String triggerHistory = "/app/history/";
     @SuppressLint("CheckResult")
     public void getHistory(int chatId, MutableLiveData<List<MessageDTO>> historyLiveData) {
         String logTag = Constants.GLOBAL_LOG_TAG + "STOMP CHAT HISTORY";
-        stompClient.topic("/topic/history/" + chatId)
+
+        String jsonParams = getHistoryParams(logTag, offset);
+
+        stompClient.topic(getHistory + chatId)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(topicMessage -> {
@@ -119,7 +129,13 @@ public class ChatWebSocketService {
                                 topicMessage.getPayload(),
                                 new TypeReference<List<MessageDTO>>() {}
                         );
-                        historyLiveData.postValue(messages);
+                        fullHistory.addAll(messages);
+                        historyLiveData.postValue(fullHistory);
+                        if (messages.size() == Constants.MESSAGE_LIMIT) {
+                            offset += Constants.MESSAGE_LIMIT;
+                            stompClient.send(triggerHistory + chatId, getHistoryParams(logTag, offset)).subscribe();
+                        }
+                        Log.i(logTag, "Получено " + messages.size() + " сообщений!");
                     } catch (Exception e) {
                         Log.e(logTag, "Ошибка при разборе истории", e);
                     }
@@ -127,8 +143,21 @@ public class ChatWebSocketService {
                     Log.e(logTag, "Ошибка подписки на историю", throwable);
                 });
 
-        // Триггерим сервер, чтобы он отправил историю
-        stompClient.send("/app/history/" + chatId).subscribe();
+
+
+        stompClient.send(triggerHistory + chatId, jsonParams).subscribe();
+    }
+
+    private String getHistoryParams(String logTag, int offset) {
+        HistoryDTO params = new HistoryDTO(Constants.MESSAGE_LIMIT, offset);
+        String jsonParams = "";
+        try {
+            jsonParams = objectMapper.writeValueAsString(params);
+        }
+        catch (IOException e) {
+            Log.e(logTag, e.getMessage());
+        }
+        return jsonParams;
     }
 
     /**

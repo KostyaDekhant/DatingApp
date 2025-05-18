@@ -133,7 +133,6 @@ public class ChatListFragment extends Fragment {
                     offset += limit;
                     // Если получили кол-во чатов = offset, то запрашиваем еще раз
                     if (result.data.size() == limit) getUserChats();
-                    //chatsViewModel.setChats(result.data);
                     chatsViewModel.addChats(result.data);
                     break;
                 case EMPTY:

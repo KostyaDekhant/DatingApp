@@ -2,6 +2,7 @@ package com.example.datingappclient.retrofit.repository;
 
 import android.content.Context;
 
+import com.example.datingappclient.constants.Constants;
 import com.example.datingappclient.model.dto.PictureDTO;
 import com.example.datingappclient.retrofit.RetrofitClient;
 import com.example.datingappclient.retrofit.api.ImageAPI;
@@ -23,7 +24,7 @@ public class ImageRepository {
 
     // Получение изображений пользователя
     public void fetchUserImages(int userID, ResultCallback<List<Object[]>> callback) {
-        imageAPI.getUserImages(userID).enqueue(new Callback<>() {
+        imageAPI.getUserImages(userID, Constants.IMAGES_LIMIT).enqueue(new Callback<>() {
             @Override
             public void onResponse(Call<List<Object[]>> call, Response<List<Object[]>> response) {
                 if (response.isSuccessful() && response.body() != null) {

@@ -60,10 +60,14 @@ public class MessagesAdapter extends RecyclerView.Adapter<MessagesHolder> {
         }
 
         if (chatInfo != null && chatInfo.getIsGroup() && getItemViewType(position) == VIEW_TYPE_RECEIVED) {
+
             ChatMemberDTO member = chatInfo.findMemberById(message.getSenderId());
-            Bitmap avatar = ImageUtils.convertPrimitiveByteToBitmap(member.getImage());
-            holder.avatarView.setImageBitmap(ImageUtils.getCroppedBitmap(avatar));
-            holder.avatarView.setVisibility(VISIBLE);
+
+            if (member != null && member.getImage() != null) {
+                Bitmap avatar = ImageUtils.convertPrimitiveByteToBitmap(member.getImage());
+                holder.avatarView.setImageBitmap(ImageUtils.getCroppedBitmap(avatar));
+                holder.avatarView.setVisibility(VISIBLE);
+            }
         }
     }
 

@@ -8,5 +8,7 @@ public class Constants {
     public final static String GLOBAL_LOG_TAG = "DATINGAPP_LOGS: ";
 
     public final static int CHATS_LIMIT = 20;
+    public final static int MESSAGE_LIMIT = 20;
+    public final static int IMAGES_LIMIT = 20;
     public final static int FORMS_LIMIT = 5;
 }
