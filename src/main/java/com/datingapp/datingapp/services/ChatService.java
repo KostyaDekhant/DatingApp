@@ -199,10 +199,10 @@ public class ChatService {
     public GroupChatInfoDto getChatInfo(int chatId){
         try {
             List<ChatMemberDTO> chatMember = getChatMembersFromObject(chatMemberRepo.findByChatId(chatId));
-            GroupChat groupChat = groupChatRepo.findById(chatId).orElse(null);
-            Integer createdBy = groupChat.getCreatedBy();
-            Timestamp createdAt = groupChat.getCreatedAt();
-            Boolean isGroup = groupChat.getIsGroup();
+            List<Object[]> groupChat = groupChatRepo.getGroupChatInfoById(chatId);
+            Integer createdBy = (Integer) groupChat.getFirst()[0];
+            Timestamp createdAt = (Timestamp) groupChat.getFirst()[1];
+            Boolean isGroup = (Boolean) groupChat.getFirst()[2];
             GroupChatInfoDto groupChatInfoDto = new GroupChatInfoDto(createdBy, createdAt, chatMember, isGroup);
             log.info("Полученная доп. информация о чате с id " + chatId + ": " + groupChatInfoDto.toString());
             return groupChatInfoDto;
@@ -218,7 +218,7 @@ public class ChatService {
             ChatMemberDTO chatMemberDTO = new ChatMemberDTO();
             chatMemberDTO.setUsername((String) chatMember[0]);
             chatMemberDTO.setUserId(((Number) chatMember[1]).intValue());
-            chatMemberDTO.setAvatar((byte[]) chatMember[2]);
+            //chatMemberDTO.setAvatar((byte[]) chatMember[2]);
             chatMemberDTOs.add(chatMemberDTO);
         }
         return chatMemberDTOs;

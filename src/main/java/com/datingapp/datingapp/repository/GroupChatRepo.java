@@ -132,6 +132,16 @@ WHERE cm.user_id != :userId AND cm.chat_id = :chatId LIMIT 1
 
 
 
+    @Query(value = """
+SELECT 
+       created_by,
+       created_at,
+       is_group
+FROM group_chat gr 
+WHERE gr.pk_group_chat = :chatId
+""", nativeQuery = true)
+    List<Object[]> getGroupChatInfoById(int chatId);
+
 }
 
 
