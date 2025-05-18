@@ -69,5 +69,18 @@
                 android:textSize="12sp"
                 android:textColor="@android:color/darker_gray" />
         </LinearLayout>
+
+        <TextView
+            android:id="@+id/ownerTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Создатель"
+            android:textSize="?attr/textSizeSmall"
+            android:textColor="?attr/textColorContrast"
+            android:visibility="gone"
+            android:paddingHorizontal="5dp"
+            android:paddingTop="5dp"
+            android:layout_gravity="top"/>
+
     </LinearLayout>
 </FrameLayout>

@@ -26,6 +26,8 @@ public class ChatMemberDTO {
 
     @Setter
     private transient boolean isAlreadyInChat;
+    @Setter
+    private transient boolean chatOwner;
 
     @Override
     public boolean equals(Object o) {

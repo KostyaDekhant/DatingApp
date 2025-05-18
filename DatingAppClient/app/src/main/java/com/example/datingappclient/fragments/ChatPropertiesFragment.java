@@ -31,8 +31,9 @@ import com.example.datingappclient.utils.ImageUtils;
 import com.example.datingappclient.viewmodels.ChatMembersViewModel;
 
 import java.util.List;
+import java.util.Objects;
 
-public class ChatEditFragment extends Fragment {
+public class ChatPropertiesFragment extends Fragment {
 
     /* === Repository === */
 
@@ -47,13 +48,13 @@ public class ChatEditFragment extends Fragment {
     private ChatMembersViewModel viewModel;
     private ChatMembersAdapter adapter;
 
-    private ChatEditFragment() {}
+    private ChatPropertiesFragment() {}
 
-    public static ChatEditFragment newInstance (Integer user, ChatDTO chat) {
-        ChatEditFragment chatEditFragment = new ChatEditFragment();
-        chatEditFragment.userId = user;
-        chatEditFragment.chat = chat;
-        return chatEditFragment;
+    public static ChatPropertiesFragment newInstance (Integer user, ChatDTO chat) {
+        ChatPropertiesFragment chatPropertiesFragment = new ChatPropertiesFragment();
+        chatPropertiesFragment.userId = user;
+        chatPropertiesFragment.chat = chat;
+        return chatPropertiesFragment;
     }
 
     @Nullable
@@ -81,6 +82,14 @@ public class ChatEditFragment extends Fragment {
         viewModel.getChatMembers().observe(getViewLifecycleOwner(), adapter::submitList);
 
         List<ChatMemberDTO> members = chat.getChatInfo().getMembers();
+        if (chat.getChatInfo().getIsGroup()) {
+            for (ChatMemberDTO member : members) {
+                if (Objects.equals(chat.getChatInfo().getCreatedBy(), member.getId())) {
+                        member.setChatOwner(true);
+                        break;
+                }
+            }
+        }
         viewModel.setChatMembers(members);
 
         return activityView;
@@ -139,6 +148,9 @@ public class ChatEditFragment extends Fragment {
             public boolean onMenuItemSelected(@NonNull MenuItem menuItem) {
                 if (menuItem.getItemId() == R.id.action_edit) {
                     // TODO: handle edit action
+                    getParentFragmentManager().beginTransaction().replace(R.id.fragment_container, EditChatFragment.newInstance(userId))
+                            .addToBackStack(null)
+                            .commit();
                     return true;
                 } else if (menuItem.getItemId() == R.id.action_more) {
                     // TODO: handle more action

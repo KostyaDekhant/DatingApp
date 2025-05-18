@@ -1,38 +1,16 @@
 package com.example.datingappclient.activity;
 
-import android.content.SharedPreferences;
-import android.graphics.Bitmap;
 import android.os.Bundle;
-import android.util.Log;
-import android.view.View;
-import android.widget.ImageView;
-import android.widget.TextView;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.lifecycle.ViewModelProvider;
-import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.datingappclient.R;
-import com.example.datingappclient.constants.Constants;
-import com.example.datingappclient.fragments.ChatEditFragment;
 import com.example.datingappclient.fragments.ChatFragment;
-import com.example.datingappclient.fragments.UserFragment;
-import com.example.datingappclient.model.AuthResponse;
 import com.example.datingappclient.model.dto.ChatDTO;
 import com.example.datingappclient.recyclerViews.messageList.MessagesAdapter;
-import com.example.datingappclient.model.dto.MessageDTO;
-import com.example.datingappclient.utils.ImageUtils;
 import com.example.datingappclient.viewmodels.DialogViewModel;
-import com.example.datingappclient.viewmodels.factory.DialogViewModelFactory;
-import com.google.android.material.button.MaterialButton;
-import com.google.android.material.textfield.TextInputEditText;
-
-import java.sql.Timestamp;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
 
 public class ChatActivity extends AppCompatActivity {
 

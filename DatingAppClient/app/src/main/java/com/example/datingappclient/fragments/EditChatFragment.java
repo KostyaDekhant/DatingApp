@@ -1,5 +1,7 @@
 package com.example.datingappclient.fragments;
 
+import static android.view.View.GONE;
+
 import android.animation.AnimatorSet;
 import android.animation.ArgbEvaluator;
 import android.animation.ObjectAnimator;
@@ -32,8 +34,8 @@ import com.example.datingappclient.R;
 import com.example.datingappclient.activity.ChatActivity;
 import com.example.datingappclient.constants.Constants;
 import com.example.datingappclient.model.dto.ChatDTO;
-import com.example.datingappclient.model.dto.ChatMemberDTO;
 import com.example.datingappclient.model.dto.ChatInfoDTO;
+import com.example.datingappclient.model.dto.ChatMemberDTO;
 import com.example.datingappclient.model.dto.UserDTO;
 import com.example.datingappclient.retrofit.repository.ChatsRepository;
 import com.example.datingappclient.utils.ImageUtils;
@@ -42,7 +44,7 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import java.io.InputStream;
 import java.util.List;
 
-public class CreateGroupChatFragment extends Fragment {
+public class EditChatFragment extends Fragment {
 
     /* === Repository === */
     private ChatsRepository chatsRepository;
@@ -54,15 +56,14 @@ public class CreateGroupChatFragment extends Fragment {
 
     /* === Other === */
     private List<ChatMemberDTO> chatMembers;
-    private UserDTO user;
+    private Integer userId;
     private Bitmap selectedAvatarBitmap;
 
-    private CreateGroupChatFragment() {};
+    private EditChatFragment() {};
 
-    public static CreateGroupChatFragment newInstance(UserDTO user, List<ChatMemberDTO> chatMembers) {
-        CreateGroupChatFragment fragment = new CreateGroupChatFragment();
-        fragment.chatMembers = chatMembers;
-        fragment.user = user;
+    public static EditChatFragment newInstance(Integer userId) {
+        EditChatFragment fragment = new EditChatFragment();
+        fragment.userId = userId;
         return fragment;
     }
 
@@ -119,6 +120,7 @@ public class CreateGroupChatFragment extends Fragment {
 
     private void setupToolbar() {
         Toolbar toolbar = activityView.findViewById(R.id.toolbar);
+        getActivity().getActionBar().setDisplayShowTitleEnabled(false);
         toolbar.setNavigationOnClickListener(v -> {
             getParentFragmentManager().popBackStack();
         });
@@ -126,9 +128,7 @@ public class CreateGroupChatFragment extends Fragment {
 
     private void setupCreateChatButton() {
         FloatingActionButton fabCreateChat = activityView.findViewById(R.id.createChat);
-        fabCreateChat.setOnClickListener(v -> {
-            createGroupChat(getChatDTO());
-        });
+        fabCreateChat.setVisibility(GONE);
     }
 
     private ChatDTO getChatDTO() {
@@ -139,34 +139,27 @@ public class CreateGroupChatFragment extends Fragment {
         byte[] chatImage = ImageUtils.convertBitmapToPrimitiveBytes(selectedAvatarBitmap);
 
         // add user to chat members
-        chatMembers.add(new ChatMemberDTO(null, user.getId(), null, false, true));
+        chatMembers.add(new ChatMemberDTO(null, userId, null, false, true));
 
         // create group chat
-        ChatInfoDTO groupChatInfo = new ChatInfoDTO(user.getId(), null, chatMembers, true);
+        ChatInfoDTO groupChatInfo = new ChatInfoDTO(userId, null, chatMembers, true);
         return new ChatDTO(null, chatname, null, chatImage, groupChatInfo);
     }
 
     private void createGroupChat(ChatDTO groupChat) {
         String logTag = Constants.GLOBAL_LOG_TAG + "CREATE GROUP CHAT";
-        chatsRepository.createChat(groupChat, result -> {
+        /*chatsRepository.createChat(groupChat, result -> {
             switch (result.status) {
                 case SUCCESS:
                     groupChat.setId(result.data);
-                    goToChatActivity(groupChat);
+                    Toast.makeText(requireContext(),"Susscess", Toast.LENGTH_LONG).show();
+                    requireActivity().getSupportFragmentManager().popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
                     break;
                 case ERROR:
                     Log.e(logTag, result.error);
                     break;
             }
-        });
-    }
-
-    private void goToChatActivity(ChatDTO chat) {
-        Intent intent = new Intent(requireContext(), ChatActivity.class);
-        intent.putExtra("userId", user.getId());
-        ChatDTO.selectedChat = chat;
-        startActivity(intent);
-        requireActivity().getSupportFragmentManager().popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
+        });*/
     }
 
     private void animUnderlineEdit() {

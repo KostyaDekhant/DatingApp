@@ -93,7 +93,7 @@ public class ChatFragment extends Fragment {
     private void openChatEdit() {
         View field = activityView.findViewById(R.id.userinfo);
         field.setOnClickListener((view -> {
-            getParentFragmentManager().beginTransaction().replace(R.id.fragment_container, ChatEditFragment.newInstance(userId, chat))
+            getParentFragmentManager().beginTransaction().replace(R.id.fragment_container, ChatPropertiesFragment.newInstance(userId, chat))
                     .addToBackStack(null)
                     .commit();
         }));

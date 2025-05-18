@@ -1,5 +1,7 @@
 package com.example.datingappclient.recyclerViews;
 
+import static android.view.View.VISIBLE;
+
 import android.graphics.Bitmap;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -24,6 +26,7 @@ import java.util.Map;
 import java.util.Set;
 
 import lombok.Getter;
+import lombok.Setter;
 
 @Getter
 public class ChatMembersAdapter extends ListAdapter<ChatMemberDTO, ChatMembersAdapter.ViewHolder> {
@@ -31,6 +34,9 @@ public class ChatMembersAdapter extends ListAdapter<ChatMemberDTO, ChatMembersAd
     private final Set<Integer> selectedUserIds = new HashSet<>();
     private final List<ChatMemberDTO> allMembers = new ArrayList<>();
     private final Map<Integer, ChatMemberDTO> userMap = new HashMap<>();
+
+    @Setter
+    private boolean editMembers;
 
     public ChatMembersAdapter() {
         super(DIFF_CALLBACK);
@@ -56,25 +62,28 @@ public class ChatMembersAdapter extends ListAdapter<ChatMemberDTO, ChatMembersAd
             holder.avatarImageView.setImageBitmap(ImageUtils.getCroppedBitmap(bmp));
         }
 
-        // установить состояние выбора
-        boolean isSelected = selectedUserIds.contains(chatMemberDTO.getId());
-        if (!chatMemberDTO.isAlreadyInChat()) {
-            holder.container.setSelected(isSelected);
-            holder.checkmark.setVisibility(isSelected ? View.VISIBLE : View.GONE);
-            holder.avatarBorder.setVisibility(isSelected ? View.VISIBLE : View.GONE);
-            // клик по элементу
-            holder.itemView.setOnClickListener(v -> {
-                if (isSelected) {
-                    selectedUserIds.remove(chatMemberDTO.getId());
-                } else {
-                    selectedUserIds.add(chatMemberDTO.getId());
-                }
-                notifyItemChanged(position);
-            });
-        }
-        else {
-            holder.checkmark.setVisibility(View.VISIBLE);
-            holder.checkmark.setImageResource(R.drawable.ic_member_in_chat_circle);
+        if (chatMemberDTO.isChatOwner()) holder.ownerTextView.setVisibility(VISIBLE);
+
+        if (isEditMembers()) {
+            // установить состояние выбора
+            boolean isSelected = selectedUserIds.contains(chatMemberDTO.getId());
+            if (!chatMemberDTO.isAlreadyInChat()) {
+                holder.container.setSelected(isSelected);
+                holder.checkmark.setVisibility(isSelected ? VISIBLE : View.GONE);
+                holder.avatarBorder.setVisibility(isSelected ? VISIBLE : View.GONE);
+                // клик по элементу
+                holder.itemView.setOnClickListener(v -> {
+                    if (isSelected) {
+                        selectedUserIds.remove(chatMemberDTO.getId());
+                    } else {
+                        selectedUserIds.add(chatMemberDTO.getId());
+                    }
+                    notifyItemChanged(position);
+                });
+            } else {
+                holder.checkmark.setVisibility(VISIBLE);
+                holder.checkmark.setImageResource(R.drawable.ic_member_in_chat_circle);
+            }
         }
     }
 
@@ -119,7 +128,7 @@ public class ChatMembersAdapter extends ListAdapter<ChatMemberDTO, ChatMembersAd
     static class ViewHolder extends RecyclerView.ViewHolder {
 
         ImageView avatarImageView, checkmark;
-        TextView nameTextView, statusTextView;
+        TextView nameTextView, statusTextView, ownerTextView;
         View container, avatarBorder;
 
         public ViewHolder(@NonNull View itemView) {
@@ -130,6 +139,7 @@ public class ChatMembersAdapter extends ListAdapter<ChatMemberDTO, ChatMembersAd
             statusTextView = itemView.findViewById(R.id.statusTextView);
             checkmark = itemView.findViewById(R.id.checkmark);
             avatarBorder = itemView.findViewById(R.id.avatarBorder);
+            ownerTextView = itemView.findViewById(R.id.ownerTextView);
         }
     }
 
