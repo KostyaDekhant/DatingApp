@@ -9,6 +9,7 @@ import java.util.Objects;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.Setter;
 
 @Getter
 @AllArgsConstructor
@@ -22,6 +23,9 @@ public class ChatMemberDTO {
     @SerializedName("avatar")
     @JsonAdapter(ByteDeserializer.class)
     private byte[] image;
+
+    @Setter
+    private transient boolean isAlreadyInChat;
 
     @Override
     public boolean equals(Object o) {

@@ -58,19 +58,24 @@ public class ChatMembersAdapter extends ListAdapter<ChatMemberDTO, ChatMembersAd
 
         // установить состояние выбора
         boolean isSelected = selectedUserIds.contains(chatMemberDTO.getId());
-        holder.container.setSelected(isSelected);
-        holder.checkmark.setVisibility(isSelected ? View.VISIBLE : View.GONE);
-        holder.avatarBorder.setVisibility(isSelected ? View.VISIBLE : View.GONE);
-
-        // клик по элементу
-        holder.itemView.setOnClickListener(v -> {
-            if (isSelected) {
-                selectedUserIds.remove(chatMemberDTO.getId());
-            } else {
-                selectedUserIds.add(chatMemberDTO.getId());
-            }
-            notifyItemChanged(position);
-        });
+        if (!chatMemberDTO.isAlreadyInChat()) {
+            holder.container.setSelected(isSelected);
+            holder.checkmark.setVisibility(isSelected ? View.VISIBLE : View.GONE);
+            holder.avatarBorder.setVisibility(isSelected ? View.VISIBLE : View.GONE);
+            // клик по элементу
+            holder.itemView.setOnClickListener(v -> {
+                if (isSelected) {
+                    selectedUserIds.remove(chatMemberDTO.getId());
+                } else {
+                    selectedUserIds.add(chatMemberDTO.getId());
+                }
+                notifyItemChanged(position);
+            });
+        }
+        else {
+            holder.checkmark.setVisibility(View.VISIBLE);
+            holder.checkmark.setImageResource(R.drawable.ic_member_in_chat_circle);
+        }
     }
 
     public void setFullList(List<ChatMemberDTO> members) {

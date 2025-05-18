@@ -271,8 +271,8 @@ public class LikeFragment extends Fragment {
 
     private ChatDTO getGroupChatFromLike(LikeDTO like) {
         List<ChatMemberDTO> chatMembers = new ArrayList<>();
-        chatMembers.add(new ChatMemberDTO(like.getUserName(), like.getLikerId(), like.getImage())); // TODO: передача изображения
-        chatMembers.add(new ChatMemberDTO(user.getName(), user.getId(), ImageUtils.convertBitmapToPrimitiveBytes(user.getMainImage())));
+        chatMembers.add(new ChatMemberDTO(like.getUserName(), like.getLikerId(), like.getImage(), false)); // TODO: передача изображения
+        chatMembers.add(new ChatMemberDTO(user.getName(), user.getId(), ImageUtils.convertBitmapToPrimitiveBytes(user.getMainImage()), false));
 
         java.sql.Timestamp timestamp = new Timestamp(System.currentTimeMillis());
         ChatInfoDTO groupChatInfo = new ChatInfoDTO(user.getId(), timestamp , chatMembers, false);

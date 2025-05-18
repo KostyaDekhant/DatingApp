@@ -139,7 +139,7 @@ public class CreateGroupChatFragment extends Fragment {
         byte[] chatImage = ImageUtils.convertBitmapToPrimitiveBytes(selectedAvatarBitmap);
 
         // add user to chat members
-        chatMembers.add(new ChatMemberDTO(null, user.getId(), null));
+        chatMembers.add(new ChatMemberDTO(null, user.getId(), null, false));
 
         // create group chat
         ChatInfoDTO groupChatInfo = new ChatInfoDTO(user.getId(), null, chatMembers, true);
@@ -177,7 +177,7 @@ public class CreateGroupChatFragment extends Fragment {
             int colorFrom = ((ColorDrawable) underline.getBackground()).getColor();
             int colorTo = hasFocus
                     ? ContextCompat.getColor(requireContext(), R.color.green) // TODO: подогнать под темыы
-                    : ContextCompat.getColor(requireContext(), R.color.gray);
+                    : ContextCompat.getColor(requireContext(), R.color.darkgray_transparent);
 
             // Анимация цвета
             ValueAnimator colorAnim = ValueAnimator.ofObject(new ArgbEvaluator(), colorFrom, colorTo);

@@ -22,8 +22,8 @@
 
         <item name="bubbleTextSize">16sp</item>
 
-        <item name="indicatorActiveColor">@color/gray</item>
-        <item name="indicatorColor">@color/gray_transparent</item>
+        <item name="indicatorActiveColor">@color/darkgray_transparent</item>
+        <item name="indicatorColor">@color/darkgray_transparent</item>
         <item name="indicatorWidth">30dp</item>
         <item name="indicatorHeight">5dp</item>
 

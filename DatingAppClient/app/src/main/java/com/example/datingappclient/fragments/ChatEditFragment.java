@@ -1,5 +1,7 @@
 package com.example.datingappclient.fragments;
 
+import static android.view.View.GONE;
+
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -23,9 +25,12 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.datingappclient.R;
 import com.example.datingappclient.model.dto.ChatDTO;
+import com.example.datingappclient.model.dto.ChatMemberDTO;
 import com.example.datingappclient.recyclerViews.ChatMembersAdapter;
 import com.example.datingappclient.utils.ImageUtils;
 import com.example.datingappclient.viewmodels.ChatMembersViewModel;
+
+import java.util.List;
 
 public class ChatEditFragment extends Fragment {
 
@@ -35,6 +40,7 @@ public class ChatEditFragment extends Fragment {
     private View activityView;
 
     /* === Other === */
+    private Integer userId;
     private ChatDTO chat;
 
     /* === === */
@@ -43,8 +49,9 @@ public class ChatEditFragment extends Fragment {
 
     private ChatEditFragment() {}
 
-    public static ChatEditFragment newInstance (ChatDTO chat) {
+    public static ChatEditFragment newInstance (Integer user, ChatDTO chat) {
         ChatEditFragment chatEditFragment = new ChatEditFragment();
+        chatEditFragment.userId = user;
         chatEditFragment.chat = chat;
         return chatEditFragment;
     }
@@ -52,11 +59,12 @@ public class ChatEditFragment extends Fragment {
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        activityView = inflater.inflate(R.layout.fragment_add_members_to_chat, container, false);
+        activityView = inflater.inflate(R.layout.fragment_chat_properties, container, false);
 
         setupToolbar();
         setChatInfo();
         setChatMembers();
+        setAddMembersButton();
 
         viewModel = new ViewModelProvider(this, new ViewModelProvider.Factory() {
             @NonNull
@@ -71,9 +79,22 @@ public class ChatEditFragment extends Fragment {
         recyclerView.setAdapter(adapter);
 
         viewModel.getChatMembers().observe(getViewLifecycleOwner(), adapter::submitList);
-        viewModel.setChatMembers(chat.getChatInfo().getMembers());
+
+        List<ChatMemberDTO> members = chat.getChatInfo().getMembers();
+        viewModel.setChatMembers(members);
 
         return activityView;
+    }
+
+    private void setAddMembersButton() {
+        View addMembers = activityView.findViewById(R.id.add_members);
+        addMembers.setOnClickListener(view -> {
+            getParentFragmentManager().beginTransaction().replace(R.id.fragment_container, EditChatMembersFragment.newInstance(userId, chat.getChatInfo().getMembers()))
+                    .addToBackStack(null)
+                    .commit();
+        });
+
+        if (!chat.getChatInfo().getIsGroup()) addMembers.setVisibility(GONE);
     }
 
     private void setChatMembers() {
@@ -81,6 +102,7 @@ public class ChatEditFragment extends Fragment {
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(requireContext());
         linearLayoutManager.setStackFromEnd(true);
         recyclerView.setLayoutManager(linearLayoutManager);
+        recyclerView.setClickable(false);
     }
 
     private void setChatInfo() {

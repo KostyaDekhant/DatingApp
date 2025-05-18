@@ -14,10 +14,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 
-import androidx.appcompat.widget.Toolbar;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
@@ -26,13 +25,14 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.datingappclient.R;
 import com.example.datingappclient.constants.Constants;
-import com.example.datingappclient.model.dto.UserDTO;
+import com.example.datingappclient.model.dto.ChatMemberDTO;
 import com.example.datingappclient.recyclerViews.ChatMembersAdapter;
 import com.example.datingappclient.retrofit.repository.ChatsRepository;
 import com.example.datingappclient.viewmodels.ChatMembersViewModel;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
-public class GroupChatMembersFragment extends Fragment {
+import java.util.List;
+
+public class EditChatMembersFragment extends Fragment {
 
     /* === Repository === */
     private ChatsRepository chatsRepository;
@@ -44,13 +44,15 @@ public class GroupChatMembersFragment extends Fragment {
     private ChatMembersViewModel viewModel;
     private ChatMembersAdapter adapter;
 
-    private UserDTO user;
+    private Integer userId;
+    private List<ChatMemberDTO> chatMembers;
 
-    private GroupChatMembersFragment() {};
+    private EditChatMembersFragment() {};
 
-    public static GroupChatMembersFragment newInstance(UserDTO user) {
-        GroupChatMembersFragment fragment = new GroupChatMembersFragment();
-        fragment.user = user;
+    public static EditChatMembersFragment newInstance(Integer userId, List<ChatMemberDTO> chatMembers) {
+        EditChatMembersFragment fragment = new EditChatMembersFragment();
+        fragment.userId = userId;
+        fragment.chatMembers = chatMembers;
         return fragment;
     }
 
@@ -60,7 +62,6 @@ public class GroupChatMembersFragment extends Fragment {
         activityView = inflater.inflate(R.layout.fragment_add_members_to_new_chat, container, false);
         setupRepository();
         setupToolbar();
-        setupNextButton();
         setupMembersRecyclerView();
         animUnderlineEdit();
         setupFilter();
@@ -106,6 +107,10 @@ public class GroupChatMembersFragment extends Fragment {
 
         viewModel.getChatMembers().observe(getViewLifecycleOwner(), adapter::submitList);
 
+        for (ChatMemberDTO member : chatMembers) member.setAlreadyInChat(true);
+        viewModel.setChatMembers(chatMembers);
+
+        adapter.setFullList(chatMembers);
         getChatMembers();
     }
 
@@ -115,12 +120,12 @@ public class GroupChatMembersFragment extends Fragment {
 
     private void getChatMembers() {
         String logTag = Constants.GLOBAL_LOG_TAG + "GET CHAT MEMBERS";
-        chatsRepository.fetchChatMembers(user.getId(), 0, result -> {
+        chatsRepository.fetchChatMembers(userId, 0, result -> {
             switch (result.status) {
                 case SUCCESS:
                     Log.i(logTag, "Получено " + result.data.size() + " участников чата!");
-                    viewModel.setChatMembers(result.data);
-                    adapter.setFullList(result.data);
+                    viewModel.addChatMembers(result.data);
+                    adapter.setFullList(viewModel.getChatMembers().getValue());
                     break;
                 case ERROR:
                     Log.e(logTag, result.error);
@@ -135,15 +140,6 @@ public class GroupChatMembersFragment extends Fragment {
     private void setupMembersRecyclerView() {
         RecyclerView recyclerView = activityView.findViewById(R.id.usersRecyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
-    }
-
-    private void setupNextButton() {
-        FloatingActionButton fabCreateChat = activityView.findViewById(R.id.fabNext);
-        fabCreateChat.setOnClickListener(v -> {
-            getParentFragmentManager().beginTransaction().replace(R.id.fragment_container, CreateGroupChatFragment.newInstance(user, adapter.getSelectedMembers()))
-                    .addToBackStack(null)
-                    .commit();
-        });
     }
 
     private void setupToolbar() {
