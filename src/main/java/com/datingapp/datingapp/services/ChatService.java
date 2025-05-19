@@ -229,7 +229,7 @@ public class ChatService {
             GroupChatInfoDto groupChatInfoDto = groupChatDto.getGroupChatInfoDto();
 
             groupChat.setName(groupChatDto.getName());
-            groupChat.setCreatedAt(groupChatInfoDto.getCreatedAt());
+            groupChat.setCreatedAt(new Timestamp(System.currentTimeMillis()));
             groupChat.setCreatedBy(groupChatInfoDto.getCreatedBy());
             groupChat.setIsGroup(groupChatInfoDto.getIsGroup());
             groupChat.setImage(groupChatDto.getImage());
