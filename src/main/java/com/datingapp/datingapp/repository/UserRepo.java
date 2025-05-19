@@ -55,33 +55,39 @@ WHERE :userId IN (c.pk_user, c.pk_user1)
     List<Object[]> findChatPartners(@Param("userId") int userId);
 
     @Query(value = """
-SELECT
-u2.name AS partner_name,
-u2.pk_user AS partner_id,
-p.image AS avatar
+SELECT DISTINCT ON (u2.pk_user)
+     u2.name        AS partner_name,
+     u2.pk_user     AS partner_id,
+     p.image        AS avatar
 FROM "user" u2
-LEFT JOIN "user_pic" up ON up.pk_user = u2.pk_user
-LEFT JOIN "picture" p ON up.pk_picture = p.pk_picture AND p.id = 1
+LEFT JOIN user_pic up
+  ON up.pk_user = u2.pk_user
+LEFT JOIN picture p
+  ON p.pk_picture = up.pk_picture
+ AND p.id = 1
 WHERE
-    -- Исключаем текущего пользователя
-u2.pk_user != :userId
-    -- Проверяем, что пользователь не состоит в указанном чате
-AND NOT EXISTS (
-        SELECT 1
-        FROM chat_member cm
-        WHERE cm.user_id = u2.pk_user AND cm.chat_id = :chatId
-)
-    -- Ищем только пользователей, с которыми есть общие чаты (личные)
-AND EXISTS (
-        SELECT 1
-        FROM chat_member cm1
-        JOIN chat_member cm2 ON cm1.chat_id = cm2.chat_id
-        JOIN "group_chat" gc ON cm1.chat_id = gc.pk_group_chat
-        WHERE
-        cm1.user_id = :userId
-        AND cm2.user_id = u2.pk_user
-        AND gc.is_group = false
-);
+  u2.pk_user != :userId
+  AND NOT EXISTS (
+    SELECT 1
+    FROM chat_member cm
+    WHERE cm.user_id = u2.pk_user
+      AND cm.chat_id = :chatId
+  )
+  AND EXISTS (
+    SELECT 1
+    FROM chat_member cm1
+    JOIN chat_member cm2
+      ON cm1.chat_id = cm2.chat_id
+    JOIN group_chat gc
+      ON gc.pk_group_chat = cm1.chat_id
+     AND gc.is_group = FALSE
+    WHERE
+      cm1.user_id = :userId
+      AND cm2.user_id = u2.pk_user
+  )
+ORDER BY
+  u2.pk_user,
+  (p.image IS NULL);
 """, nativeQuery = true)
     List<Object[]> findGroupChatPartners(@Param("userId") int userId, @Param("chatId") int chatId);
 

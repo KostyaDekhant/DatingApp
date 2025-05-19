@@ -149,6 +149,7 @@ WHERE gr.pk_group_chat = :chatId
 """, nativeQuery = true)
     List<Object[]> getGroupChatInfoById(int chatId);
 
+    GroupChat findGroupChatByPkGroupChat(int chatId);
 }
 
 
