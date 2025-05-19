@@ -75,6 +75,15 @@ public class ChatController {
         return ResponseEntity.ok().build();
     }
 
+    @PatchMapping("/group_chats")
+    public ResponseEntity<Void> updateGroupChat(@RequestParam("chatId") int chatId,
+                                                @RequestParam("userId") int userId,
+                                                @RequestParam("name") String name,
+                                                @RequestParam("image") byte[] image) {
+        chatService.updateGroupChat(chatId, userId, name, image);
+        return ResponseEntity.ok().build();
+    }
+
     @DeleteMapping("/group_chats/{chatId}/users/{userId}/creator/{creatorId}")
     public ResponseEntity<Void> removeMemberFromChat(@PathVariable int chatId, @PathVariable int userId, @PathVariable int creatorId) throws UserNotExistsExceptions {
         chatService.deleteChatMember(chatId, userId, creatorId);

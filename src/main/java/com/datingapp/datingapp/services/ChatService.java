@@ -6,10 +6,7 @@ import com.datingapp.datingapp.exception.ChatAlreadyExistsException;
 import com.datingapp.datingapp.exception.ChatNotFoundException;
 import com.datingapp.datingapp.exception.UserNotExistsExceptions;
 import com.datingapp.datingapp.repository.*;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import jakarta.persistence.Column;
 import lombok.RequiredArgsConstructor;
-import org.hibernate.grammars.hql.HqlParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -313,5 +310,20 @@ public class ChatService {
         }
 
     }
+    @Transactional
+    public void updateGroupChat(int chatId, int userId, String name, byte[] image) {
+        try{
+            if(image.length > 0){
+                groupChatRepo.updateGroupChatImage(chatId, userId, image);
+            }
+            else
+                groupChatRepo.updateGroupChatImage(chatId, userId, null);
+            if(!name.isEmpty())
+                groupChatRepo.updateGroupChatName(chatId, userId, name);
+        }
+        catch (Exception e) {
+            throw new RuntimeException(e.getMessage());
+        }
 
+    }
 }

@@ -1,8 +1,8 @@
 package com.datingapp.datingapp.repository;
 
-import com.datingapp.datingapp.entity.Chat;
 import com.datingapp.datingapp.entity.GroupChat;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -150,6 +150,18 @@ WHERE gr.pk_group_chat = :chatId
     List<Object[]> getGroupChatInfoById(int chatId);
 
     GroupChat findGroupChatByPkGroupChat(int chatId);
+
+    @Modifying
+    @Query(value = """
+update group_chat set name = :name where :name is not null and pk_group_chat = :chatId and created_by = :userId;
+""", nativeQuery = true)
+    void updateGroupChatName(int chatId, int userId, String name);
+
+    @Modifying
+    @Query(value = """
+update group_chat set image = :image where pk_group_chat = :chatId and created_by = :userId;
+""", nativeQuery = true)
+    void updateGroupChatImage(int chatId, int userId, byte[] image);
 }
 
 
