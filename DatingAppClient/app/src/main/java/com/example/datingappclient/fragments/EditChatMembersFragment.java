@@ -44,14 +44,15 @@ public class EditChatMembersFragment extends Fragment {
     private ChatMembersViewModel viewModel;
     private ChatMembersAdapter adapter;
 
-    private Integer userId;
+    private Integer userId, chatId;
     private List<ChatMemberDTO> chatMembers;
 
     private EditChatMembersFragment() {};
 
-    public static EditChatMembersFragment newInstance(Integer userId, List<ChatMemberDTO> chatMembers) {
+    public static EditChatMembersFragment newInstance(Integer userId,Integer chatId, List<ChatMemberDTO> chatMembers) {
         EditChatMembersFragment fragment = new EditChatMembersFragment();
         fragment.userId = userId;
+        fragment.chatId = chatId;
         fragment.chatMembers = chatMembers;
         return fragment;
     }
@@ -121,7 +122,7 @@ public class EditChatMembersFragment extends Fragment {
 
     private void getChatMembers() {
         String logTag = Constants.GLOBAL_LOG_TAG + "GET CHAT MEMBERS";
-        chatsRepository.fetchChatMembers(userId, 0, result -> {
+        chatsRepository.fetchChatMembers(userId, chatId, result -> {
             switch (result.status) {
                 case SUCCESS:
                     Log.i(logTag, "Получено " + result.data.size() + " участников чата!");

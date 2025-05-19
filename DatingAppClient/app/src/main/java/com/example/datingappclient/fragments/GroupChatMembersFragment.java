@@ -101,6 +101,7 @@ public class GroupChatMembersFragment extends Fragment {
         }).get(ChatMembersViewModel.class);
 
         adapter = new ChatMembersAdapter();
+        adapter.setEditMembers(true);
         RecyclerView recyclerView = activityView.findViewById(R.id.usersRecyclerView);
         recyclerView.setAdapter(adapter);
 

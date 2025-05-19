@@ -12,5 +12,6 @@
     <color name="dark_green">#1B5E20</color> <!-- Тёмно-зелёный -->
     <color name="light_green">#81C784</color> <!-- Светло-зелёный -->
     <color name="light_gray">#BDBDBD</color> <!-- Светло-серый -->
-    <color name="gray_transparent">#80B0B0B0</color> <!-- Полупрозрачный серый -->
+    <color name="gray_transparent">#80B0B0B0</color>
+    <color name="red">#FF0000</color> <!-- Полупрозрачный серый -->
 </resources>

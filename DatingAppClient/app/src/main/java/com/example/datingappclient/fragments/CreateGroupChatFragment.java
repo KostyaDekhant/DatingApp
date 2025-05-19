@@ -27,6 +27,7 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
+import androidx.lifecycle.ViewModelProvider;
 
 import com.example.datingappclient.R;
 import com.example.datingappclient.activity.ChatActivity;
@@ -37,6 +38,7 @@ import com.example.datingappclient.model.dto.ChatInfoDTO;
 import com.example.datingappclient.model.dto.UserDTO;
 import com.example.datingappclient.retrofit.repository.ChatsRepository;
 import com.example.datingappclient.utils.ImageUtils;
+import com.example.datingappclient.viewmodels.ChatsViewModel;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.io.InputStream;
@@ -139,7 +141,7 @@ public class CreateGroupChatFragment extends Fragment {
         byte[] chatImage = ImageUtils.convertBitmapToPrimitiveBytes(selectedAvatarBitmap);
 
         // add user to chat members
-        chatMembers.add(new ChatMemberDTO(null, user.getId(), null, false, true));
+        chatMembers.add(new ChatMemberDTO(user.getName(), user.getId(), ImageUtils.convertBitmapToPrimitiveBytes(user.getMainImage()), false, true));
 
         // create group chat
         ChatInfoDTO groupChatInfo = new ChatInfoDTO(user.getId(), null, chatMembers, true);
@@ -152,6 +154,7 @@ public class CreateGroupChatFragment extends Fragment {
             switch (result.status) {
                 case SUCCESS:
                     groupChat.setId(result.data);
+                    addToChatList(groupChat);
                     goToChatActivity(groupChat);
                     break;
                 case ERROR:
@@ -161,12 +164,19 @@ public class CreateGroupChatFragment extends Fragment {
         });
     }
 
+    private void addToChatList(ChatDTO groupChat) {
+        ChatsViewModel chatsViewModel = new ViewModelProvider(requireActivity()).get(ChatsViewModel.class);
+        chatsViewModel.addChats(groupChat);
+    }
+
     private void goToChatActivity(ChatDTO chat) {
         Intent intent = new Intent(requireContext(), ChatActivity.class);
         intent.putExtra("userId", user.getId());
         ChatDTO.selectedChat = chat;
         startActivity(intent);
         requireActivity().getSupportFragmentManager().popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
+        getParentFragmentManager().beginTransaction().replace(R.id.fragment_container, ChatListFragment.newInstance(user))
+                .commit();
     }
 
     private void animUnderlineEdit() {

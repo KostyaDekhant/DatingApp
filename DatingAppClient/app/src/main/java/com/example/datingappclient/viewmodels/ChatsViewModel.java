@@ -44,6 +44,17 @@ public class ChatsViewModel extends ViewModel {
         }
     }
 
+    public void addChats(ChatDTO chat) {
+        List<ChatDTO> currentList = chats.getValue();
+
+        if (currentList == null) {
+            currentList = new ArrayList<>();
+        }
+
+        currentList.add(chat);
+        chats.setValue(currentList);
+    }
+
     /**
      * Получить поток входящих сообщений для конкретного чата
      */
@@ -62,5 +73,16 @@ public class ChatsViewModel extends ViewModel {
     protected void onCleared() {
         super.onCleared();
         disconnectWebSocket();
+    }
+
+    public void deleteChat(int chatId) {
+        List<ChatDTO> currentList = chats.getValue();
+
+        if (currentList == null || currentList.isEmpty()) return;
+
+        List<ChatDTO> updatedList = new ArrayList<>(currentList);
+        updatedList.removeIf(c -> c.getId().equals(chatId));
+
+        chats.setValue(updatedList);
     }
 }

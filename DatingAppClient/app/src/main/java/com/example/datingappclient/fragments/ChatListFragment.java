@@ -2,6 +2,7 @@ package com.example.datingappclient.fragments;
 
 import static android.content.Context.MODE_PRIVATE;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -10,6 +11,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
@@ -27,6 +30,8 @@ import com.example.datingappclient.recyclerViews.chatsList.ChatsAdapter;
 import com.example.datingappclient.retrofit.repository.ChatsRepository;
 import com.example.datingappclient.viewmodels.ChatsViewModel;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+
+import java.util.ArrayList;
 
 public class ChatListFragment extends Fragment {
 
@@ -67,19 +72,12 @@ public class ChatListFragment extends Fragment {
         recyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
         recyclerView.getRecycledViewPool().setMaxRecycledViews(0, 0);
 
-        return activityView;
-    }
-
-    @Override
-    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
         setupViewModel();
-        getUserChats();
-    }
 
-    @Override
-    public void onResume() {
-        super.onResume();
+        chatsViewModel.setChats(new ArrayList<>());
+        getUserChats();
+
+        return activityView;
     }
 
     @Override
@@ -100,7 +98,7 @@ public class ChatListFragment extends Fragment {
     private void setupViewModel() {
         String token = requireContext().getSharedPreferences("auth", MODE_PRIVATE).getString("token", null);
 
-        chatsViewModel = new ViewModelProvider(this, new ViewModelProvider.Factory() {
+        chatsViewModel = new ViewModelProvider(requireActivity(), new ViewModelProvider.Factory() {
             @NonNull
             @Override
             public <T extends androidx.lifecycle.ViewModel> T create(@NonNull Class<T> modelClass) {
@@ -136,7 +134,7 @@ public class ChatListFragment extends Fragment {
                     chatsViewModel.addChats(result.data);
                     break;
                 case EMPTY:
-                    Log.i(logTag, "Чаты для пользователя " + user.getId() + " отсутствуют!");
+                    Log.i(logTag, "Чаты для пользователя " + user.getId() + " отсутствуют! offset=" + offset );
                     break;
                 case ERROR:
                     Log.e(logTag, result.error);
@@ -145,13 +143,25 @@ public class ChatListFragment extends Fragment {
         });
     }
 
+    private final ActivityResultLauncher<Intent> chatLauncher =
+            registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
+                if (result.getResultCode() == Activity.RESULT_OK) {
+                    Intent data = result.getData();
+                    int removedChatId = data.getIntExtra("chatIdToRemove", -1);
+                    if (removedChatId != -1) {
+                        chatsViewModel.deleteChat(removedChatId);
+                    }
+                }
+            });
+
     private void startChatActivity(ChatDTO chat) {
         Intent intent = new Intent(requireContext(), ChatActivity.class);
         intent.putExtra("userId", user.getId());
         getChatInfo(chat.getId(), chatInfo -> {
             chat.setChatInfo(chatInfo);
             ChatDTO.selectedChat = chat;
-            startActivity(intent);
+
+            chatLauncher.launch(intent);
         });
     }
 

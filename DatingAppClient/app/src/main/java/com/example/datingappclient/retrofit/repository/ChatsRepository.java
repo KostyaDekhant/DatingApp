@@ -76,8 +76,8 @@ public class ChatsRepository {
             @Override
             public void onResponse(Call<List<ChatDTO>> call, Response<List<ChatDTO>> response) {
                 if (response.isSuccessful()) {
-                    if (response.body() != null) callback.onResult(Result.success(response.body()));
-                    else callback.onResult(Result.empty());
+                    if (response.body() == null || response.body().isEmpty() || response.body().get(0).getImage() == null) callback.onResult(Result.empty());
+                    else callback.onResult(Result.success(response.body()));
                 } else
                     callback.onResult(Result.error("Ошибка при получении изображений чата " + response.code() + " " + response.message()));
             }
@@ -135,6 +135,21 @@ public class ChatsRepository {
                 } else {
                     callback.onResult(Result.error("Ошибка при добавлении пользователя в чат: " + response.code() + " " + response.message()));
                 }
+            }
+
+            @Override
+            public void onFailure(Call<Void> call, Throwable throwable) {
+                callback.onResult(Result.error("Ошибка сети или ошибка при обработке данных: " + throwable.getMessage()));
+            }
+        });
+    }
+
+    public void deleteChat(int chatId, int creatorId, ResultCallback<Void> callback) {
+        chatsAPI.deleteChat(chatId, creatorId).enqueue(new Callback<>() {
+            @Override
+            public void onResponse(Call<Void> call, Response<Void> response) {
+                if (response.isSuccessful()) callback.onResult(Result.success(null));
+                else callback.onResult(Result.error("Ошибка при удалении чата:"  + chatId + " " + response.code() + " " + response.message()));
             }
 
             @Override

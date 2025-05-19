@@ -8,6 +8,7 @@ import java.util.List;
 
 import retrofit2.Call;
 import retrofit2.http.Body;
+import retrofit2.http.DELETE;
 import retrofit2.http.GET;
 import retrofit2.http.POST;
 import retrofit2.http.Path;
@@ -28,8 +29,11 @@ public interface ChatsAPI {
     Call<List<ChatMemberDTO>> getChatMembers(@Path("userId") int userId, @Path("chatId") int chatId);
 
     @POST("/api/group_chats")
-    Call <Integer> createGroupChat(@Body ChatDTO chat);
+    Call<Integer> createGroupChat(@Body ChatDTO chat);
 
     @POST("/api/group_chats/{chatId}/users/{userId}")
-    Call <Void> addMemberToChat(@Path("chatId") int chatId, @Path("userId") int userId);
+    Call<Void> addMemberToChat(@Path("chatId") int chatId, @Path("userId") int userId);
+
+    @DELETE("/api/group_chats/{chatId}/creator/{creatorId}")
+    Call<Void> deleteChat(@Path("chatId") int chatId, @Path("creatorId") int creatorId);
 }

@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <!-- <item
+        android:id="@+id/menu_auto_delete"
+        android:title="Auto-Delete"
+        android:icon="@drawable/ic_auto_delete"
+        android:showAsAction="never" />
+
+    <item
+        android:id="@+id/menu_start_video"
+        android:title="Start Video Chat"
+        android:icon="@drawable/ic_video"
+        android:showAsAction="never" />
+
+    <item
+        android:id="@+id/menu_search"
+        android:title="Search Members"
+        android:icon="@drawable/ic_search"
+        android:showAsAction="never" />
+-->
+    <item
+        android:id="@+id/menu_delete_leave"
+        android:title="Удалить чат"
+        android:icon="@drawable/ic_delete_chat"
+        app:showAsAction="never" />
+
+<!--    <item
+        android:id="@+id/menu_add_home"
+        android:title="Add to Home Screen"
+        android:icon="@drawable/ic_home"
+        android:showAsAction="never" />-->
+
+</menu>

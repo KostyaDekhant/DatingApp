@@ -57,16 +57,14 @@ public class ChatsAdapter extends ListAdapter<ChatDTO, ChatsHolder> {
         holder.lastMessage.setText(chat.getLastMessage());
 
         // Установить изображение, если оно есть
-        getChatImage(position, () -> {
-            byte[] chatImage = chat.getImage();
-            if (chatImage != null) {
-                Bitmap bitmap = ImageUtils.convertPrimitiveByteToBitmap(chatImage);
-                Bitmap cropped = ImageUtils.getCroppedBitmap(bitmap);
-                holder.setByteImage(chatImage);
-                holder.profileImage.setImageBitmap(cropped);
-                holder.profileImage.setPadding(0, 0, 0, 0); // Убираем паддинги, чтобы не было "обводки"
-            }
-        });
+        if (chat.getImage() == null) {
+            getChatImage(position, () -> {
+                setChatImage(holder, chat.getImage());
+            });
+        }
+        else {
+            setChatImage(holder, chat.getImage());
+        }
         // Подписка на LiveData для сообщений этого чата
         viewModel.getMessageStream(chat.getId())
                 .observe(lifecycleOwner, message -> {
@@ -81,6 +79,16 @@ public class ChatsAdapter extends ListAdapter<ChatDTO, ChatsHolder> {
         );
     }
 
+    private void setChatImage(ChatsHolder holder, byte[] chatImage) {
+        if (chatImage != null) {
+            Bitmap bitmap = ImageUtils.convertPrimitiveByteToBitmap(chatImage);
+            Bitmap cropped = ImageUtils.getCroppedBitmap(bitmap);
+            holder.setByteImage(chatImage);
+            holder.profileImage.setImageBitmap(cropped);
+            holder.profileImage.setPadding(0, 0, 0, 0); // Убираем паддинги, чтобы не было "обводки"
+        }
+    }
+
     interface ChatImageCallback {
         void onImage();
     }
@@ -92,7 +100,8 @@ public class ChatsAdapter extends ListAdapter<ChatDTO, ChatsHolder> {
             switch (result.status) {
                 case SUCCESS:
                     Log.i(logTag, "Получено изображение для чата " + chat.getId());
-                    chat.setImage(result.data.get(0).getImage());
+                    byte[] chatImage = result.data.get(0).getImage();
+                    chat.setImage(chatImage);
                     break;
                 case ERROR:
                     Log.e(logTag, result.error);

@@ -31,6 +31,7 @@ public class ImageUtils {
     }
 
     public static Bitmap convertPrimitiveByteToBitmap(byte[] object) {
+        if (object == null) return null;
         return BitmapFactory.decodeByteArray(object, 0, object.length);
     }
 
@@ -106,6 +107,7 @@ public class ImageUtils {
     }
 
     public static Bitmap getCroppedBitmap(Bitmap bitmap) {
+        if (bitmap == null) return null;
         // Предполагаем, что bitmap - квадратное изображение
         int width = bitmap.getWidth();
         int height = bitmap.getHeight();
