@@ -45,14 +45,8 @@ public class ChatService {
     public List<ChatMemberDTO> findGroupChatUsers(int userId, int chatId) {
         try {
             GroupChat gr = groupChatRepo.findGroupChatByPkGroupChat(chatId);
-            if(gr == null) {
-                throw new ChatNotFoundException("Не существует такого чата: " + chatId);
-            }
             List<ChatMemberDTO> usersChats = getChatMembersFromObject(userRepo.findGroupChatPartners(userId,chatId));
             return usersChats;
-        }
-        catch (ChatNotFoundException ex){
-            throw new ChatNotFoundException(ex.getMessage());
         }
         catch (Exception e) {
             throw new RuntimeException("Ошибка при поиске чатов: " + e.getMessage());
