@@ -162,37 +162,6 @@ update group_chat set name = :name where :name is not null and pk_group_chat = :
 update group_chat set image = :image where pk_group_chat = :chatId and created_by = :userId;
 """, nativeQuery = true)
     void updateGroupChatImage(int chatId, int userId, byte[] image);
-
-
-    @Modifying
-    @Query(value = """
-SELECT
-gc.pk_group_chat       AS chat_id,
-        -- если это групповая — показываем её название,
-        -- иначе — берём имя единственного другого участника
-        CASE
-WHEN gc.is_group THEN gc.name
-ELSE other_user.name
-END                     AS chat_name,
-lm.message              AS last_message,
-  COALESCE(lm.time, gc.created_at)            AS last_time
-FROM
-chat_member cm
-  -- нужные нам чаты
-JOIN group_chat gc
-ON cm.chat_id = gc.pk_group_chat
-AND cm.chat_id = :chatId)
-
-  -- LATERAL-джоин: для каждой строки вытягиваем последнее сообщение
-LEFT JOIN LATERAL (
-        SELECT m.message, m.time
-                FROM message m
-                WHERE m.pk_chat = gc.pk_group_chat
-                ORDER BY m.time DESC
-                LIMIT 1
-) lm ON TRUE
-""", nativeQuery = true)
-    List<Object[]> getGroupChatByID(int chatId);
 }
 
 
