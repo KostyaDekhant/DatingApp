@@ -99,7 +99,7 @@ public class ChatController {
         return ResponseEntity.ok().build();
     }
 
-    @MessageMapping("/group_chats")
+    @MessageMapping("/group_chats/update")
     public ResponseEntity<Void> updateGroupChat(@RequestBody GroupChatPayloadInfo info) {
         try {
             int chatId = info.getChatId();
@@ -133,7 +133,7 @@ public class ChatController {
         return ResponseEntity.ok().build();
     }
 
-    @MessageMapping("/group_chats")
+    @MessageMapping("/group_chats/remove")
     public ResponseEntity<Void> removeChat(@RequestBody GroupChatPayloadInfo info){
         try {
             int chatId = info.getChatId();
