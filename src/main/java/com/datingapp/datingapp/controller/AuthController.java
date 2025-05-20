@@ -1,9 +1,12 @@
 package com.datingapp.datingapp.controller;
 
+import com.datingapp.datingapp.entity.RefreshToken;
 import com.datingapp.datingapp.entity.User;
+import com.datingapp.datingapp.exception.TokenRefreshException;
 import com.datingapp.datingapp.exception.UserNotExistsExceptions;
 import com.datingapp.datingapp.repository.UserRepo;
 import com.datingapp.datingapp.security.JwtUtil;
+import com.datingapp.datingapp.services.RefreshTokenService;
 import com.datingapp.datingapp.services.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,8 +26,9 @@ public class AuthController {
     private final JwtUtil jwtUtil;
     private final UserService userService;
 
+    private final RefreshTokenService refreshTokenService;
+
     private static final Logger log = LoggerFactory.getLogger(UserController.class);
-    private final UserRepo userRepo;
 
     record AuthResponse(String token, Integer userId) {}
 
@@ -32,11 +36,37 @@ public class AuthController {
             AuthenticationManager authManager,
             JwtUtil jwtUtil,
             UserService userService,
-            UserRepo userRepo) {
+            RefreshTokenService refreshTokenService) {
         this.authManager = authManager;
         this.jwtUtil     = jwtUtil;
         this.userService = userService;
-        this.userRepo = userRepo;
+        this.refreshTokenService = refreshTokenService;
+    }
+
+    record TokenRefreshRequest(String refreshToken) {}
+    record TokenRefreshResponse(String token, String refreshToken, Integer userId) {}
+
+    @PostMapping("/refresh")
+    public ResponseEntity<?> refreshToken(@RequestBody TokenRefreshRequest request) {
+        String requestToken = request.refreshToken();
+        return refreshTokenService.findByToken(requestToken)
+                .map(refreshTokenService::verifyExpiration)
+                .map(token -> {
+                    String username = token.getUser().getLogin();
+                    String newAccessToken = jwtUtil.generateToken(username);
+                    // Optionally: issue a new refresh token
+                    RefreshToken newRefreshToken = refreshTokenService.createRefreshToken(token.getUser().getPkUser());
+                    return ResponseEntity.ok(
+                            new TokenRefreshResponse(newAccessToken, newRefreshToken.getToken(), token.getUser().getPkUser())
+                    );
+                })
+                .orElseThrow(() -> new TokenRefreshException("Refresh токена нет в базе данных!"));
+    }
+
+    @PostMapping("/logout")
+    public ResponseEntity<?> logoutUser(@RequestParam("userId") Integer userId) {
+        refreshTokenService.deleteByUserId(userId);
+        return ResponseEntity.ok(Map.of("message", "Log out successful!"));
     }
 
     @PostMapping("/login")
@@ -53,8 +83,11 @@ public class AuthController {
             String token = jwtUtil.generateToken(login);
             Integer id = userService.getPkUserByLogin(login);
             log.info("Authentication successful");
-            return ResponseEntity.ok(new AuthResponse(token, id)); //Map.of("token", token)
-
+            //return ResponseEntity.ok(new AuthResponse(token, id)); //Map.of("token", token)
+            RefreshToken refreshToken = refreshTokenService.createRefreshToken(id);
+            return ResponseEntity.ok(
+                    new TokenRefreshResponse(token, refreshToken.getToken(), id)
+            );
         } catch (AuthenticationException ex) {
             return ResponseEntity
                     .status(401)
@@ -69,6 +102,14 @@ public class AuthController {
         Integer userId = userService.signupUser(user);
         String token = jwtUtil.generateToken(user.getLogin());
         Integer id = userService.getPkUserByLogin(user.getLogin());
-        return ResponseEntity.ok(new AuthResponse(token, id));
+
+        RefreshToken refreshToken = refreshTokenService.createRefreshToken(id);
+        return ResponseEntity.ok(
+                new TokenRefreshResponse(token, refreshToken.getToken(), id)
+        );
+        //return ResponseEntity.ok(new AuthResponse(token, id));
     }
+
+
+
 }
