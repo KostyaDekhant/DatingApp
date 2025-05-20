@@ -1,7 +1,9 @@
 package com.datingapp.datingapp.controller;
 
+import com.datingapp.datingapp.entity.GroupChatDto;
 import com.datingapp.datingapp.entity.HistoryRequest;
 import com.datingapp.datingapp.entity.MessageDTO;
+import com.datingapp.datingapp.services.ChatService;
 import com.datingapp.datingapp.services.MessageService;
 import com.datingapp.datingapp.entity.Message;
 import org.slf4j.Logger;
@@ -21,13 +23,15 @@ public class MessageController {
     private final MessageService messageService;
     private final NotificationController notificationController;
     private final SimpMessagingTemplate simpMessagingTemplate;
+    private final ChatService chatService;
 
     @Autowired
     public MessageController(MessageService messageService, NotificationController notificationController,
-                             SimpMessagingTemplate simpMessagingTemplate) {
+                             SimpMessagingTemplate simpMessagingTemplate, ChatService chatService) {
         this.notificationController = notificationController;
         this.messageService = messageService;
         this.simpMessagingTemplate = simpMessagingTemplate;
+        this.chatService = chatService;
     }
 
     // Эндпоинт для отправки тестового сообщения всем клиентам
@@ -47,6 +51,12 @@ public class MessageController {
         int chat_id = mess.getPkChat();
         try {
             simpMessagingTemplate.convertAndSend("/topic/messages/" + chat_id, messageService.saveMessage(mess));
+
+            GroupChatDto groupChatDto = chatService.getChat(chat_id);
+            simpMessagingTemplate.convertAndSend(
+                    "/topic/group_chats/update",
+                    groupChatDto
+            );
             //return messageService.saveMessage(mess);
         } catch (Exception e) {
             e.printStackTrace();

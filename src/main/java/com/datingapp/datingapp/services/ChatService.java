@@ -161,6 +161,18 @@ public class ChatService {
     }
 
     @Transactional
+    public GroupChatDto getChat(int chatId){
+        try {
+            GroupChatDto groupChatDtos =
+                    getChatsInfoFromObject(groupChatRepo.getGroupChatByID(chatId)).getFirst();
+            return groupChatDtos;
+        }
+        catch (Exception e) {
+            throw new ChatNotFoundException("Ошибка при поиске чата: " + e.getMessage());
+        }
+    }
+
+    @Transactional
     public List<GroupChatDto> getChatAvatars(int userId, List<Integer> chatIds){
         try {
             List<GroupChatDto> groupChatDtos = new ArrayList<>();
@@ -223,7 +235,7 @@ public class ChatService {
     }
 
     @Transactional
-    public Integer saveGroupChat(GroupChatDto groupChatDto) {
+    public GroupChat saveGroupChat(GroupChatDto groupChatDto) {
         try {
             GroupChat groupChat = new GroupChat();
             GroupChatInfoDto groupChatInfoDto = groupChatDto.getGroupChatInfoDto();
@@ -244,7 +256,7 @@ public class ChatService {
                 chatMemberRepo.save(chatMember);
             }
             log.info("Создан чат: " + groupChat.toString());
-            return groupChat.getPkGroupChat();
+            return groupChat;
         }
         catch (Exception e) {
             throw new RuntimeException("Ошибка при сохранении информации о групповых чатах: " + e.getMessage());
