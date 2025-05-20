@@ -1,13 +1,18 @@
 package com.datingapp.datingapp.controller;
 
 import com.datingapp.datingapp.entity.*;
+import com.datingapp.datingapp.exception.ChatNotFoundException;
 import com.datingapp.datingapp.exception.UserNotExistsExceptions;
 import com.datingapp.datingapp.services.ChatService;
 import com.datingapp.datingapp.services.MessageService;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.messaging.handler.annotation.MessageMapping;
+import org.springframework.messaging.handler.annotation.Payload;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -17,6 +22,15 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ChatController {
     private final ChatService chatService;
+
+    private final SimpMessagingTemplate simpMessagingTemplate;
+
+    @Autowired
+    public ChatController(SimpMessagingTemplate simpMessagingTemplate, ChatService chatService) {
+        this.simpMessagingTemplate = simpMessagingTemplate;
+        this.chatService = chatService;
+    }
+
 
     private static final Logger log = LoggerFactory.getLogger(MessageService.class);
     @GetMapping("/chats/{userId}") //users
@@ -56,6 +70,7 @@ public class ChatController {
         return ResponseEntity.ok(groupChatDtos);
     }
 
+
     @GetMapping("/group_chats/avatars")
     public ResponseEntity< List<GroupChatDto>> getChatAvatars(@RequestParam("userId") int userId,
                                                               @RequestParam("chatIds") List<Integer> chatIds) {
@@ -63,9 +78,18 @@ public class ChatController {
         return ResponseEntity.ok(groupChatDtos);
     }
 
-    @PostMapping("/group_chats")
+    //@PostMapping("/group_chats")
+    @MessageMapping("/group_chats/create")
     public ResponseEntity<Integer> addChat(@RequestBody GroupChatDto groupChatDto) {
-        Integer id = chatService.saveGroupChat(groupChatDto);
+        GroupChat groupChat = chatService.saveGroupChat(groupChatDto);
+        for(ChatMemberDTO chatMemberDTO : groupChatDto.getGroupChatInfoDto().getMembers()){
+            simpMessagingTemplate.convertAndSendToUser(
+                    chatMemberDTO.getUserId().toString(),
+                    "/queue/group_chats/update",
+                    groupChatDto
+            );
+        }
+        Integer id = groupChat.getPkGroupChat();
         return ResponseEntity.ok(id);
     }
 
@@ -75,13 +99,32 @@ public class ChatController {
         return ResponseEntity.ok().build();
     }
 
-    @PatchMapping("/group_chats")
-    public ResponseEntity<Void> updateGroupChat(@RequestParam("chatId") int chatId,
-                                                @RequestParam("userId") int userId,
-                                                @RequestParam("name") String name,
-                                                @RequestParam("image") byte[] image) {
-        chatService.updateGroupChat(chatId, userId, name, image);
-        return ResponseEntity.ok().build();
+    @MessageMapping("/group_chats")
+    public ResponseEntity<Void> updateGroupChat(@RequestBody GroupChatPayloadInfo info) {
+        try {
+            int chatId = info.getChatId();
+            int userId = info.getUserId();
+            String name = info.getName();
+            byte[] image = info.getImage();
+
+            List<ChatMemberDTO> chatMemberDTOS = chatService.getChatInfo(chatId).getMembers();
+            chatService.updateGroupChat(chatId, userId, name, image);
+
+            GroupChatDto groupChatDto = chatService.getChat(chatId);
+
+            for (ChatMemberDTO chatMemberDTO : chatMemberDTOS) {
+                simpMessagingTemplate.convertAndSendToUser(
+                        chatMemberDTO.getUserId().toString(),
+                        "/queue/group_chats/updated",
+                        groupChatDto
+                );
+            }
+
+            return ResponseEntity.ok().build();
+        }
+        catch (Exception e) {
+            throw new ChatNotFoundException("Ошибка при обновлении чата: " + e.getMessage());
+        }
     }
 
     @DeleteMapping("/group_chats/{chatId}/users/{userId}/creator/{creatorId}")
@@ -90,9 +133,25 @@ public class ChatController {
         return ResponseEntity.ok().build();
     }
 
-    @DeleteMapping("/group_chats/{chatId}/creator/{creatorId}")
-    public ResponseEntity<Void> removeChat(@PathVariable int chatId, @PathVariable int creatorId) {
-        chatService.deleteChat(chatId, creatorId);
-        return ResponseEntity.ok().build();
+    @MessageMapping("/group_chats")
+    public ResponseEntity<Void> removeChat(@RequestBody GroupChatPayloadInfo info){
+        try {
+            int chatId = info.getChatId();
+            int creatorId = info.getUserId();
+            List<ChatMemberDTO> chatMemberDTOS = chatService.getChatInfo(chatId).getMembers();
+            chatService.deleteChat(chatId, creatorId);
+
+            for (ChatMemberDTO chatMemberDTO : chatMemberDTOS) {
+                simpMessagingTemplate.convertAndSendToUser(
+                        chatMemberDTO.getUserId().toString(),
+                        "/queue/group_chats/deleted",
+                        chatId
+                );
+            }
+            return ResponseEntity.ok().build();
+        }
+        catch (Exception e) {
+            throw new ChatNotFoundException("Ошибка при удалении чата: " + e.getMessage());
+        }
     }
 }
