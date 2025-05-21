@@ -39,12 +39,10 @@ public class GroupChatController {
         log.info("Добавление чата");
         GroupChat groupChat = chatService.saveGroupChat(groupChatDto);
         int chatId = groupChat.getPkGroupChat();
-        for(ChatMemberDTO chatMemberDTO : groupChatDto.getGroupChatInfoDto().getMembers()){
-            simpMessagingTemplate.convertAndSend(
-                    "/topic/group_chats/" + chatId + "/created",
-                    groupChatDto
-            );
-        }
+        simpMessagingTemplate.convertAndSend(
+                "/topic/group_chats/" + chatId + "/created",
+                groupChatDto
+        );
         Integer id = groupChat.getPkGroupChat();
         return id;
     }
@@ -62,12 +60,10 @@ public class GroupChatController {
 
             GroupChatDto groupChatDto = chatService.getChat(chatId);
 
-            for (ChatMemberDTO chatMemberDTO : chatMemberDTOS) {
-                simpMessagingTemplate.convertAndSend(
-                        "/topic/group_chats/" + chatId + "/updated",
-                        groupChatDto
-                );
-            }
+            simpMessagingTemplate.convertAndSend(
+                    "/topic/group_chats/" + chatId + "/updated",
+                    groupChatDto
+            );
 
             //return ResponseEntity.ok().build();
         }
@@ -84,14 +80,11 @@ public class GroupChatController {
             List<ChatMemberDTO> chatMemberDTOS = chatService.getChatInfo(chatId).getMembers();
             chatService.deleteChat(chatId, creatorId);
 
-            for (ChatMemberDTO chatMemberDTO : chatMemberDTOS) {
-                simpMessagingTemplate.convertAndSend(
-                        "/topic/group_chats/" + chatId + "/deleted",
-                        chatId
-                );
-                log.info("Отправлена информация о удалении чата для пользователя с id: " + chatMemberDTO.getUserId());
-            }
-            //return ResponseEntity.ok().build();
+            simpMessagingTemplate.convertAndSend(
+                    "/topic/group_chats/" + chatId + "/deleted",
+                    chatId
+            );
+            log.info("Отправлена информация о удалении чата");
         }
         catch (Exception e) {
             throw new ChatNotFoundException("Ошибка при удалении чата: " + e.getMessage());
