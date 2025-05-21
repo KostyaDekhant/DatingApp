@@ -50,11 +50,13 @@ public class MessageController {
         Message mess = new Message(messageDTO);
         int chat_id = mess.getPkChat();
         try {
-            simpMessagingTemplate.convertAndSend("/topic/messages/" + chat_id, messageService.saveMessage(mess));
+            simpMessagingTemplate.convertAndSend(
+                    "/topic/messages/" + chat_id,
+                    messageService.saveMessage(mess));
 
             GroupChatDto groupChatDto = chatService.getChat(chat_id);
             simpMessagingTemplate.convertAndSend(
-                    "/topic/group_chats/update",
+                    "/topic/group_chats/" + chat_id + "/updated" ,
                     groupChatDto
             );
             //return messageService.saveMessage(mess);
