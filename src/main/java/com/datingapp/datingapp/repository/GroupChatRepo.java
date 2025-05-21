@@ -181,7 +181,7 @@ chat_member cm
   -- нужные нам чаты
 JOIN group_chat gc
 ON cm.chat_id = gc.pk_group_chat
-AND cm.chat_id = :chatId)
+AND cm.chat_id = :chatId
 
   -- LATERAL-джоин: для каждой строки вытягиваем последнее сообщение
 LEFT JOIN LATERAL (
