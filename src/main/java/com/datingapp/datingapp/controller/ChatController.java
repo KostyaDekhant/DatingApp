@@ -80,7 +80,7 @@ public class ChatController {
 
     //@PostMapping("/group_chats")
     @MessageMapping("/group_chats/create")
-    public ResponseEntity<Integer> addChat(@RequestBody GroupChatDto groupChatDto) {
+    public void addChat(@RequestBody GroupChatDto groupChatDto) {
         GroupChat groupChat = chatService.saveGroupChat(groupChatDto);
         for(ChatMemberDTO chatMemberDTO : groupChatDto.getGroupChatInfoDto().getMembers()){
             simpMessagingTemplate.convertAndSendToUser(
@@ -89,8 +89,8 @@ public class ChatController {
                     groupChatDto
             );
         }
-        Integer id = groupChat.getPkGroupChat();
-        return ResponseEntity.ok(id);
+        //Integer id = groupChat.getPkGroupChat();
+        //return ResponseEntity.ok(id);
     }
 
     @PostMapping("/group_chats/{chatId}/users/{userId}")
@@ -100,7 +100,7 @@ public class ChatController {
     }
 
     @MessageMapping("/group_chats/update")
-    public ResponseEntity<Void> updateGroupChat(@RequestBody GroupChatPayloadInfo info) {
+    public void updateGroupChat(@RequestBody GroupChatPayloadInfo info) {
         try {
             int chatId = info.getChatId();
             int userId = info.getUserId();
@@ -120,7 +120,7 @@ public class ChatController {
                 );
             }
 
-            return ResponseEntity.ok().build();
+            //return ResponseEntity.ok().build();
         }
         catch (Exception e) {
             throw new ChatNotFoundException("Ошибка при обновлении чата: " + e.getMessage());
@@ -134,7 +134,7 @@ public class ChatController {
     }
 
     @MessageMapping("/group_chats/remove")
-    public ResponseEntity<Void> removeChat(@RequestBody GroupChatPayloadInfo info){
+    public void removeChat(@RequestBody GroupChatPayloadInfo info){
         try {
             int chatId = info.getChatId();
             int creatorId = info.getUserId();
@@ -148,7 +148,7 @@ public class ChatController {
                         chatId
                 );
             }
-            return ResponseEntity.ok().build();
+            //return ResponseEntity.ok().build();
         }
         catch (Exception e) {
             throw new ChatNotFoundException("Ошибка при удалении чата: " + e.getMessage());
