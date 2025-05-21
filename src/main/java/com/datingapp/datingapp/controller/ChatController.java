@@ -85,7 +85,7 @@ public class ChatController {
         for(ChatMemberDTO chatMemberDTO : groupChatDto.getGroupChatInfoDto().getMembers()){
             simpMessagingTemplate.convertAndSendToUser(
                     chatMemberDTO.getUserId().toString(),
-                    "/queue/group_chats/update",
+                    "/queue/group_chats/created",
                     groupChatDto
             );
         }
