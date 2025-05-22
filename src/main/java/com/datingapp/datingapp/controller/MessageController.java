@@ -1,12 +1,9 @@
 package com.datingapp.datingapp.controller;
 
-import com.datingapp.datingapp.entity.GroupChatDto;
-import com.datingapp.datingapp.entity.HistoryRequest;
-import com.datingapp.datingapp.entity.MessageDTO;
+import com.datingapp.datingapp.entity.*;
 import com.datingapp.datingapp.exception.UserNotExistsExceptions;
 import com.datingapp.datingapp.services.ChatService;
 import com.datingapp.datingapp.services.MessageService;
-import com.datingapp.datingapp.entity.Message;
 import com.datingapp.datingapp.services.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -64,14 +61,21 @@ public class MessageController {
                     messageService.saveMessage(mess));
 
             GroupChatDto groupChatDto = chatService.getChat(chat_id, userId);
-            simpMessagingTemplate.convertAndSend(
-                    "/topic/group_chats/" + chat_id + "/updated" ,
-                    groupChatDto
-            );
+
+            for(ChatMemberDTO chatMember : groupChatDto.getGroupChatInfoDto().getMembers()){
+                String login = userService.getLoginByPkUser(chatMember.getUserId());
+                simpMessagingTemplate.convertAndSend(
+                        "/topic/group_chats/"+userId+"/updated",
+                        groupChatDto
+                );
+            }
+
             //return messageService.saveMessage(mess);
         } catch (Exception e) {
             e.printStackTrace();
             //return null;rf
+        } catch (UserNotExistsExceptions e) {
+            throw new RuntimeException(e);
         }
     }
 
