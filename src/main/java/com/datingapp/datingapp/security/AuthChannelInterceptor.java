@@ -23,7 +23,7 @@ public class AuthChannelInterceptor implements ChannelInterceptor {
     private final JwtUtil jwtUtil;
     private final UserDetailsService userDetailsService;
 
-    private static final Logger log = LoggerFactory.getLogger(UserController.class);
+    private static final Logger log = LoggerFactory.getLogger(AuthChannelInterceptor.class);
 
     @Autowired
     public AuthChannelInterceptor(JwtUtil jwtUtil,
@@ -34,38 +34,60 @@ public class AuthChannelInterceptor implements ChannelInterceptor {
 
     @Override
     public Message<?> preSend(Message<?> message, MessageChannel channel) {
-        StompHeaderAccessor accessor =
-                StompHeaderAccessor.wrap(message);
+        StompHeaderAccessor accessor = StompHeaderAccessor.wrap(message);
 
-        if (StompCommand.CONNECT.equals(accessor.getCommand())) {
-            String token = accessor.getFirstNativeHeader("Authorization");
-            if (token != null && token.startsWith("Bearer ")) {
-                String jwt = token.substring(7);
-                Authentication auth = validate(jwt);
-                accessor.setUser(auth);
+        if (accessor.getCommand() != null) {
+            String sessionId = accessor.getSessionId();
+            StompCommand command = accessor.getCommand();
+
+            log.info("WebSocket {} — sessionId={}", command, sessionId);
+
+            if (command == StompCommand.CONNECT) {
+                String token = accessor.getFirstNativeHeader("Authorization");
+                if (token != null && token.startsWith("Bearer ")) {
+                    try {
+                        String jwt = token.substring(7);
+                        Authentication auth = validate(jwt);
+                        accessor.setUser(auth);
+                        log.info("WebSocket CONNECT authenticated as '{}'", auth.getName());
+                    } catch (Exception e) {
+                        log.warn("WebSocket CONNECT failed to authenticate: {}", e.getMessage());
+                        throw e;
+                    }
+                } else {
+                    log.warn("WebSocket CONNECT without valid Authorization header");
+                }
+            }
+
+            if (command == StompCommand.DISCONNECT) {
+                log.info("WebSocket DISCONNECT — sessionId={}", sessionId);
+            }
+
+            if (command == StompCommand.SUBSCRIBE) {
+                String destination = accessor.getDestination();
+                log.info("WebSocket SUBSCRIBE to {} — sessionId={}", destination, sessionId);
+            }
+
+            if (command == StompCommand.SEND) {
+                String destination = accessor.getDestination();
+                log.info("WebSocket SEND to {} — sessionId={}", destination, sessionId);
             }
         }
+
         return message;
     }
 
     private Authentication validate(String jwt) {
-        // 1) Проверяем подпись и срок годности
         if (!jwtUtil.validateToken(jwt)) {
             throw new BadCredentialsException("Invalid JWT token");
         }
 
-        // 2) Извлекаем username (login) из токена
         String username = jwtUtil.extractUsername(jwt);
+        UserDetails userDetails = userDetailsService.loadUserByUsername(username);
 
-        // 3) Подгружаем UserDetails из БД
-        UserDetails userDetails =
-                userDetailsService.loadUserByUsername(username);
-
-        // 4) Формируем Authentication и возвращаем
         return new UsernamePasswordAuthenticationToken(
-                userDetails,
-                null,
-                userDetails.getAuthorities()
+                userDetails, null, userDetails.getAuthorities()
         );
     }
 }
+
