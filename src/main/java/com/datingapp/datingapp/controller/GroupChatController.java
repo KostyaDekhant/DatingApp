@@ -66,8 +66,7 @@ public class GroupChatController {
 
             for(ChatMemberDTO chatMember : groupChatDto.getGroupChatInfoDto().getMembers()){
                 String login = userService.getLoginByPkUser(chatMember.getUserId());
-                simpMessagingTemplate.convertAndSendToUser(
-                        login,
+                simpMessagingTemplate.convertAndSend(
                         "/topic/group_chats/"+userId+"/updated",
                         groupChatDto
                 );
@@ -95,8 +94,7 @@ public class GroupChatController {
 
             for(ChatMemberDTO chatMember : groupChatDto.getGroupChatInfoDto().getMembers()){
                 String login = userService.getLoginByPkUser(chatMember.getUserId());
-                simpMessagingTemplate.convertAndSendToUser(
-                        login,
+                simpMessagingTemplate.convertAndSend(
                         "/topic/group_chats/"+creatorId+"/deleted",
                         groupChatDto
                 );
