@@ -64,20 +64,15 @@ public class GroupChatController {
 
             GroupChatDto groupChatDto = chatService.getChat(chatId,userId);
 
-            for(ChatMemberDTO chatMember : groupChatDto.getGroupChatInfoDto().getMembers()){
-                String login = userService.getLoginByPkUser(chatMember.getUserId());
-                simpMessagingTemplate.convertAndSend(
-                        "/topic/group_chats/"+userId+"/updated",
-                        groupChatDto
-                );
-            }
+            simpMessagingTemplate.convertAndSend(
+                    "/topic/group_chats/"+chatId+"/updated",
+                    groupChatDto
+            );
 
             //return ResponseEntity.ok().build();
         }
         catch (Exception e) {
             throw new ChatNotFoundException("Ошибка при обновлении чата: " + e.getMessage());
-        } catch (UserNotExistsExceptions e) {
-            throw new RuntimeException(e);
         }
     }
 
@@ -92,19 +87,14 @@ public class GroupChatController {
             GroupChatDto groupChatDto = chatService.getChat(chatId, creatorId);
             chatService.deleteChat(chatId, creatorId);
 
-            for(ChatMemberDTO chatMember : groupChatDto.getGroupChatInfoDto().getMembers()){
-                String login = userService.getLoginByPkUser(chatMember.getUserId());
-                simpMessagingTemplate.convertAndSend(
-                        "/topic/group_chats/"+creatorId+"/deleted",
-                        groupChatDto
-                );
-            }
+            simpMessagingTemplate.convertAndSend(
+                    "/topic/group_chats/"+chatId+"/deleted",
+                    groupChatDto
+            );
             log.info("Отправлена информация о удалении чата");
         }
         catch (Exception e) {
             throw new ChatNotFoundException("Ошибка при удалении чата: " + e.getMessage());
-        } catch (UserNotExistsExceptions e) {
-            throw new RuntimeException(e);
         }
     }
 }
