@@ -40,14 +40,14 @@ public class GroupChatController {
         log.info("Добавление чата");
         GroupChat groupChat = chatService.saveGroupChat(groupChatDto);
         int chatId = groupChat.getPkGroupChat();
+        groupChatDto.setPkGroupChat(chatId);
         for(ChatMemberDTO chatMember : groupChatDto.getGroupChatInfoDto().getMembers()){
             simpMessagingTemplate.convertAndSend(
                     "/topic/group_chats/"+chatMember.getUserId()+"/created",
                     groupChatDto
             );
         }
-        Integer id = groupChat.getPkGroupChat();
-        return id;
+        return chatId;
     }
 
     @MessageMapping("/group_chats/update")
