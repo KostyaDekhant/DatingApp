@@ -41,10 +41,8 @@ public class GroupChatController {
         GroupChat groupChat = chatService.saveGroupChat(groupChatDto);
         int chatId = groupChat.getPkGroupChat();
         for(ChatMemberDTO chatMember : groupChatDto.getGroupChatInfoDto().getMembers()){
-            String login = userService.getLoginByPkUser(chatMember.getUserId());
-            simpMessagingTemplate.convertAndSendToUser(
-                    login,
-                    "/topic/group_chats/created",
+            simpMessagingTemplate.convertAndSend(
+                    "/topic/group_chats/"+chatMember.getUserId()+"/created",
                     groupChatDto
             );
         }
@@ -70,7 +68,7 @@ public class GroupChatController {
                 String login = userService.getLoginByPkUser(chatMember.getUserId());
                 simpMessagingTemplate.convertAndSendToUser(
                         login,
-                        "/topic/group_chats/updated",
+                        "/topic/group_chats/"+userId+"/updated",
                         groupChatDto
                 );
             }
@@ -99,7 +97,7 @@ public class GroupChatController {
                 String login = userService.getLoginByPkUser(chatMember.getUserId());
                 simpMessagingTemplate.convertAndSendToUser(
                         login,
-                        "/topic/group_chats/deleted",
+                        "/topic/group_chats/"+creatorId+"/deleted",
                         groupChatDto
                 );
             }

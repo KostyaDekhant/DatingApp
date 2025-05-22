@@ -87,11 +87,10 @@ public class MessageController {
     public List<MessageDTO> getChatHistory(@DestinationVariable int chatId,
                                @Payload HistoryRequest req) throws UserNotExistsExceptions { //
 
-        String login = userService.getLoginByPkUser(req.getUserId());
         List<MessageDTO> history = messageService.getChatHistory(chatId, req.getLimit(), req.getOffset());
-        log.info("логин " + login);
-        simpMessagingTemplate.convertAndSendToUser(login,
-                "/topic/history/" + chatId, // Используем /queue/ для приватных сообщений
+        log.info("id " + req.getUserId());
+        simpMessagingTemplate.convertAndSend(
+                "/topic/"+req.getUserId()+"/history/" + chatId, // Используем /queue/ для приватных сообщений
                 history
         ); //ToUser
         log.info("История отправлена " +history);
