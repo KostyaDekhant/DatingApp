@@ -71,6 +71,22 @@ public class ChatController {
         return ResponseEntity.ok(groupChatDtos);
     }
 
+    @PatchMapping("/group_chats")
+    public ResponseEntity<Void> updateChat(@RequestBody GroupChatPayloadInfo payloadInfo) {
+        log.info("Обновление чата: {}", payloadInfo.toString());
+        chatService.updateGroupChat(payloadInfo.getChatId(), payloadInfo.getUserId(), payloadInfo.getName(), payloadInfo.getImage());
+        broadcastUpdateChatEvent(payloadInfo.getChatId(), payloadInfo.getUserId());
+        return ResponseEntity.ok().build();
+    }
+
+    public void broadcastUpdateChatEvent(int chatId, int userId) {
+        GroupChatDto groupChatDto = chatService.getChat(chatId,userId);
+        simpMessagingTemplate.convertAndSend(
+                "/topic/group_chats/"+chatId+"/updated",
+                groupChatDto
+        );
+    }
+
 
     @GetMapping("/group_chats/avatars")
     public ResponseEntity< List<GroupChatDto>> getChatAvatars(@RequestParam("userId") int userId,
