@@ -1,5 +1,8 @@
 package com.datingapp.datingapp.security;
 
+import com.datingapp.datingapp.controller.UserController;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
@@ -20,6 +23,8 @@ public class AuthChannelInterceptor implements ChannelInterceptor {
     private final JwtUtil jwtUtil;
     private final UserDetailsService userDetailsService;
 
+    private static final Logger log = LoggerFactory.getLogger(UserController.class);
+
     @Autowired
     public AuthChannelInterceptor(JwtUtil jwtUtil,
                                   UserDetailsService userDetailsService) {
@@ -30,7 +35,7 @@ public class AuthChannelInterceptor implements ChannelInterceptor {
     @Override
     public Message<?> preSend(Message<?> message, MessageChannel channel) {
         StompHeaderAccessor accessor =
-                    MessageHeaderAccessor.getAccessor(message, StompHeaderAccessor.class);
+                StompHeaderAccessor.wrap(message);
 
         if (StompCommand.CONNECT.equals(accessor.getCommand())) {
             String token = accessor.getFirstNativeHeader("Authorization");

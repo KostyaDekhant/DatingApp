@@ -12,6 +12,12 @@ import java.util.Optional;
 
 @Repository
 public interface UserRepo extends JpaRepository<User, Integer> {
+
+    @Query(value = """
+SELECT u.login FROM "user" u WHERE u.pk_user = :id
+""", nativeQuery = true)
+    List<String> getLoginByPkUser(Integer id);
+
     User findByName(String name);
     Optional<User> findByLogin(String login);
 
