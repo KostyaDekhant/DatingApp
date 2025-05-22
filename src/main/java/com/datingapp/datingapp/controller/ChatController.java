@@ -5,10 +5,12 @@ import com.datingapp.datingapp.exception.ChatNotFoundException;
 import com.datingapp.datingapp.exception.UserNotExistsExceptions;
 import com.datingapp.datingapp.services.ChatService;
 import com.datingapp.datingapp.services.MessageService;
+import jakarta.websocket.server.PathParam;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
@@ -71,19 +73,26 @@ public class ChatController {
         return ResponseEntity.ok(groupChatDtos);
     }
 
+    @GetMapping("/group_chats/{chatId}")
+    public ResponseEntity<GroupChatDto> getChat(@PathVariable("chatId") int chatId, @RequestParam("userId") int userId) {
+        GroupChatDto groupChatDto = chatService.getChat(chatId, userId);
+        return ResponseEntity.ok(groupChatDto);
+    }
+
     @PatchMapping("/group_chats")
     public ResponseEntity<Void> updateChat(@RequestBody GroupChatPayloadInfo payloadInfo) {
         log.info("Обновление чата: {}", payloadInfo.toString());
         chatService.updateGroupChat(payloadInfo.getChatId(), payloadInfo.getUserId(), payloadInfo.getName(), payloadInfo.getImage());
-        broadcastUpdateChatEvent(payloadInfo.getChatId(), payloadInfo.getUserId());
+        broadcastUpdateChatEvent(payloadInfo.getChatId());
         return ResponseEntity.ok().build();
     }
 
-    public void broadcastUpdateChatEvent(int chatId, int userId) {
-        GroupChatDto groupChatDto = chatService.getChat(chatId,userId);
+    public void broadcastUpdateChatEvent(int chatId) {
+        //GroupChatDto groupChatDto = chatService.getChat(chatId,userId);
+
         simpMessagingTemplate.convertAndSend(
                 "/topic/group_chats/"+chatId+"/updated",
-                groupChatDto
+                true
         );
     }
 
