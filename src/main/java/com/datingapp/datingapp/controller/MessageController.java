@@ -60,22 +60,10 @@ public class MessageController {
                     "/topic/messages/" + chat_id,
                     messageService.saveMessage(mess));
 
-            GroupChatDto groupChatDto = chatService.getChat(chat_id, userId);
-
-            for(ChatMemberDTO chatMember : groupChatDto.getGroupChatInfoDto().getMembers()){
-                String login = userService.getLoginByPkUser(chatMember.getUserId());
-                simpMessagingTemplate.convertAndSend(
-                        "/topic/group_chats/"+userId+"/updated",
-                        groupChatDto
-                );
-            }
-
             //return messageService.saveMessage(mess);
         } catch (Exception e) {
             e.printStackTrace();
             //return null;rf
-        } catch (UserNotExistsExceptions e) {
-            throw new RuntimeException(e);
         }
     }
 
