@@ -48,13 +48,14 @@ public class MessageController {
     public void sendMessage(@RequestBody MessageDTO messageDTO) { //MessageDTO
         log.info(messageDTO.toString());
         Message mess = new Message(messageDTO);
+        int userId = messageDTO.getPkUser();
         int chat_id = mess.getPkChat();
         try {
             simpMessagingTemplate.convertAndSend(
                     "/topic/messages/" + chat_id,
                     messageService.saveMessage(mess));
 
-            GroupChatDto groupChatDto = chatService.getChat(chat_id);
+            GroupChatDto groupChatDto = chatService.getChat(chat_id, userId);
             simpMessagingTemplate.convertAndSend(
                     "/topic/group_chats/" + chat_id + "/updated" ,
                     groupChatDto

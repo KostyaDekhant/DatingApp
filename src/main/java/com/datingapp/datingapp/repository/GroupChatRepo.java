@@ -191,8 +191,18 @@ LEFT JOIN LATERAL (
                 ORDER BY m.time DESC
                 LIMIT 1
 ) lm ON TRUE
+
+LEFT JOIN LATERAL (
+        SELECT u.name
+                FROM chat_member cm2
+                JOIN "user" u
+                ON u.pk_user = cm2.user_id
+                WHERE cm2.chat_id  = gc.pk_group_chat
+                AND cm2.user_id <> :userId
+                LIMIT 1
+) other_user ON TRUE                
 """, nativeQuery = true)
-    List<Object[]> getGroupChatByID(int chatId);
+    List<Object[]> getGroupChatByID(int chatId, int userId);
 }
 
 

@@ -161,10 +161,10 @@ public class ChatService {
     }
 
     @Transactional
-    public GroupChatDto getChat(int chatId){
+    public GroupChatDto getChat(int chatId, int userId){
         try {
             GroupChatDto groupChatDtos =
-                    getChatsInfoFromObject(groupChatRepo.getGroupChatByID(chatId)).getFirst();
+                    getChatsInfoFromObject(groupChatRepo.getGroupChatByID(chatId, userId)).getFirst();
             return groupChatDtos;
         }
         catch (Exception e) {
@@ -325,7 +325,7 @@ public class ChatService {
     @Transactional
     public void updateGroupChat(int chatId, int userId, String name, byte[] image) {
         try{
-            if(image.length > 0){
+            if(image != null && image.length > 0){
                 groupChatRepo.updateGroupChatImage(chatId, userId, image);
                 log.info("Обновлена фотография для чата с id " + chatId);
             }

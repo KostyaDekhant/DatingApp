@@ -1,9 +1,6 @@
 package com.datingapp.datingapp.controller;
 
-import com.datingapp.datingapp.entity.ChatMemberDTO;
-import com.datingapp.datingapp.entity.GroupChat;
-import com.datingapp.datingapp.entity.GroupChatDto;
-import com.datingapp.datingapp.entity.GroupChatPayloadInfo;
+import com.datingapp.datingapp.entity.*;
 import com.datingapp.datingapp.exception.ChatNotFoundException;
 import com.datingapp.datingapp.services.ChatService;
 import com.datingapp.datingapp.services.MessageService;
@@ -39,10 +36,13 @@ public class GroupChatController {
         log.info("Добавление чата");
         GroupChat groupChat = chatService.saveGroupChat(groupChatDto);
         int chatId = groupChat.getPkGroupChat();
-        simpMessagingTemplate.convertAndSend(
-                "/topic/group_chats/" + chatId + "/created",
-                groupChatDto
-        );
+        for(ChatMemberDTO chatMember : groupChatDto.getGroupChatInfoDto().getMembers()){
+            simpMessagingTemplate.convertAndSendToUser(
+                    chatMember.getUserId().toString(),
+                    "/topic/group_chats/" + chatId + "/created",
+                    groupChatDto
+            );
+        }
         Integer id = groupChat.getPkGroupChat();
         return id;
     }
@@ -53,12 +53,13 @@ public class GroupChatController {
             int chatId = info.getChatId();
             int userId = info.getUserId();
             String name = info.getName();
-            byte[] image = info.getImage();
-
+            byte[] image = null;
+            if(info.getImage() != null)
+                image = info.getImage();
             List<ChatMemberDTO> chatMemberDTOS = chatService.getChatInfo(chatId).getMembers();
             chatService.updateGroupChat(chatId, userId, name, image);
 
-            GroupChatDto groupChatDto = chatService.getChat(chatId);
+            GroupChatDto groupChatDto = chatService.getChat(chatId,userId);
 
             simpMessagingTemplate.convertAndSend(
                     "/topic/group_chats/" + chatId + "/updated",
