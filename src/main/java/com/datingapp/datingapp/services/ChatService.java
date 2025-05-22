@@ -324,18 +324,16 @@ public class ChatService {
     }
     @Transactional
     public void updateGroupChat(int chatId, int userId, String name, byte[] image) {
-        try{
-            if(image != null && image.length > 0){
+        try {
+            if (image != null && image.length > 0){
                 groupChatRepo.updateGroupChatImage(chatId, userId, image);
                 log.info("Обновлена фотография для чата с id " + chatId);
             }
-            else
-                groupChatRepo.updateGroupChatImage(chatId, userId, null);
-            if(!name.isEmpty()) {
+
+            if (!name.isEmpty()) {
                 groupChatRepo.updateGroupChatName(chatId, userId, name);
                 log.info("Обновлено название для чата с id " + chatId);
             }
-
         }
         catch (Exception e) {
             throw new RuntimeException(e.getMessage());
