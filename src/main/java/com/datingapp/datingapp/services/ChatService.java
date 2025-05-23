@@ -1,6 +1,5 @@
 package com.datingapp.datingapp.services;
 
-import com.datingapp.datingapp.controller.MessageController;
 import com.datingapp.datingapp.entity.*;
 import com.datingapp.datingapp.exception.ChatAlreadyExistsException;
 import com.datingapp.datingapp.exception.ChatNotFoundException;
@@ -264,15 +263,17 @@ public class ChatService {
     }
 
     @Transactional
-    public void addMember(int chat_id, int user_id) {
+    public void addMembers(int chat_id, List<Integer> userIds) {
         try {
             GroupChat groupChat = groupChatRepo.findById(chat_id).orElse(null);
-            ChatMember chatMember = new ChatMember();
-            chatMember.setChatId(groupChat);
-            chatMember.setUserId(user_id);
-            chatMember.setJoinedAt(new Timestamp(System.currentTimeMillis()));
-            chatMemberRepo.save(chatMember);
-            log.info("Добавлен пользователь с id "+ user_id + " в чат с id " +chat_id + ": " + chatMember.toString());
+            for(int user_id : userIds){
+                ChatMember chatMember = new ChatMember();
+                chatMember.setChatId(groupChat);
+                chatMember.setUserId(user_id);
+                chatMember.setJoinedAt(new Timestamp(System.currentTimeMillis()));
+                chatMemberRepo.save(chatMember);
+                log.info("Добавлен пользователь с id "+ user_id + " в чат с id " +chat_id + ": " + chatMember.toString());
+            }
         }
         catch (Exception e) {
             throw new RuntimeException("Ошибка при добавлении юзера: " + e.getMessage());

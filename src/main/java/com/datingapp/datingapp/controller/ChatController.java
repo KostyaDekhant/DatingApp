@@ -1,21 +1,14 @@
 package com.datingapp.datingapp.controller;
 
 import com.datingapp.datingapp.entity.*;
-import com.datingapp.datingapp.exception.ChatNotFoundException;
 import com.datingapp.datingapp.exception.UserNotExistsExceptions;
 import com.datingapp.datingapp.services.ChatService;
-import com.datingapp.datingapp.services.MessageService;
-import jakarta.websocket.server.PathParam;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.jpa.repository.Query;
 import org.springframework.http.ResponseEntity;
-import org.springframework.messaging.handler.annotation.MessageMapping;
-import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -104,9 +97,10 @@ public class ChatController {
         return ResponseEntity.ok(groupChatDtos);
     }
 
-    @PostMapping("/group_chats/{chatId}/users/{userId}")
-    public ResponseEntity<Void> addMemberToChat(@PathVariable int chatId, @PathVariable int userId) {
-        chatService.addMember(chatId, userId);
+    @PostMapping("/group_chats/users")
+    public ResponseEntity<Void> addMembersToChat(@RequestParam("chatId") int chatId, @RequestParam("userIds") List<Integer> userIds) {
+        chatService.addMembers(chatId, userIds);
+        broadcastUpdateChatEvent(chatId);
         return ResponseEntity.ok().build();
     }
 
