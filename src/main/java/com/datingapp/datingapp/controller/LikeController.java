@@ -18,7 +18,7 @@ import java.util.List;
 public class LikeController {
     private final LikeService likeService;
 
-    private static final Logger log = LoggerFactory.getLogger(ImageController.class);
+    private static final Logger log = LoggerFactory.getLogger(LikeController.class);
     @PostMapping
     public ResponseEntity<Integer> setLike(@RequestBody LikeDTO likeDTO) {
         int id = likeService.setLike(likeDTO);

@@ -25,7 +25,7 @@ public class ChatService {
     private final GroupChatRepo groupChatRepo;
     private final ChatMemberRepo chatMemberRepo;
 
-    private static final Logger log = LoggerFactory.getLogger(MessageController.class);
+    private static final Logger log = LoggerFactory.getLogger(ChatService.class);
 
     @Transactional(readOnly = true)
     public List<ChatDTO> findChatUsers(int userId) {

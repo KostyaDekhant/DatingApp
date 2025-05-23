@@ -28,14 +28,14 @@ public class ChatController {
 
     private final SimpMessagingTemplate simpMessagingTemplate;
 
+    private static final Logger log = LoggerFactory.getLogger(ChatController.class);
+
     @Autowired
     public ChatController(SimpMessagingTemplate simpMessagingTemplate, ChatService chatService) {
         this.simpMessagingTemplate = simpMessagingTemplate;
         this.chatService = chatService;
     }
 
-
-    private static final Logger log = LoggerFactory.getLogger(MessageService.class);
     @GetMapping("/chats/{userId}") //users
     public ResponseEntity<List<ChatDTO>> findChatUsers(@PathVariable int userId) {
         return ResponseEntity.ok(chatService.findChatUsers(userId));

@@ -24,7 +24,7 @@ public class UserService {
     private final UserRepo userRepo;
     private final PasswordService passwordService;
 
-    private static final Logger log = LoggerFactory.getLogger(UserController.class);
+    private static final Logger log = LoggerFactory.getLogger(UserService.class);
     private final UserCompanyRepo userCompanyRepo;
 
     @Transactional

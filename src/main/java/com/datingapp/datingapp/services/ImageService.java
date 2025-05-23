@@ -29,7 +29,7 @@ public class ImageService {
     private final PicRepo picRepo;
     private final UserPicRepo userPicRepo;
 
-    private static final Logger log = LoggerFactory.getLogger(ImageController.class);
+    private static final Logger log = LoggerFactory.getLogger(ImageService.class);
 
     @Transactional
     public int imageUpload(MyPic myPic){

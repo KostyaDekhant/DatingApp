@@ -22,7 +22,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class FormsService {
     private final UserRepo userRepo;
-    private static final Logger log = LoggerFactory.getLogger(UserController.class);
+    private static final Logger log = LoggerFactory.getLogger(FormsService.class);
 
     @Transactional(readOnly = true)
     public FormDTO findQuestUsers1(int userId, int prevUserId) {

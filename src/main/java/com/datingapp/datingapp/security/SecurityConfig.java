@@ -24,7 +24,7 @@ public class SecurityConfig {
     private final JwtAuthenticationFilter jwtFilter;
     private final UserDetailsService userDetailsService;
 
-    private static final Logger log = LoggerFactory.getLogger(UserController.class);
+    private static final Logger log = LoggerFactory.getLogger(SecurityConfig.class);
 
     public SecurityConfig(JwtAuthenticationFilter jwtFilter,
                           UserDetailsService userDetailsService) {

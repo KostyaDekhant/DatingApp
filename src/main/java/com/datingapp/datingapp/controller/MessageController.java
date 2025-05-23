@@ -67,17 +67,9 @@ public class MessageController {
         }
     }
 
-    /*@MessageMapping("/test")
-    @SendTo("/topic/messages")
-    public void sendMessage(@Payload String str) {
-
-        log.info("Стринг Вани " + str);
-    }*/
-
     @MessageMapping("/history/{chatId}")
-   //@SendToUser(value = "/topic/history/{chatId}") //
     public List<MessageDTO> getChatHistory(@DestinationVariable int chatId,
-                               @Payload HistoryRequest req) throws UserNotExistsExceptions { //
+                               @Payload HistoryRequest req) {
 
         List<MessageDTO> history = messageService.getChatHistory(chatId, req.getLimit(), req.getOffset());
         log.info("id " + req.getUserId());

@@ -25,7 +25,7 @@ public class UserInterestController {
     private final List<CategoryDto> categoryInterests;
 
 
-    private static final Logger log = LoggerFactory.getLogger(UserController.class);
+    private static final Logger log = LoggerFactory.getLogger(UserInterestController.class);
 
 
     public UserInterestController(UserInterestService userInterestService, ResourceLoader loader, ObjectMapper mapper) throws IOException {

@@ -30,7 +30,7 @@ public class UserInterestService {
     private final UserRepo userRepo;
     private final UserInterestRepo userInterestRepo;
 
-    private static final Logger log = LoggerFactory.getLogger(UserController.class);
+    private static final Logger log = LoggerFactory.getLogger(UserInterestService.class);
 
     public UserInterestService(UserFieldRepo userFieldRepo, FieldRepo fieldRepo, UserRepo userRepo, UserInterestRepo userInterestRepo) {
         this.userFieldRepo = userFieldRepo;

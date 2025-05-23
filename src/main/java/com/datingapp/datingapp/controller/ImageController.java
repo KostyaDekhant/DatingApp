@@ -22,9 +22,6 @@ import java.util.List;
 @RequestMapping("/api")
 public class ImageController {
 
-    private final PicRepo picRepo;
-    private final UserPicRepo userPicRepo;
-
     private static final Logger log = LoggerFactory.getLogger(ImageController.class);
     private final ImageService imageService;
 

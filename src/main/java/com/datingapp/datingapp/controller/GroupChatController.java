@@ -18,21 +18,15 @@ import java.util.List;
 
 @Controller
 public class GroupChatController {
-    private static final Logger log = LoggerFactory.getLogger(MessageController.class);
-    //private final MessageService messageService;
-    private final NotificationController notificationController;
+    private static final Logger log = LoggerFactory.getLogger(GroupChatController.class);
+
     private final SimpMessagingTemplate simpMessagingTemplate;
     private final ChatService chatService;
-    private final UserService userService;
 
     @Autowired
-    public GroupChatController(MessageService messageService, NotificationController notificationController,
-                               SimpMessagingTemplate simpMessagingTemplate, ChatService chatService, UserService userService) {
-        this.notificationController = notificationController;
-        //this.messageService = messageService;
+    public GroupChatController(SimpMessagingTemplate simpMessagingTemplate, ChatService chatService) {
         this.simpMessagingTemplate = simpMessagingTemplate;
         this.chatService = chatService;
-        this.userService = userService;
     }
 
     @MessageMapping("/group_chats/create")

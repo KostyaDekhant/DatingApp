@@ -28,7 +28,7 @@ public class AuthController {
 
     private final RefreshTokenService refreshTokenService;
 
-    private static final Logger log = LoggerFactory.getLogger(UserController.class);
+    private static final Logger log = LoggerFactory.getLogger(AuthController.class);
 
     record AuthResponse(String token, Integer userId) {}
 
