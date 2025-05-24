@@ -52,6 +52,7 @@ public class ChatFragment extends Fragment {
 
     /* === View Models === */
     private DialogViewModel viewModel;
+    private DialogViewModel dialogViewModel;
 
     private ChatFragment() {}
 
@@ -71,6 +72,8 @@ public class ChatFragment extends Fragment {
 
         usernameLabel = activityView.findViewById(R.id.username_label);
         profileImage = activityView.findViewById(R.id.profile_image);
+        messagesAdapter = new MessagesAdapter(userId, chat.getChatInfo());
+        messagesRecyclerView.setAdapter(messagesAdapter);
         AuthResponse authResponse = getAuthResponse();
 
         // Инициализируем ViewModel с кастомной фабрикой

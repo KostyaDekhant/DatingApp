@@ -20,6 +20,7 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.datingappclient.DatingAppApplication;
 import com.example.datingappclient.activity.ChatActivity;
 import com.example.datingappclient.R;
 import com.example.datingappclient.constants.Constants;
@@ -97,15 +98,22 @@ public class ChatListFragment extends Fragment {
     }
 
     private void setupViewModel() {
-        String token = requireContext().getSharedPreferences("auth", MODE_PRIVATE).getString("token", null);
+        DatingAppApplication app = (DatingAppApplication) requireActivity().getApplication();
 
-        chatsViewModel = new ViewModelProvider(requireActivity(), new ViewModelProvider.Factory() {
-            @NonNull
-            @Override
-            public <T extends androidx.lifecycle.ViewModel> T create(@NonNull Class<T> modelClass) {
-                return (T) new ChatsViewModel(token);
-            }
-        }).get(ChatsViewModel.class);
+        if (app.getChatsViewModel() != null) {
+            chatsViewModel = app.getChatsViewModel();
+        }
+        else {
+            String token = requireContext().getSharedPreferences("auth", MODE_PRIVATE).getString("token", null);
+            chatsViewModel = new ViewModelProvider(requireActivity(), new ViewModelProvider.Factory() {
+                @NonNull
+                @Override
+                public <T extends androidx.lifecycle.ViewModel> T create(@NonNull Class<T> modelClass) {
+                    return (T) new ChatsViewModel(token);
+                }
+            }).get(ChatsViewModel.class);
+            app.setChatsViewModel(chatsViewModel);
+        }
 
         chatsAdapter = new ChatsAdapter(this::startChatActivity, chatsViewModel, user.getId(), requireContext(), getViewLifecycleOwner());
         recyclerView.setAdapter(chatsAdapter);
