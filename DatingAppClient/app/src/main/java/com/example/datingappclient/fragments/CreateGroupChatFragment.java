@@ -29,6 +29,7 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.ViewModelProvider;
 
+import com.example.datingappclient.DatingAppApplication;
 import com.example.datingappclient.R;
 import com.example.datingappclient.activity.ChatActivity;
 import com.example.datingappclient.constants.Constants;
@@ -43,6 +44,9 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.io.InputStream;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
+
+import io.reactivex.disposables.Disposable;
 
 public class CreateGroupChatFragment extends Fragment {
 
@@ -59,6 +63,11 @@ public class CreateGroupChatFragment extends Fragment {
     private UserDTO user;
     private Bitmap selectedAvatarBitmap;
 
+    private ChatsViewModel chatsViewModel;
+
+    private Disposable disposableCreate = null;
+
+
     private CreateGroupChatFragment() {};
 
     public static CreateGroupChatFragment newInstance(UserDTO user, List<ChatMemberDTO> chatMembers) {
@@ -73,6 +82,9 @@ public class CreateGroupChatFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         activityView = inflater.inflate(R.layout.fragment_create_groupchat, container, false);
 
+        DatingAppApplication app = (DatingAppApplication) requireActivity().getApplication();
+        chatsViewModel = app.getChatsViewModel();
+
         setupRepository();
         setupToolbar();
         animUnderlineEdit();
@@ -81,6 +93,12 @@ public class CreateGroupChatFragment extends Fragment {
         setupAddImageButton();
 
         return activityView;
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        if (disposableCreate != null) disposableCreate.dispose();
     }
 
     private void setupImagePicker() {
@@ -121,16 +139,12 @@ public class CreateGroupChatFragment extends Fragment {
 
     private void setupToolbar() {
         Toolbar toolbar = activityView.findViewById(R.id.toolbar);
-        toolbar.setNavigationOnClickListener(v -> {
-            getParentFragmentManager().popBackStack();
-        });
+        toolbar.setNavigationOnClickListener(v -> getParentFragmentManager().popBackStack());
     }
 
     private void setupCreateChatButton() {
         FloatingActionButton fabCreateChat = activityView.findViewById(R.id.createChat);
-        fabCreateChat.setOnClickListener(v -> {
-            createGroupChat(getChatDTO());
-        });
+        fabCreateChat.setOnClickListener(v -> createGroupChat(getChatDTO()));
     }
 
     private ChatDTO getChatDTO() {
@@ -148,32 +162,47 @@ public class CreateGroupChatFragment extends Fragment {
         return new ChatDTO(null, chatname, null, chatImage, groupChatInfo);
     }
 
-    private void createGroupChat(ChatDTO groupChat) {
-        String logTag = Constants.GLOBAL_LOG_TAG + "CREATE GROUP CHAT";
-        chatsRepository.createChat(groupChat, result -> {
-            switch (result.status) {
-                case SUCCESS:
-                    groupChat.setId(result.data);
-                    addToChatList(groupChat);
-                    goToChatActivity(groupChat);
-                    break;
-                case ERROR:
-                    Log.e(logTag, result.error);
-                    break;
+    private void createGroupChat(ChatDTO chat) {
+        // Подписка на создание чата
+        AtomicReference<Disposable> disposableRef = new AtomicReference<>();
+        disposableCreate = chatsViewModel.subscribeToCreateChat(user.getId(), result1 -> {
+            Toast.makeText(requireContext(), "Чат успешно создан!", Toast.LENGTH_LONG).show();
+
+            chatsRepository.fetchChatInfo(result1.data.getId(), result -> {
+                result1.data.setChatInfo(result.data);
+                chatsViewModel.updateOrAddChat(result1.data);
+                goToChatActivity(result1.data);
+            });
+
+            Disposable d = disposableRef.get();
+            if (d != null && !d.isDisposed()) {
+                d.dispose();
             }
-        });
+        }); // сразу отписываемся
+
+        // Создание чата
+        chatsViewModel.createChat(chat, result -> {});
     }
 
-    private void addToChatList(ChatDTO groupChat) {
-        ChatsViewModel chatsViewModel = new ViewModelProvider(requireActivity()).get(ChatsViewModel.class);
-        chatsViewModel.addChats(groupChat);
-    }
+    public final ActivityResultLauncher<Intent> chatLauncher =
+            registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
+                if (result.getResultCode() == Activity.RESULT_OK) {
+                    Intent data = result.getData();
+                    int removedChatId = data.getIntExtra("chatIdToRemove", -1);
+                    if (removedChatId != -1) {
+                        /*ChatsViewModel chatsViewModel = new ViewModelProvider(requireActivity()).get(ChatsViewModel.class);
+                        chatsViewModel.deleteChat(removedChatId);*/
+                    }
+                }
+            });
 
     private void goToChatActivity(ChatDTO chat) {
         Intent intent = new Intent(requireContext(), ChatActivity.class);
         intent.putExtra("userId", user.getId());
         ChatDTO.selectedChat = chat;
-        startActivity(intent);
+
+        chatLauncher.launch(intent);
+
         requireActivity().getSupportFragmentManager().popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
         getParentFragmentManager().beginTransaction().replace(R.id.fragment_container, ChatListFragment.newInstance(user))
                 .commit();

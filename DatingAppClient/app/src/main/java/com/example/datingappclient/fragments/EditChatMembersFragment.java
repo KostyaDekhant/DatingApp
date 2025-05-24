@@ -1,9 +1,13 @@
 package com.example.datingappclient.fragments;
 
+import static android.view.View.GONE;
+import static android.view.View.VISIBLE;
+
 import android.animation.AnimatorSet;
 import android.animation.ArgbEvaluator;
 import android.animation.ObjectAnimator;
 import android.animation.ValueAnimator;
+import android.content.Context;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.text.Editable;
@@ -12,7 +16,10 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
+import android.widget.ProgressBar;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -29,8 +36,13 @@ import com.example.datingappclient.model.dto.ChatMemberDTO;
 import com.example.datingappclient.recyclerViews.ChatMembersAdapter;
 import com.example.datingappclient.retrofit.repository.ChatsRepository;
 import com.example.datingappclient.viewmodels.ChatMembersViewModel;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.List;
+
+import io.reactivex.Single;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.schedulers.Schedulers;
 
 public class EditChatMembersFragment extends Fragment {
 
@@ -39,6 +51,9 @@ public class EditChatMembersFragment extends Fragment {
 
     /* === Android Objects === */
     private View activityView;
+    private View content;
+    private ProgressBar progressBar ;
+    private EditText memberName;
 
     /* === Other === */
     private ChatMembersViewModel viewModel;
@@ -61,11 +76,17 @@ public class EditChatMembersFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         activityView = inflater.inflate(R.layout.fragment_add_members_to_new_chat, container, false);
+
+        memberName = activityView.findViewById(R.id.searchEditText);
+        content = activityView.findViewById(R.id.mainContent);
+        progressBar = activityView.findViewById(R.id.progressBar);
+
         setupRepository();
         setupToolbar();
         setupMembersRecyclerView();
         animUnderlineEdit();
         setupFilter();
+        setupAddMembersButton();
 
         return activityView;
     }
@@ -116,6 +137,51 @@ public class EditChatMembersFragment extends Fragment {
         getChatMembers();
     }
 
+    private void setupAddMembersButton() {
+        FloatingActionButton fabCreateChat = activityView.findViewById(R.id.fabNext);
+        fabCreateChat.setOnClickListener((view -> {
+            // Были ли выбраны пользователи
+            if (adapter.getSelectedUserIds().isEmpty()) {
+                Toast.makeText(requireContext(), "Пользователи не выбраны!", Toast.LENGTH_LONG).show();
+                return;
+            }
+
+            // Скрыть клавиатуру
+            memberName.clearFocus();
+            InputMethodManager imm = (InputMethodManager) requireContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+            if (imm != null) {
+                imm.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0);
+            }
+
+            content.setVisibility(GONE);
+            progressBar.setVisibility(VISIBLE);
+
+            Single.fromCallable(() -> {
+                        addMembers();
+                        return true;
+                    }).subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe();
+
+        }));
+    }
+
+    private void addMembers() {
+        String logTag = Constants.GLOBAL_LOG_TAG + "ADD MEMBERS TO CHAT";
+        chatsRepository.addMembersToChat(chatId, adapter.getSelectedUserIds(), result -> {
+            switch (result.status) {
+                case SUCCESS:
+                    Log.i(logTag, "В чат " + chatId + "добавлены пользователи " + adapter.getSelectedUserIds());
+                    requireActivity().finish();
+                    break;
+                case ERROR:
+                    Toast.makeText(requireContext(), "Ошибка добавления пользователей!", Toast.LENGTH_LONG).show();
+                    Log.e(logTag, result.error);
+                    break;
+            }
+        });
+    }
+
     private void setupRepository() {
         chatsRepository = new ChatsRepository(requireContext());
     }
@@ -146,9 +212,7 @@ public class EditChatMembersFragment extends Fragment {
 
     private void setupToolbar() {
         Toolbar toolbar = activityView.findViewById(R.id.toolbar);
-        toolbar.setNavigationOnClickListener(v -> {
-            getParentFragmentManager().popBackStack();
-        });
+        toolbar.setNavigationOnClickListener(v -> getParentFragmentManager().popBackStack());
     }
 
     private void animUnderlineEdit() {

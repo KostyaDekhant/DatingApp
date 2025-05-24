@@ -119,6 +119,8 @@ public class ChatListFragment extends Fragment {
         recyclerView.setAdapter(chatsAdapter);
 
         chatsViewModel.getChats().observe(getViewLifecycleOwner(), chatList -> chatsAdapter.submitList(new ArrayList<>(chatList)));
+        chatsViewModel.subscribeToCreateChat(user.getId());
+
     }
 
     private void setupRepository() {

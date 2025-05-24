@@ -9,6 +9,7 @@
     <!-- Floating action button -->
 
     <LinearLayout
+        android:id="@+id/mainContent"
         android:layout_width="match_parent"
         android:layout_height="806dp"
         android:orientation="vertical">
@@ -82,4 +83,12 @@
         android:contentDescription="Создать чат"
         app:tint="?attr/textColorMainReverse"
         android:backgroundTint="?attr/colorPrimary" />
+
+    <!-- Лоадер поверх -->
+    <ProgressBar
+        android:id="@+id/progressBar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:visibility="gone" />
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

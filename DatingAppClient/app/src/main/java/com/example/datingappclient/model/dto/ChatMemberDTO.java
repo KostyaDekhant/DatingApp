@@ -1,6 +1,8 @@
 package com.example.datingappclient.model.dto;
 
 import com.example.datingappclient.utils.gson.ByteDeserializer;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.gson.annotations.JsonAdapter;
 import com.google.gson.annotations.SerializedName;
 
@@ -9,24 +11,31 @@ import java.util.Objects;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Getter
 @AllArgsConstructor
+@NoArgsConstructor
 public class ChatMemberDTO {
+    @JsonProperty("username")
     @SerializedName("username")
     private String name;
 
+    @JsonProperty("userId")
     @SerializedName("userId")
     private Integer id;
 
+    @JsonProperty("avatar")
     @SerializedName("avatar")
     @JsonAdapter(ByteDeserializer.class)
     private byte[] image;
 
     @Setter
+    @JsonIgnore
     private transient boolean isAlreadyInChat;
     @Setter
+    @JsonIgnore
     private transient boolean chatOwner;
 
     @Override

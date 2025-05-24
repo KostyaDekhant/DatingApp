@@ -2,6 +2,7 @@ package com.example.datingappclient.retrofit.repository;
 
 import android.content.Context;
 
+import com.example.datingappclient.model.ChatPayloadInfo;
 import com.example.datingappclient.model.dto.ChatMemberDTO;
 import com.example.datingappclient.model.dto.ChatDTO;
 import com.example.datingappclient.model.dto.ChatInfoDTO;
@@ -12,6 +13,7 @@ import com.example.datingappclient.retrofit.wrapper.ResultCallback;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -144,6 +146,24 @@ public class ChatsRepository {
         });
     }
 
+    public void addMembersToChat(int chatId, Set<Integer> chatMembersIds, ResultCallback<Void> callback) {
+        chatsAPI.addMembersToChat(chatId, chatMembersIds).enqueue(new Callback<>() {
+            @Override
+            public void onResponse(Call<Void> call, Response<Void> response) {
+                if (response.isSuccessful()) {
+                    callback.onResult(Result.success(null));
+                } else {
+                    callback.onResult(Result.error("Ошибка при добавлении пользователей в чат: " + response.code() + " " + response.message()));
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Void> call, Throwable throwable) {
+                callback.onResult(Result.error("Ошибка сети или ошибка при обработке данных: " + throwable.getMessage()));
+            }
+        });
+    }
+
     public void deleteChat(int chatId, int creatorId, ResultCallback<Void> callback) {
         chatsAPI.deleteChat(chatId, creatorId).enqueue(new Callback<>() {
             @Override
@@ -155,6 +175,40 @@ public class ChatsRepository {
             @Override
             public void onFailure(Call<Void> call, Throwable throwable) {
                 callback.onResult(Result.error("Ошибка сети или ошибка при обработке данных: " + throwable.getMessage()));
+            }
+        });
+    }
+
+    public void updateChat(ChatPayloadInfo payloadInfo, ResultCallback<Void> callback) {
+        chatsAPI.updateChat(payloadInfo).enqueue(new Callback<Void>() {
+            @Override
+            public void onResponse(Call<Void> call, Response<Void> response) {
+
+                if (response.isSuccessful()) callback.onResult(Result.success(null));
+                else callback.onResult(Result.error("Ошибка при изменении чата:"  + payloadInfo.getChatId() + " " + response.code() + " " + response.message()));
+            }
+
+            @Override
+            public void onFailure(Call<Void> call, Throwable throwable) {
+                callback.onResult(Result.error("Ошибка сети или ошибка при обработке данных: " + throwable.getMessage()));
+            }
+        });
+    }
+
+    public void fetchChat(int chatId, int userId, ResultCallback<ChatDTO> callback) {
+        chatsAPI.getChat(chatId, userId).enqueue(new Callback<ChatDTO>() {
+            @Override
+            public void onResponse(Call<ChatDTO> call, Response<ChatDTO> response) {
+                if (response.isSuccessful()) {
+                    if (response.body() != null) callback.onResult(Result.success(response.body()));
+                    else callback.onResult(Result.empty());
+                }
+                else callback.onResult(Result.error("Ошибка при получении чата:"  + chatId + " " + response.code() + " " + response.message()));
+            }
+
+            @Override
+            public void onFailure(Call<ChatDTO> call, Throwable throwable) {
+
             }
         });
     }

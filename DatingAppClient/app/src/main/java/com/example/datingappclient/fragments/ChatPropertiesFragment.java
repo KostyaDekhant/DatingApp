@@ -1,11 +1,8 @@
 package com.example.datingappclient.fragments;
 
-import static android.app.Activity.RESULT_OK;
-import static android.content.Context.MODE_PRIVATE;
 import static android.view.View.GONE;
 
 import android.annotation.SuppressLint;
-import android.content.Intent;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
@@ -32,14 +29,12 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
 import androidx.core.view.MenuProvider;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
-import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.datingappclient.DatingAppApplication;
 import com.example.datingappclient.R;
-import com.example.datingappclient.activity.MainActivity;
 import com.example.datingappclient.constants.Constants;
 import com.example.datingappclient.model.dto.ChatDTO;
 import com.example.datingappclient.model.dto.ChatMemberDTO;
@@ -68,6 +63,8 @@ public class ChatPropertiesFragment extends Fragment {
     private ChatMembersViewModel viewModel;
     private ChatMembersAdapter adapter;
 
+    private ChatsViewModel chatsViewModel;
+
     private ChatPropertiesFragment() {}
 
     public static ChatPropertiesFragment newInstance (Integer user, ChatDTO chat) {
@@ -82,38 +79,38 @@ public class ChatPropertiesFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         activityView = inflater.inflate(R.layout.fragment_chat_properties, container, false);
 
+        chatsViewModel = ((DatingAppApplication)requireActivity().getApplication()).getChatsViewModel();
+
         setupRepository();
         setupToolbar();
         setChatInfo();
         setChatMembers();
         setAddMembersButton();
 
-        viewModel = new ViewModelProvider(this, new ViewModelProvider.Factory() {
-            @NonNull
-            @Override
-            public <T extends androidx.lifecycle.ViewModel> T create(@NonNull Class<T> modelClass) {
-                return (T) new ChatMembersViewModel();
-            }
-        }).get(ChatMembersViewModel.class);
+        DatingAppApplication app = (DatingAppApplication) requireActivity().getApplication();
+        viewModel = app.getChatMembersViewModel();
 
         adapter = new ChatMembersAdapter();
         RecyclerView recyclerView = activityView.findViewById(R.id.usersRecyclerView);
         recyclerView.setAdapter(adapter);
 
-        viewModel.getChatMembers().observe(getViewLifecycleOwner(), adapter::submitList);
+        viewModel.getChatMembers().observe(getViewLifecycleOwner(), list -> adapter.submitList(list));
+        setChatOwner();
 
+        return activityView;
+    }
+
+    private void setChatOwner() {
         List<ChatMemberDTO> members = chat.getChatInfo().getMembers();
         if (chat.getChatInfo().getIsGroup()) {
             for (ChatMemberDTO member : members) {
                 if (Objects.equals(chat.getChatInfo().getCreatedBy(), member.getId())) {
-                        member.setChatOwner(true);
-                        break;
+                    member.setChatOwner(true);
+                    break;
                 }
             }
         }
         viewModel.setChatMembers(members);
-
-        return activityView;
     }
 
     private void setupRepository() {
@@ -128,7 +125,8 @@ public class ChatPropertiesFragment extends Fragment {
                     .commit();
         });
 
-        if (!chat.getChatInfo().getIsGroup()) addMembers.setVisibility(GONE);
+        boolean userIsOwner = userId.equals(chat.getChatInfo().getCreatedBy());
+        if (!chat.getChatInfo().getIsGroup() || !userIsOwner) addMembers.setVisibility(GONE);
     }
 
     private void setChatMembers() {
@@ -165,7 +163,7 @@ public class ChatPropertiesFragment extends Fragment {
 
         toolbar.setNavigationOnClickListener(view -> getParentFragmentManager().popBackStack());
 
-        // Новый способ добавления меню
+        //setup menu
         activity.addMenuProvider(new MenuProvider() {
             @SuppressLint("RestrictedApi")
             @Override
@@ -174,17 +172,18 @@ public class ChatPropertiesFragment extends Fragment {
                 if (menu instanceof MenuBuilder) {
                     ((MenuBuilder) menu).setOptionalIconsVisible(true);
 
-                    MenuItem menuItem = menu.findItem(R.id.action_delete_chat);
+                    MenuItem menuItem = menu.findItem(R.id.action_delete_chat), menuItemEdit = menu.findItem(R.id.action_edit_chat);
                     boolean userIsCreator = Objects.equals(userId, chat.getChatInfo().getCreatedBy());
                     menuItem.setVisible(userIsCreator);
+                    menuItemEdit.setVisible(userIsCreator);
                 }
             }
 
             @Override
             public boolean onMenuItemSelected(@NonNull MenuItem menuItem) {
-                if (menuItem.getItemId() == R.id.action_edit) {
+                if (menuItem.getItemId() == R.id.action_edit_chat) {
                     // TODO: handle edit action
-                    getParentFragmentManager().beginTransaction().replace(R.id.fragment_container, EditChatFragment.newInstance(userId))
+                    getParentFragmentManager().beginTransaction().replace(R.id.fragment_container, EditChatFragment.newInstance(userId, chat))
                             .addToBackStack(null)
                             .commit();
                     return true;
@@ -225,14 +224,11 @@ public class ChatPropertiesFragment extends Fragment {
 
     private void deleteChat() {
         String logTag = Constants.GLOBAL_LOG_TAG + "DELETE CHAT";
-        chatsRepository.deleteChat(chat.getId(), userId, result -> {
+        chatsViewModel.deleteChatFromServer(chat.getId(), userId, result -> {
             switch (result.status) {
                 case SUCCESS:
                     Log.i(logTag, "Success");
                     Toast.makeText(requireContext(), "Чат успешно удален!", Toast.LENGTH_LONG).show();
-                    Intent resultIntent = new Intent();
-                    resultIntent.putExtra("chatIdToRemove", chat.getId());
-                    requireActivity().setResult(RESULT_OK, resultIntent);
                     requireActivity().finish();
                     break;
                 case ERROR:

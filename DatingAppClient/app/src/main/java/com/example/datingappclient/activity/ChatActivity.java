@@ -29,6 +29,11 @@ public class ChatActivity extends AppCompatActivity {
 
         setChat();
 
+        DatingAppApplication app = (DatingAppApplication) getApplication();
+        ChatsViewModel chatsViewModel = app.getChatsViewModel();
+
+        chatsViewModel.subscribeToDeleteChat(chat.getId(), result -> finish());
+
         getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, ChatFragment.newInstance(userId, chat)).commit();
     }
 

@@ -11,6 +11,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -19,13 +20,17 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.datingappclient.DatingAppApplication;
 import com.example.datingappclient.R;
 import com.example.datingappclient.constants.Constants;
 import com.example.datingappclient.model.AuthResponse;
 import com.example.datingappclient.model.dto.ChatDTO;
 import com.example.datingappclient.model.dto.MessageDTO;
 import com.example.datingappclient.recyclerViews.messageList.MessagesAdapter;
+import com.example.datingappclient.retrofit.repository.ChatsRepository;
 import com.example.datingappclient.utils.ImageUtils;
+import com.example.datingappclient.viewmodels.ChatMembersViewModel;
+import com.example.datingappclient.viewmodels.ChatsViewModel;
 import com.example.datingappclient.viewmodels.DialogViewModel;
 import com.example.datingappclient.viewmodels.factory.DialogViewModelFactory;
 import com.google.android.material.button.MaterialButton;
@@ -35,9 +40,14 @@ import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.concurrent.atomic.AtomicReference;
+
+import io.reactivex.disposables.Disposable;
 
 public class ChatFragment extends Fragment {
     /* === Repository === */
+    private ChatsRepository chatsRepository;
 
     /* === Android Objects === */
     private View activityView;
@@ -51,8 +61,11 @@ public class ChatFragment extends Fragment {
     private ChatDTO chat;
 
     /* === View Models === */
-    private DialogViewModel viewModel;
     private DialogViewModel dialogViewModel;
+    private ChatsViewModel chatsViewModel;
+    private ChatMembersViewModel chatMembersViewModel;
+
+    private Disposable disposableUpdate;
 
     private ChatFragment() {}
 
@@ -70,10 +83,19 @@ public class ChatFragment extends Fragment {
 
         setupMessageRecyclerView();
 
+        chatsRepository = new ChatsRepository(requireContext());
+
         usernameLabel = activityView.findViewById(R.id.username_label);
         profileImage = activityView.findViewById(R.id.profile_image);
+
         messagesAdapter = new MessagesAdapter(userId, chat.getChatInfo());
         messagesRecyclerView.setAdapter(messagesAdapter);
+
+        enableAutoScrollOnNewMessage();
+
+        setupChatsViewModel();
+        subscribeUpdateChatEvent();
+
         AuthResponse authResponse = getAuthResponse();
 
         // Инициализируем ViewModel с кастомной фабрикой
@@ -93,9 +115,64 @@ public class ChatFragment extends Fragment {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        viewModel.disconnect(); // Закрываем соединение
         dialogViewModel.disconnect();                                     // Закрываем соединение
+        if (disposableUpdate != null) disposableUpdate.dispose();   // Отписываеся от обновлений чата
         ChatDTO.selectedChat = null;
+    }
+
+    private void subscribeUpdateChatEvent() {
+        // Подписываемся на измененеия чата, чтобы изменять его во фрагменте
+        AtomicReference<Disposable> disposableRef = new AtomicReference<>();
+        disposableUpdate = chatsViewModel.subscribeToUpdateChat(chat.getId(), result1 -> {
+            Toast.makeText(requireContext(), "Чат был обновлен!", Toast.LENGTH_LONG).show();
+            String logTag = Constants.GLOBAL_LOG_TAG + "UPDATE CHAT";
+            Log.d(logTag, "Сработал триггер обновления чата, запрашиваю информацию!");
+            chatsRepository.fetchChatAvatar(userId, chat.getId(), result -> {
+                switch (result.status) {
+                    case SUCCESS:
+                        chat.setImage(result.data.get(0).getImage());
+                        renderChatImage();
+                        break;
+                    case ERROR:
+                        Log.e(logTag, result.error);
+                        break;
+                    case EMPTY:
+                        Log.i(logTag, "Изображение для чата " + chat.getId() + " не найдено!");
+                        break;
+                }
+            });
+
+            chatsRepository.fetchChat(chat.getId(), userId, result -> {
+                Log.d(logTag, "Информация о чате обновлена!");
+                chat.setName(result.data.getName());
+                renderUsername();
+
+                Disposable d = disposableRef.get();
+                if (d != null && !d.isDisposed()) {
+                    d.dispose();
+                }
+            });
+
+            chatsRepository.fetchChatInfo(chat.getId(), result -> {
+                chat.setChatInfo(result.data);
+                chatMembersViewModel.setChatMembers(chat.getChatInfo().getMembers());
+            });
+
+        });
+    }
+
+    private void setupChatsViewModel() {
+        DatingAppApplication app = (DatingAppApplication) requireActivity().getApplication();
+        chatsViewModel = app.getChatsViewModel();
+
+        chatMembersViewModel = new ViewModelProvider(this, new ViewModelProvider.Factory() {
+            @NonNull
+            @Override
+            public <T extends androidx.lifecycle.ViewModel> T create(@NonNull Class<T> modelClass) {
+                return (T) new ChatMembersViewModel();
+            }
+        }).get(ChatMembersViewModel.class);
+        app.setChatMembersViewModel(chatMembersViewModel);
     }
 
     private void openChatEdit() {

@@ -1,69 +1,101 @@
 package com.example.datingappclient.fragments;
 
 import static android.view.View.GONE;
+import static android.view.View.VISIBLE;
 
 import android.animation.AnimatorSet;
 import android.animation.ArgbEvaluator;
 import android.animation.ObjectAnimator;
 import android.animation.ValueAnimator;
+import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowInsets;
+import android.view.WindowManager;
+import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.view.menu.MenuBuilder;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
+import androidx.core.view.MenuProvider;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
 
+import com.example.datingappclient.DatingAppApplication;
 import com.example.datingappclient.R;
-import com.example.datingappclient.activity.ChatActivity;
 import com.example.datingappclient.constants.Constants;
+import com.example.datingappclient.model.ChatPayloadInfo;
 import com.example.datingappclient.model.dto.ChatDTO;
 import com.example.datingappclient.model.dto.ChatInfoDTO;
 import com.example.datingappclient.model.dto.ChatMemberDTO;
-import com.example.datingappclient.model.dto.UserDTO;
 import com.example.datingappclient.retrofit.repository.ChatsRepository;
 import com.example.datingappclient.utils.ImageUtils;
+import com.example.datingappclient.viewmodels.ChatsViewModel;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+import java.util.concurrent.atomic.AtomicReference;
+
+import io.reactivex.Single;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.schedulers.Schedulers;
 
 public class EditChatFragment extends Fragment {
 
     /* === Repository === */
     private ChatsRepository chatsRepository;
+    private ChatsViewModel chatsViewModel;
 
     /* === Android Objects === */
     private ActivityResultLauncher<Intent> imagePickerLauncher;
     private ImageView avatarImageView;
+    private EditText chatNameInput;
     private View activityView;
+    private ProgressBar progressBar;
+    private View bg;
 
     /* === Other === */
-    private List<ChatMemberDTO> chatMembers;
+    private ChatDTO chat;
     private Integer userId;
     private Bitmap selectedAvatarBitmap;
+    private boolean avatarIsChanged;
+
+    private Disposable disposableUpdate;
 
     private EditChatFragment() {};
 
-    public static EditChatFragment newInstance(Integer userId) {
+    public static EditChatFragment newInstance(Integer userId, ChatDTO chat) {
         EditChatFragment fragment = new EditChatFragment();
         fragment.userId = userId;
+        fragment.chat = chat;
         return fragment;
     }
 
@@ -72,14 +104,40 @@ public class EditChatFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         activityView = inflater.inflate(R.layout.fragment_create_groupchat, container, false);
 
-        setupRepository();
+        DatingAppApplication app = (DatingAppApplication) requireActivity().getApplication();
+        chatsViewModel = app.getChatsViewModel();
+        chatsRepository = new ChatsRepository(requireContext());
+
+
+        avatarImageView = activityView.findViewById(R.id.avatarImageView);
+        chatNameInput = activityView.findViewById(R.id.chatNameEditText);
+
+        progressBar = activityView.findViewById(R.id.progressBar);
+        bg = activityView.findViewById(R.id.mainContent);
+
         setupToolbar();
+        setChatInfo();
         animUnderlineEdit();
         setupCreateChatButton();
         setupImagePicker();
         setupAddImageButton();
 
         return activityView;
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        if (disposableUpdate != null) disposableUpdate.dispose();
+    }
+
+    private void setChatInfo() {
+        chatNameInput.setText(chat.getName());
+        Bitmap chatImage = ImageUtils.convertPrimitiveByteToBitmap(chat.getImage());
+        if (chatImage != null) {
+            avatarImageView.setImageBitmap(ImageUtils.getCroppedBitmap(chatImage));
+            avatarImageView.setPadding(0,0,0,0);
+        }
     }
 
     private void setupImagePicker() {
@@ -94,6 +152,7 @@ public class EditChatFragment extends Fragment {
                             selectedAvatarBitmap = BitmapFactory.decodeStream(inputStream);
                             avatarImageView.setImageBitmap(ImageUtils.getCroppedBitmap(selectedAvatarBitmap));
                             avatarImageView.setPadding(0,0,0,0);
+                            avatarIsChanged = true;
                         } catch (Exception e) {
                             e.printStackTrace();
                             Log.e(logTag, e.getMessage());
@@ -106,7 +165,6 @@ public class EditChatFragment extends Fragment {
     }
 
     private void setupAddImageButton() {
-        avatarImageView = activityView.findViewById(R.id.avatarImageView);
         avatarImageView.setOnClickListener(v -> {
             Intent intent = new Intent(Intent.ACTION_PICK);
             intent.setType("image/*");
@@ -114,52 +172,104 @@ public class EditChatFragment extends Fragment {
         });
     }
 
-    private void setupRepository() {
-        chatsRepository = new ChatsRepository(requireContext());
-    }
-
     private void setupToolbar() {
         Toolbar toolbar = activityView.findViewById(R.id.toolbar);
-        getActivity().getActionBar().setDisplayShowTitleEnabled(false);
-        toolbar.setNavigationOnClickListener(v -> {
-            getParentFragmentManager().popBackStack();
+        AppCompatActivity activity = (AppCompatActivity) requireActivity();
+
+        activity.setSupportActionBar(toolbar);
+
+        ActionBar actionBar = activity.getSupportActionBar();
+        if (actionBar != null) {
+            actionBar.setDisplayShowTitleEnabled(false);
+        }
+
+        toolbar.setNavigationOnClickListener(v -> getParentFragmentManager().popBackStack());
+
+        activity.addMenuProvider(new MenuProvider() {
+            @SuppressLint("RestrictedApi")
+            @Override
+            public void onCreateMenu(@NonNull Menu menu, @NonNull MenuInflater menuInflater) {
+                menuInflater.inflate(R.menu.edit_chat_toolbar_menu, menu);
+            }
+
+            @Override
+            public boolean onMenuItemSelected(@NonNull MenuItem menuItem) {
+                if (menuItem.getItemId() == R.id.save_button) {
+
+                    chatNameInput.clearFocus();
+
+                    InputMethodManager imm = (InputMethodManager) requireContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+                    if (imm != null) {
+                        imm.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0);
+                    }
+
+                    bg.setVisibility(GONE);
+                    progressBar.setVisibility(VISIBLE);
+
+                    if (chatNameInput.getText().toString().trim().isEmpty()) {
+                        bg.setVisibility(View.VISIBLE);
+                        progressBar.setVisibility(View.GONE);
+                        Toast.makeText(requireContext(), "Имя чата не может быть пустым!", Toast.LENGTH_LONG).show();
+                    } else {
+                        saveEditedChat();
+                    }
+                    return true;
+                }
+                return false;
+            }
+        }, getViewLifecycleOwner());
+    }
+
+    private void saveEditedChat() {
+        chat.setName(chatNameInput.getText().toString());
+        if (avatarIsChanged && selectedAvatarBitmap != null) chat.setImage(ImageUtils.convertBitmapToPrimitiveBytes(selectedAvatarBitmap));
+
+        chatsViewModel.checkConnection();
+
+        byte[] chatImage = avatarIsChanged ? chat.getImage() : null;
+        ChatPayloadInfo payloadInfo = new ChatPayloadInfo(chat.getId(), userId, chat.getName(), chatImage);
+
+        AtomicReference<Disposable> disposableRef = new AtomicReference<>();
+        disposableUpdate = chatsViewModel.subscribeToUpdateChat(chat.getId(), result1 -> {
+            Toast.makeText(requireContext(), "Чат успешно обновлен!", Toast.LENGTH_LONG).show();
+            chatsRepository.fetchChat(chat.getId(), userId, result -> {
+                chatsViewModel.updateOrAddChat(result.data);
+
+                requireActivity().finish();
+
+                Disposable d = disposableRef.get();
+                if (d != null && !d.isDisposed()) {
+                    d.dispose();
+                }
+            });
         });
+
+        Single.fromCallable(() -> {
+                String logTag = Constants.GLOBAL_LOG_TAG + "CHAT UPDATE";
+                chatsRepository.updateChat(payloadInfo, result -> {
+                    switch (result.status) {
+                        case SUCCESS:
+                            Log.i(logTag, "Чат успешно обновлен! " + payloadInfo.getChatId());
+                            break;
+                        case ERROR:
+                            Log.e(logTag, result.error);
+                            if (disposableUpdate != null) disposableUpdate.dispose();
+                            bg.setVisibility(VISIBLE);
+                            progressBar.setVisibility(GONE);
+                            Toast.makeText(requireContext(), "Ошибка изменения чата!", Toast.LENGTH_LONG).show();
+                            break;
+                    }
+                });
+                return true;
+            })
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe();
     }
 
     private void setupCreateChatButton() {
         FloatingActionButton fabCreateChat = activityView.findViewById(R.id.createChat);
         fabCreateChat.setVisibility(GONE);
-    }
-
-    private ChatDTO getChatDTO() {
-        // get chat name
-        EditText chatnameInput = activityView.findViewById(R.id.chatNameEditText);
-        String chatname = chatnameInput.getText().toString();
-        // get chat image
-        byte[] chatImage = ImageUtils.convertBitmapToPrimitiveBytes(selectedAvatarBitmap);
-
-        // add user to chat members
-        chatMembers.add(new ChatMemberDTO(null, userId, null, false, true));
-
-        // create group chat
-        ChatInfoDTO groupChatInfo = new ChatInfoDTO(userId, null, chatMembers, true);
-        return new ChatDTO(null, chatname, null, chatImage, groupChatInfo);
-    }
-
-    private void createGroupChat(ChatDTO groupChat) {
-        String logTag = Constants.GLOBAL_LOG_TAG + "CREATE GROUP CHAT";
-        /*chatsRepository.createChat(groupChat, result -> {
-            switch (result.status) {
-                case SUCCESS:
-                    groupChat.setId(result.data);
-                    Toast.makeText(requireContext(),"Susscess", Toast.LENGTH_LONG).show();
-                    requireActivity().getSupportFragmentManager().popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
-                    break;
-                case ERROR:
-                    Log.e(logTag, result.error);
-                    break;
-            }
-        });*/
     }
 
     private void animUnderlineEdit() {

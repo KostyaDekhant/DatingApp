@@ -26,6 +26,7 @@ public class ChatsAdapter extends ListAdapter<ChatDTO, ChatsHolder> {
     }
 
     private final ChatsAdapter.OnChatClickListener chatClickListener;
+    private final ChatsRepository chatsRepository;
     private final ChatsViewModel viewModel;
     private final int senderId;
     private final LifecycleOwner lifecycleOwner;
@@ -37,6 +38,7 @@ public class ChatsAdapter extends ListAdapter<ChatDTO, ChatsHolder> {
         this.viewModel = viewModel;
         this.senderId = senderId;
         this.context = context;
+        chatsRepository = new ChatsRepository(context);
         this.lifecycleOwner = owner;
     }
 
@@ -58,9 +60,7 @@ public class ChatsAdapter extends ListAdapter<ChatDTO, ChatsHolder> {
 
         // Установить изображение, если оно есть
         if (chat.getImage() == null) {
-            getChatImage(position, () -> {
-                setChatImage(holder, chat.getImage());
-            });
+            getChatImage(position, () -> setChatImage(holder, chat.getImage()));
         }
         else {
             setChatImage(holder, chat.getImage());
@@ -74,9 +74,20 @@ public class ChatsAdapter extends ListAdapter<ChatDTO, ChatsHolder> {
                     }
                 });
 
+        viewModel.subscribeToDeleteChat(chat.getId());
+
+        holder.subcribeToUpdateChat(chat.getId(), viewModel, chatsRepository, senderId);
+
         holder.itemView.setOnClickListener(view ->
                 chatClickListener.onChatClicked(chat)
         );
+    }
+
+    @Override
+    public void onViewRecycled(@NonNull ChatsHolder holder) {
+        super.onViewRecycled(holder);
+        // Очистка данных, отмена анимаций, обнуление слушателей и т. д.
+        holder.unsubscribeUpdate();
     }
 
     private void setChatImage(ChatsHolder holder, byte[] chatImage) {
@@ -107,7 +118,7 @@ public class ChatsAdapter extends ListAdapter<ChatDTO, ChatsHolder> {
                     Log.e(logTag, result.error);
                     break;
                 case EMPTY:
-                    Log.i(logTag, "Изображение для чата" + chat.getId() + "не найдено");
+                    Log.i(logTag, "Изображение для чата " + chat.getId() + " не найдено");
                     break;
             }
             callback.onImage();
@@ -117,14 +128,14 @@ public class ChatsAdapter extends ListAdapter<ChatDTO, ChatsHolder> {
     private static final DiffUtil.ItemCallback<ChatDTO> DIFF_CALLBACK = new DiffUtil.ItemCallback<>() {
         @Override
         public boolean areItemsTheSame(@NonNull ChatDTO oldItem, @NonNull ChatDTO newItem) {
-            return false;
-            //return oldItem.getId().equals(newItem.getId());
+            //return false;
+            return oldItem.getId().equals(newItem.getId());
         }
 
         @Override
         public boolean areContentsTheSame(@NonNull ChatDTO oldItem, @NonNull ChatDTO newItem) {
-            return false;
-            //return oldItem.equals(newItem); // должен быть переопределён equals
+            //return false;
+            return oldItem.equals(newItem); // должен быть переопределён equals
         }
     };
 }
