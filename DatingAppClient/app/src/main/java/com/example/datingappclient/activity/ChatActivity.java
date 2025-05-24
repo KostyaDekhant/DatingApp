@@ -4,22 +4,17 @@ import android.os.Bundle;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.datingappclient.R;
 import com.example.datingappclient.fragments.ChatFragment;
 import com.example.datingappclient.model.dto.ChatDTO;
-import com.example.datingappclient.recyclerViews.messageList.MessagesAdapter;
-import com.example.datingappclient.viewmodels.DialogViewModel;
+import com.example.datingappclient.viewmodels.ChatsViewModel;
 
 public class ChatActivity extends AppCompatActivity {
 
     /* === View Models === */
-    private DialogViewModel viewModel;
 
     /* === Android Objects === */
-    private RecyclerView messagesRecyclerView;
-    private MessagesAdapter messagesAdapter;
 
     /* === Other === */
     Integer userId;
