@@ -43,6 +43,8 @@ public class ChatFragment extends Fragment {
     private View activityView;
     private RecyclerView messagesRecyclerView;
     private MessagesAdapter messagesAdapter;
+    private TextView usernameLabel;
+    private ImageView profileImage;
 
     /* === Other === */
     Integer userId;
@@ -67,6 +69,8 @@ public class ChatFragment extends Fragment {
 
         setupMessageRecyclerView();
 
+        usernameLabel = activityView.findViewById(R.id.username_label);
+        profileImage = activityView.findViewById(R.id.profile_image);
         AuthResponse authResponse = getAuthResponse();
 
         // Инициализируем ViewModel с кастомной фабрикой
@@ -143,7 +147,6 @@ public class ChatFragment extends Fragment {
     }
 
     private void renderUsername() {
-        TextView usernameLabel = activityView.findViewById(R.id.username_label);
         usernameLabel.setText(chat.getName());
     }
 
@@ -153,7 +156,6 @@ public class ChatFragment extends Fragment {
     }
 
     private void renderChatImage() {
-        ImageView profileImage = activityView.findViewById(R.id.profile_image);
         if (chat.getImage() != null) {
             Bitmap croppedImage = ImageUtils.getCroppedBitmap(ImageUtils.convertPrimitiveByteToBitmap(chat.getImage()));
             profileImage.setImageBitmap(croppedImage);
