@@ -15,7 +15,7 @@ import java.util.List;
 public class FormsController {
     private final FormsService formsService;
 
-    @GetMapping
+    @PostMapping
     public ResponseEntity<List<FormDTO>> getForms( @RequestBody FormParams formParams) {
         return ResponseEntity.ok(formsService.findQuestUsers(formParams.getUserId(), formParams.getAge_min(), formParams.getAge_max()
                                             , formParams.getHeight_min(), formParams.getHeight_max(), formParams.getLimit(),
