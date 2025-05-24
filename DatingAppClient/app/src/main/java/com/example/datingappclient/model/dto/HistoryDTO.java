@@ -9,6 +9,9 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class HistoryDTO {
+    @JsonProperty("userId")
+    private int userId;
+
     @JsonProperty("limit")
     private int limit;
 

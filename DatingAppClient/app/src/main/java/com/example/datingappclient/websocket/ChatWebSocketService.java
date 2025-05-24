@@ -89,9 +89,7 @@ public class ChatWebSocketService {
                     } catch (Exception e) {
                         Log.e(logTag, "Ошибка при разборе сообщения", e);
                     }
-                }, throwable -> {
-                    Log.e(logTag, "Ошибка подписки на чат " + chatId, throwable);
-                });
+                }, throwable -> Log.e(logTag, "Ошибка подписки на чат " + chatId, throwable));
 
         return liveData;
     }
@@ -100,7 +98,7 @@ public class ChatWebSocketService {
     public void sendMessage(MessageDTO message) {
         String logTag = Constants.GLOBAL_LOG_TAG + "STOMP SEND MESSAGE";
         try {
-            String jsonMessage = objectMapper.writeValueAsString(message); // ✅ это корректный JSON
+            String jsonMessage = objectMapper.writeValueAsString(message);
             stompClient.send("/app/send", jsonMessage)
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
@@ -112,15 +110,14 @@ public class ChatWebSocketService {
         }
     }
 
-    private final String getHistory = "/topic/history/";
     private final String triggerHistory = "/app/history/";
     @SuppressLint("CheckResult")
-    public void getHistory(int chatId, MutableLiveData<List<MessageDTO>> historyLiveData) {
+    public void getHistory(int chatId, int userId, MutableLiveData<List<MessageDTO>> historyLiveData) {
         String logTag = Constants.GLOBAL_LOG_TAG + "STOMP CHAT HISTORY";
 
-        String jsonParams = getHistoryParams(logTag, offset);
+        String jsonParams = getHistoryParams(logTag, offset, userId);
 
-        stompClient.topic(getHistory + chatId)
+        stompClient.topic("/topic/" + userId + "/history/" + chatId)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(topicMessage -> {
@@ -129,27 +126,31 @@ public class ChatWebSocketService {
                                 topicMessage.getPayload(),
                                 new TypeReference<List<MessageDTO>>() {}
                         );
+                        Log.i(logTag, "Получено " + messages.size() + " сообщений!");
                         fullHistory.addAll(messages);
                         historyLiveData.postValue(fullHistory);
                         if (messages.size() == Constants.MESSAGE_LIMIT) {
                             offset += Constants.MESSAGE_LIMIT;
-                            stompClient.send(triggerHistory + chatId, getHistoryParams(logTag, offset)).subscribe();
+                            stompClient.send(triggerHistory + chatId, getHistoryParams(logTag, offset, userId))
+                                    .subscribe(
+                                            () -> Log.d(logTag, "История запрошена"),
+                                            throwable -> Log.e(logTag, "Ошибка при запросе истории", throwable)
+                                    );
                         }
-                        Log.i(logTag, "Получено " + messages.size() + " сообщений!");
                     } catch (Exception e) {
                         Log.e(logTag, "Ошибка при разборе истории", e);
                     }
-                }, throwable -> {
-                    Log.e(logTag, "Ошибка подписки на историю", throwable);
-                });
+                }, throwable -> Log.e(logTag, "Ошибка подписки на историю", throwable));
 
-
-
-        stompClient.send(triggerHistory + chatId, jsonParams).subscribe();
+        stompClient.send(triggerHistory + chatId, jsonParams)
+                .subscribe(
+                        () -> Log.d(logTag, "Первый запрос отправлен"),
+                        throwable -> Log.e(logTag, "Ошибка отправки первого запроса", throwable)
+                );
     }
 
-    private String getHistoryParams(String logTag, int offset) {
-        HistoryDTO params = new HistoryDTO(Constants.MESSAGE_LIMIT, offset);
+    private String getHistoryParams(String logTag, int offset, int userId) {
+        HistoryDTO params = new HistoryDTO(userId, Constants.MESSAGE_LIMIT, offset);
         String jsonParams = "";
         try {
             jsonParams = objectMapper.writeValueAsString(params);

@@ -7,25 +7,28 @@ import androidx.lifecycle.ViewModel;
 import com.example.datingappclient.model.dto.MessageDTO;
 import com.example.datingappclient.websocket.ChatWebSocketService;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class DialogViewModel extends ViewModel {
-    private final MutableLiveData<MessageDTO> newMessage = new MutableLiveData<>();
-    private final MutableLiveData<List<MessageDTO>> history = new MutableLiveData<>();
     private final ChatWebSocketService webSocketService;
+    private final MutableLiveData<List<MessageDTO>> messages = new MutableLiveData<>(new ArrayList<>());
 
-    public DialogViewModel(String token, int chatId) {
+
+    public DialogViewModel(String token, int chatId, int userId) {
         webSocketService = new ChatWebSocketService(token);
-        webSocketService.subscribeToChat(chatId).observeForever(newMessage::postValue);
-        webSocketService.getHistory(chatId, history);
+
+        webSocketService.subscribeToChat(chatId).observeForever(message -> {
+            List<MessageDTO> current = new ArrayList<>(messages.getValue());
+            current.add(message);
+            messages.postValue(current);
+        });
+
+        webSocketService.getHistory(chatId, userId, messages);
     }
 
-    public LiveData<MessageDTO> getNewMessage() {
-        return newMessage;
-    }
-
-    public LiveData<List<MessageDTO>> getHistoryMessages() {
-        return history;
+    public LiveData<List<MessageDTO>> getMessages() {
+        return messages;
     }
 
     public void sendMessage(MessageDTO message) {
@@ -33,6 +36,6 @@ public class DialogViewModel extends ViewModel {
     }
 
     public void disconnect() {
-        webSocketService.disconnect();
+        // webSocketService.disconnect();
     }
 }
