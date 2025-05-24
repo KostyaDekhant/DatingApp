@@ -133,10 +133,15 @@ public class UsereditFragment extends Fragment {
 
         setupReturnButton();
         setupSaveButton();
+        setupAddInterestButton();
 
         getCategories();
 
         return activityView;
+    }
+
+    private void setupAddInterestButton() {
+
     }
 
     private void setupImagePicker() {

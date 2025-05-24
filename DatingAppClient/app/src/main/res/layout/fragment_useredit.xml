@@ -227,39 +227,17 @@
             app:layout_constraintStart_toStartOf="parent"
             android:orientation="vertical"/>
 
-        <!--<androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/categories_container1"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/add_interests_button"
+            android:layout_width="wrap_content"
+            android:layout_height="40dp"
+            android:text="+"
+            android:textColor="@color/white"
+            android:textSize="?attr/bubbleTextSize"
+            app:cornerRadius="100dp"
+            app:layout_constraintTop_toBottomOf="@id/categories_container"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            android:layout_marginStart="52dp"
-            android:layout_marginEnd="52dp"
-            android:layout_marginTop="10dp"
-            app:layout_constraintTop_toBottomOf="@id/description_inputLayout">
-            &lt;!&ndash; START OF USER INTERES SEGMENT &ndash;&gt;
-            <TextView
-                android:id="@+id/userinteres_label"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-
-                android:text="ИНТЕРЕСЫ"
-                android:textSize="?attr/textSizeMedium"
-
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
-
-            <com.google.android.flexbox.FlexboxLayout
-                android:id="@+id/chip_flexbox"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                app:layout_constraintTop_toBottomOf="@id/userinteres_label"
-                app:flexWrap="wrap"
-                app:justifyContent="space_between"
-                android:clipChildren="false"
-                android:clipToPadding="false" />
-        </androidx.constraintlayout.widget.ConstraintLayout>-->
-
+            app:layout_constraintEnd_toEndOf="parent"/>
         <!-- START OF USER COMPANY SEGMENT -->
         <TextView
             android:id="@+id/usercompany_label"
@@ -269,7 +247,7 @@
             android:text="В КОМПАНИИ"
             android:textSize="?attr/textSizeMedium"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/categories_container"
+            app:layout_constraintTop_toBottomOf="@+id/add_interests_button"
             android:layout_marginTop="10dp"/>
 
         <com.google.android.material.textfield.TextInputLayout
