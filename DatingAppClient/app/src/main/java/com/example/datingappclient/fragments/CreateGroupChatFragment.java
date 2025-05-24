@@ -57,6 +57,7 @@ public class CreateGroupChatFragment extends Fragment {
     private ActivityResultLauncher<Intent> imagePickerLauncher;
     private ImageView avatarImageView;
     private View activityView;
+    private EditText chatnameInput;
 
     /* === Other === */
     private List<ChatMemberDTO> chatMembers;
@@ -84,6 +85,9 @@ public class CreateGroupChatFragment extends Fragment {
 
         DatingAppApplication app = (DatingAppApplication) requireActivity().getApplication();
         chatsViewModel = app.getChatsViewModel();
+
+
+        chatnameInput = activityView.findViewById(R.id.chatNameEditText);
 
         setupRepository();
         setupToolbar();
@@ -144,12 +148,17 @@ public class CreateGroupChatFragment extends Fragment {
 
     private void setupCreateChatButton() {
         FloatingActionButton fabCreateChat = activityView.findViewById(R.id.createChat);
-        fabCreateChat.setOnClickListener(v -> createGroupChat(getChatDTO()));
+        fabCreateChat.setOnClickListener(v -> {
+            if (chatnameInput.getText().toString().isEmpty()) {
+                Toast.makeText(requireContext(), "Имя чата не задано!", Toast.LENGTH_LONG).show();
+                return;
+            }
+            createGroupChat(getChatDTO());
+        });
     }
 
     private ChatDTO getChatDTO() {
         // get chat name
-        EditText chatnameInput = activityView.findViewById(R.id.chatNameEditText);
         String chatname = chatnameInput.getText().toString();
         // get chat image
         byte[] chatImage = ImageUtils.convertBitmapToPrimitiveBytes(selectedAvatarBitmap);
