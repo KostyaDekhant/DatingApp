@@ -65,13 +65,7 @@ public class ChatListFragment extends Fragment {
 
         setupRepository();
         setupCreateChatButton();
-
-        recyclerView = activityView.findViewById(R.id.chatsList_recyclerView);
-        recyclerView.setHasFixedSize(false);
-        recyclerView.setItemViewCacheSize(20);
-        recyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
-        recyclerView.getRecycledViewPool().setMaxRecycledViews(0, 0);
-
+        setupRecyclerView();
         setupViewModel();
 
         chatsViewModel.setChats(new ArrayList<>());
@@ -89,10 +83,19 @@ public class ChatListFragment extends Fragment {
     private void setupCreateChatButton() {
         FloatingActionButton fabCreateChat = activityView.findViewById(R.id.createChat);
         fabCreateChat.setOnClickListener(v -> {
-            getParentFragmentManager().beginTransaction().replace(R.id.fragment_container, GroupChatMembersFragment.newInstance(user))
+            getParentFragmentManager().beginTransaction()
+                    .replace(R.id.fragment_container, GroupChatMembersFragment.newInstance(user))
                     .addToBackStack(null)
                     .commit();
         });
+    }
+
+    private void setupRecyclerView() {
+        recyclerView = activityView.findViewById(R.id.chatsList_recyclerView);
+        recyclerView.setHasFixedSize(false);
+        recyclerView.setItemViewCacheSize(20);
+        recyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
+        recyclerView.getRecycledViewPool().setMaxRecycledViews(0, 0);
     }
 
     private void setupViewModel() {
@@ -106,14 +109,14 @@ public class ChatListFragment extends Fragment {
             }
         }).get(ChatsViewModel.class);
 
-        chatsAdapter = new ChatsAdapter(this::startChatActivity, chatsViewModel, user.getId(), requireContext() , getViewLifecycleOwner());
-
+        chatsAdapter = new ChatsAdapter(this::startChatActivity, chatsViewModel, user.getId(), requireContext(), getViewLifecycleOwner());
         recyclerView.setAdapter(chatsAdapter);
 
         chatsViewModel.getChats().observe(getViewLifecycleOwner(), chatList -> {
             chatsAdapter.submitList(chatList);
             chatsAdapter.notifyDataSetChanged();
         });
+        chatsViewModel.getChats().observe(getViewLifecycleOwner(), chatList -> chatsAdapter.submitList(new ArrayList<>(chatList)));
     }
 
     private void setupRepository() {
@@ -143,13 +146,14 @@ public class ChatListFragment extends Fragment {
         });
     }
 
-    private final ActivityResultLauncher<Intent> chatLauncher =
+    public final ActivityResultLauncher<Intent> chatLauncher =
             registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
                 if (result.getResultCode() == Activity.RESULT_OK) {
                     Intent data = result.getData();
                     int removedChatId = data.getIntExtra("chatIdToRemove", -1);
                     if (removedChatId != -1) {
-                        chatsViewModel.deleteChat(removedChatId);
+                        //chatsViewModel.deleteChat(removedChatId);
+                        //chatsViewModel.deleteChatFromServer(removedChatId, user.getId());
                     }
                 }
             });
