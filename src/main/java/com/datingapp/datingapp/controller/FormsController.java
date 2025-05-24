@@ -16,7 +16,7 @@ public class FormsController {
     private final FormsService formsService;
 
     @GetMapping
-    public ResponseEntity<List<FormDTO>> getForms( @RequestParam("params") FormParams formParams) {
+    public ResponseEntity<List<FormDTO>> getForms( @RequestBody FormParams formParams) {
         return ResponseEntity.ok(formsService.findQuestUsers(formParams.getUserId(), formParams.getAge_min(), formParams.getAge_max()
                                             , formParams.getHeight_min(), formParams.getHeight_max(), formParams.getLimit(),
                                             formParams.getOffset(), formParams.getGender()));
