@@ -21,6 +21,7 @@ import androidx.fragment.app.Fragment;
 import com.example.datingappclient.R;
 import com.example.datingappclient.constants.Constants;
 import com.example.datingappclient.model.dto.FormDTO;
+import com.example.datingappclient.model.dto.FormsParametersDTO;
 import com.example.datingappclient.model.dto.LikeDTO;
 import com.example.datingappclient.model.ProfileCardData;
 import com.example.datingappclient.model.UserImage;
@@ -35,7 +36,6 @@ import com.yuyakaido.android.cardstackview.CardStackListener;
 import com.yuyakaido.android.cardstackview.CardStackView;
 import com.yuyakaido.android.cardstackview.Direction;
 import com.yuyakaido.android.cardstackview.StackFrom;
-import com.yuyakaido.android.cardstackview.SwipeableMethod;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -142,7 +142,8 @@ public class FormsFragment extends Fragment {
     private void getForms(LoadInterface callback) {
         int limit = Constants.FORMS_LIMIT;
         String logTag = Constants.GLOBAL_LOG_TAG + "GET FORMS";
-        formsRepository.fetchForms(userId, 0, 100, 0, 200, "Both", limit, offset, result -> {
+        FormsParametersDTO params = new FormsParametersDTO(userId, 0, 100, 0, 200, "Both", limit, offset);
+        formsRepository.fetchForms(params, result -> {
             switch (result.status) {
                 case SUCCESS:
                     offset += limit;

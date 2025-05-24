@@ -3,6 +3,7 @@ package com.example.datingappclient.retrofit.repository;
 import android.content.Context;
 
 import com.example.datingappclient.model.dto.FormDTO;
+import com.example.datingappclient.model.dto.FormsParametersDTO;
 import com.example.datingappclient.retrofit.RetrofitClient;
 import com.example.datingappclient.retrofit.api.FormsAPI;
 import com.example.datingappclient.retrofit.wrapper.Result;
@@ -13,7 +14,6 @@ import java.util.List;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
-import retrofit2.http.Query;
 
 public class FormsRepository {
     private final FormsAPI formsAPI;
@@ -40,25 +40,15 @@ public class FormsRepository {
         });
     }
 
-    public void fetchForms(int userId,
-                           int ageMin,
-                           int ageMax,
-                           int heightMin,
-                           int heightMax,
-                           String gender,
-                           int limit,
-                           int offset,
-                           ResultCallback<List<FormDTO>> callback
-
-    ) {
-        formsAPI.getForms(userId, ageMin, ageMax, heightMin, heightMax, gender, limit, offset).enqueue(new Callback<List<FormDTO>>() {
+    public void fetchForms(FormsParametersDTO params, ResultCallback<List<FormDTO>> callback) {
+        formsAPI.getForms(params).enqueue(new Callback<>() {
             @Override
             public void onResponse(Call<List<FormDTO>> call, Response<List<FormDTO>> response) {
                 if (response.isSuccessful()) {
                     if (response.body() != null) callback.onResult(Result.success(response.body()));
                     else callback.onResult(Result.empty());
-                }
-                else callback.onResult(Result.error("Ошибка получения анкет: " + response.code() + " " + response.message()));
+                } else
+                    callback.onResult(Result.error("Ошибка получения анкет: " + response.code() + " " + response.message()));
             }
 
             @Override
