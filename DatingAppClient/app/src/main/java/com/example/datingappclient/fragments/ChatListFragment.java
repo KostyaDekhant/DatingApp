@@ -68,8 +68,7 @@ public class ChatListFragment extends Fragment {
         setupRecyclerView();
         setupViewModel();
 
-        chatsViewModel.setChats(new ArrayList<>());
-        getUserChats();
+        initChats();
 
         return activityView;
     }
@@ -77,7 +76,6 @@ public class ChatListFragment extends Fragment {
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        chatsViewModel.disconnectWebSocket();
     }
 
     private void setupCreateChatButton() {
@@ -112,16 +110,22 @@ public class ChatListFragment extends Fragment {
         chatsAdapter = new ChatsAdapter(this::startChatActivity, chatsViewModel, user.getId(), requireContext(), getViewLifecycleOwner());
         recyclerView.setAdapter(chatsAdapter);
 
-        chatsViewModel.getChats().observe(getViewLifecycleOwner(), chatList -> {
-            chatsAdapter.submitList(chatList);
-            chatsAdapter.notifyDataSetChanged();
-        });
         chatsViewModel.getChats().observe(getViewLifecycleOwner(), chatList -> chatsAdapter.submitList(new ArrayList<>(chatList)));
     }
 
     private void setupRepository() {
         Context context = requireContext();
         chatsRepository = new ChatsRepository(context);
+    }
+
+    // Предотвращаем повторный вызов загрузки чатов при многократном клике на вкладку списка чатов
+    private static boolean isChatsLoading;
+    private void initChats() {
+        if (isChatsLoading) return;
+        isChatsLoading = true;
+        offset = 0;
+        chatsViewModel.setChats(new ArrayList<>());
+        getUserChats();
     }
 
     private void getUserChats() {
@@ -132,9 +136,10 @@ public class ChatListFragment extends Fragment {
                 case SUCCESS:
                     Log.d(logTag, "Получено чатов: " + result.data.size());
                     offset += limit;
-                    // Если получили кол-во чатов = offset, то запрашиваем еще раз
+                    // Если получили кол-во чатов = limit, то запрашиваем еще раз
+                    chatsViewModel.addChats(new ArrayList<>(result.data));
                     if (result.data.size() == limit) getUserChats();
-                    chatsViewModel.addChats(result.data);
+                    else isChatsLoading = false;
                     break;
                 case EMPTY:
                     Log.i(logTag, "Чаты для пользователя " + user.getId() + " отсутствуют! offset=" + offset );
