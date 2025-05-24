@@ -1,10 +1,14 @@
 package com.example.datingappclient.fragments;
 
+import static android.view.View.GONE;
+import static android.view.View.VISIBLE;
+
 import android.animation.AnimatorSet;
 import android.animation.ArgbEvaluator;
 import android.animation.ObjectAnimator;
 import android.animation.ValueAnimator;
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -15,8 +19,10 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
@@ -58,6 +64,8 @@ public class CreateGroupChatFragment extends Fragment {
     private ImageView avatarImageView;
     private View activityView;
     private EditText chatnameInput;
+    private ProgressBar progressBar;
+    private View content;
 
     /* === Other === */
     private List<ChatMemberDTO> chatMembers;
@@ -86,8 +94,9 @@ public class CreateGroupChatFragment extends Fragment {
         DatingAppApplication app = (DatingAppApplication) requireActivity().getApplication();
         chatsViewModel = app.getChatsViewModel();
 
-
         chatnameInput = activityView.findViewById(R.id.chatNameEditText);
+        progressBar = activityView.findViewById(R.id.progressBar);
+        content = activityView.findViewById(R.id.mainContent);
 
         setupRepository();
         setupToolbar();
@@ -153,6 +162,19 @@ public class CreateGroupChatFragment extends Fragment {
                 Toast.makeText(requireContext(), "Имя чата не задано!", Toast.LENGTH_LONG).show();
                 return;
             }
+
+            fabCreateChat.setVisibility(GONE);
+            chatnameInput.clearFocus();
+
+            InputMethodManager imm = (InputMethodManager) requireContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+            if (imm != null) {
+                imm.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0);
+            }
+
+
+            content.setVisibility(GONE);
+            progressBar.setVisibility(VISIBLE);
+
             createGroupChat(getChatDTO());
         });
     }

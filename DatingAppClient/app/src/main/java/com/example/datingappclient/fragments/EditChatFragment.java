@@ -15,7 +15,6 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -24,9 +23,6 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.WindowInsets;
-import android.view.WindowManager;
-import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -39,7 +35,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.view.menu.MenuBuilder;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
 import androidx.core.view.MenuProvider;
@@ -50,17 +45,12 @@ import com.example.datingappclient.R;
 import com.example.datingappclient.constants.Constants;
 import com.example.datingappclient.model.ChatPayloadInfo;
 import com.example.datingappclient.model.dto.ChatDTO;
-import com.example.datingappclient.model.dto.ChatInfoDTO;
-import com.example.datingappclient.model.dto.ChatMemberDTO;
 import com.example.datingappclient.retrofit.repository.ChatsRepository;
 import com.example.datingappclient.utils.ImageUtils;
 import com.example.datingappclient.viewmodels.ChatsViewModel;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
 import java.util.concurrent.atomic.AtomicReference;
 
 import io.reactivex.Single;
@@ -80,7 +70,7 @@ public class EditChatFragment extends Fragment {
     private EditText chatNameInput;
     private View activityView;
     private ProgressBar progressBar;
-    private View bg;
+    private View content;
 
     /* === Other === */
     private ChatDTO chat;
@@ -113,7 +103,7 @@ public class EditChatFragment extends Fragment {
         chatNameInput = activityView.findViewById(R.id.chatNameEditText);
 
         progressBar = activityView.findViewById(R.id.progressBar);
-        bg = activityView.findViewById(R.id.mainContent);
+        content = activityView.findViewById(R.id.mainContent);
 
         setupToolbar();
         setChatInfo();
@@ -203,11 +193,11 @@ public class EditChatFragment extends Fragment {
                         imm.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0);
                     }
 
-                    bg.setVisibility(GONE);
+                    content.setVisibility(GONE);
                     progressBar.setVisibility(VISIBLE);
 
                     if (chatNameInput.getText().toString().trim().isEmpty()) {
-                        bg.setVisibility(View.VISIBLE);
+                        content.setVisibility(View.VISIBLE);
                         progressBar.setVisibility(View.GONE);
                         Toast.makeText(requireContext(), "Имя чата не может быть пустым!", Toast.LENGTH_LONG).show();
                     } else {
@@ -254,7 +244,7 @@ public class EditChatFragment extends Fragment {
                         case ERROR:
                             Log.e(logTag, result.error);
                             if (disposableUpdate != null) disposableUpdate.dispose();
-                            bg.setVisibility(VISIBLE);
+                            content.setVisibility(VISIBLE);
                             progressBar.setVisibility(GONE);
                             Toast.makeText(requireContext(), "Ошибка изменения чата!", Toast.LENGTH_LONG).show();
                             break;
