@@ -16,6 +16,9 @@ public class AuthResponse implements Parcelable {
     @SerializedName("token")
     private String token;
 
+    @SerializedName("refreshToken")
+    private String refreshToken;
+
     @SerializedName("userId")
     private int userId;
 
@@ -28,7 +31,7 @@ public class AuthResponse implements Parcelable {
         token = in.readString();
     }
 
-    public static final Creator<AuthResponse> CREATOR = new Creator<AuthResponse>() {
+    public static final Creator<AuthResponse> CREATOR = new Creator<>() {
         @Override
         public AuthResponse createFromParcel(Parcel in) {
             return new AuthResponse(in);

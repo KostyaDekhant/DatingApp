@@ -73,7 +73,7 @@ public class AuthActivity extends AppCompatActivity {
         SharedPreferences prefs = getSharedPreferences("auth", MODE_PRIVATE);
         int userId = prefs.getInt("userId", -1);
         String token = prefs.getString("token", null);
-        return new AuthResponse(token, userId);
+        return new AuthResponse(token, null, userId);
     }
 
     public void startMainActivity(AuthResponse authResponse) {
