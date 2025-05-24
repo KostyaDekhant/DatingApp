@@ -9,7 +9,8 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
-import androidx.recyclerview.widget.RecyclerView;
+import androidx.recyclerview.widget.DiffUtil;
+import androidx.recyclerview.widget.ListAdapter;
 
 import com.example.datingappclient.R;
 import com.example.datingappclient.model.dto.ChatInfoDTO;
@@ -18,19 +19,17 @@ import com.example.datingappclient.model.dto.MessageDTO;
 import com.example.datingappclient.utils.ImageUtils;
 
 import java.text.SimpleDateFormat;
-import java.util.List;
 
-public class MessagesAdapter extends RecyclerView.Adapter<MessagesHolder> {
+public class MessagesAdapter extends ListAdapter<MessageDTO, MessagesHolder> {
 
-    List<MessageDTO> messageList;
     Integer senderID;
     ChatInfoDTO chatInfo ;
 
     public static final int VIEW_TYPE_SENT = 1;
     public static final int VIEW_TYPE_RECEIVED = 2;
 
-    public MessagesAdapter(List<MessageDTO> messageList, Integer senderID, ChatInfoDTO chatInfo) {
-        this.messageList = messageList;
+    public MessagesAdapter(Integer senderID, ChatInfoDTO chatInfo) {
+        super(DIFF_CALLBACK);
         this.senderID = senderID;
         this.chatInfo = chatInfo;
     }
@@ -38,18 +37,16 @@ public class MessagesAdapter extends RecyclerView.Adapter<MessagesHolder> {
     @NonNull
     @Override
     public MessagesHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        int layout;
-        if (viewType == VIEW_TYPE_RECEIVED)
-            layout = R.layout.item_received_message;
-        else
-            layout = R.layout.item_sent_message;
+        int layout = (viewType == VIEW_TYPE_RECEIVED)
+                ? R.layout.item_received_message
+                : R.layout.item_sent_message;
         View view = LayoutInflater.from(parent.getContext()).inflate(layout, parent, false);
         return new MessagesHolder(view);
     }
 
     @Override
     public void onBindViewHolder(@NonNull MessagesHolder holder, int position) {
-        MessageDTO message = messageList.get(position);
+        MessageDTO message = getItem(position);
 
         holder.textMessage.setText(message.getMessage());
 
@@ -72,18 +69,20 @@ public class MessagesAdapter extends RecyclerView.Adapter<MessagesHolder> {
     }
 
     @Override
-    public int getItemCount() {
-        return messageList.size();
-    }
-
-    @Override
     public int getItemViewType(int position) {
-        if (messageList.get(position).getSenderId() == senderID) return VIEW_TYPE_SENT;
-        else return VIEW_TYPE_RECEIVED;
+        return getItem(position).getSenderId() == senderID ? VIEW_TYPE_SENT : VIEW_TYPE_RECEIVED;
     }
 
-    public void addMessage(MessageDTO message) {
-        this.messageList.add(message);
-        notifyDataSetChanged();
-    }
+    private static final DiffUtil.ItemCallback<MessageDTO> DIFF_CALLBACK = new DiffUtil.ItemCallback<>() {
+        @Override
+        public boolean areItemsTheSame(@NonNull MessageDTO oldItem, @NonNull MessageDTO newItem) {
+            return oldItem.getId() == newItem.getId();
+        }
+
+        @Override
+        public boolean areContentsTheSame(@NonNull MessageDTO oldItem, @NonNull MessageDTO newItem) {
+            return oldItem.equals(newItem);
+        }
+    };
+
 }

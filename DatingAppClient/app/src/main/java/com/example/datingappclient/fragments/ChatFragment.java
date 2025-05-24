@@ -70,7 +70,7 @@ public class ChatFragment extends Fragment {
         AuthResponse authResponse = getAuthResponse();
 
         // Инициализируем ViewModel с кастомной фабрикой
-        viewModel = new ViewModelProvider(this, new DialogViewModelFactory(authResponse.getToken(), chat.getId())).get(DialogViewModel.class);
+        dialogViewModel = new ViewModelProvider(this, new DialogViewModelFactory(authResponse.getToken(), chat.getId(), userId)).get(DialogViewModel.class);
 
         renderUsername();
         renderChatImage();
@@ -78,7 +78,7 @@ public class ChatFragment extends Fragment {
         setupSendButton();
         openChatEdit();
 
-        viewModelSubscribe();
+        subscribeGetMessage();
 
         return activityView;
     }
@@ -87,6 +87,7 @@ public class ChatFragment extends Fragment {
     public void onDestroy() {
         super.onDestroy();
         viewModel.disconnect(); // Закрываем соединение
+        dialogViewModel.disconnect();                                     // Закрываем соединение
         ChatDTO.selectedChat = null;
     }
 
@@ -99,18 +100,16 @@ public class ChatFragment extends Fragment {
         }));
     }
 
-    private void viewModelSubscribe() {
-        // Подписка на историю сообщений (запросятся при подписке)
-        viewModel.getHistoryMessages().observe(this.getViewLifecycleOwner(), messages -> {
-            messagesAdapter = new MessagesAdapter(messages, userId, chat.getChatInfo());
-            messagesRecyclerView.setAdapter(messagesAdapter);
-            messagesRecyclerView.scrollToPosition(messagesAdapter.getItemCount() - 1);
-        });
+    private void subscribeGetMessage() {
+        dialogViewModel.getMessages().observe(this.getViewLifecycleOwner(), messages -> messagesAdapter.submitList(new ArrayList<>(messages)));
+    }
 
-        // Подписка на новые входящие сообщения
-        viewModel.getNewMessage().observe(this.getViewLifecycleOwner(), message -> {
-            messagesAdapter.addMessage(message);
-            messagesRecyclerView.scrollToPosition(messagesAdapter.getItemCount() - 1);
+    private void enableAutoScrollOnNewMessage() {
+        messagesAdapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
+            @Override
+            public void onItemRangeInserted(int positionStart, int itemCount) {
+                messagesRecyclerView.scrollToPosition(messagesAdapter.getItemCount() - 1);
+            }
         });
     }
 
@@ -136,7 +135,7 @@ public class ChatFragment extends Fragment {
                         timestamp,
                         userId,
                         chat.getId());
-                viewModel.sendMessage(messageDTO);
+                dialogViewModel.sendMessage(messageDTO);
                 messageInput.setText("");
                 Log.i(logTag, messageDTO.toString());
             }
@@ -150,7 +149,7 @@ public class ChatFragment extends Fragment {
 
     private void setupReturnButton() {
         MaterialButton returnButton = activityView.findViewById(R.id.return_button);
-        returnButton.setOnClickListener(view -> getActivity().finish());
+        returnButton.setOnClickListener(view -> requireActivity().finish());
     }
 
     private void renderChatImage() {
@@ -166,6 +165,6 @@ public class ChatFragment extends Fragment {
         SharedPreferences prefs = requireContext().getSharedPreferences("auth", MODE_PRIVATE);
         int userId = prefs.getInt("userId", -1);
         String token = prefs.getString("token", null);
-        return new AuthResponse(token, userId);
+        return new AuthResponse(token, null, userId);
     }
 }
