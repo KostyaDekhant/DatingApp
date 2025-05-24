@@ -34,105 +34,11 @@ public class ChatActivity extends AppCompatActivity {
         setChat();
 
         getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, ChatFragment.newInstance(userId, chat)).commit();
-
-        /*setupMessageRecyclerView();
-
-        AuthResponse authResponse = getAuthResponse();
-
-        // Инициализируем ViewModel с кастомной фабрикой
-        viewModel = new ViewModelProvider(this, new DialogViewModelFactory(authResponse.getToken(), chat.getId())).get(DialogViewModel.class);
-
-        renderUsername();
-        renderChatImage();
-        setupReturnButton();
-        setupSendButton();
-        openChatEdit();
-
-        viewModelSubscribe();*/
     }
-
-    /*@Override
-    protected void onDestroy() {
-        super.onDestroy();
-        viewModel.disconnect(); // Закрываем соединение
-        ChatDTO.selectedChat = null;
-    }*/
 
     private void setChat() {
         Bundle arguments = getIntent().getExtras();
         chat = ChatDTO.selectedChat;
         userId = arguments.getInt("userId");
     }
-
-    /*private void viewModelSubscribe() {
-        // Подписка на историю сообщений (запросятся при подписке)
-        viewModel.getHistoryMessages().observe(this, messages -> {
-            messagesAdapter = new MessagesAdapter(messages, userId, chat.getChatInfo());
-            messagesRecyclerView.setAdapter(messagesAdapter);
-            messagesRecyclerView.scrollToPosition(messagesAdapter.getItemCount() - 1);
-        });
-
-        // Подписка на новые входящие сообщения
-        viewModel.getNewMessage().observe(this, message -> {
-            messagesAdapter.addMessage(message);
-            messagesRecyclerView.scrollToPosition(messagesAdapter.getItemCount() - 1);
-        });
-    }*/
-
-    /*private void setupMessageRecyclerView() {
-        messagesRecyclerView = findViewById(R.id.messages_recyclerView);
-        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
-        linearLayoutManager.setStackFromEnd(true);
-        messagesRecyclerView.setLayoutManager(linearLayoutManager);
-    }
-
-    private void setupSendButton() {
-        String logTag = Constants.GLOBAL_LOG_TAG + "CLICK SEND MESS";
-        MaterialButton sendButton = findViewById(R.id.sendmess_button);
-        sendButton.setOnClickListener(view -> {
-            TextInputEditText messageInput = findViewById(R.id.message_inputEdit);
-            String message = messageInput.getText().toString().trim();
-            if (!message.isEmpty()) {
-                LocalDateTime dateTime = LocalDateTime.now(ZoneId.systemDefault());
-                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-                Timestamp timestamp = Timestamp.valueOf(dateTime.format(formatter));
-                MessageDTO messageDTO = new MessageDTO(
-                        message,
-                        timestamp,
-                        userId,
-                        chat.getId());
-                viewModel.sendMessage(messageDTO);
-                messageInput.setText("");
-                Log.i(logTag, messageDTO.toString());
-            }
-        });
-    }
-
-    private void renderUsername() {
-        TextView usernameLabel = findViewById(R.id.username_label);
-        usernameLabel.setText(chat.getName());
-    }
-
-    private void setupReturnButton() {
-        MaterialButton returnButton = findViewById(R.id.return_button);
-        returnButton.setOnClickListener(view -> finish());
-    }
-
-    private void renderChatImage() {
-        ImageView profileImage = findViewById(R.id.profile_image);
-        if (chat.getImage() != null) {
-            Bitmap croppedImage = ImageUtils.getCroppedBitmap(ImageUtils.convertPrimitiveByteToBitmap(chat.getImage()));
-            profileImage.setImageBitmap(croppedImage);
-            profileImage.setPadding(0, 0, 0, 0);
-        }
-    }
-
-
-
-    private AuthResponse getAuthResponse() {
-        SharedPreferences prefs = getSharedPreferences("auth", MODE_PRIVATE);
-        int userId = prefs.getInt("userId", -1);
-        String token = prefs.getString("token", null);
-        return new AuthResponse(token, userId);
-    }*/
 }
