@@ -4,7 +4,6 @@ import com.datingapp.datingapp.entity.*;
 import com.datingapp.datingapp.exception.ResourceNotFoundException;
 import com.datingapp.datingapp.services.UserInterestService;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import jdk.jfr.Category;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.Resource;
@@ -94,9 +93,9 @@ public class UserInterestController {
         }
         return ResponseEntity.ok(userInterestsDto);
     }
-    @GetMapping("/users/{user_id}/interests")
-    public ResponseEntity<List<UserInterestDto>> listUserInterest(@PathVariable int user_id){
-        List<UserInterest> userInterests = userInterestService.userListInterest(user_id);
+    @GetMapping("/users/interests")
+    public ResponseEntity<List<UserInterestDto>> listUserInterest(@RequestParam("userId") int userId){
+        List<UserInterest> userInterests = userInterestService.userListInterest(userId);
         List<UserInterestDto> userInterestsDto = new ArrayList<>();
         for (UserInterest userInterest : userInterests) {
             Integer interestId = userInterest.getId().getInterestId();

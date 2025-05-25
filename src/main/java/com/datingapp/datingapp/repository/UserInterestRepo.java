@@ -10,7 +10,7 @@ import java.util.Optional;
 public interface UserInterestRepo extends JpaRepository<UserInterest, Integer> {
 
     @Query(value = """
-SELECT * FROM user_interest ui WHERE ui.pk_user = :id
+SELECT * FROM user_interest ui WHERE ui.pk_user = :id ORDER BY ui.weight DESC
 """, nativeQuery = true)
     List<UserInterest> findUserInterestByPkUser(int id);
 }
