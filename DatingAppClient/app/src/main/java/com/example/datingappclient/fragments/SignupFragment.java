@@ -1,5 +1,8 @@
 package com.example.datingappclient.fragments;
 
+import static android.content.Context.MODE_PRIVATE;
+
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import androidx.fragment.app.Fragment;
 
@@ -137,9 +140,9 @@ public class SignupFragment extends Fragment {
     private void signupUser(AuthDTO authData){
         String logTag = Constants.GLOBAL_LOG_TAG + "SIGNUP. Create user";
         userRepository.signup(authData, result -> {
-            int userId = result.data.getUserId();
             switch (result.status) {
                 case SUCCESS:
+                    int userId = result.data.getUserId();
                     if (userId > 0) {
                         updateUser(result.data);
                     } else if (userId == -1) {
@@ -149,7 +152,9 @@ public class SignupFragment extends Fragment {
                     }
                     break;
                 case ERROR:
+                    Toast.makeText(requireContext(), "Ошибка при регистрации!", Toast.LENGTH_LONG).show();
                     Log.e(logTag, result.error);
+                    break;
             }
         });
     }
@@ -159,6 +164,13 @@ public class SignupFragment extends Fragment {
         String logTag = Constants.GLOBAL_LOG_TAG + "SIGNUP. Update user";
         Log.d(logTag, userDTO.toString());
 
+        // Сохраням токен и id в хранилище
+        SharedPreferences prefs = requireActivity().getSharedPreferences("auth", MODE_PRIVATE);
+        prefs.edit()
+                .putString("token", authResponse.getToken()) // или .putString("token", ...)
+                .putInt("userId", authResponse.getUserId()) // или .putString("token", ...)
+                .apply();
+
         userRepository.updateUser(userDTO, result -> {
             switch (result.status) {
                 case SUCCESS:
@@ -167,7 +179,9 @@ public class SignupFragment extends Fragment {
                     ((AuthActivity) getActivity()).startMainActivity(authResponse);
                     break;
                 case ERROR:
+                    Toast.makeText(requireContext(), "Ошибка при регистрации!", Toast.LENGTH_LONG).show();
                     Log.e(logTag, result.error);
+                    break;
             }
         });
     }
