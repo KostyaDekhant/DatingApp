@@ -128,4 +128,22 @@ public class BubblesRepository {
             }
         });
     }
+
+    public void fetchUserInterests(int userId, ResultCallback<List<UserInterestDTO>> callback) {
+        bubblesAPI.getListUserInterests(userId).enqueue(new Callback<>() {
+            @Override
+            public void onResponse(Call<List<UserInterestDTO>> call, Response<List<UserInterestDTO>> response) {
+                if (response.isSuccessful()) {
+                    if (response.body() != null && !response.body().isEmpty()) callback.onResult(Result.success(response.body()));
+                    else callback.onResult(Result.empty());
+                }
+                else callback.onResult(Result.error("Ошибка при запросе интересов пользователя!" + userId));
+            }
+
+            @Override
+            public void onFailure(Call<List<UserInterestDTO>> call, Throwable throwable) {
+                callback.onResult(Result.error("Ошибка сети или ошибка при обработке данных: " + throwable.getMessage()));
+            }
+        });
+    }
 }

@@ -24,6 +24,9 @@ public interface BubblesAPI {
     @GET("/api/interests/{categoryId}")
     Call<List<InterestDTO>> getListInterestsByCategory(@Path("categoryId") int categoryId);
 
+    @GET("/api/users/interests")
+    Call<List<UserInterestDTO>> getListUserInterests(@Query("userId") int userId);
+
     @GET("/api/users/{userId}/categories/{categoryId}/interests")
     Call<List<UserInterestDTO>> getListUserInterestsByCategory(@Path("userId") int userId, @Path("categoryId") int categoryId);
 
