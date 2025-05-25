@@ -34,6 +34,7 @@ public class UserService {
             log.error("Пользователь с таким логином уже существует!");
             throw new UserAlreadyExistsExceptions("Пользователь с таким логином уже существует!");
         }
+        log.info("Пользователь " + user.toString());
         String password = user.getPassword();
         String hashedPassword = passwordService.hashPassword(password);
         user.setPassword(hashedPassword);
