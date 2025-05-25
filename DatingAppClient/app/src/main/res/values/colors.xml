@@ -5,6 +5,7 @@
     <color name="green">#FF21A038</color>
     <color name="green_transparent">#AA21A038</color>
     <color name="darkgray_transparent">#88262626</color> <!-- gray with 50% opacity-->
+    <color name="darkgray">#262626</color> <!-- gray with 50% opacity-->
     <color name="gray">#AAAAAA</color> <!-- gray with 50% opacity-->
     <color name="yellow">#FFFFF700</color>
     <color name="teal">#FF1AD8D8</color>

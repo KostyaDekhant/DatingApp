@@ -4,11 +4,13 @@ import android.util.Log;
 
 import com.example.datingappclient.constants.Constants;
 
+import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.Period;
 import java.time.format.DateTimeFormatter;
 import java.util.Date;
+import java.util.Locale;
 
 public class DateUtils {
 
@@ -55,5 +57,11 @@ public class DateUtils {
     public static String localDateToString(LocalDate date) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern(format);
         return date.format(formatter);
+    }
+
+    public static String timestampToHoursMins(Timestamp sendtime) {
+        if (sendtime == null) return "";
+        SimpleDateFormat sdf = new SimpleDateFormat("HH:mm", Locale.getDefault());
+        return sdf.format(sendtime);
     }
 }

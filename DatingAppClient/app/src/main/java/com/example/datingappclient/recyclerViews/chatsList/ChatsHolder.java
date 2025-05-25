@@ -1,5 +1,7 @@
 package com.example.datingappclient.recyclerViews.chatsList;
 
+import static android.view.View.VISIBLE;
+
 import android.content.Context;
 import android.view.View;
 import android.widget.ImageView;
@@ -10,7 +12,9 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.datingappclient.R;
+import com.example.datingappclient.model.dto.MessageDTO;
 import com.example.datingappclient.retrofit.repository.ChatsRepository;
+import com.example.datingappclient.utils.DateUtils;
 import com.example.datingappclient.viewmodels.ChatsViewModel;
 
 import java.util.concurrent.atomic.AtomicReference;
@@ -26,7 +30,7 @@ public class ChatsHolder extends RecyclerView.ViewHolder {
     private Integer receiverID;
     private byte[] byteImage;
 
-    public TextView username, lastMessage;
+    public TextView username, lastMessage, lastMessageTime;
     public ImageView profileImage;
 
     private Disposable disposable;
@@ -36,6 +40,7 @@ public class ChatsHolder extends RecyclerView.ViewHolder {
         username = itemView.findViewById(R.id.username_label);
         lastMessage = itemView.findViewById(R.id.lastMessage_label);
         profileImage = itemView.findViewById(R.id.profile_image);
+        lastMessageTime = itemView.findViewById(R.id.lastMessage_time);
     }
 
     public void subcribeToUpdateChat(int chatId, ChatsViewModel viewModel, ChatsRepository chatsRepository, int senderId) {
@@ -54,6 +59,16 @@ public class ChatsHolder extends RecyclerView.ViewHolder {
 
     public void unsubscribeUpdate() {
         if (disposable != null) disposable.dispose();
+    }
+
+    public void setLastMessage(MessageDTO message, boolean isGroup, int userId) {
+        String prefix = "";
+        if (message != null && !isGroup &&
+                message.getSenderId() == userId)
+            prefix = "Вы: ";
+        lastMessage.setText(prefix + message.getMessage());
+        lastMessageTime.setText(DateUtils.timestampToHoursMins(message.getSendtime()));
+        lastMessageTime.setVisibility(VISIBLE);
     }
 
 }

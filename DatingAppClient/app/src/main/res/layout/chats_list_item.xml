@@ -14,10 +14,9 @@
         android:layout_marginTop="16dp"
         android:gravity="center_vertical"
         android:text="ИМЯ ПОЛЬЗОВАТЕЛЯ"
-        android:textColor="#262626"
-        android:textSize="16sp"
+        android:textColor="?attr/textColorMain"
+        android:textSize="?attr/textSizeMedium"
         android:textStyle="bold"
-        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -29,11 +28,24 @@
         android:layout_marginStart="80dp"
         android:layout_marginEnd="10dp"
         android:gravity="center_vertical"
-        android:textSize="14sp"
+        android:text="Last Message"
+        android:textSize="?attr/textSizeSmall"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/username_label" />
+
+    <TextView
+        android:id="@+id/lastMessage_time"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="LM_TIME"
+        android:textSize="?attr/textSizeSmall"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="10dp"
+        android:visibility="gone"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
 
     <ImageView
         android:id="@+id/profile_image"

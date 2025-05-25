@@ -1,5 +1,7 @@
 package com.example.datingappclient.recyclerViews.chatsList;
 
+import static android.view.View.VISIBLE;
+
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.util.Log;
@@ -16,6 +18,7 @@ import com.example.datingappclient.R;
 import com.example.datingappclient.constants.Constants;
 import com.example.datingappclient.model.dto.ChatDTO;
 import com.example.datingappclient.retrofit.repository.ChatsRepository;
+import com.example.datingappclient.utils.DateUtils;
 import com.example.datingappclient.utils.ImageUtils;
 import com.example.datingappclient.viewmodels.ChatsViewModel;
 
@@ -55,6 +58,7 @@ public class ChatsAdapter extends ListAdapter<ChatDTO, ChatsHolder> {
 
         holder.username.setText(chat.getName());
         holder.setReceiverID(chat.getId());
+
         // render init last message
         holder.lastMessage.setText(chat.getLastMessage());
 
@@ -66,12 +70,12 @@ public class ChatsAdapter extends ListAdapter<ChatDTO, ChatsHolder> {
             setChatImage(holder, chat.getImage());
         }
         // Подписка на LiveData для сообщений этого чата
+        String logTag = Constants.GLOBAL_LOG_TAG + "GET MESSAGE";
         viewModel.getMessageStream(chat.getId())
                 .observe(lifecycleOwner, message -> {
-                    if (message != null && chat.getChatInfo() != null && !chat.getChatInfo().getIsGroup()) {
-                        String prefix = (message.getSenderId() == senderId) ? "Вы: " : "";
-                        holder.lastMessage.setText(prefix + message.getMessage());
-                    }
+                    Log.d(logTag, message.toString());
+                    boolean isGroup = chat.getChatInfo() != null && chat.getChatInfo().getIsGroup();
+                    holder.setLastMessage(message, isGroup, senderId);
                 });
 
         viewModel.subscribeToDeleteChat(chat.getId());
