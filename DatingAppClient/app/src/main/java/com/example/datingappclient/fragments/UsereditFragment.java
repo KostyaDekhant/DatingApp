@@ -62,13 +62,16 @@ import com.google.android.material.textfield.TextInputEditText;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import lombok.Setter;
 
@@ -103,6 +106,7 @@ public class UsereditFragment extends Fragment {
     private GridLayout gridLayout;
     private LayoutInflater inflater;
     private View activityView;
+    private LinearLayout bubbleContainer;
 
     private ActivityResultLauncher<Intent> imagePickerLauncher;
 
@@ -126,6 +130,7 @@ public class UsereditFragment extends Fragment {
         inputDesc = activityView.findViewById(R.id.description_inputEdit);
         inputAge = activityView.findViewById(R.id.age_inputEdit);
         inputHeight = activityView.findViewById(R.id.height_inputEdit);
+        bubbleContainer = activityView.findViewById(R.id.categories_container);
 
         setBirthdayPicker();
         setupImagePicker();
@@ -140,7 +145,7 @@ public class UsereditFragment extends Fragment {
         DatingAppApplication app = (DatingAppApplication) requireActivity().getApplication();
         if (app.getCachedCategories() == null || app.getCachedCategories().isEmpty())
             getCategories();
-        else
+        else if (categoryInterestMap.isEmpty())
             getInterests();
 
         return activityView;
@@ -180,39 +185,81 @@ public class UsereditFragment extends Fragment {
         List<UserInterestDTO> addList = mapToUserInterestDTO(toAdd);
         List<UserInterestDTO> removeList = mapToUserInterestDTO(toRemove);
 
-        if (!addList.isEmpty()) {
-            addUserInterests(addList);
-        }
+        updateUserInterests(addList, removeList);
+    }
+
+    private void updateUserInterests(List<UserInterestDTO> addList, List<UserInterestDTO> removeList) {
+        String logTag = Constants.GLOBAL_LOG_TAG + "UPDATE INTERESTS";
+
+        AtomicBoolean addDone = new AtomicBoolean(addList.isEmpty());
+        AtomicBoolean removeDone = new AtomicBoolean(removeList.isEmpty());
+
+        Runnable tryRender = () -> {
+            if (addDone.get() && removeDone.get()) {
+                renderBubbles();
+            }
+        };
 
         if (!removeList.isEmpty()) {
-            deleteUserInterest(removeList);
+            bubblesRepository.deleteUserInterests(user.getId(), removeList, result -> {
+                if (result.status == Result.Status.SUCCESS) {
+                    Log.i(logTag, "Удалено " + removeList.size() + " интересов");
+                    removeFromCategoryMap(removeList);
+                    removeDone.set(true);
+                    tryRender.run();
+                } else {
+                    Log.e(logTag, result.error);
+                    Toast.makeText(requireContext(), "Ошибка при удалении интересов!", Toast.LENGTH_SHORT).show();
+                }
+            });
+        }
+
+        if (!addList.isEmpty()) {
+            bubblesRepository.addUserInterest(user.getId(), addList, result -> {
+                if (result.status == Result.Status.SUCCESS) {
+                    Log.i(logTag, "Добавлено " + addList.size() + " интересов");
+                    addToCategoryMap(addList);
+                    addDone.set(true);
+                    tryRender.run();
+                } else {
+                    Log.e(logTag, result.error);
+                    Toast.makeText(requireContext(), "Ошибка при добавлении интересов!", Toast.LENGTH_SHORT).show();
+                }
+            });
+        }
+    }
+    private void addToCategoryMap(List<UserInterestDTO> addList) {
+        DatingAppApplication app = (DatingAppApplication) requireActivity().getApplication();
+        for (UserInterestDTO userInterest : addList) {
+            // Найти категорию по cached interest'ам
+            for (CategoryDTO category : app.getCachedCategories()) {
+                if (!categoryInterestMap.containsKey(category)) {
+                    categoryInterestMap.put(category, new ArrayList<>());
+                }
+
+                List<UserInterestDTO> interests = categoryInterestMap.get(category);
+                boolean alreadyExists = interests.stream()
+                        .anyMatch(existing -> Objects.equals(existing.getId(), userInterest.getId()));
+
+                if (!alreadyExists && userInterestBelongsToCategory(userInterest, category)) {
+                    interests.add(userInterest);
+                }
+            }
         }
     }
 
-    private void deleteUserInterest(List<UserInterestDTO> removeList) {
-        String logTag = Constants.GLOBAL_LOG_TAG + "DELETE INTERESTS";
-        bubblesRepository.deleteUserInterests(user.getId(), removeList, result -> {
-            if (result.status == Result.Status.SUCCESS) {
-                Log.i(logTag, "Удалено " + removeList.size() + " интересов");
-                getInterests();
-            } else {
-                Log.e(logTag, result.error);
-                Toast.makeText(requireContext(),"Ошибка при удалении интересов!", Toast.LENGTH_SHORT).show();
+    private void removeFromCategoryMap(List<UserInterestDTO> removeList) {
+        for (UserInterestDTO userInterest : removeList) {
+            for (Map.Entry<CategoryDTO, List<UserInterestDTO>> entry : categoryInterestMap.entrySet()) {
+                entry.getValue().removeIf(i -> Objects.equals(i.getId(), userInterest.getId()));
             }
-        });
+        }
     }
 
-    private void addUserInterests(List<UserInterestDTO> addList) {
-        String logTag = Constants.GLOBAL_LOG_TAG + "ADD INTERESTS";
-        bubblesRepository.addUserInterest(user.getId(), addList, result -> {
-            if (result.status == Result.Status.SUCCESS) {
-                Log.i(logTag, "Добавлено " + addList.size() + " интересов");
-                getInterests(); // обновляем UI
-            } else {
-                Log.e(logTag, result.error);
-                Toast.makeText(requireContext(), "Ошибка при добавалении интересов!", Toast.LENGTH_SHORT).show();
-            }
-        });
+    private boolean userInterestBelongsToCategory(UserInterestDTO interest, CategoryDTO category) {
+        DatingAppApplication app = (DatingAppApplication) requireActivity().getApplication();
+        return app.getCachedInterestsByCategory().getOrDefault(category, List.of())
+                .stream().anyMatch(i -> Objects.equals(i.getId(), interest.getId()));
     }
 
     private List<UserInterestDTO> mapToUserInterestDTO(Set<InterestDTO> set) {
@@ -310,8 +357,6 @@ public class UsereditFragment extends Fragment {
     private void renderCategory(CategoryDTO category, List<UserInterestDTO> interests) {
         if (interests == null || interests.isEmpty()) return;
 
-        LinearLayout container = activityView.findViewById(R.id.categories_container);
-
         // === СОЗДАЕМ БЛОК КАТЕГОРИИ ===
         ConstraintLayout categoryLayout = new ConstraintLayout(requireContext());
         categoryLayout.setLayoutParams(new LinearLayout.LayoutParams(
@@ -336,7 +381,14 @@ public class UsereditFragment extends Fragment {
         }
 
         // === Добавляем блок в контейнер ===
-        container.addView(categoryLayout);
+        bubbleContainer.addView(categoryLayout);
+    }
+
+    private void renderBubbles() {
+        bubbleContainer.removeAllViews();
+        for (Map.Entry<CategoryDTO, List<UserInterestDTO>> entry : categoryInterestMap.entrySet()) {
+            renderCategory(entry.getKey(), entry.getValue());
+        }
     }
 
     @NonNull

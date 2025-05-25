@@ -73,7 +73,6 @@
             app:layout_constraintStart_toEndOf="@+id/username_label" />
 
         <!-- Баблы -->
-
         <com.google.android.flexbox.FlexboxLayout
             android:id="@+id/interests_container"
             android:layout_width="match_parent"
