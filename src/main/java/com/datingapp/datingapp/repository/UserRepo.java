@@ -223,6 +223,13 @@ WHERE u.pk_user <> :user_id
        :gender = 'Both'      -- если параметр Both — не фильтруем по полу
     OR u.gender = :gender    -- иначе оставляем только совпадающий
   )
+  -- нет dislike от нас к этому пользователю
+  AND NOT EXISTS (
+    SELECT 1
+    FROM dislike d
+    WHERE d.disliker = :user_id
+      AND d.poster   = u.pk_user
+  )
 
 GROUP BY u.pk_user, u.birthday, u.height
 HAVING COALESCE(SUM(mi.weight * ui.weight),0) >= 0   -- только с ненулевым совпадением
@@ -239,34 +246,3 @@ LIMIT :limit OFFSET :offset;
                                   @Param("offset") int offset);
 
 }
-
-
-
-
-//SELECT
-//u2.name AS partner_name,
-//u2.pk_user AS partner_id,
-//p.image AS avatar
-//FROM "user" u2
-//LEFT JOIN "user_pic" up ON up.pk_user = u2.pk_user
-//LEFT JOIN "picture" p ON up.pk_picture = p.pk_picture AND p.id = 1
-//WHERE
-//    -- Исключаем текущего пользователя
-//u2.pk_user != 110
-//    -- Проверяем, что пользователь не состоит в указанном чате
-//AND NOT EXISTS (
-//        SELECT 1
-//        FROM chat_member cm
-//        WHERE cm.user_id = u2.pk_user AND cm.chat_id = 6
-//)
-//    -- Ищем только пользователей, с которыми есть общие чаты (личные)
-//AND EXISTS (
-//        SELECT 1
-//        FROM chat_member cm1
-//        JOIN chat_member cm2 ON cm1.chat_id = cm2.chat_id
-//        JOIN "group_chat" gc ON cm1.chat_id = gc.pk_group_chat
-//        WHERE
-//        cm1.user_id = 110
-//        AND cm2.user_id = u2.pk_user
-//        AND gc.is_group = false
-//);
