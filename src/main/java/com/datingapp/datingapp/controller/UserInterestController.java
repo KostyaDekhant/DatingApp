@@ -125,7 +125,7 @@ public class UserInterestController {
         return ResponseEntity.ok().build();
     }
 
-    @DeleteMapping("/users/interests")
+    @PostMapping("/users/interests/remove")
     public ResponseEntity<Void> removeUserInterest(@RequestParam("userId") int userId,
                                                 @RequestBody List<UserInterestDto> payload) {
         userInterestService.removeUserInterest(userId, payload);
