@@ -236,6 +236,17 @@ WHERE u.pk_user <> :user_id
     WHERE d.liker = :user_id
       AND d.poster   = u.pk_user
   )
+  AND NOT EXISTS (
+    SELECT 1
+    FROM group_chat gc
+    JOIN chat_member cm1
+      ON cm1.chat_id = gc.pk_group_chat
+     AND cm1.user_id = :user_id
+    JOIN chat_member cm2
+      ON cm2.chat_id = gc.pk_group_chat
+     AND cm2.user_id = u.pk_user
+    WHERE gc.is_group = false
+  )
 
 GROUP BY u.pk_user, u.birthday, u.height
 HAVING COALESCE(SUM(mi.weight * ui.weight),0) >= 0   -- только с ненулевым совпадением
