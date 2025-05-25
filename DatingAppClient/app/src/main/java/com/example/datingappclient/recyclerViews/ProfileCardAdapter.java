@@ -1,6 +1,8 @@
 package com.example.datingappclient.recyclerViews;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -13,13 +15,19 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager2.widget.ViewPager2;
 
 import com.example.datingappclient.R;
+import com.example.datingappclient.constants.Constants;
+import com.example.datingappclient.fragments.FormsFragment;
 import com.example.datingappclient.model.ProfileCardData;
 import com.example.datingappclient.model.UserImage;
 import com.example.datingappclient.model.dto.UserInterestDTO;
+import com.example.datingappclient.retrofit.repository.BubblesRepository;
+import com.example.datingappclient.retrofit.repository.ImageRepository;
+import com.example.datingappclient.utils.ImageUtils;
 import com.google.android.flexbox.FlexboxLayout;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import lombok.Getter;
@@ -28,10 +36,14 @@ public class ProfileCardAdapter extends RecyclerView.Adapter<ProfileCardAdapter.
 
     @Getter
     private final List<ProfileCardData> profiles;
+    private final BubblesRepository bubblesRepository;
+    private final ImageRepository imageRepository;
 
-    public ProfileCardAdapter(List<ProfileCardData> profiles) {
+    public ProfileCardAdapter(List<ProfileCardData> profiles, Context context) {
         this.profiles = profiles;
         setHasStableIds(true);
+        bubblesRepository = new BubblesRepository(context);
+        imageRepository = new ImageRepository(context);
     }
 
     @Override
@@ -49,22 +61,13 @@ public class ProfileCardAdapter extends RecyclerView.Adapter<ProfileCardAdapter.
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
+        ProfileCardData cardData = profiles.get(position);
+        getUserInterests(cardData.getUserId(), holder::updateInterestsOnly);
+        getUserImages(cardData.getUserId(), holder::updateImagesOnly);
         holder.bind(profiles.get(position));
         holder.setProfileImage(new UserImageAdapter(profiles.get(position).getImages()));
     }
 
-    @Override
-    public void onBindViewHolder(@NonNull ViewHolder holder, int position, @NonNull List<Object> payloads) {
-        if (!payloads.isEmpty() && payloads.contains("images_only")) {
-            holder.updateImagesOnly(profiles.get(position).getImages());
-        }
-        else if (!payloads.isEmpty() && payloads.contains("interests_only")) {
-            holder.updateInterestsOnly(profiles.get(position).getInterests());
-        }
-        else {
-            super.onBindViewHolder(holder, position, payloads);
-        }
-    }
 
     @Override
     public int getItemCount() {
@@ -91,10 +94,18 @@ public class ProfileCardAdapter extends RecyclerView.Adapter<ProfileCardAdapter.
             if (profile.getUserId() == userId) {
                 profile.setImages(images);
 
-                notifyItemChanged(i, "images_only");
+                int index = findIndexByUserId(userId);
+                if (index != -1) notifyItemChanged(index, "images_only");
                 break;
             }
         }
+    }
+
+    private int findIndexByUserId(int userId) {
+        for (int i = 0; i < profiles.size(); i++) {
+            if (profiles.get(i).getUserId() == userId) return i;
+        }
+        return -1;
     }
 
     public void updateInterests(Integer userId, List<UserInterestDTO> interests) {
@@ -103,7 +114,9 @@ public class ProfileCardAdapter extends RecyclerView.Adapter<ProfileCardAdapter.
             if (profile.getUserId() == userId) {
                 profile.setInterests(interests);
 
-                notifyItemChanged(i, "interests_only");
+                int index = findIndexByUserId(userId);
+                if (index != -1) notifyItemChanged(index, "interests_only");
+
                 break;
             }
         }
@@ -112,6 +125,8 @@ public class ProfileCardAdapter extends RecyclerView.Adapter<ProfileCardAdapter.
     static class ViewHolder extends RecyclerView.ViewHolder {
         ViewPager2 imageView;
         TextView nameAgeLabel, descLabel;
+
+        int userId;
 
         int currentImageIndex = 0;
         List<UserImage> images;
@@ -135,6 +150,7 @@ public class ProfileCardAdapter extends RecyclerView.Adapter<ProfileCardAdapter.
             this.currentImageIndex = 0;
             nameAgeLabel.setText(data.getName() + ", " + data.getAge());
             descLabel.setText(data.getDescription());
+            userId = data.getUserId();
 
             // Обрабатываем переключение фоток
             setupImageViewTouchListener();
@@ -223,6 +239,53 @@ public class ProfileCardAdapter extends RecyclerView.Adapter<ProfileCardAdapter.
                 bubbleContainer.addView(chip);
             }
         }
+    }
+
+    interface BubblesCallback  {
+        void onLoaded(List<UserInterestDTO> interests);
+    }
+
+    public void getUserInterests(Integer userId, BubblesCallback callback) {
+        String logTag = Constants.GLOBAL_LOG_TAG + "GET USER INTERESTS";
+        bubblesRepository.fetchUserInterests(userId, result -> {
+            switch (result.status) {
+                case SUCCESS:
+                    Log.i(logTag,  "Получены интересы пользователя " + userId + ": " + result.data.size());
+                    callback.onLoaded(result.data);
+                    break;
+                case ERROR:
+                    Log.e(logTag, result.error);
+                    callback.onLoaded(new ArrayList<>());
+                    break;
+                case EMPTY:
+                    Log.i(logTag, "Интересы пользователя " + userId + " не найдены!");
+                    callback.onLoaded(new ArrayList<>());
+                    break;
+            }
+        });
+    }
+
+    // Колбэк ответа получения изображений
+    interface ImageCallback {
+        void onLoaded(List<UserImage> images);
+    }
+    // Метод загрузка изображений для юзера из анкеты
+    private void getUserImages(int userId, ImageCallback callback) {
+        String logTag = Constants.GLOBAL_LOG_TAG + "USER IMAGES (FORMS)";
+        imageRepository.fetchUserImages(userId, result -> {
+            switch (result.status) {
+                case SUCCESS:
+                    Log.i(logTag, "For userId = " + userId + " - Count images: " + result.data.size());
+                    callback.onLoaded(ImageUtils.objectListToUserImageList(result.data));
+                    break;
+                case ERROR:
+                    Log.e(logTag, result.error);
+                    break;
+                case EMPTY:
+                    Log.i(logTag, "Для пользователя " + userId + " не найдено изображений!");
+                    break;
+            }
+        });
     }
 
     static class ProfileDiffCallback extends DiffUtil.Callback {

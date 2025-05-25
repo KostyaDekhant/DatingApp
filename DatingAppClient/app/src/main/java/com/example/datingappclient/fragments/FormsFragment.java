@@ -96,7 +96,7 @@ public class FormsFragment extends Fragment {
         frameLayout = activityView.findViewById(R.id.search_frame);
         swipeOverlay = activityView.findViewById(R.id.swipe_overlay);
 
-        adapter = new ProfileCardAdapter(new ArrayList<>());
+        adapter = new ProfileCardAdapter(new ArrayList<>(), requireContext());
 
         setupCardStackView();
 
@@ -141,13 +141,6 @@ public class FormsFragment extends Fragment {
                         layoutManager.scrollToPosition(currentPosition);
                         cardStackView.setVisibility(VISIBLE);
                     });
-
-
-                    // Загружаем баблы изображения после безопасного обновления
-                    for (FormDTO form : result.data) {
-                        getUserInterests(form.getUserId(),interests -> adapter.updateInterests(form.getUserId(), interests));
-                        getUserImages(form.getUserId(), (images) -> adapter.updateImages(form.getUserId(), images));
-                    }
                     break;
                 case ERROR:
                     Log.e(logTag, result.error);
@@ -158,29 +151,6 @@ public class FormsFragment extends Fragment {
                     break;
             }
             callback.onLoad();
-        });
-    }
-
-    interface BubblesCallback  {
-        void onLoaded(List<UserInterestDTO> interests);
-    }
-    private void getUserInterests(Integer userId, BubblesCallback callback) {
-        String logTag = Constants.GLOBAL_LOG_TAG + "GET USER INTERESTS";
-        bubblesRepository.fetchUserInterests(userId, result -> {
-            switch (result.status) {
-                case SUCCESS:
-                    Log.i(logTag,  "Получены интересы пользователя " + userId + ": " + result.data.size());
-                    callback.onLoaded(result.data);
-                    break;
-                case ERROR:
-                    Log.e(logTag, result.error);
-                    callback.onLoaded(new ArrayList<>());
-                    break;
-                case EMPTY:
-                    Log.i(logTag, "Интересы пользователя " + userId + "не найдены!");
-                    callback.onLoaded(new ArrayList<>());
-                    break;
-            }
         });
     }
 
@@ -199,29 +169,6 @@ public class FormsFragment extends Fragment {
         return newForms;
     }
 
-    // Колбэк ответа получения изображений
-    interface ImageCallback {
-        void onLoaded(List<UserImage> images);
-    }
-
-    // Метод загрузка изображений для юзера из анкеты
-    private void getUserImages(int userId, ImageCallback callback) {
-        String logTag = Constants.GLOBAL_LOG_TAG + "USER IMAGES (FORMS)";
-        imageRepository.fetchUserImages(userId, result -> {
-            switch (result.status) {
-                case SUCCESS:
-                    Log.i(logTag, "For userId = " + userId + " - Count images: " + result.data.size());
-                    callback.onLoaded(ImageUtils.objectListToUserImageList(result.data));
-                    break;
-                case ERROR:
-                    Log.e(logTag, result.error);
-                    break;
-                case EMPTY:
-                    Log.i(logTag, "Для пользователя " + userId + " не найдено изображений!");
-                    break;
-            }
-        });
-    }
 
     // Метод отправки лайка на сервер
     private void sendLikeToPoster(int likerId, int posterId) {
