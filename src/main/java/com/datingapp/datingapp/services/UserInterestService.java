@@ -140,7 +140,9 @@ public class UserInterestService {
             log.info("Добавление интересов для юзера с id: " + userId);
             for (UserInterestDto dto : payload) {
                 UserInterestId userInterestId = new UserInterestId(userId, dto.getPkInterest());
-                UserInterest userInterest = new UserInterest(userInterestId, dto.getWeight(),
+                UserInterest userInterest = new UserInterest(
+                            userInterestId,
+                            dto.getWeight() == null ? 1 : dto.getWeight(),
                             dto.getDescription());
                 userInterestRepo.save(userInterest);
             }
