@@ -142,7 +142,8 @@ public class ChatWebSocketService {
                         );
                         Log.i(logTag, "Получено " + messages.size() + " сообщений!");
                         fullHistory.addAll(messages);
-                        historyLiveData.postValue(fullHistory);
+                        messages.addAll(fullHistory);
+                        historyLiveData.postValue(messages);
                         if (messages.size() == Constants.MESSAGE_LIMIT) {
                             offset += Constants.MESSAGE_LIMIT;
                             stompClient.send(triggerHistory + chatId, getHistoryParams(logTag, offset, userId))
