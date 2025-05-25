@@ -15,7 +15,6 @@ public class MessageDTO {
     private String message;
 
     @JsonProperty("time")
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX")
     private Timestamp time;
 
     @JsonProperty("pk_user")
