@@ -116,4 +116,20 @@ public class UserInterestController {
         return ResponseEntity.ok(userInterestsDto);
 
     }
+
+
+    @PostMapping("/users/interests")
+    public ResponseEntity<Void> addUserInterest(@RequestParam("userId") int userId,
+                                                                 @RequestBody List<UserInterestDto> payload) {
+        userInterestService.addUserInterest(userId, payload);
+        return ResponseEntity.ok().build();
+    }
+
+    @DeleteMapping("/users/interests")
+    public ResponseEntity<Void> removeUserInterest(@RequestParam("userId") int userId,
+                                                @RequestBody List<UserInterestDto> payload) {
+        userInterestService.removeUserInterest(userId, payload);
+        return ResponseEntity.ok().build();
+    }
+
 }

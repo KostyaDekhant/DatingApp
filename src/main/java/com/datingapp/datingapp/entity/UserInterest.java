@@ -24,4 +24,13 @@ public class UserInterest {
     @Column(name = "description")
     private String description;
 
+    public UserInterest(UserInterestId id, Integer weight, String description) {
+        this.id = id;
+        this.weight = weight;
+        this.description = description;
+    }
+
+    public UserInterest() {
+
+    }
 }

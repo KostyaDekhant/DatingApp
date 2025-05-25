@@ -41,15 +41,14 @@ public class UserInterestService {
 
     @Transactional
     public List<UserFieldDto> getUserProfileFields(int userId) {
-        // 1) Получить все определения:
         log.info("getUserProfileFields");
         List<ProfileField> defs = fieldRepo.findAllByOrderBySortOrderAsc();
         log.info("defs" + defs);
-        // 2) Получить значения:
+
         Map<Integer, UserProfileField> vals = userFieldRepo.findByIdUserId(userId)
                 .stream().collect(toMap(x->x.getId().getFieldId(), identity()));
         log.info("vals" + vals);
-        // 3) Слепить DTO:
+
         return defs.stream().map(def->{
             UserFieldDto dto = new UserFieldDto();
             dto.setFieldKey(def.getFieldKey());
@@ -64,48 +63,35 @@ public class UserInterestService {
 
     @Transactional
     public void saveUserFields(int userId, List<UserFieldDto> payload) throws ResourceNotFoundException {
-        // 0. Проверим, что сам пользователь существует
         if (!userRepo.existsById(userId)) {
             throw new ResourceNotFoundException("User", userId);
         }
 
-        // 1. Считаем все возможные определения полей и построим мапу по fieldKey
         List<ProfileField> definitions =
                 fieldRepo.findAllByOrderBySortOrderAsc();
         Map<String, ProfileField> defMap = definitions.stream()
                 .collect(Collectors.toMap(ProfileField::getFieldKey, Function.identity()));
 
-        // 2. Удаляем старые значения
         userFieldRepo.deleteByUserId(userId);
 
-        // 3. Преобразуем DTO в сущности и сохраняем
         List<UserProfileField> toSave = new ArrayList<>();
         for (UserFieldDto dto : payload) {
-            // a) Проверяем, что такой fieldKey определяется в profile_field
             ProfileField def = defMap.get(dto.getFieldKey());
             if (def == null) {
                 throw new IllegalArgumentException(
                         "Неизвестное поле профиля: " + dto.getFieldKey());
             }
 
-            // b) Собираем composite PK
             UserProfileFieldId id = new UserProfileFieldId(userId, def.getId());
 
-            // c) Создаём сущность
             UserProfileField upf = new UserProfileField();
             upf.setId(id);
 
-            // d) Валидировать тип данных при желании:
-            //    if (def.getDataType().equals("ARRAY") && !(dto.getValue() instanceof List)) ...
-            //    опустим детальную валидацию для краткости
-
-            // e) Сохраняем value (JSONB via Hibernate Types)
             upf.setDescription(dto.getValue());
 
             toSave.add(upf);
         }
 
-        // 4. Сохраняем все новые записи
         userFieldRepo.saveAll(toSave);
     }
 
@@ -124,7 +110,6 @@ public class UserInterestService {
         List<UserInterest> userInterests = userInterestRepo.findUserInterestByPkUser(userId);
         if(userInterests.isEmpty()) {
             return null;
-            //throw new RuntimeException("Нет интересов!");
         }
         List<UserInterest> finalList = new ArrayList<>();
 
@@ -149,4 +134,37 @@ public class UserInterestService {
         return userInterestRepo.findUserInterestByPkUser(userId);
     }
 
+    @Transactional
+    public void addUserInterest(int userId, List<UserInterestDto> payload) {
+        try{
+            log.info("Добавление интересов для юзера с id: " + userId);
+            for (UserInterestDto dto : payload) {
+                UserInterestId userInterestId = new UserInterestId(userId, dto.getPkInterest());
+                UserInterest userInterest = new UserInterest(userInterestId, dto.getWeight(),
+                            dto.getDescription());
+                userInterestRepo.save(userInterest);
+            }
+            log.info("Успешно добавлено "+ payload.size() + " интересов для юзера с id: " + userId);
+        }
+        catch(Exception e){
+            throw new RuntimeException("Ошибка при добавлении интересов: "  + e.getMessage());
+        }
+    }
+
+    @Transactional
+    public void removeUserInterest(int userId, List<UserInterestDto> payload) {
+        try{
+            log.info("Удаление интересов для юзера с id: " + userId);
+            for (UserInterestDto dto : payload) {
+                UserInterestId userInterestId = new UserInterestId(userId, dto.getPkInterest());
+                UserInterest userInterest = new UserInterest(userInterestId, dto.getWeight(),
+                        dto.getDescription());
+                userInterestRepo.delete(userInterest);
+            }
+            log.info("Успешно удалено "+ payload.size() + " интересов для юзера с id: " + userId);
+        }
+        catch(Exception e){
+            throw new RuntimeException("Ошибка при добавлении интересов: "  + e.getMessage());
+        }
+    }
 }
