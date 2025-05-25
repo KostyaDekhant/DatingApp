@@ -251,4 +251,20 @@ LIMIT :limit OFFSET :offset;
                                   @Param("limit") int limit,
                                   @Param("offset") int offset);
 
+    @Query(value = """
+select u.name from "user" u where pk_user = :userId
+""", nativeQuery = true)
+    List<Object[]> getUserInfoForEvent(@Param("userId") int user_id);
+
+    User getUserByPkUser(Integer organizerId);
+//SELECT DISTINCT ON (u2.pk_user)
+//     u2.name        AS name,
+//     p.image        AS avatar
+//FROM "user" u2
+//LEFT JOIN user_pic up
+//  ON up.pk_user = u2.pk_user
+//LEFT JOIN picture p
+//  ON p.pk_picture = up.pk_picture
+// AND p.id = 1
+//WHERE u2.pk_user = :userId
 }
