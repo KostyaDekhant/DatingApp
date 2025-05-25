@@ -25,7 +25,9 @@ import com.example.datingappclient.model.dto.FormsParametersDTO;
 import com.example.datingappclient.model.dto.LikeDTO;
 import com.example.datingappclient.model.ProfileCardData;
 import com.example.datingappclient.model.UserImage;
+import com.example.datingappclient.model.dto.UserInterestDTO;
 import com.example.datingappclient.recyclerViews.ProfileCardAdapter;
+import com.example.datingappclient.retrofit.repository.BubblesRepository;
 import com.example.datingappclient.retrofit.repository.FormsRepository;
 import com.example.datingappclient.retrofit.repository.ImageRepository;
 import com.example.datingappclient.retrofit.repository.LikesRepository;
@@ -49,6 +51,7 @@ public class FormsFragment extends Fragment {
     private ImageRepository imageRepository;
     private FormsRepository formsRepository;
     private LikesRepository likesRepository;
+    private BubblesRepository bubblesRepository;
 
     /* === Android Objects === */
     private View activityView;
@@ -107,33 +110,7 @@ public class FormsFragment extends Fragment {
         imageRepository = new ImageRepository(requireContext());
         formsRepository = new FormsRepository(requireContext());
         likesRepository = new LikesRepository(requireContext());
-    }
-
-    // Метод загрузки следующей анкеты
-    private void getForm__old() {
-        String logTag = Constants.GLOBAL_LOG_TAG + "GET FORM";
-        formsRepository.fetchForm__old(userId, currentUserId, result -> {
-            switch (result.status) {
-                case SUCCESS:
-                    FormDTO form = result.data;
-                    Log.i(logTag, "Успешно получена анкета юзера: " +  form.getUserId());
-                    currentUserId = form.getUserId();
-                    getUserImages(currentUserId, (images) -> {
-                        int age = DateUtils.dateToAge(form.getBirthday());
-                        profiles.add(new ProfileCardData(form.getUserId(), form.getName(), age, form.getDescription(), images));
-                        adapter.notifyItemInserted(profiles.size() - 1);
-                    });
-                    break;
-                case ERROR:
-                    Log.e(logTag, result.error);
-                    break;
-                case EMPTY:
-                    Log.i(logTag, "Анкет для пользователя " + userId + " нет!");
-                    TextView emptyTextView = activityView.findViewById(R.id.empty_text);
-                    emptyTextView.setVisibility(VISIBLE);
-                    break;
-            }
-        });
+        bubblesRepository = new BubblesRepository(requireContext());
     }
 
     interface LoadInterface { void onLoad(); }
@@ -165,8 +142,10 @@ public class FormsFragment extends Fragment {
                         cardStackView.setVisibility(VISIBLE);
                     });
 
-                    // Загружаем изображения после безопасного обновления
+
+                    // Загружаем баблы изображения после безопасного обновления
                     for (FormDTO form : result.data) {
+                        getUserInterests(form.getUserId(),interests -> adapter.updateInterests(form.getUserId(), interests));
                         getUserImages(form.getUserId(), (images) -> adapter.updateImages(form.getUserId(), images));
                     }
                     break;
@@ -182,6 +161,29 @@ public class FormsFragment extends Fragment {
         });
     }
 
+    interface BubblesCallback  {
+        void onLoaded(List<UserInterestDTO> interests);
+    }
+    private void getUserInterests(Integer userId, BubblesCallback callback) {
+        String logTag = Constants.GLOBAL_LOG_TAG + "GET USER INTERESTS";
+        bubblesRepository.fetchUserInterests(userId, result -> {
+            switch (result.status) {
+                case SUCCESS:
+                    Log.i(logTag,  "Получены интересы пользователя " + userId + ": " + result.data.size());
+                    callback.onLoaded(result.data);
+                    break;
+                case ERROR:
+                    Log.e(logTag, result.error);
+                    callback.onLoaded(new ArrayList<>());
+                    break;
+                case EMPTY:
+                    Log.i(logTag, "Интересы пользователя " + userId + "не найдены!");
+                    callback.onLoaded(new ArrayList<>());
+                    break;
+            }
+        });
+    }
+
     private List<ProfileCardData> parseForms(List<FormDTO> data) {
         List<ProfileCardData> newForms = new ArrayList<>();
         for (FormDTO form : data) {
@@ -191,7 +193,7 @@ public class FormsFragment extends Fragment {
                     form.getName(),
                     age,
                     form.getDescription(),
-                    null);
+                    null, null);
             newForms.add(profile);
         }
         return newForms;

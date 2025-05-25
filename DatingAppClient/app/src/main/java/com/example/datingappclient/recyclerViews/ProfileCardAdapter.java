@@ -15,6 +15,8 @@ import androidx.viewpager2.widget.ViewPager2;
 import com.example.datingappclient.R;
 import com.example.datingappclient.model.ProfileCardData;
 import com.example.datingappclient.model.UserImage;
+import com.example.datingappclient.model.dto.UserInterestDTO;
+import com.google.android.flexbox.FlexboxLayout;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
 
@@ -55,7 +57,11 @@ public class ProfileCardAdapter extends RecyclerView.Adapter<ProfileCardAdapter.
     public void onBindViewHolder(@NonNull ViewHolder holder, int position, @NonNull List<Object> payloads) {
         if (!payloads.isEmpty() && payloads.contains("images_only")) {
             holder.updateImagesOnly(profiles.get(position).getImages());
-        } else {
+        }
+        else if (!payloads.isEmpty() && payloads.contains("interests_only")) {
+            holder.updateInterestsOnly(profiles.get(position).getInterests());
+        }
+        else {
             super.onBindViewHolder(holder, position, payloads);
         }
     }
@@ -91,15 +97,32 @@ public class ProfileCardAdapter extends RecyclerView.Adapter<ProfileCardAdapter.
         }
     }
 
+    public void updateInterests(Integer userId, List<UserInterestDTO> interests) {
+        for (int i = 0; i < profiles.size(); i++) {
+            ProfileCardData profile = profiles.get(i);
+            if (profile.getUserId() == userId) {
+                profile.setInterests(interests);
+
+                notifyItemChanged(i, "interests_only");
+                break;
+            }
+        }
+    }
+
     static class ViewHolder extends RecyclerView.ViewHolder {
         ViewPager2 imageView;
         TextView nameAgeLabel, descLabel;
 
         int currentImageIndex = 0;
         List<UserImage> images;
+        List<UserInterestDTO> interests;
+
+        private View view;
 
         ViewHolder(@NonNull View itemView) {
             super(itemView);
+            this.view = itemView;
+
             imageView = itemView.findViewById(R.id.profile_image);
             imageView.setUserInputEnabled(false);
 
@@ -167,6 +190,38 @@ public class ProfileCardAdapter extends RecyclerView.Adapter<ProfileCardAdapter.
         public void updateImagesOnly(List<UserImage> images) {
             this.images = images;
             setProfileImage(new UserImageAdapter(images));
+        }
+
+        public void updateInterestsOnly(List<UserInterestDTO> interests) {
+            this.interests = interests;
+            renderLimitedBubbles(interests);
+        }
+
+        private void renderLimitedBubbles(List<UserInterestDTO> interests) {
+            FlexboxLayout bubbleContainer = view.findViewById(R.id.interests_container); // FlexboxLayout или LinearLayout
+            bubbleContainer.removeAllViews();
+
+            LayoutInflater inflater = LayoutInflater.from(view.getContext());
+
+            int maxVisible = 4; // можно 3, в зависимости от дизайна
+            int count = 0;
+
+            for (UserInterestDTO interest : interests) {
+                if (count >= maxVisible) break;
+
+                View chip = inflater.inflate(R.layout.item_profile_interest_bubble, bubbleContainer, false);
+                ((TextView) chip.findViewById(R.id.text_interest)).setText(interest.getName());
+                bubbleContainer.addView(chip);
+
+                count++;
+            }
+
+            int hiddenCount = interests.size() - maxVisible;
+            if (hiddenCount > 0) {
+                View chip = inflater.inflate(R.layout.item_profile_interest_bubble, bubbleContainer, false);
+                ((TextView) chip.findViewById(R.id.text_interest)).setText("+" + hiddenCount);
+                bubbleContainer.addView(chip);
+            }
         }
     }
 

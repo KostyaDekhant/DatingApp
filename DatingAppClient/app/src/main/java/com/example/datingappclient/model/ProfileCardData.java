@@ -1,5 +1,7 @@
 package com.example.datingappclient.model;
 
+import com.example.datingappclient.model.dto.UserInterestDTO;
+
 import java.util.List;
 import java.util.Objects;
 
@@ -18,4 +20,5 @@ public class ProfileCardData {
     private int age;
     private String description;
     private List<UserImage> images;
+    private List<UserInterestDTO> interests;
 }
