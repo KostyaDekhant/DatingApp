@@ -32,13 +32,6 @@ public class ChatsViewModel extends ViewModel {
                 deleteChat(chatId);
             }
         });
-
-        // Реакция на обновление или создание чата
-        webSocketService.getUpdatedChatStream().observeForever(chat -> {
-            if (chat != null) {
-                updateOrAddChat(chat);
-            }
-        });
     }
 
     public void subscribeToDeleteChat(int chatId) {

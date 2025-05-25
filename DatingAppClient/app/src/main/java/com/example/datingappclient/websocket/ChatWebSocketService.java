@@ -230,7 +230,6 @@ public class ChatWebSocketService {
     public void sendUpdateGroupChat(ChatPayloadInfo updateInfo, ResultCallback<Void> callback) {
         String logTag = Constants.GLOBAL_LOG_TAG + "UPDATE CHAT";
         try {
-            //updateInfo.setImage(Arrays.copyOfRange(updateInfo.getImage(), 0, 1));
             String json = objectMapper.writeValueAsString(updateInfo);
             stompClient.send("/app/group_chats/update", json)
                     .subscribeOn(Schedulers.io())
@@ -256,9 +255,6 @@ public class ChatWebSocketService {
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(message -> {
                     try {
-                        //ChatDTO chat = objectMapper.readValue(message.getPayload(), ChatDTO.class);
-                        //updatedChatStream.postValue(chat);
-                        //Log.i(logTag, "Чат обновлён: " + chat.getId());
                         Log.i(logTag, "Чат обновлён: " + chatId);
                         callback.onResult(Result.success(true));
                     } catch (Exception e) {

@@ -211,7 +211,7 @@ public class ChatsRepository {
     }
 
     public void fetchChat(int chatId, int userId, ResultCallback<ChatDTO> callback) {
-        chatsAPI.getChat(chatId, userId).enqueue(new Callback<ChatDTO>() {
+        chatsAPI.getChat(chatId, userId).enqueue(new Callback<>() {
             @Override
             public void onResponse(Call<ChatDTO> call, Response<ChatDTO> response) {
                 if (response.isSuccessful()) {

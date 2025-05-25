@@ -51,6 +51,9 @@ public class ChatMembersAdapter extends ListAdapter<ChatMemberDTO, ChatMembersAd
     @Setter
     private boolean editMembers;
 
+    @Setter
+    private boolean userIsOwner;
+
     public ChatMembersAdapter(Context context, int userId, int chatId) {
         super(DIFF_CALLBACK);
         this.context = context;
@@ -103,7 +106,7 @@ public class ChatMembersAdapter extends ListAdapter<ChatMemberDTO, ChatMembersAd
                 holder.checkmark.setImageResource(R.drawable.ic_member_in_chat_circle);
             }
         }
-        else if (chatMemberDTO.isChatOwner()){
+        else if (userIsOwner && !chatMemberDTO.isChatOwner()){
             holder.itemView.setOnLongClickListener(v -> {
                 showPopupMenu(v, chatMemberDTO);
                 return true;

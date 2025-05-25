@@ -91,6 +91,8 @@ public class ChatPropertiesFragment extends Fragment {
         viewModel = app.getChatMembersViewModel();
 
         adapter = new ChatMembersAdapter(requireContext(), userId,  chat.getId());
+        adapter.setUserIsOwner(userId.equals(chat.getChatInfo().getCreatedBy()));
+
         RecyclerView recyclerView = activityView.findViewById(R.id.usersRecyclerView);
         recyclerView.setAdapter(adapter);
 

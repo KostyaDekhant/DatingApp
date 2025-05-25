@@ -223,8 +223,6 @@ public class EditChatFragment extends Fragment {
         disposableUpdate = chatsViewModel.subscribeToUpdateChat(chat.getId(), result1 -> {
             Toast.makeText(requireContext(), "Чат успешно обновлен!", Toast.LENGTH_LONG).show();
             chatsRepository.fetchChat(chat.getId(), userId, result -> {
-                chatsViewModel.updateOrAddChat(result.data);
-
                 requireActivity().finish();
 
                 Disposable d = disposableRef.get();

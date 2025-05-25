@@ -115,7 +115,7 @@ public class ChatFragment extends Fragment {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        dialogViewModel.disconnect();                                     // Закрываем соединение
+        dialogViewModel.disconnect();                               // Закрываем соединение
         if (disposableUpdate != null) disposableUpdate.dispose();   // Отписываеся от обновлений чата
         ChatDTO.selectedChat = null;
     }
@@ -124,14 +124,26 @@ public class ChatFragment extends Fragment {
         // Подписываемся на измененеия чата, чтобы изменять его во фрагменте
         AtomicReference<Disposable> disposableRef = new AtomicReference<>();
         disposableUpdate = chatsViewModel.subscribeToUpdateChat(chat.getId(), result1 -> {
+            if (chat == null) {
+                Disposable d = disposableRef.get();
+                if (d != null && !d.isDisposed()) {
+                    d.dispose();
+                }
+                return;
+            }
+
             Toast.makeText(requireContext(), "Чат был обновлен!", Toast.LENGTH_LONG).show();
             String logTag = Constants.GLOBAL_LOG_TAG + "UPDATE CHAT";
             Log.d(logTag, "Сработал триггер обновления чата, запрашиваю информацию!");
+
             chatsRepository.fetchChatAvatar(userId, chat.getId(), result -> {
                 switch (result.status) {
                     case SUCCESS:
-                        chat.setImage(result.data.get(0).getImage());
-                        renderChatImage();
+                        //chatsViewModel.updateOrAddChat(result.data.get(0));
+                        if (chat != null) {
+                            chat.setImage(result.data.get(0).getImage());
+                            renderChatImage();
+                        }
                         break;
                     case ERROR:
                         Log.e(logTag, result.error);
@@ -143,9 +155,22 @@ public class ChatFragment extends Fragment {
             });
 
             chatsRepository.fetchChat(chat.getId(), userId, result -> {
-                Log.d(logTag, "Информация о чате обновлена!");
-                chat.setName(result.data.getName());
-                renderUsername();
+                switch (result.status) {
+                    case SUCCESS:
+                        Log.d(logTag, "Информация о чате обновлена!");
+                        //chatsViewModel.updateOrAddChat(result.data);
+                        if (chat != null) {
+                            chat.setName(result.data.getName());
+                            renderUsername();
+                        }
+                        break;
+                    case EMPTY:
+                        Log.e(logTag, "Чат не найден!");
+                        break;
+                    case ERROR:
+                        Log.e(logTag, result.error);
+                        break;
+                }
 
                 Disposable d = disposableRef.get();
                 if (d != null && !d.isDisposed()) {
@@ -154,10 +179,9 @@ public class ChatFragment extends Fragment {
             });
 
             chatsRepository.fetchChatInfo(chat.getId(), result -> {
-                chat.setChatInfo(result.data);
-                chatMembersViewModel.setChatMembers(chat.getChatInfo().getMembers());
+                if (chat != null) chat.setChatInfo(result.data);
+                chatMembersViewModel.setChatMembers(result.data.getMembers());
             });
-
         });
     }
 

@@ -14,9 +14,11 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.datingappclient.R;
 import com.example.datingappclient.model.dto.MessageDTO;
 import com.example.datingappclient.retrofit.repository.ChatsRepository;
+import com.example.datingappclient.retrofit.wrapper.Result;
 import com.example.datingappclient.utils.DateUtils;
 import com.example.datingappclient.viewmodels.ChatsViewModel;
 
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicReference;
 
 import io.reactivex.disposables.Disposable;
