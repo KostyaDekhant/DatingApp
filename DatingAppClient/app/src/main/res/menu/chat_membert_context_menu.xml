@@ -3,5 +3,5 @@
     <item
         android:id="@+id/remove_user"
         android:icon="@drawable/ic_remove_chat_member"
-        android:title="Remove from group" />
+        android:title="Удалить из группы" />
 </menu>

@@ -4,9 +4,12 @@ import static android.view.View.VISIBLE;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.text.SpannableString;
+import android.text.style.ForegroundColorSpan;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -15,6 +18,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.ListAdapter;
 import androidx.recyclerview.widget.RecyclerView;
@@ -129,6 +133,11 @@ public class ChatMembersAdapter extends ListAdapter<ChatMemberDTO, ChatMembersAd
         } catch (Exception e) {
             e.printStackTrace();
         }
+
+        MenuItem menuItem = popup.getMenu().findItem(R.id.remove_user);
+        SpannableString s = new SpannableString(menuItem.getTitle());
+        s.setSpan(new ForegroundColorSpan(ContextCompat.getColor(context, R.color.red)), 0, s.length(), 0);
+        menuItem.setTitle(s);
 
         // Обработка кликов по меню
         popup.setOnMenuItemClickListener(item -> {
