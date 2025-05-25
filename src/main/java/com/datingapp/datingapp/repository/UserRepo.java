@@ -230,6 +230,12 @@ WHERE u.pk_user <> :user_id
     WHERE d.disliker = :user_id
       AND d.poster   = u.pk_user
   )
+  AND NOT EXISTS (
+    SELECT 1
+    FROM "like" d
+    WHERE d.liker = :user_id
+      AND d.poster   = u.pk_user
+  )
 
 GROUP BY u.pk_user, u.birthday, u.height
 HAVING COALESCE(SUM(mi.weight * ui.weight),0) >= 0   -- только с ненулевым совпадением
