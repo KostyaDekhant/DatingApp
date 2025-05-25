@@ -7,8 +7,12 @@ import com.example.datingappclient.model.dto.UserInterestDTO;
 import java.util.List;
 
 import retrofit2.Call;
+import retrofit2.http.Body;
+import retrofit2.http.DELETE;
 import retrofit2.http.GET;
+import retrofit2.http.POST;
 import retrofit2.http.Path;
+import retrofit2.http.Query;
 
 public interface BubblesAPI {
     @GET("/api/interests")
@@ -22,4 +26,10 @@ public interface BubblesAPI {
 
     @GET("/api/users/{userId}/categories/{categoryId}/interests")
     Call<List<UserInterestDTO>> getListUserInterestsByCategory(@Path("userId") int userId, @Path("categoryId") int categoryId);
+
+    @POST("/api/users/interests")
+    Call<Void> addUserInterests(@Query("userId") int userId, @Body List<UserInterestDTO> payload);
+
+    @DELETE("/users/interests")
+    Call<Void> deleteUserInterests(@Query("userId") int userId, @Body List<UserInterestDTO> payload);
 }

@@ -98,4 +98,34 @@ public class BubblesRepository {
             }
         });
     }
+
+    public void addUserInterest(int userId, List<UserInterestDTO> interest, ResultCallback<Void> callback) {
+        bubblesAPI.addUserInterests(userId, interest).enqueue(new Callback<>() {
+            @Override
+            public void onResponse(Call<Void> call, Response<Void> response) {
+                if (response.isSuccessful()) callback.onResult(Result.success(null));
+                else callback.onResult(Result.error("Ошибка при добавлении интересов!"));
+            }
+
+            @Override
+            public void onFailure(Call<Void> call, Throwable throwable) {
+                callback.onResult(Result.error("Ошибка сети или ошибка при обработке данных: " + throwable.getMessage()));
+            }
+        });
+    }
+
+    public void deleteUserInterests(int userId, List<UserInterestDTO> interest, ResultCallback<Void> callback) {
+        bubblesAPI.deleteUserInterests(userId, interest).enqueue(new Callback<>() {
+            @Override
+            public void onResponse(Call<Void> call, Response<Void> response) {
+                if (response.isSuccessful()) callback.onResult(Result.success(null));
+                else callback.onResult(Result.error("Ошибка при удалении интересов!"));
+            }
+
+            @Override
+            public void onFailure(Call<Void> call, Throwable throwable) {
+                callback.onResult(Result.error("Ошибка сети или ошибка при обработке данных: " + throwable.getMessage()));
+            }
+        });
+    }
 }
