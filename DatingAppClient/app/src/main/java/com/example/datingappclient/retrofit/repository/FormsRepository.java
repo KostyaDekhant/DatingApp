@@ -45,7 +45,7 @@ public class FormsRepository {
             @Override
             public void onResponse(Call<List<FormDTO>> call, Response<List<FormDTO>> response) {
                 if (response.isSuccessful()) {
-                    if (response.body() != null) callback.onResult(Result.success(response.body()));
+                    if (response.body() != null && response.body().size() != 0) callback.onResult(Result.success(response.body()));
                     else callback.onResult(Result.empty());
                 } else
                     callback.onResult(Result.error("Ошибка получения анкет: " + response.code() + " " + response.message()));

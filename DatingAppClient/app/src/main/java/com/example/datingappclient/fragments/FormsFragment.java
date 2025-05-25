@@ -175,6 +175,7 @@ public class FormsFragment extends Fragment {
                     break;
                 case EMPTY:
                     Log.i(logTag, "Анкет не найдено");
+                    renderEmptyLabel();
                     break;
             }
             callback.onLoad();
@@ -194,28 +195,6 @@ public class FormsFragment extends Fragment {
             newForms.add(profile);
         }
         return newForms;
-    }
-
-    private void setUserImages(Integer userId, List<UserImage> images) {
-        List<ProfileCardData> current = adapter.getProfiles();
-        List<ProfileCardData> updated = new ArrayList<>(current);
-
-        for (int i = 0; i < updated.size(); i++) {
-            ProfileCardData profile = updated.get(i);
-            if (userId.equals(profile.getUserId())) {
-                // заменяем объект на новый (важно для корректного equals)
-                updated.set(i, new ProfileCardData(
-                        profile.getUserId(),
-                        profile.getName(),
-                        profile.getAge(),
-                        profile.getDescription(),
-                        images // новые изображения
-                ));
-                break;
-            }
-        }
-
-        adapter.setProfiles(updated); // 🔁 через DiffUtil, безопасно
     }
 
     // Колбэк ответа получения изображений
