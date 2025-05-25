@@ -30,6 +30,6 @@ public interface BubblesAPI {
     @POST("/api/users/interests")
     Call<Void> addUserInterests(@Query("userId") int userId, @Body List<UserInterestDTO> payload);
 
-    @POST("/users/interests")
+    @POST("/api/users/interests")
     Call<Void> deleteUserInterests(@Query("userId") int userId, @Body List<UserInterestDTO> payload);
 }
