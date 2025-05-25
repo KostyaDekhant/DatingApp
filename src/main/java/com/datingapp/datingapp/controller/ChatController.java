@@ -107,6 +107,7 @@ public class ChatController {
     @DeleteMapping("/group_chats/{chatId}/users/{userId}/creator/{creatorId}")
     public ResponseEntity<Void> removeMemberFromChat(@PathVariable int chatId, @PathVariable int userId, @PathVariable int creatorId) throws UserNotExistsExceptions {
         chatService.deleteChatMember(chatId, userId, creatorId);
+        broadcastUpdateChatEvent(chatId);
         return ResponseEntity.ok().build();
     }
 }
