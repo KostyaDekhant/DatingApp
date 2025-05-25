@@ -10,7 +10,6 @@ import android.view.ViewGroup;
 import android.widget.Toast;
 import android.app.DatePickerDialog;
 import android.text.InputType;
-import android.widget.DatePicker;
 
 import com.example.datingappclient.constants.Constants;
 import com.example.datingappclient.model.dto.AuthDTO;
@@ -36,7 +35,7 @@ public class SignupFragment extends Fragment {
 
     /* === Android Objects === */
     private View activityView;
-    private TextInputEditText inputAge;
+    private TextInputEditText inputBirthday;
     private TextInputEditText inputLogin;
     private TextInputEditText inputPass;
     private TextInputEditText inputName;
@@ -68,7 +67,7 @@ public class SignupFragment extends Fragment {
     }
 
     private void setupInputEditView() {
-        inputAge = activityView.findViewById(R.id.age_inputEdit);
+        inputBirthday = activityView.findViewById(R.id.age_inputEdit);
         inputLogin = activityView.findViewById(R.id.login_inputEdit);
         inputPass = activityView.findViewById(R.id.pass_inputEdit);
         inputName = activityView.findViewById(R.id.username_inputEdit);
@@ -76,23 +75,32 @@ public class SignupFragment extends Fragment {
 
     private void setupDateTimePicker() {
         // Установка DatePickerDialog для поля возраста
-        inputAge.setInputType(InputType.TYPE_NULL); // Отключение ручного ввода
-        inputAge.setOnClickListener(v -> {
+        inputBirthday.setInputType(InputType.TYPE_NULL); // Отключение ручного ввода
+        inputBirthday.setOnClickListener(v -> {
             Calendar calendar = Calendar.getInstance();
+
+            String currentText = inputBirthday.getText().toString();
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+            // Если в поле уже есть дата — пробуем её распарсить
+            if (!currentText.isEmpty()) {
+                try {
+                    calendar.setTime(sdf.parse(currentText));
+                } catch (Exception e) {
+                    e.printStackTrace(); // оставляем текущую дату
+                }
+            }
+
+
             int year = calendar.get(Calendar.YEAR);
             int month = calendar.get(Calendar.MONTH);
             int day = calendar.get(Calendar.DAY_OF_MONTH);
 
-            DatePickerDialog datePickerDialog = new DatePickerDialog(getContext(), new DatePickerDialog.OnDateSetListener() {
-                @Override
-                public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
-                    // Преобразуем дату в формат yyyy-MM-dd
-                    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
-                    Calendar selectedDate = Calendar.getInstance();
-                    selectedDate.set(year, month, dayOfMonth);
-                    String formattedDate = sdf.format(selectedDate.getTime());
-                    inputAge.setText(formattedDate);
-                }
+            DatePickerDialog datePickerDialog = new DatePickerDialog(requireContext(), (view, year1, month1, dayOfMonth) -> {
+                // Преобразуем дату в формат yyyy-MM-dd
+                Calendar selectedDate = Calendar.getInstance();
+                selectedDate.set(year1, month1, dayOfMonth);
+                String formattedDate = sdf.format(selectedDate.getTime());
+                inputBirthday.setText(formattedDate);
             }, year, month, day);
             datePickerDialog.show();
         });
@@ -111,7 +119,7 @@ public class SignupFragment extends Fragment {
             login = inputLogin.getText().toString();
             pass = inputPass.getText().toString();
             name = inputName.getText().toString();
-            birthday = inputAge.getText().toString();
+            birthday = inputBirthday.getText().toString();
 
             // !!! Проверка на пустые поля
             if (login.isEmpty() || pass.isEmpty() || name.isEmpty() || birthday.isEmpty()) {
