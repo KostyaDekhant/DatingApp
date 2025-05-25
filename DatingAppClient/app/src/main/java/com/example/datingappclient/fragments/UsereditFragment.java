@@ -141,7 +141,20 @@ public class UsereditFragment extends Fragment {
     }
 
     private void setupAddInterestButton() {
+        MaterialButton addButton = activityView.findViewById(R.id.add_interests_button);
 
+        addButton.setOnClickListener(v -> {
+            InterestSelectionDialogFragment dialog = new InterestSelectionDialogFragment(categoryInterestMap);
+            dialog.setCallback(selected -> {
+                // обработка добавленных интересов
+                for (UserInterestDTO interest : selected) {
+                    // можно сохранить на сервер или в локальную переменную
+                    // и затем обновить UI
+                }
+                Toast.makeText(requireContext(), "Выбрано: " + selected.size(), Toast.LENGTH_SHORT).show();
+            });
+            dialog.show(getParentFragmentManager(), "InterestSelectionDialog");
+        });
     }
 
     private void setupImagePicker() {
