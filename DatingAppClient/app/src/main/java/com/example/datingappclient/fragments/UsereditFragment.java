@@ -51,6 +51,7 @@ import com.example.datingappclient.model.UsereditForm;
 import com.example.datingappclient.retrofit.repository.BubblesRepository;
 import com.example.datingappclient.retrofit.repository.ImageRepository;
 import com.example.datingappclient.retrofit.repository.UserRepository;
+import com.example.datingappclient.retrofit.wrapper.Result;
 import com.example.datingappclient.utils.DateUtils;
 import com.example.datingappclient.utils.ImageUtils;
 import com.google.android.flexbox.FlexboxLayout;
@@ -147,14 +148,10 @@ public class UsereditFragment extends Fragment {
         MaterialButton addButton = activityView.findViewById(R.id.add_interests_button);
 
         addButton.setOnClickListener(v -> {
-            InterestSelectionDialogFragment dialog = new InterestSelectionDialogFragment(extractSelectedInterests());
+            Set<InterestDTO> preselected = extractSelectedInterests();
+            InterestSelectionDialogFragment dialog = new InterestSelectionDialogFragment(preselected);
             dialog.setCallback(selected -> {
-                // обработка добавленных интересов
-                for (InterestDTO interest : selected) {
-                    // можно сохранить на сервер или в локальную переменную
-                    // и затем обновить UI
-                }
-                Toast.makeText(requireContext(), "Выбрано: " + selected.size(), Toast.LENGTH_SHORT).show();
+                handleInterestChanges(preselected, selected);
             });
             dialog.show(getParentFragmentManager(), "InterestSelectionDialog");
         });
@@ -169,6 +166,59 @@ public class UsereditFragment extends Fragment {
             }
         }
         return result;
+    }
+
+    private void handleInterestChanges(Set<InterestDTO> oldSet, Set<InterestDTO> newSet) {
+        Set<InterestDTO> toAdd = new HashSet<>(newSet);
+        toAdd.removeAll(oldSet);   // Новые, которых не было
+
+        Set<InterestDTO> toRemove = new HashSet<>(oldSet);
+        toRemove.removeAll(newSet); // Старые, которые убрали
+
+        List<UserInterestDTO> addList = mapToUserInterestDTO(toAdd);
+        List<UserInterestDTO> removeList = mapToUserInterestDTO(toRemove);
+
+        if (!addList.isEmpty()) {
+            addUserInterests(addList);
+        }
+
+        if (!removeList.isEmpty()) {
+            deleteUserInterest(removeList);
+        }
+    }
+
+    private void deleteUserInterest(List<UserInterestDTO> removeList) {
+        String logTag = Constants.GLOBAL_LOG_TAG + "DELETE INTERESTS";
+        bubblesRepository.deleteUserInterests(user.getId(), removeList, result -> {
+            if (result.status == Result.Status.SUCCESS) {
+                Log.i(logTag, "Удалено " + removeList.size() + "интересов");
+                getInterests();
+            } else {
+                Log.e(logTag, result.error);
+                Toast.makeText(requireContext(),"Ошибка при удалении интересов!", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void addUserInterests(List<UserInterestDTO> addList) {
+        String logTag = Constants.GLOBAL_LOG_TAG + "ADD INTERESTS";
+        bubblesRepository.addUserInterest(user.getId(), addList, result -> {
+            if (result.status == Result.Status.SUCCESS) {
+                Log.i(logTag, "Добавлено " + addList.size() + "интересов");
+                getInterests(); // обновляем UI
+            } else {
+                Log.e(logTag, result.error);
+                Toast.makeText(requireContext(), "Ошибка при добавалении интересов!", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private List<UserInterestDTO> mapToUserInterestDTO(Set<InterestDTO> set) {
+        List<UserInterestDTO> list = new java.util.ArrayList<>();
+        for (InterestDTO interest : set) {
+            list.add(new UserInterestDTO(interest.getId(), interest.getName(), null, null));
+        }
+        return list;
     }
 
     private void setupImagePicker() {
@@ -246,7 +296,7 @@ public class UsereditFragment extends Fragment {
                     case SUCCESS:
                         categoryInterestMap.put(category, result.data);
                         categoriesLoaded++;
-                        Log.i(logTag, category.getName() + ": " + result.data);
+                        // Log.i(logTag, category.getName() + ": " + result.data); // log only error
 
                         // После получения категорий и бабблов - отрисовка
                         if (categoriesLoaded == userCategories.size()) {
