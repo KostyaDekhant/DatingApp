@@ -2,12 +2,17 @@ package com.example.datingappclient.recyclerViews;
 
 import static android.view.View.VISIBLE;
 
+import android.content.Context;
 import android.graphics.Bitmap;
+import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.PopupMenu;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.DiffUtil;
@@ -15,9 +20,13 @@ import androidx.recyclerview.widget.ListAdapter;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.datingappclient.R;
+import com.example.datingappclient.constants.Constants;
 import com.example.datingappclient.model.dto.ChatMemberDTO;
+import com.example.datingappclient.retrofit.repository.ChatsRepository;
 import com.example.datingappclient.utils.ImageUtils;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -34,12 +43,20 @@ public class ChatMembersAdapter extends ListAdapter<ChatMemberDTO, ChatMembersAd
     private final Set<Integer> selectedUserIds = new HashSet<>();
     private final List<ChatMemberDTO> allMembers = new ArrayList<>();
     private final Map<Integer, ChatMemberDTO> userMap = new HashMap<>();
+    private final ChatsRepository chatsRepository;
+    private final Context context;
+    private final int userId;
+    private final int chatId;
 
     @Setter
     private boolean editMembers;
 
-    public ChatMembersAdapter() {
+    public ChatMembersAdapter(Context context, int userId, int chatId) {
         super(DIFF_CALLBACK);
+        this.context = context;
+        chatsRepository = new ChatsRepository(context);
+        this.userId = userId;
+        this.chatId = chatId;
     }
 
     @NonNull
@@ -62,6 +79,7 @@ public class ChatMembersAdapter extends ListAdapter<ChatMemberDTO, ChatMembersAd
             holder.avatarImageView.setImageBitmap(ImageUtils.getCroppedBitmap(bmp));
         }
 
+        // метка владельца
         if (chatMemberDTO.isChatOwner()) holder.ownerTextView.setVisibility(VISIBLE);
 
         if (isEditMembers()) {
@@ -85,6 +103,56 @@ public class ChatMembersAdapter extends ListAdapter<ChatMemberDTO, ChatMembersAd
                 holder.checkmark.setImageResource(R.drawable.ic_member_in_chat_circle);
             }
         }
+        else if (chatMemberDTO.isChatOwner()){
+            holder.itemView.setOnLongClickListener(v -> {
+                showPopupMenu(v, chatMemberDTO);
+                return true;
+            });
+        }
+    }
+
+    private void showPopupMenu(View v, ChatMemberDTO chatMemberDTO) {
+        PopupMenu popup = new PopupMenu(v.getContext(), v, Gravity.END);
+        popup.getMenuInflater().inflate(R.menu.chat_membert_context_menu, popup.getMenu());
+
+        // Отображение иконок (необязательно, но красиво)
+        try {
+            Field mFieldPopup = popup.getClass().getDeclaredField("mPopup");
+            mFieldPopup.setAccessible(true);
+            Object menuPopupHelper = mFieldPopup.get(popup);
+            Class<?> classPopupHelper = Class.forName(menuPopupHelper.getClass().getName());
+            Method setForceIcons = classPopupHelper.getMethod("setForceShowIcon", boolean.class);
+            setForceIcons.invoke(menuPopupHelper, true);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        // Обработка кликов по меню
+        popup.setOnMenuItemClickListener(item -> {
+            if (item.getItemId() == R.id.remove_user) {
+                removeFromGroup(chatMemberDTO);
+                return true;
+            }
+            return false;
+        });
+
+        popup.show();
+    }
+
+    private void removeFromGroup(ChatMemberDTO chatMember) {
+        String logTag = Constants.GLOBAL_LOG_TAG + "REMOVE CHAT MEMBER";
+        chatsRepository.removeMemberFromChat(chatMember.getId(), chatId, userId, result -> {
+            switch (result.status) {
+                case SUCCESS:
+                    Log.i(logTag, "Пользователь " + chatMember.getId() + " удален из чата " + chatId);
+                    Toast.makeText(context, "Пользователь удален из чата!", Toast.LENGTH_LONG).show();
+                    break;
+                case ERROR:
+                    Log.e(logTag,result.error);
+                    Toast.makeText(context, "Ошибка удаления пользователя из чата!", Toast.LENGTH_LONG).show();
+                    break;
+            }
+        });
     }
 
     public void setFullList(List<ChatMemberDTO> members) {

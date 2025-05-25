@@ -146,6 +146,21 @@ public class ChatsRepository {
         });
     }
 
+    public void removeMemberFromChat(int userId, int chatId, int creatorId, ResultCallback<Void> callback) {
+        chatsAPI.removeMemberFromChat(chatId, userId, creatorId).enqueue(new Callback<>() {
+            @Override
+            public void onResponse(Call<Void> call, Response<Void> response) {
+                if (response.isSuccessful()) callback.onResult(Result.success(null));
+                else callback.onResult(Result.error("Ошибка при удалении пользователя из чата: " + response.code() + " " + response.message()));
+            }
+
+            @Override
+            public void onFailure(Call<Void> call, Throwable throwable) {
+                callback.onResult(Result.error("Ошибка сети или ошибка при обработке данных: " + throwable.getMessage()));
+            }
+        });
+    }
+
     public void addMembersToChat(int chatId, Set<Integer> chatMembersIds, ResultCallback<Void> callback) {
         chatsAPI.addMembersToChat(chatId, chatMembersIds).enqueue(new Callback<>() {
             @Override

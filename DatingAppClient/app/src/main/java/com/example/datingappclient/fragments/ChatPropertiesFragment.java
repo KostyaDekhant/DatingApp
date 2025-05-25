@@ -90,7 +90,7 @@ public class ChatPropertiesFragment extends Fragment {
         DatingAppApplication app = (DatingAppApplication) requireActivity().getApplication();
         viewModel = app.getChatMembersViewModel();
 
-        adapter = new ChatMembersAdapter();
+        adapter = new ChatMembersAdapter(requireContext(), userId,  chat.getId());
         RecyclerView recyclerView = activityView.findViewById(R.id.usersRecyclerView);
         recyclerView.setAdapter(adapter);
 
@@ -134,7 +134,6 @@ public class ChatPropertiesFragment extends Fragment {
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(requireContext());
         linearLayoutManager.setStackFromEnd(true);
         recyclerView.setLayoutManager(linearLayoutManager);
-        recyclerView.setClickable(false);
     }
 
     private void setChatInfo() {
@@ -213,7 +212,7 @@ public class ChatPropertiesFragment extends Fragment {
         // Кастомизация цвета
         TypedValue typedValue = new TypedValue();
         Resources.Theme theme = requireContext().getTheme();
-        theme.resolveAttribute(androidx.appcompat.R.attr.colorPrimary, typedValue, true);
+        theme.resolveAttribute(android.R.attr.colorPrimary, typedValue, true);
         int colorPrimary = typedValue.data;
 
         dialog.getButton(AlertDialog.BUTTON_POSITIVE)

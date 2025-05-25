@@ -123,7 +123,7 @@ public class EditChatMembersFragment extends Fragment {
             }
         }).get(ChatMembersViewModel.class);
 
-        adapter = new ChatMembersAdapter();
+        adapter = new ChatMembersAdapter(requireContext(), userId, chatId);
         adapter.setEditMembers(true);
         RecyclerView recyclerView = activityView.findViewById(R.id.usersRecyclerView);
         recyclerView.setAdapter(adapter);

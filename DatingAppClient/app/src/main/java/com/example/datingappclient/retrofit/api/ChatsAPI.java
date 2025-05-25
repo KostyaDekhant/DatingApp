@@ -46,6 +46,9 @@ public interface ChatsAPI {
     @DELETE("/api/group_chats/{chatId}/creator/{creatorId}")
     Call<Void> deleteChat(@Path("chatId") int chatId, @Path("creatorId") int creatorId);
 
+    @DELETE("/api/group_chats/{chatId}/users/{userId}/creator/{creatorId}")
+    Call<Void> removeMemberFromChat(@Path("chatId") int chatId, @Path("userId") int userId, @Path("creatorId") int creatorId);
+
     @PATCH("/api/group_chats")
     Call<Void> updateChat(@Body ChatPayloadInfo payloadInfo);
 }
