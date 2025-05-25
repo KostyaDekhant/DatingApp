@@ -38,6 +38,7 @@ import android.widget.Space;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.datingappclient.DatingAppApplication;
 import com.example.datingappclient.R;
 import com.example.datingappclient.constants.Constants;
 import com.example.datingappclient.model.dto.CategoryDTO;
@@ -84,11 +85,9 @@ public class UsereditFragment extends Fragment {
     /* === DTO Models === */
     @Setter
     private UserDTO user;
-    private List<CategoryDTO> userCategories;
     private final Map<CategoryDTO, List<UserInterestDTO>> categoryInterestMap = new LinkedHashMap<>();
 
     /* === Other === */
-    private int categoriesLoaded = 0;
 
     /* === Android Objects ===*/
     private TextInputEditText inputName;
@@ -106,7 +105,6 @@ public class UsereditFragment extends Fragment {
     private View activityView;
 
     private ActivityResultLauncher<Intent> imagePickerLauncher;
-
 
     /* === Methods === */
     public UsereditFragment() {}
@@ -139,7 +137,11 @@ public class UsereditFragment extends Fragment {
         setupSaveButton();
         setupAddInterestButton();
 
-        getCategories();
+        DatingAppApplication app = (DatingAppApplication) requireActivity().getApplication();
+        if (app.getCachedCategories() == null || app.getCachedCategories().isEmpty())
+            getCategories();
+        else
+            getInterests();
 
         return activityView;
     }
@@ -191,7 +193,7 @@ public class UsereditFragment extends Fragment {
         String logTag = Constants.GLOBAL_LOG_TAG + "DELETE INTERESTS";
         bubblesRepository.deleteUserInterests(user.getId(), removeList, result -> {
             if (result.status == Result.Status.SUCCESS) {
-                Log.i(logTag, "Удалено " + removeList.size() + "интересов");
+                Log.i(logTag, "Удалено " + removeList.size() + " интересов");
                 getInterests();
             } else {
                 Log.e(logTag, result.error);
@@ -204,7 +206,7 @@ public class UsereditFragment extends Fragment {
         String logTag = Constants.GLOBAL_LOG_TAG + "ADD INTERESTS";
         bubblesRepository.addUserInterest(user.getId(), addList, result -> {
             if (result.status == Result.Status.SUCCESS) {
-                Log.i(logTag, "Добавлено " + addList.size() + "интересов");
+                Log.i(logTag, "Добавлено " + addList.size() + " интересов");
                 getInterests(); // обновляем UI
             } else {
                 Log.e(logTag, result.error);
@@ -273,9 +275,9 @@ public class UsereditFragment extends Fragment {
         bubblesRepository.fetchCategories(result -> {
             switch (result.status) {
                 case SUCCESS:
-                    userCategories = result.data;
-                    Log.i(logTag, userCategories.toString());
-
+                    Log.i(logTag, "Получено " + result.data.size() + "категорий");
+                    DatingAppApplication app = (DatingAppApplication) requireActivity().getApplication();
+                    app.setCachedCategories(result.data);
                     // Запрашиваем бабблы ПОСЛЕ категорий
                     getInterests();
                     break;
@@ -287,72 +289,54 @@ public class UsereditFragment extends Fragment {
 
     private void getInterests() {
         categoryInterestMap.clear();
-        categoriesLoaded = 0;
+        DatingAppApplication app = (DatingAppApplication) requireActivity().getApplication();
 
         String logTag = Constants.GLOBAL_LOG_TAG + "INTEREST";
-        for (CategoryDTO category : userCategories) {
+        for (CategoryDTO category : app.getCachedCategories()) {
             bubblesRepository.fetchUserInterestsByCategory(user.getId(), category.getId(), result -> {
                 switch (result.status) {
                     case SUCCESS:
                         categoryInterestMap.put(category, result.data);
-                        categoriesLoaded++;
-                        // Log.i(logTag, category.getName() + ": " + result.data); // log only error
-
-                        // После получения категорий и бабблов - отрисовка
-                        if (categoriesLoaded == userCategories.size()) {
-                            renderBubbles();
-                        }
+                        renderCategory(category, result.data);
                         break;
                     case ERROR:
                         Log.e(logTag, result.error);
-                        categoriesLoaded++;
-
-                        if (categoriesLoaded == userCategories.size()) {
-                            renderBubbles();
-                        }
                         break;
                 }
             });
         }
     }
 
-    private void renderBubbles() {
+    private void renderCategory(CategoryDTO category, List<UserInterestDTO> interests) {
+        if (interests == null || interests.isEmpty()) return;
+
         LinearLayout container = activityView.findViewById(R.id.categories_container);
-        container.removeAllViews();
 
-        for (Map.Entry<CategoryDTO, List<UserInterestDTO>> entry : categoryInterestMap.entrySet()) {
-            // Получаем категорию и бабблы для нее
-            CategoryDTO category = entry.getKey();
-            List<UserInterestDTO> interests = entry.getValue();
+        // === СОЗДАЕМ БЛОК КАТЕГОРИИ ===
+        ConstraintLayout categoryLayout = new ConstraintLayout(requireContext());
+        categoryLayout.setLayoutParams(new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT
+        ));
+        categoryLayout.setId(View.generateViewId());
 
-            if (interests == null || interests.isEmpty()) continue;
+        // === Заголовок категории ===
+        TextView label = getCategoryLabel(category.getName());
+        categoryLayout.addView(label);
 
-            // Создаем ConstraintLayout
-            ConstraintLayout categoryLayout = new ConstraintLayout(activityView.getContext());
-            categoryLayout.setLayoutParams(new LinearLayout.LayoutParams(
-                    ViewGroup.LayoutParams.MATCH_PARENT,
-                    ViewGroup.LayoutParams.WRAP_CONTENT
-            ));
-            categoryLayout.setId(View.generateViewId());
+        // === FlexboxLayout с бабблами ===
+        FlexboxLayout flexbox = getBubblesFlexbox(activityView, label.getId());
+        categoryLayout.addView(flexbox);
 
-            // === TextView с названием категории ===
-            TextView label = getCategoryLabel(category.getName());
-            categoryLayout.addView(label);
-
-            // === FlexboxLayout под интересы ===
-            FlexboxLayout flexbox = getBubblesFlexbox(activityView, label.getId());
-            categoryLayout.addView(flexbox);
-
-            // === Добавление Bubble'ов в Flexbox ===
-            ContextThemeWrapper wrapper = new ContextThemeWrapper(activityView.getContext(), R.style.ThemeOverlay_ChipStyleEdit);
-            for (UserInterestDTO interest : interests) {
-                Chip chip = getBubble(activityView, interest.getName(), wrapper);
-                flexbox.addView(chip);
-            }
-
-            // Добавляем готовый блок в контейнер
-            container.addView(categoryLayout);
+        // === Добавляем интересы ===
+        ContextThemeWrapper wrapper = new ContextThemeWrapper(requireContext(), R.style.ThemeOverlay_ChipStyleEdit);
+        for (UserInterestDTO interest : interests) {
+            Chip chip = getBubble(activityView, interest.getName(), wrapper);
+            flexbox.addView(chip);
         }
+
+        // === Добавляем блок в контейнер ===
+        container.addView(categoryLayout);
     }
 
     @NonNull

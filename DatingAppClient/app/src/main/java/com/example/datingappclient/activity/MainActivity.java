@@ -3,6 +3,7 @@ package com.example.datingappclient.activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.util.Log;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
@@ -12,18 +13,32 @@ import androidx.core.view.WindowInsetsCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
 
+import com.example.datingappclient.DatingAppApplication;
 import com.example.datingappclient.R;
+import com.example.datingappclient.constants.Constants;
 import com.example.datingappclient.fragments.ChatListFragment;
 import com.example.datingappclient.fragments.GroupChatMembersFragment;
 import com.example.datingappclient.fragments.LikeFragment;
 import com.example.datingappclient.fragments.FormsFragment;
 import com.example.datingappclient.fragments.UserFragment;
 import com.example.datingappclient.model.AuthResponse;
+import com.example.datingappclient.model.dto.CategoryDTO;
+import com.example.datingappclient.model.dto.InterestDTO;
 import com.example.datingappclient.model.dto.UserDTO;
+import com.example.datingappclient.retrofit.repository.BubblesRepository;
+import com.example.datingappclient.retrofit.wrapper.Result;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationView;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
+
 public class MainActivity extends AppCompatActivity {
+
+    /* === Repositories === */
+    private BubblesRepository bubblesRepository;
 
     /* === Android Object === */
     private DrawerLayout drawerLayout;
@@ -42,6 +57,9 @@ public class MainActivity extends AppCompatActivity {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
+
+        bubblesRepository = new BubblesRepository(this);
+        fetchCategories();
 
         AuthResponse authResponse = getIntent().getParcelableExtra("authResponse");
         userId = authResponse.getUserId();
@@ -106,5 +124,57 @@ public class MainActivity extends AppCompatActivity {
         Intent intent = new Intent(MainActivity.this, AuthActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK); // очистить стек
         startActivity(intent);
+    }
+
+    private void fetchCategories() {
+        boolean categoriesIsLoaded = false;
+
+        DatingAppApplication app = (DatingAppApplication) getApplication();
+        if (app.getCachedCategories() != null && !app.getCachedCategories().isEmpty()) {
+            categoriesIsLoaded = true;
+        }
+
+        if (!categoriesIsLoaded ||
+                app.getCachedInterestsByCategory() == null || app.getCachedInterestsByCategory().isEmpty())
+            fetchAndCacheAllBubbles();
+    }
+
+    private void fetchAndCacheAllBubbles() {
+        String logTag = Constants.GLOBAL_LOG_TAG + "CATEGORIES";
+        bubblesRepository.fetchCategories(result -> {
+            switch (result.status) {
+                case SUCCESS:
+                    DatingAppApplication app = (DatingAppApplication) getApplication();
+                    app.setCachedCategories(result.data);
+                    Log.i(logTag, "Получено " + result.data.size() + " категорий");
+                    // Запрашиваем бабблы ПОСЛЕ категорий
+                    fetchInterests();
+                    break;
+                case ERROR:
+                    Log.e(logTag, result.error);
+            }
+        });
+    }
+
+
+    private void fetchInterests() {
+        DatingAppApplication app = (DatingAppApplication) getApplication();
+        Map<CategoryDTO, List<InterestDTO>> categoryInterestMap = new HashMap<>();
+        AtomicInteger categoriesLoaded = new AtomicInteger();
+
+        for (CategoryDTO category : app.getCachedCategories()) {
+            bubblesRepository.fetchInterestsByCategory(category.getId(), result -> {
+                if (result.status == Result.Status.SUCCESS) {
+                    categoryInterestMap.put(category, result.data);
+                } else {
+                    Log.e(Constants.GLOBAL_LOG_TAG + "INTEREST", result.error);
+                    categoryInterestMap.put(category, List.of());
+                }
+
+                if (categoriesLoaded.incrementAndGet() == app.getCachedCategories().size()) {
+                    app.setCachedInterestsByCategory(categoryInterestMap);
+                }
+            });
+        }
     }
 }

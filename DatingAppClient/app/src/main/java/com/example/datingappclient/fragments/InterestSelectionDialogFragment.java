@@ -5,7 +5,6 @@ import android.app.Dialog;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -21,6 +20,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.DialogFragment;
 
+import com.example.datingappclient.DatingAppApplication;
 import com.example.datingappclient.R;
 import com.example.datingappclient.constants.Constants;
 import com.example.datingappclient.model.dto.CategoryDTO;
@@ -79,7 +79,7 @@ public class InterestSelectionDialogFragment extends DialogFragment {
                 })
                 .setNegativeButton("Отмена", (dialog, id) -> dismiss());
 
-        getCategories();
+        renderCategoryBlocks();
 
         return builder.create();
     }
@@ -96,50 +96,13 @@ public class InterestSelectionDialogFragment extends DialogFragment {
         });
     }
 
-    private void getCategories() {
-        String logTag = Constants.GLOBAL_LOG_TAG + "CATEGORIES";
-        bubblesRepository.fetchCategories(result -> {
-            switch (result.status) {
-                case SUCCESS:
-                    categories = result.data;
-                    Log.i(logTag, categories.toString());
-
-                    // Запрашиваем бабблы ПОСЛЕ категорий
-                    fetchInterests();
-                    break;
-                case ERROR:
-                    Log.e(logTag, result.error);
-            }
-        });
-    }
-
-    private int categoriesLoaded;
-    private void fetchInterests() {
-        categoryInterestMap.clear();
-        categoriesLoaded = 0;
-
-        for (CategoryDTO category : categories) {
-            bubblesRepository.fetchInterestsByCategory(category.getId(), result -> {
-                if (result.status == Result.Status.SUCCESS) {
-                    categoryInterestMap.put(category, result.data);
-                } else {
-                    Log.e(Constants.GLOBAL_LOG_TAG + "INTEREST", result.error);
-                    categoryInterestMap.put(category, List.of());
-                }
-
-                categoriesLoaded++;
-                if (categoriesLoaded == categories.size()) {
-                    renderCategoryBlocks();
-                }
-            });
-        }
-    }
-
     private void renderCategoryBlocks() {
         container.removeAllViews();
         interestLayouts.clear();
 
-        for (Map.Entry<CategoryDTO, List<InterestDTO>> entry : categoryInterestMap.entrySet()) {
+        DatingAppApplication app = (DatingAppApplication) requireActivity().getApplication();
+
+        for (Map.Entry<CategoryDTO, List<InterestDTO>> entry : app.getCachedInterestsByCategory().entrySet()) {
             CategoryDTO category = entry.getKey();
             List<InterestDTO> interests = entry.getValue();
 
