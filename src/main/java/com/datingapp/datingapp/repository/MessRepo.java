@@ -22,6 +22,7 @@ public interface MessRepo extends JpaRepository<Message, Integer>{
 SELECT m.pk_message, m.message, m.time, m.pk_user, m.pk_chat
 FROM "message" m INNER JOIN "group_chat" c ON m.pk_chat = c.pk_group_chat
 WHERE m.pk_chat = :chatId
+ORDER BY m.time DESC
 LIMIT :limit OFFSET :offset;
 """, nativeQuery = true)
     List<Message> findChatMessages(@Param("chatId") int chatId,

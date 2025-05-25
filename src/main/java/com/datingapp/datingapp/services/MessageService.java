@@ -30,6 +30,6 @@ public class MessageService {
         for (Message message : messages) {
             messageDTO.add(new MessageDTO(message));
         }
-        return messageDTO;
+        return messageDTO.reversed();
     }
 }
