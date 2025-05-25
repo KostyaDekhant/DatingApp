@@ -13,7 +13,7 @@ import java.sql.Timestamp;
 @Service
 @RequiredArgsConstructor
 public class DislikeService {
-    private DislikeRepo dislikeRepo;
+    private final DislikeRepo dislikeRepo;
 
     private static final Logger log = LoggerFactory.getLogger(DislikeService.class);
     @Transactional
