@@ -5,4 +5,5 @@
     <item name="TAG_LIKER_ID" type="id"/>
     <item name="TAG_CARDLIKE_VIEW" type="id"/>
     <item name="TAG_CARDLIKE_ID" type="id"/>
+    <item name="TAG_INTEREST_OBJECT" type="id" />
 </resources>

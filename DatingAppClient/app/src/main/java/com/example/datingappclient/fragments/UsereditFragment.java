@@ -42,6 +42,7 @@ import com.example.datingappclient.R;
 import com.example.datingappclient.constants.Constants;
 import com.example.datingappclient.model.dto.CategoryDTO;
 import com.example.datingappclient.model.dto.CompanyInfoDTO;
+import com.example.datingappclient.model.dto.InterestDTO;
 import com.example.datingappclient.model.dto.PictureDTO;
 import com.example.datingappclient.model.dto.UserDTO;
 import com.example.datingappclient.model.UserImage;
@@ -60,10 +61,12 @@ import com.google.android.material.textfield.TextInputEditText;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 
 import lombok.Setter;
 
@@ -144,10 +147,10 @@ public class UsereditFragment extends Fragment {
         MaterialButton addButton = activityView.findViewById(R.id.add_interests_button);
 
         addButton.setOnClickListener(v -> {
-            InterestSelectionDialogFragment dialog = new InterestSelectionDialogFragment(categoryInterestMap);
+            InterestSelectionDialogFragment dialog = new InterestSelectionDialogFragment(extractSelectedInterests());
             dialog.setCallback(selected -> {
                 // обработка добавленных интересов
-                for (UserInterestDTO interest : selected) {
+                for (InterestDTO interest : selected) {
                     // можно сохранить на сервер или в локальную переменную
                     // и затем обновить UI
                 }
@@ -155,6 +158,17 @@ public class UsereditFragment extends Fragment {
             });
             dialog.show(getParentFragmentManager(), "InterestSelectionDialog");
         });
+    }
+
+    private Set<InterestDTO> extractSelectedInterests() {
+        Set<InterestDTO> result = new HashSet<>();
+        for (Map.Entry<CategoryDTO, List<UserInterestDTO>> entry : categoryInterestMap.entrySet()) {
+            int categoryId = entry.getKey().getId();
+            for (UserInterestDTO userInterest : entry.getValue()) {
+                result.add(new InterestDTO(userInterest.getId(), categoryId, userInterest.getName()));
+            }
+        }
+        return result;
     }
 
     private void setupImagePicker() {
