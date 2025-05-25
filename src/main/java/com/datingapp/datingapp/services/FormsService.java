@@ -43,7 +43,7 @@ public class FormsService {
             throw new FormsNotFoundException("Анкеты не найдены для userId=" + userId);
         }
         List<FormDTO> result = new ArrayList<>();
-        for(int i = 0; i < limit; i++) {
+        for(int i = 0; i < users.size(); i++) {
             Integer userIdForm = (Integer) users.get(i)[0];
             result.add(getFormsFromObject(userRepo.findQuestUsersById(userIdForm)));
         }
