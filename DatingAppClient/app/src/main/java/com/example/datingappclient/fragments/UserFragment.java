@@ -15,16 +15,23 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.viewpager2.widget.ViewPager2;
 
+import com.example.datingappclient.DatingAppApplication;
 import com.example.datingappclient.R;
 import com.example.datingappclient.constants.Constants;
+import com.example.datingappclient.model.dto.CategoryDTO;
 import com.example.datingappclient.model.dto.UserDTO;
+import com.example.datingappclient.model.dto.UserInterestDTO;
 import com.example.datingappclient.recyclerViews.UserImageAdapter;
+import com.example.datingappclient.retrofit.repository.BubblesRepository;
 import com.example.datingappclient.retrofit.repository.ImageRepository;
 import com.example.datingappclient.retrofit.repository.UserRepository;
 import com.example.datingappclient.utils.ImageUtils;
+import com.google.android.flexbox.FlexboxLayout;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
+
+import java.util.List;
 
 public class UserFragment extends Fragment implements View.OnClickListener {
 
@@ -97,6 +104,8 @@ public class UserFragment extends Fragment implements View.OnClickListener {
             setUserinfo();
             setProfileImage();
         }
+
+        getUserBubbles();
 
         return activityView;
     }
@@ -172,8 +181,51 @@ public class UserFragment extends Fragment implements View.OnClickListener {
         });
     }
 
-    private void getUserBubbles(int userId) {
+    private void getUserBubbles() {
+        // TODO: загрузить и отобразить только часть баблов (сколько влезет), а последний должен быть с текстом "+n", где n - кол-во оставшихся
+        String logTag = Constants.GLOBAL_LOG_TAG + "USER BUBBLES";
 
+        BubblesRepository repository = new BubblesRepository(requireContext());
+        repository.fetchUserInterests(user.getId(), result -> {
+            switch (result.status) {
+                case SUCCESS:
+                    renderLimitedBubbles(result.data);
+                    break;
+                case ERROR:
+                    Log.e(logTag, result.error);
+                    break;
+                case EMPTY:
+                    Log.i(logTag, "Нет интересов у пользователя");
+                    break;
+            }
+        });
+    }
+
+    private void renderLimitedBubbles(List<UserInterestDTO> interests) {
+        FlexboxLayout bubbleContainer = activityView.findViewById(R.id.interests_container); // FlexboxLayout или LinearLayout
+        bubbleContainer.removeAllViews();
+
+        LayoutInflater inflater = LayoutInflater.from(requireContext());
+
+        int maxVisible = 4; // можно 3, в зависимости от дизайна
+        int count = 0;
+
+        for (UserInterestDTO interest : interests) {
+            if (count >= maxVisible) break;
+
+            View chip = inflater.inflate(R.layout.item_profile_interest_bubble, bubbleContainer, false);
+            ((TextView) chip.findViewById(R.id.text_interest)).setText(interest.getName());
+            bubbleContainer.addView(chip);
+
+            count++;
+        }
+
+        int hiddenCount = interests.size() - maxVisible;
+        if (hiddenCount > 0) {
+            View chip = inflater.inflate(R.layout.item_profile_interest_bubble, bubbleContainer, false);
+            ((TextView) chip.findViewById(R.id.text_interest)).setText("+" + hiddenCount);
+            bubbleContainer.addView(chip);
+        }
     }
 
     @SuppressLint("SetTextI18n")

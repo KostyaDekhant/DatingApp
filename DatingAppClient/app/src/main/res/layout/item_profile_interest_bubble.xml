@@ -4,6 +4,8 @@
     android:theme="@style/Theme.DatingAppClient.Default"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
+    android:layout_marginEnd="5dp"
+    android:layout_marginBottom="5dp"
     app:cardBackgroundColor="?attr/bubbleProfileBackgroundColor"
     app:cardCornerRadius="100dp">
 
@@ -11,8 +13,8 @@
         android:id="@+id/text_interest"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:padding="5dp"
-        android:layout_margin="5dp"
+        android:layout_marginHorizontal="10dp"
+        android:layout_marginVertical="4dp"
         android:textColor="?attr/bubbleProfileTextColor"
         android:textSize="?attr/bubbleTextSize" />
 </androidx.cardview.widget.CardView>

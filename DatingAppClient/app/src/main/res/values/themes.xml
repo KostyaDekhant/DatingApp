@@ -22,7 +22,7 @@
         <item name="bubbleBackgroundColor">@color/black</item>
         <item name="bubbleTextColor">@color/white</item>
 
-        <item name="bubbleProfileBackgroundColor">@color/green</item>
+        <item name="bubbleProfileBackgroundColor">@color/green_transparent</item>
         <item name="bubbleProfileTextColor">@color/white</item>
 
         <item name="bubbleTextSize"> 16sp </item>

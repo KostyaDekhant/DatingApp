@@ -55,7 +55,7 @@
             android:textSize="?attr/textSizeLarge"
             android:textColor="?attr/textColorMainReverse"
 
-            app:layout_constraintBottom_toTopOf="@+id/bubbles_container"
+            app:layout_constraintBottom_toTopOf="@+id/interests_container"
             app:layout_constraintStart_toStartOf="parent" />
 
         <TextView
@@ -69,20 +69,21 @@
             android:textSize="?attr/textSizeLarge"
             android:textColor="?attr/textColorMainReverse"
 
-            app:layout_constraintBottom_toTopOf="@+id/bubbles_container"
+            app:layout_constraintBottom_toTopOf="@+id/interests_container"
             app:layout_constraintStart_toEndOf="@+id/username_label" />
 
         <!-- Баблы -->
+
         <com.google.android.flexbox.FlexboxLayout
-            android:id="@+id/bubbles_container"
+            android:id="@+id/interests_container"
             android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_marginStart="16dp"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toStartOf="@id/edit_button"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="16dp"
+            android:paddingTop="5dp"
+            app:flexWrap="wrap"
+            app:justifyContent="flex_start"
             app:layout_constraintBottom_toTopOf="@id/description_label"
-            app:layout_constraintHorizontal_bias="0"
-            />
+            app:layout_constraintStart_toStartOf="parent" />
 
         <!-- Описание -->
         <TextView

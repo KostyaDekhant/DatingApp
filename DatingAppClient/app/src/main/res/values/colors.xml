@@ -3,6 +3,7 @@
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
     <color name="green">#FF21A038</color>
+    <color name="green_transparent">#AA21A038</color>
     <color name="darkgray_transparent">#88262626</color> <!-- gray with 50% opacity-->
     <color name="gray">#AAAAAA</color> <!-- gray with 50% opacity-->
     <color name="yellow">#FFFFF700</color>

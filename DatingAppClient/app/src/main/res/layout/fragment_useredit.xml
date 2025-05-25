@@ -238,6 +238,7 @@
             app:layout_constraintTop_toBottomOf="@id/categories_container"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"/>
+
         <!-- START OF USER COMPANY SEGMENT -->
         <TextView
             android:id="@+id/usercompany_label"
