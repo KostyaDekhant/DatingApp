@@ -29,14 +29,15 @@ LIMIT :limit OFFSET :offset;
                                    @Param("offset") int offset);
 
     @Query(value= """
-SELECT m.message
+SELECT *
 FROM message m
 WHERE pk_chat = :chatId
 ORDER BY time DESC
 LIMIT 1;
 """, nativeQuery = true)
-    String getLastMessage(int chatId);
+    Message getLastMessage(int chatId);
 
+    Message getMessageByPkMessage(Integer integer);
 }
 
 

@@ -66,7 +66,7 @@ public class ChatController {
         return ResponseEntity.ok(groupChatDtos);
     }
 
-    @GetMapping("/group_chats/{chatId}")
+    @GetMapping("/group_chats/{chat_id}")
     public ResponseEntity<GroupChatDto> getChat(@PathVariable("chatId") int chatId, @RequestParam("userId") int userId) {
         GroupChatDto groupChatDto = chatService.getChat(chatId, userId);
         return ResponseEntity.ok(groupChatDto);

@@ -135,8 +135,10 @@ public class ChatService {
 ////                        }
 //                    }
                 }
-                String message = messRepo.getLastMessage(pkGroupChat);
-                GroupChatDto groupChatDto = new GroupChatDto(pkGroupChat, name,null, message);
+                //String message = messRepo.getLastMessage(pkGroupChat);
+                Message lastMessage = messRepo.getLastMessage(pkGroupChat);
+                MessageDTO lastMessageDTO = new MessageDTO(lastMessage);
+                GroupChatDto groupChatDto = new GroupChatDto(pkGroupChat, name,null, lastMessageDTO);
                 groupChatDtos.add(groupChatDto);
             }
             //log.info("Полученные чаты: " + groupChatDtos.toString());
@@ -162,8 +164,10 @@ public class ChatService {
     @Transactional
     public GroupChatDto getChat(int chatId, int userId){
         try {
+            log.info("Попытка получить чат с id " + chatId + " для пользователя c id " + userId);
             GroupChatDto groupChatDtos =
                     getChatsInfoFromObject(groupChatRepo.getGroupChatByID(chatId, userId)).getFirst();
+            log.info("Полученный чат: " + groupChatDtos);
             return groupChatDtos;
         }
         catch (Exception e) {
@@ -196,7 +200,11 @@ public class ChatService {
             GroupChatDto groupChatDto = new GroupChatDto();
             groupChatDto.setPkGroupChat((((Number) chatInfo[0]).intValue()));
             groupChatDto.setName((String) chatInfo[1]);
-            groupChatDto.setLastMessage(((String) chatInfo[2]));
+            if(chatInfo[2] != null) {
+                Message lastMessage = messRepo.getMessageByPkMessage((Integer) chatInfo[2]);
+                MessageDTO lastMessageDTO = new MessageDTO(lastMessage);
+                groupChatDto.setLastMessage(lastMessageDTO);
+            }
             groupChatDtos.add(groupChatDto);
         }
         return groupChatDtos;

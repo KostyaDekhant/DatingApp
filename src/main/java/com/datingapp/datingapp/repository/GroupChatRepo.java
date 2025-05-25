@@ -23,7 +23,7 @@ gc.pk_group_chat       AS chat_id,
 WHEN gc.is_group THEN gc.name
 ELSE other_user.name
 END                     AS chat_name,
-lm.message              AS last_message,
+lm.pk_message              AS last_message,
   COALESCE(lm.time, gc.created_at)            AS last_time
 FROM
 chat_member cm
@@ -34,7 +34,7 @@ AND cm.user_id = :userId
 
   -- LATERAL-джоин: для каждой строки вытягиваем последнее сообщение
 LEFT JOIN LATERAL (
-        SELECT m.message, m.time
+        SELECT m.pk_message, m.time
                 FROM message m
                 WHERE m.pk_chat = gc.pk_group_chat
                 ORDER BY m.time DESC
@@ -174,7 +174,7 @@ gc.pk_group_chat       AS chat_id,
 WHEN gc.is_group THEN gc.name
 ELSE other_user.name
 END                     AS chat_name,
-lm.message              AS last_message,
+lm.pk_message              AS last_message,
   COALESCE(lm.time, gc.created_at)            AS last_time
 FROM
 chat_member cm
@@ -185,7 +185,7 @@ AND cm.chat_id = :chatId
 
   -- LATERAL-джоин: для каждой строки вытягиваем последнее сообщение
 LEFT JOIN LATERAL (
-        SELECT m.message, m.time
+        SELECT m.pk_message, m.time
                 FROM message m
                 WHERE m.pk_chat = gc.pk_group_chat
                 ORDER BY m.time DESC
