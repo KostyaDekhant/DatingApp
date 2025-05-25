@@ -62,10 +62,10 @@ public class ChatsHolder extends RecyclerView.ViewHolder {
     }
 
     public void setLastMessage(MessageDTO message, boolean isGroup, int userId) {
+        if (message == null) return;
+
         String prefix = "";
-        if (message != null && !isGroup &&
-                message.getSenderId() == userId)
-            prefix = "Вы: ";
+        if (!isGroup && message.getSenderId() == userId) prefix = "Вы: ";
         lastMessage.setText(prefix + message.getMessage());
         lastMessageTime.setText(DateUtils.timestampToHoursMins(message.getSendtime()));
         lastMessageTime.setVisibility(VISIBLE);

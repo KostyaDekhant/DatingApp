@@ -60,7 +60,8 @@ public class ChatsAdapter extends ListAdapter<ChatDTO, ChatsHolder> {
         holder.setReceiverID(chat.getId());
 
         // render init last message
-        holder.lastMessage.setText(chat.getLastMessage());
+        boolean isGroup = chat.getChatInfo() != null && chat.getChatInfo().getIsGroup();
+        holder.setLastMessage(chat.getLastMessage(), isGroup, senderId);
 
         // Установить изображение, если оно есть
         if (chat.getImage() == null) {
@@ -74,7 +75,6 @@ public class ChatsAdapter extends ListAdapter<ChatDTO, ChatsHolder> {
         viewModel.getMessageStream(chat.getId())
                 .observe(lifecycleOwner, message -> {
                     Log.d(logTag, message.toString());
-                    boolean isGroup = chat.getChatInfo() != null && chat.getChatInfo().getIsGroup();
                     holder.setLastMessage(message, isGroup, senderId);
                 });
 

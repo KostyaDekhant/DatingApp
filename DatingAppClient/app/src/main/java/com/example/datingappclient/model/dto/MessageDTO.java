@@ -2,6 +2,7 @@ package com.example.datingappclient.model.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.google.gson.annotations.SerializedName;
 
 import java.sql.Timestamp;
 
@@ -23,7 +24,7 @@ public class MessageDTO {
     private String message;
 
     @JsonProperty("time")
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX")
+    @SerializedName("time")
     private Timestamp sendtime;
 
     @JsonProperty("pk_user")

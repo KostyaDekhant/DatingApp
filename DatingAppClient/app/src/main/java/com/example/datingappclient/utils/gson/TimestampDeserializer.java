@@ -12,6 +12,6 @@ public class TimestampDeserializer implements JsonDeserializer<Timestamp> {
     @Override
     public Timestamp deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
         long timestamp = json.getAsLong(); // Получаем значение временной метки в миллисекундах
-        return new Timestamp(timestamp); // Возвращаем объект Timestamp
+        return new Timestamp(timestamp);   // Возвращаем объект Timestamp
     }
 }

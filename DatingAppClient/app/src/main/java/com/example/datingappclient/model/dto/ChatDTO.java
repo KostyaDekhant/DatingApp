@@ -27,7 +27,7 @@ public class ChatDTO {
 
     @JsonProperty("last_message")
     @SerializedName("last_message")
-    private String lastMessage;
+    private MessageDTO lastMessage;
 
     @JsonProperty("image")
     @SerializedName("image")
