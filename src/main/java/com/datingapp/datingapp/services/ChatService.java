@@ -339,7 +339,7 @@ public class ChatService {
                 log.info("Обновлена фотография для чата с id " + chatId);
             }
 
-            if (!name.isEmpty()) {
+            if (name != null && !name.isEmpty()) {
                 groupChatRepo.updateGroupChatName(chatId, userId, name);
                 log.info("Обновлено название для чата с id " + chatId);
             }
