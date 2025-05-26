@@ -80,9 +80,26 @@ public class ChatController {
         return ResponseEntity.ok().build();
     }
 
-    public void broadcastUpdateChatEvent(int chatId) {
-        //GroupChatDto groupChatDto = chatService.getChat(chatId,userId);
+    @PostMapping("/group_chats/create")
+    public int addChat(@RequestBody GroupChatDto groupChatDto) {
+        log.info("Добавление чата");
+        GroupChat groupChat = chatService.saveGroupChat(groupChatDto);
+        int chatId = groupChat.getPkGroupChat();
+        groupChatDto.setPkGroupChat(chatId);
+        for(ChatMemberDTO chatMember : groupChatDto.getGroupChatInfoDto().getMembers()){
+            broadcastCreateChatEvent(chatMember.getUserId(), chatId);
+        }
+        return chatId;
+    }
 
+    public void broadcastCreateChatEvent(int userId, int chatId) {
+        simpMessagingTemplate.convertAndSend(
+                "/topic/group_chats/"+userId+"/created",
+                chatId
+        );
+    }
+
+    public void broadcastUpdateChatEvent(int chatId) {
         simpMessagingTemplate.convertAndSend(
                 "/topic/group_chats/"+chatId+"/updated",
                 true
