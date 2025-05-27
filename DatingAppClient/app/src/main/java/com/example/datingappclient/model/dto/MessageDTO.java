@@ -15,7 +15,6 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
-@EqualsAndHashCode
 public class MessageDTO {
     @JsonProperty("pk_message")
     private int id;
@@ -49,5 +48,25 @@ public class MessageDTO {
                 ", senderId=" + senderId +
                 ", chatId=" + chatId +
                 '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof MessageDTO messageDTO)) return false;
+
+        return id == messageDTO.id &&
+                senderId == messageDTO.senderId &&
+                chatId == messageDTO.chatId &&
+                message.equals(messageDTO.message); // Без сравнения sendtime
+    }
+
+    @Override
+    public int hashCode() {
+        int result = Integer.hashCode(id);
+        result = 31 * result + message.hashCode();
+        result = 31 * result + Integer.hashCode(senderId);
+        result = 31 * result + Integer.hashCode(chatId);
+        return result;
     }
 }

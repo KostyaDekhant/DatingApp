@@ -188,7 +188,7 @@ public class EditChatMembersFragment extends Fragment {
 
     private void getChatMembers() {
         String logTag = Constants.GLOBAL_LOG_TAG + "GET CHAT MEMBERS";
-        chatsRepository.fetchChatMembers(userId, chatId, result -> {
+        chatsRepository.fetchPossibleChatMembers(userId, chatId, result -> {
             switch (result.status) {
                 case SUCCESS:
                     Log.i(logTag, "Получено " + result.data.size() + " участников чата!");

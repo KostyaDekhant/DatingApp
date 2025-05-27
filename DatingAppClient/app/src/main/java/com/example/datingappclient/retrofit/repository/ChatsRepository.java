@@ -91,8 +91,8 @@ public class ChatsRepository {
         });
     }
 
-    public void fetchChatMembers(int userId, int chatId, ResultCallback<List<ChatMemberDTO>> callback) {
-        chatsAPI.getChatMembers(userId, chatId).enqueue(new Callback<>() {
+    public void fetchPossibleChatMembers(int userId, int chatId, ResultCallback<List<ChatMemberDTO>> callback) {
+        chatsAPI.getPossibleChatMembers(userId, chatId).enqueue(new Callback<>() {
             @Override
             public void onResponse(Call<List<ChatMemberDTO>> call, Response<List<ChatMemberDTO>> response) {
                 if (response.isSuccessful()) {
@@ -195,10 +195,9 @@ public class ChatsRepository {
     }
 
     public void updateChat(ChatPayloadInfo payloadInfo, ResultCallback<Void> callback) {
-        chatsAPI.updateChat(payloadInfo).enqueue(new Callback<Void>() {
+        chatsAPI.updateChat(payloadInfo).enqueue(new Callback<>() {
             @Override
             public void onResponse(Call<Void> call, Response<Void> response) {
-
                 if (response.isSuccessful()) callback.onResult(Result.success(null));
                 else callback.onResult(Result.error("Ошибка при изменении чата:"  + payloadInfo.getChatId() + " " + response.code() + " " + response.message()));
             }

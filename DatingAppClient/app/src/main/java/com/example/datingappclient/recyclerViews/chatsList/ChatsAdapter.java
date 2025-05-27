@@ -22,6 +22,8 @@ import com.example.datingappclient.utils.DateUtils;
 import com.example.datingappclient.utils.ImageUtils;
 import com.example.datingappclient.viewmodels.ChatsViewModel;
 
+import java.util.Objects;
+
 public class ChatsAdapter extends ListAdapter<ChatDTO, ChatsHolder> {
 
     public interface OnChatClickListener {
@@ -55,6 +57,7 @@ public class ChatsAdapter extends ListAdapter<ChatDTO, ChatsHolder> {
     @Override
     public void onBindViewHolder(@NonNull ChatsHolder holder, int position) {
         ChatDTO chat = getItem(position);
+        Log.d("ChatDebug", "Чат отображен " + chat.getId());
 
         holder.username.setText(chat.getName());
         holder.setReceiverID(chat.getId());
@@ -132,8 +135,7 @@ public class ChatsAdapter extends ListAdapter<ChatDTO, ChatsHolder> {
     private static final DiffUtil.ItemCallback<ChatDTO> DIFF_CALLBACK = new DiffUtil.ItemCallback<>() {
         @Override
         public boolean areItemsTheSame(@NonNull ChatDTO oldItem, @NonNull ChatDTO newItem) {
-            //return false;
-            return oldItem.getId().equals(newItem.getId());
+            return Objects.equals(oldItem.getId(), newItem.getId());
         }
 
         @Override

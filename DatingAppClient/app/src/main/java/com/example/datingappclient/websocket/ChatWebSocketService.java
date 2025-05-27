@@ -266,7 +266,7 @@ public class ChatWebSocketService {
 
     @SuppressLint("CheckResult")
     public void sendCreateGroupChat(ChatDTO chat, ResultCallback<Void> callback) {
-        String logTag = Constants.GLOBAL_LOG_TAG + "CREATE CHAT";
+        String logTag = Constants.GLOBAL_LOG_TAG + "STOMP CREATE CHAT";
         try {
             String json = objectMapper.writeValueAsString(parseChat(chat));
             Log.d(logTag, json);
@@ -294,17 +294,18 @@ public class ChatWebSocketService {
     }
 
     @SuppressLint("CheckResult")
-    public Disposable subscribeToChatCreatedEvents(int userId, ResultCallback<ChatDTO> callback) {
+    public Disposable subscribeToChatCreatedEvents(int userId, ResultCallback<Integer> callback) {
         String logTag = Constants.GLOBAL_LOG_TAG + "STOMP CHAT CREATED";
         return stompClient.topic("/topic/group_chats/" + userId + "/created")
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(message -> {
                     try {
-                        ChatDTO chat = objectMapper.readValue(message.getPayload(), ChatDTO.class);
-                        updatedChatStream.postValue(chat);
-                        Log.i(logTag, "Создание чата: " + chat.getId());
-                        callback.onResult(Result.success(chat));
+                        //ChatDTO chat = objectMapper.readValue(message.getPayload(), ChatDTO.class);
+                        //updatedChatStream.postValue(chat);
+                        int chatId = objectMapper.readValue(message.getPayload(), Integer.class);
+                        Log.i(logTag, "Ивент создания чата: " + chatId);
+                        callback.onResult(Result.success(chatId));
                     } catch (Exception e) {
                         Log.e(logTag, "Ошибка при создании чата", e);
                         callback.onResult(Result.error("Ошибка при создании чата " + e));

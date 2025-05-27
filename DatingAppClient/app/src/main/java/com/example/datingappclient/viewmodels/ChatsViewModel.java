@@ -1,9 +1,12 @@
 package com.example.datingappclient.viewmodels;
 
+import android.util.Log;
+
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
+import com.example.datingappclient.constants.Constants;
 import com.example.datingappclient.model.ChatPayloadInfo;
 import com.example.datingappclient.model.dto.ChatDTO;
 import com.example.datingappclient.model.dto.MessageDTO;
@@ -13,6 +16,7 @@ import com.example.datingappclient.websocket.ChatWebSocketService;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import io.reactivex.disposables.Disposable;
 
@@ -54,32 +58,35 @@ public class ChatsViewModel extends ViewModel {
         webSocketService.subscribeToChatCreatedEvents(userId,result -> {});
     }
 
-    public Disposable subscribeToCreateChat(int userId, ResultCallback<ChatDTO> callback) {
-        return webSocketService.subscribeToChatCreatedEvents(userId,callback);
+    public Disposable subscribeToCreateChat(int userId, ResultCallback<Integer> callback) {
+        return webSocketService.subscribeToChatCreatedEvents(userId, callback);
     }
 
 
     public void updateOrAddChat(ChatDTO chat) {
+        String logTag = Constants.GLOBAL_LOG_TAG + "UPDATE/ADD CHAT";
         List<ChatDTO> currentList = chats.getValue();
-        if (currentList == null) {
-            currentList = new ArrayList<>();
-        }
+        if (currentList == null) currentList = new ArrayList<>();
 
+        List<ChatDTO> newList = new ArrayList<>(currentList);
         boolean updated = false;
-        for (int i = 0; i < currentList.size(); i++) {
-            ChatDTO existingChat = currentList.get(i);
-            if (existingChat.getId().equals(chat.getId())) {
-                currentList.set(i, chat); // заменили
+
+        for (int i = 0; i < newList.size(); i++) {
+            if (Objects.equals(newList.get(i).getId(), chat.getId())) {
+                newList.set(i, chat);
                 updated = true;
                 break;
             }
         }
 
         if (!updated) {
-            currentList.add(0, chat); // новый чат в начало
+            Log.d(logTag, "Новый чат добавлен! " + chat.getId());
+            newList.add(0, chat);
+        } else {
+            Log.d(logTag, "Обновлен существующий чат " + chat.getId());
         }
 
-        chats.setValue(currentList);
+        chats.setValue(newList); // триггер для submitList
     }
 
     /**
@@ -144,7 +151,7 @@ public class ChatsViewModel extends ViewModel {
         if (currentList == null || currentList.isEmpty()) return;
 
         List<ChatDTO> updatedList = new ArrayList<>(currentList);
-        updatedList.removeIf(c -> c.getId().equals(chatId));
+        updatedList.removeIf(c -> c.getId() == chatId);
 
         chats.setValue(updatedList);
     }

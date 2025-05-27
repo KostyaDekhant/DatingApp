@@ -39,6 +39,7 @@ import com.example.datingappclient.DatingAppApplication;
 import com.example.datingappclient.R;
 import com.example.datingappclient.activity.ChatActivity;
 import com.example.datingappclient.constants.Constants;
+import com.example.datingappclient.model.ChatPayloadInfo;
 import com.example.datingappclient.model.dto.ChatDTO;
 import com.example.datingappclient.model.dto.ChatMemberDTO;
 import com.example.datingappclient.model.dto.ChatInfoDTO;
@@ -171,7 +172,6 @@ public class CreateGroupChatFragment extends Fragment {
                 imm.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0);
             }
 
-
             content.setVisibility(GONE);
             progressBar.setVisibility(VISIBLE);
 
@@ -183,19 +183,19 @@ public class CreateGroupChatFragment extends Fragment {
         // get chat name
         String chatname = chatnameInput.getText().toString();
         // get chat image
-        byte[] chatImage = ImageUtils.convertBitmapToPrimitiveBytes(selectedAvatarBitmap);
+        //byte[] chatImage = ImageUtils.convertBitmapToPrimitiveBytes(selectedAvatarBitmap);
 
         // add user to chat members
-        chatMembers.add(new ChatMemberDTO(user.getName(), user.getId(), ImageUtils.convertBitmapToPrimitiveBytes(user.getMainImage()), false, true));
+        chatMembers.add(new ChatMemberDTO(null, user.getId(), null, false, true));
 
         // create group chat
         ChatInfoDTO groupChatInfo = new ChatInfoDTO(user.getId(), null, chatMembers, true);
-        return new ChatDTO(null, chatname, null, chatImage, groupChatInfo);
+        return new ChatDTO(null, chatname, null, null, groupChatInfo);
     }
 
     private void createGroupChat(ChatDTO chat) {
         // Подписка на создание чата
-        AtomicReference<Disposable> disposableRef = new AtomicReference<>();
+        /*AtomicReference<Disposable> disposableRef = new AtomicReference<>();
         disposableCreate = chatsViewModel.subscribeToCreateChat(user.getId(), result1 -> {
             Toast.makeText(requireContext(), "Чат успешно создан!", Toast.LENGTH_LONG).show();
 
@@ -209,10 +209,47 @@ public class CreateGroupChatFragment extends Fragment {
             if (d != null && !d.isDisposed()) {
                 d.dispose();
             }
-        }); // сразу отписываемся
+        }); // сразу отписываемся*/
 
         // Создание чата
-        chatsViewModel.createChat(chat, result -> {});
+        String logTag = Constants.GLOBAL_LOG_TAG + "CREATE CHAT";
+        chatsRepository.createChat(chat, result -> {
+            switch (result.status) {
+                case SUCCESS:
+                    Log.i(logTag, "Чат успешно создан. chatId=" + result.data);
+                    Toast.makeText(requireContext(), "Чат создан!", Toast.LENGTH_LONG).show();
+                    // set id
+                    chat.setId(result.data);
+                    // update chat image
+                    updateChatImage(chat.getId());
+                    byte[] chatImage = ImageUtils.convertBitmapToPrimitiveBytes(selectedAvatarBitmap);
+                    chat.setImage(chatImage);
+                    // go to chat
+                    goToChatActivity(chat);
+                    break;
+                case ERROR:
+                    Log.e(logTag, result.error);
+                    Toast.makeText(requireContext(), "Ошибка при создании чата!", Toast.LENGTH_LONG).show();
+                    break;
+            }
+        });
+    }
+
+    private void updateChatImage(int chatId) {
+        String logTag = Constants.GLOBAL_LOG_TAG + "UPDATE CHAT IMAGE";
+        byte[] chatImage = ImageUtils.convertBitmapToPrimitiveBytes(selectedAvatarBitmap);
+        ChatPayloadInfo updateChatImage = new ChatPayloadInfo(chatId, user.getId(), null, chatImage);
+        chatsRepository.updateChat(updateChatImage, result -> {
+            switch (result.status) {
+                case SUCCESS:
+                    Log.i(logTag,"Изображение чата успешно обновлено после создания!" + chatId);
+                    break;
+                case ERROR:
+                    Log.e(logTag, result.error);
+                    Toast.makeText(requireContext(), "Не удалось установить изображение чата!", Toast.LENGTH_LONG).show();
+                    break;
+            }
+        });
     }
 
     public final ActivityResultLauncher<Intent> chatLauncher =

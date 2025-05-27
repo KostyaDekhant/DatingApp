@@ -32,9 +32,9 @@ public interface ChatsAPI {
     Call<List<ChatDTO>> getChatsAvatars(@Query("userId") int userId, @Query("chatIds") List<Integer> chatIds);
 
     @GET("api/group_chats/{chatId}/users/{userId}")
-    Call<List<ChatMemberDTO>> getChatMembers(@Path("userId") int userId, @Path("chatId") int chatId);
+    Call<List<ChatMemberDTO>> getPossibleChatMembers(@Path("userId") int userId, @Path("chatId") int chatId);
 
-    @POST("/api/group_chats")
+    @POST("/api/group_chats/create")
     Call<Integer> createGroupChat(@Body ChatDTO chat);
 
     @POST("/api/group_chats/{chatId}/users/{userId}")

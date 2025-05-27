@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.gson.annotations.JsonAdapter;
 import com.google.gson.annotations.SerializedName;
 
+import java.util.Arrays;
 import java.util.Objects;
 
 import lombok.AllArgsConstructor;
@@ -47,12 +48,15 @@ public class ChatDTO {
         if (!(o instanceof ChatDTO chat)) return false;
         return Objects.equals(id, chat.id) &&
                 Objects.equals(name, chat.name) &&
-                Objects.equals(lastMessage, chat.lastMessage);
+                Objects.equals(lastMessage, chat.lastMessage) &&
+                Arrays.equals(image, chat.getImage());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, name, lastMessage);
+        int result = Objects.hash(id, name, lastMessage, chatInfo);
+        result = 31 * result + java.util.Arrays.hashCode(image); // ← тоже добавляем image
+        return result;
     }
 
 }

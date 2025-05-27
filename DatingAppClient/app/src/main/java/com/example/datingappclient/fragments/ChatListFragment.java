@@ -19,6 +19,7 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.recyclerview.widget.SimpleItemAnimator;
 
 import com.example.datingappclient.DatingAppApplication;
 import com.example.datingappclient.activity.ChatActivity;
@@ -29,6 +30,7 @@ import com.example.datingappclient.model.dto.ChatInfoDTO;
 import com.example.datingappclient.model.dto.UserDTO;
 import com.example.datingappclient.recyclerViews.chatsList.ChatsAdapter;
 import com.example.datingappclient.retrofit.repository.ChatsRepository;
+import com.example.datingappclient.retrofit.wrapper.Result;
 import com.example.datingappclient.viewmodels.ChatsViewModel;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
@@ -118,9 +120,39 @@ public class ChatListFragment extends Fragment {
         chatsAdapter = new ChatsAdapter(this::startChatActivity, chatsViewModel, user.getId(), requireContext(), getViewLifecycleOwner());
         recyclerView.setAdapter(chatsAdapter);
 
-        chatsViewModel.getChats().observe(getViewLifecycleOwner(), chatList -> chatsAdapter.submitList(new ArrayList<>(chatList)));
-        chatsViewModel.subscribeToCreateChat(user.getId());
+        LinearLayoutManager layoutManager = (LinearLayoutManager) recyclerView.getLayoutManager();
 
+        chatsViewModel.getChats().observe(getViewLifecycleOwner(), chatList -> {
+            if (layoutManager.findFirstVisibleItemPosition() == 0) {
+                chatsAdapter.submitList(chatList, () -> recyclerView.scrollToPosition(0));
+            } else {
+                chatsAdapter.submitList(chatList);
+            }
+        });
+
+        chatsViewModel.subscribeToCreateChat(user.getId(), result -> {
+           if (result.status == Result.Status.SUCCESS) {
+               getUserChat(result.data, chat -> chatsViewModel.updateOrAddChat(chat));
+           }
+        });
+    }
+
+    public interface ChatCallback {
+        void onLoaded(ChatDTO chat);
+    }
+    private void getUserChat(int chatId, ChatCallback callback) {
+        String logTag = Constants.GLOBAL_LOG_TAG + "GET USER CHAT";
+        chatsRepository.fetchChat(chatId, user.getId(), result -> {
+            switch (result.status) {
+                case SUCCESS:
+                    Log.i(logTag, "Получен чат: " + result.data.toString());
+                    callback.onLoaded(result.data);
+                    break;
+                case ERROR:
+                    Log.e(logTag, result.error);
+                    break;
+            }
+        });
     }
 
     private void setupRepository() {
