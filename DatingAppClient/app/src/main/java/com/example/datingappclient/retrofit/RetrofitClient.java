@@ -58,7 +58,9 @@ public class RetrofitClient {
                     .setLenient()
                     .create();
 
-            OkHttpClient client = new OkHttpClient.Builder().build(); // без интерсепторов и аутентификаторов
+            OkHttpClient client = new OkHttpClient.Builder()
+                    .addInterceptor(new RetryInterceptor(3, 5000))
+                    .build();
 
             authRetrofit = new Retrofit.Builder()
                     .baseUrl(BASE_URL)
@@ -86,7 +88,8 @@ public class RetrofitClient {
             Request request = requestBuilder.build();
             return chain.proceed(request);
         })
-                .authenticator(new TokenAuthenticator(authRepository, tokenManager));
+                .authenticator(new TokenAuthenticator(authRepository, tokenManager))
+                .addInterceptor(new RetryInterceptor(3, 5000));
 
         return httpClient.build();
     }
