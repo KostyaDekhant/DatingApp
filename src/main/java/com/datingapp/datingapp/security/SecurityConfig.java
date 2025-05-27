@@ -55,7 +55,13 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(
                         SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/auth/**").permitAll()  // эндпойнты логина/регистрации
+                        .requestMatchers(
+                                "/auth/**",
+                                "/swagger-ui/**",
+                                "/v3/api-docs/**",
+                                "/swagger-resources/**",
+                                "/webjars/**"
+                        ).permitAll()  // эндпойнты логина/регистрации
                         .requestMatchers(HttpMethod.GET, "/datingapp").permitAll()     // <— handshake
                         .requestMatchers(HttpMethod.GET, "/datingapp/**").permitAll()
                         .anyRequest().authenticated()
