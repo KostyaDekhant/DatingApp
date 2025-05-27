@@ -5,6 +5,7 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.GravityCompat;
@@ -12,11 +13,13 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
 
 import com.example.datingappclient.DatingAppApplication;
 import com.example.datingappclient.R;
 import com.example.datingappclient.constants.Constants;
 import com.example.datingappclient.fragments.ChatListFragment;
+import com.example.datingappclient.fragments.ContactsFragment;
 import com.example.datingappclient.fragments.GroupChatMembersFragment;
 import com.example.datingappclient.fragments.LikeFragment;
 import com.example.datingappclient.fragments.FormsFragment;
@@ -26,10 +29,13 @@ import com.example.datingappclient.model.dto.CategoryDTO;
 import com.example.datingappclient.model.dto.InterestDTO;
 import com.example.datingappclient.model.dto.UserDTO;
 import com.example.datingappclient.retrofit.repository.BubblesRepository;
+import com.example.datingappclient.retrofit.repository.ChatsRepository;
 import com.example.datingappclient.retrofit.wrapper.Result;
+import com.example.datingappclient.viewmodels.ChatMembersViewModel;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationView;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -39,6 +45,7 @@ public class MainActivity extends AppCompatActivity {
 
     /* === Repositories === */
     private BubblesRepository bubblesRepository;
+    private ChatsRepository chatsRepository;
 
     /* === Android Object === */
     private DrawerLayout drawerLayout;
@@ -58,11 +65,16 @@ public class MainActivity extends AppCompatActivity {
             return insets;
         });
 
+        // get all interests
         bubblesRepository = new BubblesRepository(this);
         fetchCategories();
 
         AuthResponse authResponse = getIntent().getParcelableExtra("authResponse");
         userId = authResponse.getUserId();
+
+        // Получить контакты
+        chatsRepository = new ChatsRepository(this);
+        getUserContacts();
 
         // создания инстанса пользователя
         if (user == null) user = new UserDTO(userId);
@@ -74,6 +86,43 @@ public class MainActivity extends AppCompatActivity {
         setupSlideMenu();
 
         getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, UserFragment.getInstance(user, true)).commit();
+    }
+
+    private void getUserContacts() {
+        DatingAppApplication app = (DatingAppApplication) getApplication();
+
+        if (app.getContactsViewModel() == null) {
+            ChatMembersViewModel contacts = new ViewModelProvider(this, new ViewModelProvider.Factory() {
+                @NonNull
+                @Override
+                public <T extends androidx.lifecycle.ViewModel> T create(@NonNull Class<T> modelClass) {
+                    return (T) new ChatMembersViewModel();
+                }
+            }).get(ChatMembersViewModel.class);
+
+            app.setContactsViewModel(contacts);
+            contacts.setChatMembers(new ArrayList<>());
+
+            fetchContacts(contacts);
+        }
+    }
+
+    private void fetchContacts(ChatMembersViewModel contacts) {
+        String logTag = Constants.GLOBAL_LOG_TAG + "GET USER CONTACTS";
+        chatsRepository.fetchPossibleChatMembers(userId, 0, result -> {
+            switch (result.status) {
+                case SUCCESS:
+                    Log.i(logTag, "Получено " + result.data.size() + " контактов юзера " + userId);
+                    contacts.setChatMembers(result.data);
+                    break;
+                case ERROR:
+                    Log.e(logTag, result.error);
+                    break;
+                case EMPTY:
+                    Log.d(logTag, "Контакты юзера " + userId + " не найдены");
+                    break;
+            }
+        });
     }
 
     private void setupBottomnavMenu() {
@@ -109,7 +158,13 @@ public class MainActivity extends AppCompatActivity {
                 getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, GroupChatMembersFragment.newInstance(user))
                         .addToBackStack(null)
                         .commit();
-            } else if (id == R.id.nav_logout) {
+            }
+            else if (id == R.id.nav_contacts) {
+                getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, ContactsFragment.newInstance(userId))
+                        .addToBackStack(null)
+                        .commit();
+            }
+            else if (id == R.id.nav_logout) {
                 logout();
             }
             drawerLayout.closeDrawer(GravityCompat.START);

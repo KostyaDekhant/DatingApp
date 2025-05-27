@@ -19,6 +19,7 @@ import lombok.Setter;
 public class DatingAppApplication extends Application {
     private ChatsViewModel chatsViewModel;
     private ChatMembersViewModel chatMembersViewModel;
+    private ChatMembersViewModel contactsViewModel;
 
     // Кеш интересов и категорий
     private List<CategoryDTO> cachedCategories;
