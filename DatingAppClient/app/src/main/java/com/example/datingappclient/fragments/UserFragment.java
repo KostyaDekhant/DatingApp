@@ -15,10 +15,8 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.viewpager2.widget.ViewPager2;
 
-import com.example.datingappclient.DatingAppApplication;
 import com.example.datingappclient.R;
 import com.example.datingappclient.constants.Constants;
-import com.example.datingappclient.model.dto.CategoryDTO;
 import com.example.datingappclient.model.dto.UserDTO;
 import com.example.datingappclient.model.dto.UserInterestDTO;
 import com.example.datingappclient.recyclerViews.UserImageAdapter;

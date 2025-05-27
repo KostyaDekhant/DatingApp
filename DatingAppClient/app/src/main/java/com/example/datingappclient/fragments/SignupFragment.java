@@ -1,8 +1,5 @@
 package com.example.datingappclient.fragments;
 
-import static android.content.Context.MODE_PRIVATE;
-
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import androidx.fragment.app.Fragment;
 
@@ -14,6 +11,7 @@ import android.widget.Toast;
 import android.app.DatePickerDialog;
 import android.text.InputType;
 
+import com.example.datingappclient.TokenManager;
 import com.example.datingappclient.constants.Constants;
 import com.example.datingappclient.model.dto.AuthDTO;
 import com.example.datingappclient.model.AuthResponse;
@@ -164,12 +162,10 @@ public class SignupFragment extends Fragment {
         String logTag = Constants.GLOBAL_LOG_TAG + "SIGNUP. Update user";
         Log.d(logTag, userDTO.toString());
 
-        // Сохраням токен и id в хранилище
-        SharedPreferences prefs = requireActivity().getSharedPreferences("auth", MODE_PRIVATE);
-        prefs.edit()
-                .putString("token", authResponse.getToken()) // или .putString("token", ...)
-                .putInt("userId", authResponse.getUserId()) // или .putString("token", ...)
-                .apply();
+        TokenManager tokenManager = new TokenManager(requireActivity().getApplicationContext());
+        tokenManager.saveAccessToken(authResponse.getToken());
+        tokenManager.saveUserId(authResponse.getUserId());
+        tokenManager.saveRefreshToken(authResponse.getRefreshToken());
 
         userRepository.updateUser(userDTO, result -> {
             switch (result.status) {

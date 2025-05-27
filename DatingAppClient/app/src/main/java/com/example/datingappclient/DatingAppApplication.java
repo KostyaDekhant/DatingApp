@@ -24,4 +24,13 @@ public class DatingAppApplication extends Application {
     // Кеш интересов и категорий
     private List<CategoryDTO> cachedCategories;
     private Map<CategoryDTO, List<InterestDTO>> cachedInterestsByCategory = new HashMap<>();
+
+    @Getter
+    private static TokenManager tokenManager;
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        tokenManager = new TokenManager(this);
+    }
 }

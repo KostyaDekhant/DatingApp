@@ -2,7 +2,6 @@ package com.example.datingappclient.fragments;
 
 import static android.content.Context.MODE_PRIVATE;
 
-import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.util.Log;
@@ -22,6 +21,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.datingappclient.DatingAppApplication;
 import com.example.datingappclient.R;
+import com.example.datingappclient.TokenManager;
 import com.example.datingappclient.constants.Constants;
 import com.example.datingappclient.model.AuthResponse;
 import com.example.datingappclient.model.dto.ChatDTO;
@@ -268,9 +268,9 @@ public class ChatFragment extends Fragment {
     }
 
     private AuthResponse getAuthResponse() {
-        SharedPreferences prefs = requireContext().getSharedPreferences("auth", MODE_PRIVATE);
-        int userId = prefs.getInt("userId", -1);
-        String token = prefs.getString("token", null);
+        TokenManager tokenManager = new TokenManager(requireActivity().getApplicationContext());
+        String token = tokenManager.getAccessToken();
+        int userId = tokenManager.getUserId();
         return new AuthResponse(token, null, userId);
     }
 }

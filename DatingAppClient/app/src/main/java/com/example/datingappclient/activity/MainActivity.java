@@ -1,7 +1,6 @@
 package com.example.datingappclient.activity;
 
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 
@@ -17,6 +16,7 @@ import androidx.lifecycle.ViewModelProvider;
 
 import com.example.datingappclient.DatingAppApplication;
 import com.example.datingappclient.R;
+import com.example.datingappclient.TokenManager;
 import com.example.datingappclient.constants.Constants;
 import com.example.datingappclient.fragments.ChatListFragment;
 import com.example.datingappclient.fragments.ContactsFragment;
@@ -173,8 +173,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void logout() {
-        SharedPreferences prefs = getSharedPreferences("auth", MODE_PRIVATE);
-        prefs.edit().clear().apply();
+        TokenManager tokenManager = new TokenManager(getApplicationContext());
+        tokenManager.clearTokens();
 
         Intent intent = new Intent(MainActivity.this, AuthActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK); // очистить стек
