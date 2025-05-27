@@ -6,24 +6,37 @@
     android:layout_height="match_parent"
     tools:context=".fragments.FormsFragment">
 
-    <View
-        android:id="@+id/swipe_overlay"
+    <FrameLayout
+        android:id="@+id/mainContent"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:visibility="gone" />
+        android:layout_height="match_parent">
 
-    <com.yuyakaido.android.cardstackview.CardStackView
-        android:id="@+id/profile_image"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        <View
+            android:id="@+id/swipe_overlay"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:visibility="gone" />
 
-    <TextView
-        android:id="@+id/empty_text"
+        <com.yuyakaido.android.cardstackview.CardStackView
+            android:id="@+id/profile_image"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+        <TextView
+            android:id="@+id/empty_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="Анкеты для вас пока отстуствуют."
+            android:textStyle="bold"
+            android:textSize="?attr/textSizeLarge"
+            android:visibility="gone" />
+    </FrameLayout>
+
+    <ProgressBar
+        android:id="@+id/progressBar"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:text="Анкеты для вас пока отстуствуют."
-        android:textStyle="bold"
-        android:textSize="?attr/textSizeLarge"
-        android:visibility="gone" />
+        android:visibility="gone"/>
 </FrameLayout>

@@ -12,6 +12,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Interpolator;
 import android.widget.FrameLayout;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -59,6 +60,7 @@ public class FormsFragment extends Fragment {
     private View swipeOverlay;
     private CardStackView cardStackView;
     private CardStackLayoutManager layoutManager;
+    private ProgressBar progressBar;
 
     /* === Other === */
     private int userId;         // ID юзера приложения
@@ -86,6 +88,9 @@ public class FormsFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         activityView = inflater.inflate(R.layout.fragment_search, container, false);
 
+        progressBar = activityView.findViewById(R.id.progressBar);
+        progressBar.setVisibility(VISIBLE);
+
         // Извлекаем clientId из аргументов из формы
         if (getArguments() != null) {
             userId = getArguments().getInt(ARG_CLIENT_ID);
@@ -101,7 +106,7 @@ public class FormsFragment extends Fragment {
         setupCardStackView();
 
         // Загружаем первую анкету при создании фрагмента
-        getForms(() -> {});
+        getForms(() -> progressBar.setVisibility(GONE));
 
         return activityView;
     }
