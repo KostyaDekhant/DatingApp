@@ -29,7 +29,6 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
 import androidx.core.view.MenuProvider;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -40,12 +39,16 @@ import com.example.datingappclient.model.dto.ChatDTO;
 import com.example.datingappclient.model.dto.ChatMemberDTO;
 import com.example.datingappclient.recyclerViews.ChatMembersAdapter;
 import com.example.datingappclient.retrofit.repository.ChatsRepository;
+import com.example.datingappclient.retrofit.wrapper.Result;
 import com.example.datingappclient.utils.ImageUtils;
 import com.example.datingappclient.viewmodels.ChatMembersViewModel;
 import com.example.datingappclient.viewmodels.ChatsViewModel;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.atomic.AtomicReference;
+
+import io.reactivex.disposables.Disposable;
 
 public class ChatPropertiesFragment extends Fragment {
 
@@ -65,6 +68,8 @@ public class ChatPropertiesFragment extends Fragment {
 
     private ChatsViewModel chatsViewModel;
 
+    private Disposable disposable;
+
     private ChatPropertiesFragment() {}
 
     public static ChatPropertiesFragment newInstance (Integer user, ChatDTO chat) {
@@ -83,7 +88,8 @@ public class ChatPropertiesFragment extends Fragment {
 
         setupRepository();
         setupToolbar();
-        setChatInfo();
+        setChatName();
+        setChatImage();
         setChatMembers();
         setAddMembersButton();
 
@@ -97,9 +103,41 @@ public class ChatPropertiesFragment extends Fragment {
         recyclerView.setAdapter(adapter);
 
         viewModel.getChatMembers().observe(getViewLifecycleOwner(), list -> adapter.submitList(list));
+
+        subscribeToUpdateChat();
+
         setChatOwner();
 
         return activityView;
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        if (disposable != null) disposable.dispose();
+    }
+
+    private void subscribeToUpdateChat() {
+         disposable = chatsViewModel.subscribeToUpdateChat(chat.getId(), result -> {
+            AtomicReference<Disposable> disposableRef = new AtomicReference<>();
+
+            chatsRepository.fetchChat(chat.getId(), userId, chatResult -> {
+                if (chatResult.status != Result.Status.SUCCESS || chatResult.data == null) return;
+
+                chat.setName(chatResult.data.getName());
+                setChatName();
+
+                chatsRepository.fetchChatAvatar(userId, chat.getId(), avatarResult -> {
+                    chat.setImage(avatarResult.data.get(0).getImage());
+                    setChatImage();
+                    // Отписываемся от обновления, если нужно
+                    Disposable d = disposableRef.get();
+                    if (d != null && !d.isDisposed()) {
+                        d.dispose();
+                    }
+                });
+            });
+        });
     }
 
     private void setChatOwner() {
@@ -138,16 +176,18 @@ public class ChatPropertiesFragment extends Fragment {
         recyclerView.setLayoutManager(linearLayoutManager);
     }
 
-    private void setChatInfo() {
+    private void setChatImage() {
         ImageView imageView = activityView.findViewById(R.id.avatarImageView);
-        TextView chatname = activityView.findViewById(R.id.chatnameTextView);
 
         if (chat.getImage() != null) {
             Bitmap image = ImageUtils.getCroppedBitmap(ImageUtils.convertPrimitiveByteToBitmap(chat.getImage()));
             imageView.setImageBitmap(image);
             imageView.setPadding(0,0,0, 0);
         }
+    }
 
+    private void setChatName() {
+        TextView chatname = activityView.findViewById(R.id.chatnameTextView);
         chatname.setText(chat.getName());
     }
 
