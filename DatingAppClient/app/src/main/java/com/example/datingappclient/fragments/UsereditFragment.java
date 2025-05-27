@@ -58,6 +58,7 @@ import com.example.datingappclient.utils.ImageUtils;
 import com.google.android.flexbox.FlexboxLayout;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.chip.Chip;
+import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.textfield.TextInputEditText;
 
 import java.io.IOException;
@@ -419,6 +420,15 @@ public class UsereditFragment extends Fragment {
             updateUserFromForm(form);
             updateUser();
             updateUserCompanyInfo();
+
+            NavigationView navView = requireActivity().findViewById(R.id.nav_view);
+            View headerView = navView.getHeaderView(0);
+
+            TextView nameTextView = headerView.findViewById(R.id.nav_header_name);
+            ImageView avatarImageView = headerView.findViewById(R.id.nav_header_avatar);
+
+            nameTextView.setText(user.getName());
+            avatarImageView.setImageBitmap(ImageUtils.getCroppedBitmap(user.getMainImage()));
 
             UserFragment userFragment = UserFragment.getInstance(user, false);
             getParentFragmentManager().beginTransaction().replace(R.id.fragment_container, userFragment).commit();

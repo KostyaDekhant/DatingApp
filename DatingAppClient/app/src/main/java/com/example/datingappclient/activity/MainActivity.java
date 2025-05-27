@@ -4,8 +4,12 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.media.Image;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -40,6 +44,7 @@ import com.example.datingappclient.retrofit.repository.BubblesRepository;
 import com.example.datingappclient.retrofit.repository.ChatsRepository;
 import com.example.datingappclient.retrofit.repository.TokenRepository;
 import com.example.datingappclient.retrofit.wrapper.Result;
+import com.example.datingappclient.utils.ImageUtils;
 import com.example.datingappclient.viewmodels.ChatMembersViewModel;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationView;
@@ -48,6 +53,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class MainActivity extends AppCompatActivity {
@@ -174,6 +180,14 @@ public class MainActivity extends AppCompatActivity {
 
     private void setupSlideMenu() {
         NavigationView navView = findViewById(R.id.nav_view);
+        View headerView = navView.getHeaderView(0);
+
+        TextView nameTextView = headerView.findViewById(R.id.nav_header_name);
+        ImageView avatarImageView = headerView.findViewById(R.id.nav_header_avatar);
+
+        nameTextView.setText(user.getName());
+        avatarImageView.setImageBitmap(ImageUtils.getCroppedBitmap(user.getMainImage()));
+
 
         navView.setNavigationItemSelectedListener(item -> {
             int id = item.getItemId();
@@ -245,7 +259,6 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
-
 
     private void fetchInterests() {
         DatingAppApplication app = (DatingAppApplication) getApplication();
