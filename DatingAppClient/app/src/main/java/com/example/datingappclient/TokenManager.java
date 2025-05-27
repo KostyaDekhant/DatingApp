@@ -54,9 +54,7 @@ public class TokenManager {
 
     public void clearTokens() {
         sharedPreferences.edit()
-                .remove(KEY_ACCESS_TOKEN)
-                .remove(KEY_REFRESH_TOKEN)
-                .remove(KEY_USER_ID)
+                .clear()
                 .apply();
     }
 }

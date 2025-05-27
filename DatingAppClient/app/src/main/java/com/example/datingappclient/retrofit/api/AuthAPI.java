@@ -20,5 +20,5 @@ public interface AuthAPI {
     Call<AuthResponse> refreshToken(@Body TokenRefreshRequest tokenRefreshRequest);
 
     @POST("/logout")
-    Call<?> logout(@Query("userId") Integer userId);
+    Call<Void> logout(@Query("userId") Integer userId);
 }

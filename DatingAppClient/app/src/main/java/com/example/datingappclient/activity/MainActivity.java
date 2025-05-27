@@ -3,6 +3,7 @@ package com.example.datingappclient.activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -28,8 +29,12 @@ import com.example.datingappclient.model.AuthResponse;
 import com.example.datingappclient.model.dto.CategoryDTO;
 import com.example.datingappclient.model.dto.InterestDTO;
 import com.example.datingappclient.model.dto.UserDTO;
+import com.example.datingappclient.retrofit.RetrofitClient;
+import com.example.datingappclient.retrofit.api.AuthAPI;
+import com.example.datingappclient.retrofit.repository.AuthRepository;
 import com.example.datingappclient.retrofit.repository.BubblesRepository;
 import com.example.datingappclient.retrofit.repository.ChatsRepository;
+import com.example.datingappclient.retrofit.repository.TokenRepository;
 import com.example.datingappclient.retrofit.wrapper.Result;
 import com.example.datingappclient.viewmodels.ChatMembersViewModel;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
@@ -174,11 +179,23 @@ public class MainActivity extends AppCompatActivity {
 
     private void logout() {
         TokenManager tokenManager = new TokenManager(getApplicationContext());
-        tokenManager.clearTokens();
 
-        Intent intent = new Intent(MainActivity.this, AuthActivity.class);
-        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK); // очистить стек
-        startActivity(intent);
+        String logTag = Constants.GLOBAL_LOG_TAG + "LOGOUT";
+
+        AuthRepository authRepository = new AuthRepository(RetrofitClient.getAuthOnlyClient(this).create(AuthAPI.class));
+        authRepository.logout(tokenManager.getUserId(), result -> {
+            if (result.status == Result.Status.SUCCESS) {
+                Log.i(logTag, "Success");
+                tokenManager.clearTokens();
+                Intent intent = new Intent(MainActivity.this, AuthActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK); // очистить стек
+                startActivity(intent);
+            }
+            else {
+                Log.e(logTag, result.error);
+                Toast.makeText(this, "Ошибка выхода!", Toast.LENGTH_LONG).show();
+            }
+        });
     }
 
     private void fetchCategories() {

@@ -50,4 +50,19 @@ public class AuthRepository {
         }
     }
 
+    public void logout(int userId, ResultCallback<Void> callback) {
+        authAPI.logout(userId).enqueue(new Callback<>() {
+            @Override
+            public void onResponse(Call<Void> call, Response<Void> response) {
+                if (response.isSuccessful()) callback.onResult(Result.success(null));
+                else callback.onResult(Result.error("Ошибка выхода из аккаунта!"));
+            }
+
+            @Override
+            public void onFailure(Call<Void> call, Throwable throwable) {
+                callback.onResult(Result.error("Ошибка сети или передачи данных! " + throwable.getMessage()));
+            }
+        });
+    }
+
 }
