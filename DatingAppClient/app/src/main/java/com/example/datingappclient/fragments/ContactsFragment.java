@@ -73,24 +73,6 @@ public class ContactsFragment extends Fragment {
         return activityView;
     }
 
-    private void fetchContacts(ChatMembersViewModel contacts) {
-        String logTag = Constants.GLOBAL_LOG_TAG + "GET USER CONTACTS";
-        chatsRepository.fetchPossibleChatMembers(userId, 0, result -> {
-            switch (result.status) {
-                case SUCCESS:
-                    Log.i(logTag, "Получено " + result.data.size() + " контактов юзера " + userId);
-                    contacts.setChatMembers(result.data);
-                    break;
-                case ERROR:
-                    Log.e(logTag, result.error);
-                    break;
-                case EMPTY:
-                    Log.d(logTag, "Контакты юзера " + userId + " не найдены");
-                    break;
-            }
-        });
-    }
-
     private void setupRecyclerView() {
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(requireContext());
         linearLayoutManager.setStackFromEnd(true);
@@ -103,12 +85,6 @@ public class ContactsFragment extends Fragment {
 
     private void setupToolbar() {
         Toolbar toolbar = activityView.findViewById(R.id.toolbar);
-
-        // Убираем заголовок
-        AppCompatActivity activity = (AppCompatActivity) requireActivity();
-        activity.setSupportActionBar(toolbar);
-        activity.getSupportActionBar().setDisplayShowTitleEnabled(false);
-
         // Кнопка возврата
         toolbar.setNavigationOnClickListener(view -> getParentFragmentManager().popBackStack());
     }
