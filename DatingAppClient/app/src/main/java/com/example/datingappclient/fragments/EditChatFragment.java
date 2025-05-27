@@ -214,8 +214,6 @@ public class EditChatFragment extends Fragment {
         chat.setName(chatNameInput.getText().toString());
         if (avatarIsChanged && selectedAvatarBitmap != null) chat.setImage(ImageUtils.convertBitmapToPrimitiveBytes(selectedAvatarBitmap));
 
-        chatsViewModel.checkConnection();
-
         byte[] chatImage = avatarIsChanged ? chat.getImage() : null;
         ChatPayloadInfo payloadInfo = new ChatPayloadInfo(chat.getId(), userId, chat.getName(), chatImage);
 

@@ -1,18 +1,27 @@
 package com.example.datingappclient.websocket;
 
 import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.util.Log;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
+import com.example.datingappclient.DatingAppApplication;
+import com.example.datingappclient.TokenManager;
 import com.example.datingappclient.constants.Constants;
+import com.example.datingappclient.model.AuthResponse;
 import com.example.datingappclient.model.ChatPayloadInfo;
+import com.example.datingappclient.model.TokenRefreshRequest;
 import com.example.datingappclient.model.dto.ChatDTO;
 import com.example.datingappclient.model.dto.ChatInfoDTO;
 import com.example.datingappclient.model.dto.ChatMemberDTO;
 import com.example.datingappclient.model.dto.HistoryDTO;
 import com.example.datingappclient.model.dto.MessageDTO;
+import com.example.datingappclient.retrofit.RetrofitClient;
+import com.example.datingappclient.retrofit.api.AuthAPI;
+import com.example.datingappclient.retrofit.repository.AuthRepository;
 import com.example.datingappclient.retrofit.wrapper.Result;
 import com.example.datingappclient.retrofit.wrapper.ResultCallback;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -27,6 +36,7 @@ import java.util.Map;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
+import retrofit2.Retrofit;
 import ua.naiksoftware.stomp.Stomp;
 import ua.naiksoftware.stomp.StompClient;
 import ua.naiksoftware.stomp.dto.StompHeader;
@@ -36,7 +46,6 @@ public class ChatWebSocketService {
     private final StompClient stompClient;
     private final Map<Integer, MutableLiveData<MessageDTO>> messageStreams = new HashMap<>();
     private final MutableLiveData<Integer> deletedChatIdStream = new MutableLiveData<>();
-    private final MutableLiveData<ChatDTO> updatedChatStream = new MutableLiveData<>();
     private final List<MessageDTO> fullHistory = new ArrayList<>();
     private final ObjectMapper objectMapper = new ObjectMapper();
     private int offset;
@@ -63,8 +72,16 @@ public class ChatWebSocketService {
                             Log.d(logTag, "Соединение открыто");
                             break;
                         case ERROR:
-                            Log.e(logTag, "Ошибка соединения ", event.getException());
-                            reconnect(token);
+                            Throwable exception = event.getException();
+                            Log.e(logTag, "Ошибка соединения ", exception);
+
+                            if (exception != null && isTokenExpiredError(exception)) {
+                                Log.w(logTag, "Возможен истёкший токен — пробуем обновить");
+                                refreshTokenAndReconnect();
+                            } else {
+                                Log.e(logTag, "Неизвестная ошибка — повторное подключение");
+                                reconnect(token);
+                            }
                             break;
                         case CLOSED:
                             Log.d(logTag, "Соединение закрыто " + event.getMessage());
@@ -73,6 +90,11 @@ public class ChatWebSocketService {
                 }, throwable -> {
                     Log.e(logTag, "Ошибка в lifecycle подписке", throwable);
                 });
+    }
+
+    private boolean isTokenExpiredError(Throwable e) {
+        String msg = e.getMessage();
+        return msg != null && (msg.contains("401") || msg.toLowerCase().contains("unauthorized"));
     }
 
     private void reconnect(String token) {
@@ -317,11 +339,40 @@ public class ChatWebSocketService {
         return deletedChatIdStream;
     }
 
-    public LiveData<ChatDTO> getUpdatedChatStream() {
-        return updatedChatStream;
+    private void refreshTokenAndReconnect() {
+        String logTag = Constants.GLOBAL_LOG_TAG + "TOKEN REFRESH (STOMP)";
+        TokenManager tokenManager = new TokenManager(DatingAppApplication.getInstance().getApplicationContext());
+
+        String refreshToken = tokenManager.getRefreshToken();
+        if (refreshToken == null) {
+            Log.w(logTag, "Нет refresh token — переход на логин");
+            forceLogout();
+            return;
+        }
+
+        Retrofit authRetrofit = RetrofitClient.getAuthOnlyClient(DatingAppApplication.getInstance().getApplicationContext());
+        AuthRepository authRepository = new AuthRepository(authRetrofit.create(AuthAPI.class));
+
+        new Thread(() -> {
+            try {
+                AuthResponse authResponse = authRepository.refreshTokenSync(new TokenRefreshRequest(refreshToken));
+                tokenManager.saveAccessToken(authResponse.getToken());
+
+                Log.i(logTag, "Токен обновлён, переподключаем STOMP");
+                reconnect(authResponse.getToken());
+
+            } catch (IOException e) {
+                Log.e(logTag, "Ошибка при обновлении токена", e);
+                forceLogout();
+            }
+        }).start();
     }
 
-    public void checkConnection() {
+    private void forceLogout() {
+        TokenManager tokenManager = new TokenManager(DatingAppApplication.getInstance().getApplicationContext());
+        tokenManager.clearTokens();
 
+        Intent intent = new Intent("com.example.datingappclient.LOGOUT");
+        LocalBroadcastManager.getInstance(DatingAppApplication.getInstance().getApplicationContext()).sendBroadcast(intent);
     }
 }

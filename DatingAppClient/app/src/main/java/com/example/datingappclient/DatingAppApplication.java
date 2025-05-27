@@ -32,5 +32,9 @@ public class DatingAppApplication extends Application {
     public void onCreate() {
         super.onCreate();
         tokenManager = new TokenManager(this);
+        instance = this;
     }
+
+    @Getter
+    private static DatingAppApplication instance;
 }

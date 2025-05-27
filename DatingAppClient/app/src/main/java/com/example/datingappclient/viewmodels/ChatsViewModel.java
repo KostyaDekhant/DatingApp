@@ -177,8 +177,4 @@ public class ChatsViewModel extends ViewModel {
         webSocketService.sendDeleteGroupChat(chatId, userId, callback);
         deleteChat(chatId);
     }
-
-    public void checkConnection() {
-        webSocketService.checkConnection();
-    }
 }

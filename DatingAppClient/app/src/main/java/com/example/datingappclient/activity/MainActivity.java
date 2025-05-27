@@ -1,6 +1,9 @@
 package com.example.datingappclient.activity;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.Toast;
@@ -14,6 +17,7 @@ import androidx.core.view.WindowInsetsCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.example.datingappclient.DatingAppApplication;
 import com.example.datingappclient.R;
@@ -70,6 +74,8 @@ public class MainActivity extends AppCompatActivity {
             return insets;
         });
 
+        receiveLogoutSignal();
+
         // get all interests
         bubblesRepository = new BubblesRepository(this);
         fetchCategories();
@@ -91,6 +97,18 @@ public class MainActivity extends AppCompatActivity {
         setupSlideMenu();
 
         getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, UserFragment.getInstance(user, true)).commit();
+    }
+
+    private void receiveLogoutSignal() {
+        LocalBroadcastManager.getInstance(this).registerReceiver(new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                Intent i = new Intent(MainActivity.this, AuthActivity.class);
+                i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                startActivity(i);
+                finish();
+            }
+        }, new IntentFilter("com.example.datingappclient.LOGOUT"));
     }
 
     private void getUserContacts() {
