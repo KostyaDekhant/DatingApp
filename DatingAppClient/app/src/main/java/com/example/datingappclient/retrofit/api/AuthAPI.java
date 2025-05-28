@@ -19,6 +19,6 @@ public interface AuthAPI {
     @POST("/auth/refresh")
     Call<AuthResponse> refreshToken(@Body TokenRefreshRequest tokenRefreshRequest);
 
-    @POST("/logout")
+    @POST("/auth/logout")
     Call<Void> logout(@Query("userId") Integer userId);
 }
