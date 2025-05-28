@@ -6,6 +6,7 @@ import com.datingapp.datingapp.entity.UserCompanyInfo;
 import com.datingapp.datingapp.entity.UserCompanyInfoDto;
 import com.datingapp.datingapp.entity.UserDTO;
 import com.datingapp.datingapp.exception.UserAlreadyExistsExceptions;
+import com.datingapp.datingapp.exception.UserCompanyInfoNotExistsException;
 import com.datingapp.datingapp.exception.UserExceptionsWithCode;
 import com.datingapp.datingapp.exception.UserNotExistsExceptions;
 import com.datingapp.datingapp.repository.UserCompanyRepo;
@@ -14,6 +15,7 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -127,17 +129,15 @@ public class UserService {
     }
 
     @Transactional
-    public UserCompanyInfoDto getUserCompanyInfo(int id) throws RuntimeException {
-        try{
-            Optional<UserCompanyInfo> userCompanyInfo = userCompanyRepo.findByPkUser(id);
-            if(!userCompanyInfo.isPresent())
-                return null;
-            return new UserCompanyInfoDto(userCompanyInfo.get());
+    public UserCompanyInfoDto getUserCompanyInfo(int id) throws UserNotExistsExceptions, UserCompanyInfoNotExistsException {
+        if(!userRepo.existsById(id)){
+            throw new UserNotExistsExceptions("Нет пользователя с id" + id);
         }
-        catch(Exception e){
-            log.error(e.getMessage());
-            throw new RuntimeException("Непредвиденная ошибка: " + e.getMessage());
+        Optional<UserCompanyInfo> userCompanyInfo = userCompanyRepo.findByPkUser(id);
+        if(userCompanyInfo.isEmpty()) {
+            throw new UserCompanyInfoNotExistsException("Нет информации о компании для пользователя с id " + id);
         }
+        return new UserCompanyInfoDto(userCompanyInfo.get());
     }
 
     @Transactional
@@ -156,11 +156,9 @@ public class UserService {
 
     @Transactional
     public void upsertUserCompanyInfo(int userId, UserCompanyInfoDto dto) {
-        // 1) Попробовать найти уже существующую запись
         Optional<UserCompanyInfo> existing = userCompanyRepo.findByPkUser(userId);
 
         UserCompanyInfo uci = existing
-                // 2а) если есть — обновляем поля
                 .map(e -> {
                     e.setDolzh(dto.getDolzh());
                     e.setCompanyName(dto.getCompanyName());
@@ -168,7 +166,6 @@ public class UserService {
                     e.setOffice(dto.getOffice());
                     return e;
                 })
-                // 2б) если нет — создаём новую
                 .orElseGet(() -> {
                     UserCompanyInfo n = new UserCompanyInfo();
                     n.setPkUser(userId);
@@ -179,7 +176,6 @@ public class UserService {
                     return n;
                 });
 
-        // 3) Сохраняем (у JPA save понимает и insert, и update)
         userCompanyRepo.save(uci);
     }
 

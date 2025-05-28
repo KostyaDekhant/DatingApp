@@ -4,6 +4,7 @@ import com.datingapp.datingapp.entity.User;
 import com.datingapp.datingapp.entity.UserCompanyInfo;
 import com.datingapp.datingapp.entity.UserCompanyInfoDto;
 import com.datingapp.datingapp.entity.UserDTO;
+import com.datingapp.datingapp.exception.UserCompanyInfoNotExistsException;
 import com.datingapp.datingapp.exception.UserExceptionsWithCode;
 import com.datingapp.datingapp.exception.UserNotExistsExceptions;
 import com.datingapp.datingapp.services.PasswordService;
@@ -11,6 +12,7 @@ import com.datingapp.datingapp.services.UserService;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -69,7 +71,8 @@ public class UserController {
     }
 
     @GetMapping("/users/{id}/company_info")
-    public ResponseEntity<UserCompanyInfoDto> getUserCompanyInfo(@PathVariable int id) throws RuntimeException {
+    public ResponseEntity<UserCompanyInfoDto> getUserCompanyInfo(@PathVariable int id) throws UserNotExistsExceptions,
+            UserCompanyInfoNotExistsException {
         UserCompanyInfoDto userCompanyInfo = userService.getUserCompanyInfo(id);
         return ResponseEntity.ok(userCompanyInfo);
     }

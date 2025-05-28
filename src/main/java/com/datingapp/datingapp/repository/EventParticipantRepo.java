@@ -4,6 +4,7 @@ import com.datingapp.datingapp.entity.ChatMemberDTO;
 import com.datingapp.datingapp.entity.Event;
 import com.datingapp.datingapp.entity.EventParticipant;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
@@ -27,4 +28,10 @@ SELECT EXISTS(
 select e.user_id from event_participant e where e.event_id = :pkEvent
 """, nativeQuery = true)
     List<Integer> findUserIdByEventId(Integer pkEvent);
+
+    @Modifying
+    @Query(value = """
+delete from event_participant e where e.event_id = :eventId and e.user_id = :memberId
+""", nativeQuery = true)
+    Integer deleteByUserIdAndEventId(Integer memberId, Integer eventId);
 }

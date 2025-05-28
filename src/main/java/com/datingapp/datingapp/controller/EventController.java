@@ -2,7 +2,6 @@ package com.datingapp.datingapp.controller;
 
 import com.datingapp.datingapp.entity.EventDTO;
 import com.datingapp.datingapp.entity.EventParams;
-import com.datingapp.datingapp.services.DislikeService;
 import com.datingapp.datingapp.services.EventService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -31,6 +30,14 @@ public class EventController {
     public ResponseEntity<Void> addMembersToEvent(@RequestParam("memberIds") List<Integer> memberIds,
                                                   @RequestParam("eventId") Integer eventId){
         eventService.addMembersToEvent(memberIds, eventId);
+        return ResponseEntity.ok().build();
+    }
+
+    @DeleteMapping("/users")
+    public ResponseEntity<Void> removeMembersToEvent(@RequestParam("memberIds") List<Integer> memberIds,
+                                                     @RequestParam("eventId") Integer eventId,
+                                                     @RequestParam("organizerId") Integer organizerId){
+        eventService.removeMembersFromEvent(memberIds, eventId, organizerId);
         return ResponseEntity.ok().build();
     }
 }

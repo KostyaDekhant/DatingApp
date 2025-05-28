@@ -1,6 +1,5 @@
 package com.datingapp.datingapp.services;
 
-import com.datingapp.datingapp.controller.MessageController;
 import com.datingapp.datingapp.entity.*;
 import com.datingapp.datingapp.repository.EventParticipantRepo;
 import com.datingapp.datingapp.repository.EventRepo;
@@ -9,9 +8,9 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.dao.PermissionDeniedDataAccessException;
 import org.springframework.stereotype.Service;
 
-import java.sql.Time;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
@@ -77,6 +76,7 @@ public class EventService {
             throw new RuntimeException("Ошибка при создании мероприятия: " + e.getMessage());
         }
     }
+
     @Transactional
     public void addMembersToEvent(List<Integer> membersId, Integer eventId) {
         try{
@@ -96,6 +96,27 @@ public class EventService {
         }
         catch (Exception e){
             throw new RuntimeException("Ошибка при добавлении участника к мероприятию " + e.getMessage());
+        }
+    }
+
+    @Transactional
+    public void removeMembersFromEvent(List<Integer> membersId, Integer eventId, Integer organizerId) {
+        if(eventRepo.findById(eventId).get().getOrganizerId().getPkUser() != (organizerId)) {
+            String problem = "Участник с id " + organizerId + " не имеет прав на удаление участников из мероприятия с id " + eventId;
+            log.info(problem);
+            throw new RuntimeException(problem);
+        }
+        try{
+            log.info("Удаление " + membersId.size() +" участников из мероприятия с id " + eventId);
+            for (Integer memberId : membersId) {
+                if(eventParticipantRepo.deleteByUserIdAndEventId(memberId, eventId) != 0)
+                    log.info("Удалён участник с id: " + memberId);
+                else log.info("Участник с id " + memberId + " не участвовал в мероприятии с id " + eventId);
+            }
+            log.info("Участники успешно удалены");
+        }
+        catch (Exception e){
+            throw new RuntimeException("Ошибка при удалении участника из мероприятию " + e.getMessage());
         }
     }
 }

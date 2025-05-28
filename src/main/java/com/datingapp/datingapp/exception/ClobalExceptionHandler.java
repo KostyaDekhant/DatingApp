@@ -66,5 +66,11 @@ public class ClobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
     }
 
+    @ExceptionHandler(UserCompanyInfoNotExistsException.class)
+    public ResponseEntity<Void> handleUserCompanyInfoNotFoundException(UserCompanyInfoNotExistsException ex) {
+        log.error("Ошибка при получении информации пользователя: {}", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+    }
+
 
 }
