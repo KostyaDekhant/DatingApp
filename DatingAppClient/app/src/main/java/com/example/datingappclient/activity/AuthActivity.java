@@ -100,11 +100,12 @@ public class AuthActivity extends AppCompatActivity {
             try {
                 AuthResponse newTokens = authRepository.refreshTokenSync(new TokenRefreshRequest(refreshToken));
                 tokenManager.saveAccessToken(newTokens.getToken());
+                tokenManager.saveUserId(newTokens.getUserId());
+                tokenManager.saveRefreshToken(newTokens.getRefreshToken());
 
                 Log.i(logTag, "Токен успешно обновлён — перепроверяем");
-                AuthResponse updatedAuth = new AuthResponse(newTokens.getToken(), null, tokenManager.getUserId());
 
-                runOnUiThread(() -> checkToken(updatedAuth));
+                runOnUiThread(() -> checkToken(newTokens));
 
             } catch (IOException e) {
                 Log.e(logTag, "Не удалось обновить токен: " + e.getMessage());
@@ -121,10 +122,7 @@ public class AuthActivity extends AppCompatActivity {
 
     public void startMainActivity(AuthResponse authResponse) {
         // Сохраням токен и id в хранилище
-        tokenManager.saveAccessToken(authResponse.getToken());
-        tokenManager.saveUserId(authResponse.getUserId());
-        tokenManager.saveRefreshToken(authResponse.getRefreshToken());
-        startActivity(new Intent(AuthActivity.this, MainActivity.class).putExtra("authResponse", authResponse));
+        startActivity(new Intent(AuthActivity.this, MainActivity.class));
         finish();
     }
 

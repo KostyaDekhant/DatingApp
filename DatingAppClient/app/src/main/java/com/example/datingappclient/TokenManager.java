@@ -2,6 +2,7 @@ package com.example.datingappclient;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.util.Log;
 
 public class TokenManager {
     private static final String PREF_NAME = "auth_prefs";
@@ -29,6 +30,7 @@ public class TokenManager {
     }
 
     public void saveRefreshToken(String refreshToken) {
+        Log.d("TOKEN_MANAGER", "Сохраняем refresh: " + refreshToken);
         sharedPreferences.edit()
                 .putString(KEY_REFRESH_TOKEN, refreshToken)
                 .apply();
@@ -53,6 +55,7 @@ public class TokenManager {
     }
 
     public void clearTokens() {
+        Log.d("TOKEN_MANAGER", "Удаляем токены" );
         sharedPreferences.edit()
                 .clear()
                 .apply();

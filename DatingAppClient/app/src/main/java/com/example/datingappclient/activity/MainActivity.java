@@ -33,7 +33,6 @@ import com.example.datingappclient.fragments.GroupChatMembersFragment;
 import com.example.datingappclient.fragments.LikeFragment;
 import com.example.datingappclient.fragments.FormsFragment;
 import com.example.datingappclient.fragments.UserFragment;
-import com.example.datingappclient.model.AuthResponse;
 import com.example.datingappclient.model.dto.CategoryDTO;
 import com.example.datingappclient.model.dto.InterestDTO;
 import com.example.datingappclient.model.dto.UserDTO;
@@ -42,7 +41,6 @@ import com.example.datingappclient.retrofit.api.AuthAPI;
 import com.example.datingappclient.retrofit.repository.AuthRepository;
 import com.example.datingappclient.retrofit.repository.BubblesRepository;
 import com.example.datingappclient.retrofit.repository.ChatsRepository;
-import com.example.datingappclient.retrofit.repository.TokenRepository;
 import com.example.datingappclient.retrofit.wrapper.Result;
 import com.example.datingappclient.utils.ImageUtils;
 import com.example.datingappclient.viewmodels.ChatMembersViewModel;
@@ -81,16 +79,14 @@ public class MainActivity extends AppCompatActivity {
         });
 
         receiveLogoutSignal();
-
+        setupRepository();
         // get all interests
-        bubblesRepository = new BubblesRepository(this);
         fetchCategories();
 
-        AuthResponse authResponse = getIntent().getParcelableExtra("authResponse");
-        userId = authResponse.getUserId();
+        TokenManager tokenManager = new TokenManager(this);
+        userId = tokenManager.getUserId();
 
         // Получить контакты
-        chatsRepository = new ChatsRepository(this);
         getUserContacts();
 
         // создания инстанса пользователя
@@ -103,6 +99,12 @@ public class MainActivity extends AppCompatActivity {
         setupSlideMenu();
 
         getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, UserFragment.getInstance(user, true)).commit();
+    }
+
+    private void setupRepository() {
+        Context context = getApplicationContext();
+        bubblesRepository = new BubblesRepository(context);
+        chatsRepository = new ChatsRepository(context);
     }
 
     private void receiveLogoutSignal() {

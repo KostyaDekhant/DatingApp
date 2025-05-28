@@ -10,6 +10,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.example.datingappclient.TokenManager;
 import com.example.datingappclient.activity.AuthActivity;
 import com.example.datingappclient.R;
 import com.example.datingappclient.constants.Constants;
@@ -23,6 +24,7 @@ public class SigninFragment extends Fragment {
 
     /* === Repository === */
     private UserRepository userRepository;
+    private TokenManager tokenManager;
 
     /* === Android Objects === */
     private TextInputEditText inputLogin;
@@ -44,6 +46,8 @@ public class SigninFragment extends Fragment {
         inputLogin = activityView.findViewById(R.id.login_inputEdit);
         inputPass = activityView.findViewById(R.id.pass_inputEdit);
 
+        tokenManager = new TokenManager(requireActivity().getApplicationContext());
+
         setupSignupButton();
         setupLoginButton();
 
@@ -62,6 +66,9 @@ public class SigninFragment extends Fragment {
                     int userId = result.data.getUserId();
                     if (userId > 0) {
                         Log.i(logTag, "User successfully sign in with id: " + userId);
+                        tokenManager.saveRefreshToken(result.data.getRefreshToken());
+                        tokenManager.saveAccessToken(result.data.getToken());
+                        tokenManager.saveUserId(userId);
                         ((AuthActivity) getActivity()).startMainActivity(result.data);
                     }
                     else {
