@@ -72,5 +72,10 @@ public class ClobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
     }
 
+    @ExceptionHandler(UserAlreadyLoggedInException.class)
+    public ResponseEntity<Void> handleUserAlreadyLoggedInException(UserAlreadyLoggedInException ex) {
+        log.error("Ошибка при авторизации: {}", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.CONFLICT).build();
+    }
 
 }

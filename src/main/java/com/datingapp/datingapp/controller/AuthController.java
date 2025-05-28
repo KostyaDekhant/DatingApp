@@ -3,6 +3,7 @@ package com.datingapp.datingapp.controller;
 import com.datingapp.datingapp.entity.RefreshToken;
 import com.datingapp.datingapp.entity.User;
 import com.datingapp.datingapp.exception.TokenRefreshException;
+import com.datingapp.datingapp.exception.UserAlreadyLoggedInException;
 import com.datingapp.datingapp.exception.UserNotExistsExceptions;
 import com.datingapp.datingapp.repository.UserRepo;
 import com.datingapp.datingapp.security.JwtUtil;
@@ -78,6 +79,12 @@ public class AuthController {
             authManager.authenticate(
                     new UsernamePasswordAuthenticationToken(login, password)
             );
+            Integer userId = userService.getPkUserByLogin(login);
+            if (refreshTokenService.existsByUserId(userId)) {
+                RefreshToken token = refreshTokenService.getTokenByUserId(userId);
+                if(token != null && refreshTokenService.verifyExpiration(token) != null)
+                    throw new UserAlreadyLoggedInException("Пользователь уже вошёл");
+            }
 
             // Если нет исключения — выдаём токен
             String token = jwtUtil.generateToken(login);
@@ -92,7 +99,7 @@ public class AuthController {
             return ResponseEntity
                     .status(401)
                     .body(Map.of("error", "Неверный логин или пароль"));
-        } catch (UserNotExistsExceptions e) {
+        } catch (UserNotExistsExceptions | UserAlreadyLoggedInException e) {
             throw new RuntimeException(e);
         }
     }

@@ -61,4 +61,17 @@ public class RefreshTokenService {
                 .orElseThrow(() -> new TokenRefreshException("User not found"));
         return refreshTokenRepo.deleteByUser(user);
     }
+
+    @Transactional
+    public boolean existsByUserId(Integer userId) {
+        return refreshTokenRepo.existsByUser_PkUser(userId);
+    }
+    @Transactional
+    public RefreshToken getTokenByUserId(Integer userId) {
+        Optional<RefreshToken> token = refreshTokenRepo.findRefreshTokensByUser_PkUser(userId);
+        if (token.isPresent()) {
+            return token.get();
+        }
+        return null;
+    }
 }

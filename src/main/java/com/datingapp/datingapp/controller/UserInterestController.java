@@ -4,8 +4,10 @@ import com.datingapp.datingapp.entity.*;
 import com.datingapp.datingapp.exception.ResourceNotFoundException;
 import com.datingapp.datingapp.services.UserInterestService;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.http.ResponseEntity;
@@ -15,29 +17,41 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("/api")
 public class UserInterestController {
     private UserInterestService userInterestService;
     private final List<InterestDto> interests;
     private final List<CategoryDto> categoryInterests;
+    private final Map<Integer, String> interestMap;
+    private final Map<Integer, String> categoryMap;
 
 
     private static final Logger log = LoggerFactory.getLogger(UserInterestController.class);
 
-
-    public UserInterestController(UserInterestService userInterestService, ResourceLoader loader, ObjectMapper mapper) throws IOException {
+    @Autowired
+    public UserInterestController(UserInterestService userInterestService, ResourceLoader loader, ObjectMapper mapper, Map<Integer, String> interestMap, Map<Integer, String> categoryMap) throws IOException {
         this.userInterestService = userInterestService;
+        this.interestMap = interestMap;
+        this.categoryMap = categoryMap;
 
         Resource resource = loader.getResource("classpath:static/data/interests.json");
         this.interests = Arrays.asList(
                 mapper.readValue(resource.getInputStream(), InterestDto[].class)
         );
+        for(var interest: interests){
+            this.interestMap.put(interest.getPkInterest(), interest.getName());
+        }
         Resource categoryInterests = loader.getResource("classpath:static/data/categories.json");
         this.categoryInterests = Arrays.asList(
                 mapper.readValue(categoryInterests.getInputStream(), CategoryDto[].class)
         );
+        for(var categoryInterest: this.categoryInterests){
+            this.categoryMap.put(categoryInterest.getPkCategory(), categoryInterest.getName());
+        }
     }
 
     @GetMapping("/interests")
@@ -78,15 +92,10 @@ public class UserInterestController {
         List<UserInterestDto> userInterestsDto = new ArrayList<>();
         for (UserInterest userInterest : userInterests) {
             Integer interestId = userInterest.getId().getInterestId();
-            String name = "";
+            String name = interestMap.get(interestId);
             Integer weight = userInterest.getWeight();
             String description = userInterest.getDescription();
-            for (var interest : interests) {
-                if(interest.getPkInterest() == interestId){
-                    name = interest.getName();
-                    break;
-                }
-            }
+
             UserInterestDto userInterestDto = new UserInterestDto(
                     interestId, name, weight, description);
             userInterestsDto.add(userInterestDto);
@@ -99,15 +108,9 @@ public class UserInterestController {
         List<UserInterestDto> userInterestsDto = new ArrayList<>();
         for (UserInterest userInterest : userInterests) {
             Integer interestId = userInterest.getId().getInterestId();
-            String name = "";
+            String name = interestMap.get(interestId);
             Integer weight = userInterest.getWeight();
             String description = userInterest.getDescription();
-            for (var interest : interests) {
-                if(interest.getPkInterest() == interestId){
-                    name = interest.getName();
-                    break;
-                }
-            }
             UserInterestDto userInterestDto = new UserInterestDto(
                     interestId, name, weight, description);
             userInterestsDto.add(userInterestDto);
