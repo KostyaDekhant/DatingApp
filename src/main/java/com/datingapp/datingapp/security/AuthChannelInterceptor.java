@@ -55,8 +55,8 @@ public class AuthChannelInterceptor implements ChannelInterceptor {
                         String jwt = token.substring(7);
                         Authentication auth = validate(jwt);
                         accessor.setUser(auth);
-                        User user = userRepo.getUserByLogin(jwtUtil.extractUsername(token));
-                        log.info("login: " + user.getLogin());
+                        log.info("login: " + auth.getName());
+                        User user = userRepo.getUserByLogin(auth.getName());
                         user.setIsOnline(true);
                         userRepo.save(user);
                         log.info("WebSocket CONNECT authenticated as '{}'", auth.getName());
