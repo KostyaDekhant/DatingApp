@@ -11,7 +11,6 @@ import com.example.datingappclient.retrofit.api.ChatsAPI;
 import com.example.datingappclient.retrofit.wrapper.Result;
 import com.example.datingappclient.retrofit.wrapper.ResultCallback;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -71,21 +70,19 @@ public class ChatsRepository {
         });
     }
 
-    public void fetchChatAvatar(int userId, int chatId, ResultCallback<List<ChatDTO>> callback) {
-        List<Integer> ids = new ArrayList<>();
-        ids.add(chatId);
-        chatsAPI.getChatsAvatars(userId, ids).enqueue(new Callback<>() {
+    public void fetchChatAvatar(int userId, int chatId, ResultCallback<ChatDTO> callback) {
+        chatsAPI.getChatAvatar(chatId, userId).enqueue(new Callback<>() {
             @Override
-            public void onResponse(Call<List<ChatDTO>> call, Response<List<ChatDTO>> response) {
+            public void onResponse(Call<ChatDTO> call, Response<ChatDTO> response) {
                 if (response.isSuccessful()) {
-                    if (response.body() == null || response.body().isEmpty() || response.body().get(0).getImage() == null) callback.onResult(Result.empty());
+                    if (response.body() == null || response.body().getImage() == null) callback.onResult(Result.empty());
                     else callback.onResult(Result.success(response.body()));
                 } else
                     callback.onResult(Result.error("Ошибка при получении изображений чата " + response.code() + " " + response.message()));
             }
 
             @Override
-            public void onFailure(Call<List<ChatDTO>> call, Throwable throwable) {
+            public void onFailure(Call<ChatDTO> call, Throwable throwable) {
                 callback.onResult(Result.error("Ошибка сети или ошибка при обработке данных: " + throwable.getMessage()));
             }
         });
@@ -128,24 +125,6 @@ public class ChatsRepository {
         });
     }
 
-    public void addMemberToChat(int chatId, int userId, ResultCallback<Void> callback) {
-        chatsAPI.addMemberToChat(chatId, userId).enqueue(new Callback<>() {
-            @Override
-            public void onResponse(Call<Void> call, Response<Void> response) {
-                if (response.isSuccessful()) {
-                    callback.onResult(Result.success(null));
-                } else {
-                    callback.onResult(Result.error("Ошибка при добавлении пользователя в чат: " + response.code() + " " + response.message()));
-                }
-            }
-
-            @Override
-            public void onFailure(Call<Void> call, Throwable throwable) {
-                callback.onResult(Result.error("Ошибка сети или ошибка при обработке данных: " + throwable.getMessage()));
-            }
-        });
-    }
-
     public void removeMemberFromChat(int userId, int chatId, int creatorId, ResultCallback<Void> callback) {
         chatsAPI.removeMemberFromChat(chatId, userId, creatorId).enqueue(new Callback<>() {
             @Override
@@ -179,23 +158,8 @@ public class ChatsRepository {
         });
     }
 
-    public void deleteChat(int chatId, int creatorId, ResultCallback<Void> callback) {
-        chatsAPI.deleteChat(chatId, creatorId).enqueue(new Callback<>() {
-            @Override
-            public void onResponse(Call<Void> call, Response<Void> response) {
-                if (response.isSuccessful()) callback.onResult(Result.success(null));
-                else callback.onResult(Result.error("Ошибка при удалении чата:"  + chatId + " " + response.code() + " " + response.message()));
-            }
-
-            @Override
-            public void onFailure(Call<Void> call, Throwable throwable) {
-                callback.onResult(Result.error("Ошибка сети или ошибка при обработке данных: " + throwable.getMessage()));
-            }
-        });
-    }
-
     public void updateChat(ChatPayloadInfo payloadInfo, ResultCallback<Void> callback) {
-        chatsAPI.updateChat(payloadInfo).enqueue(new Callback<>() {
+        chatsAPI.updateChat(payloadInfo.getChatId(), payloadInfo).enqueue(new Callback<>() {
             @Override
             public void onResponse(Call<Void> call, Response<Void> response) {
                 if (response.isSuccessful()) callback.onResult(Result.success(null));

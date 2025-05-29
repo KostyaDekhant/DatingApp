@@ -21,18 +21,18 @@ public interface BubblesAPI {
     @GET("/api/categories")
     Call<List<CategoryDTO>> getListCategories();
 
-    @GET("/api/interests/{categoryId}")
+    @GET("/api/categories/{categoryId}/interests")
     Call<List<InterestDTO>> getListInterestsByCategory(@Path("categoryId") int categoryId);
 
-    @GET("/api/users/interests")
-    Call<List<UserInterestDTO>> getListUserInterests(@Query("userId") int userId);
+    @GET("/api/users/{userId}/interests")
+    Call<List<UserInterestDTO>> getListUserInterests(@Path("userId") int userId);
 
     @GET("/api/users/{userId}/categories/{categoryId}/interests")
     Call<List<UserInterestDTO>> getListUserInterestsByCategory(@Path("userId") int userId, @Path("categoryId") int categoryId);
 
-    @POST("/api/users/interests")
-    Call<Void> addUserInterests(@Query("userId") int userId, @Body List<UserInterestDTO> payload);
+    @POST("/api/users/{userId}/interests")
+    Call<Void> addUserInterests(@Path("userId") int userId, @Body List<UserInterestDTO> payload);
 
-    @POST("/api/users/interests/remove")
+    @POST("/api/users/{userId}/interests/remove")
     Call<Void> deleteUserInterests(@Query("userId") int userId, @Body List<UserInterestDTO> payload);
 }

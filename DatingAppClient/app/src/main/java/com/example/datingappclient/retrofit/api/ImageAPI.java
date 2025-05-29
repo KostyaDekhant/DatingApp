@@ -13,12 +13,12 @@ import retrofit2.http.Path;
 import retrofit2.http.Query;
 
 public interface ImageAPI {
-    @GET("api/user_images")
-    Call<List<Object[]>> getUserImages(@Query("user_id") int userId, @Query("limit") int limit);
+    @GET("api/users/{userId}/images")
+    Call<List<Object[]>> getUserImages(@Path("userId") int userId, @Query("limit") int limit);
 
-    @POST("api/user_images/upload")
-    Call<Integer> uploadImage(@Body PictureDTO picture);
+    @POST("api/users/{userId}/images/upload")
+    Call<Integer> uploadImage(@Path("userId") int userId, @Body PictureDTO picture);
 
-    @DELETE("api/user_images/delete/{image_id}")
-    Call<Void> deleteImage(@Path("image_id") int imageID);
+    @DELETE("api/images/{imageId}/delete")
+    Call<Void> deleteImage(@Path("imageId") int imageId);
 }

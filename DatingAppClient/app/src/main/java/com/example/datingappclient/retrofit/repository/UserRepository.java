@@ -11,6 +11,8 @@ import com.example.datingappclient.retrofit.api.UserAPI;
 import com.example.datingappclient.retrofit.wrapper.Result;
 import com.example.datingappclient.retrofit.wrapper.ResultCallback;
 
+import java.util.List;
+
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -83,7 +85,7 @@ public class UserRepository {
 
     // Обновление пользователя
     public void updateUser (UserDTO userData, ResultCallback<Void> callback) {
-        userAPI.updateUser(userData).enqueue(new Callback<>() {
+        userAPI.updateUser(userData.getId(), userData).enqueue(new Callback<>() {
             @Override
             public void onResponse(Call<Void> call, Response<Void> response) {
                 if (response.isSuccessful()) {
@@ -131,5 +133,22 @@ public class UserRepository {
                 callback.onResult(Result.error("Ошибка сети или ошибка при обработке данных: " + throwable.getMessage()));
             }
         });
+    }
+
+    public void fetchOnlineUsers(ResultCallback<List<Integer>> callback) {
+        userAPI.getOnlineUsers().enqueue(new Callback<>() {
+            @Override
+            public void onResponse(Call<List<Integer>> call, Response<List<Integer>> response) {
+                if (response.isSuccessful()) {
+                    if (response.body() != null && !response.body().isEmpty()) callback.onResult(Result.success(response.body()));
+                    else callback.onResult(Result.empty());
+                }
+                else callback.onResult(Result.error("Ошибка запроса онлайна пользователей!"));
+            }
+
+            @Override
+            public void onFailure(Call<List<Integer>> call, Throwable throwable) {
+                callback.onResult(Result.error("Ошибка сети или ошибка при обработке данных: " + throwable.getMessage()));
+            }});
     }
 }

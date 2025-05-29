@@ -239,7 +239,7 @@ public class ChatWebSocketService {
         ChatPayloadInfo payload = new ChatPayloadInfo(chatId, userId, null, null);
         try {
             String json = objectMapper.writeValueAsString(payload);
-            stompClient.send("/app/group_chats/remove", json)
+            stompClient.send("/app/group_chats/" + chatId + "/remove", json)
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe(() -> {

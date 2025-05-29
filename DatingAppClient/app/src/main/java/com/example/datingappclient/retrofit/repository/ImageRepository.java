@@ -43,7 +43,7 @@ public class ImageRepository {
 
     // Загрузка изображения
     public void uploadImage(PictureDTO picture, ResultCallback<Integer> callback) {
-        imageAPI.uploadImage(picture).enqueue(new Callback<>() {
+        imageAPI.uploadImage(picture.getUserId(), picture).enqueue(new Callback<>() {
             @Override
             public void onResponse(Call<Integer> call, Response<Integer> response) {
                 if (response.isSuccessful() && response.body() != null) {

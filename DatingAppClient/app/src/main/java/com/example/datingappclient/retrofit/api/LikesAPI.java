@@ -13,8 +13,8 @@ import retrofit2.http.Path;
 
 public interface LikesAPI {
 
-    @GET("api/likes/{user_id}")
-    Call<List<LikeDTO>> getLikes(@Path("user_id") int userID);
+    @GET("api/users/{userId}/likes")
+    Call<List<LikeDTO>> getLikes(@Path("userId") int userId);
 
     @POST("api/likes")
     Call<Integer> sendLike(@Body LikeDTO likeDTO);
