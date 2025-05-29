@@ -1,4 +1,4 @@
-package com.example.datingappclient.retrofit.api;
+package com.example.datingappclient.retrofit.controllers;
 
 import com.example.datingappclient.model.dto.LikeDTO;
 
@@ -11,7 +11,7 @@ import retrofit2.http.HTTP;
 import retrofit2.http.POST;
 import retrofit2.http.Path;
 
-public interface LikesAPI {
+public interface LikesController {
 
     @GET("api/users/{userId}/likes")
     Call<List<LikeDTO>> getLikes(@Path("userId") int userId);

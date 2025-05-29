@@ -1,11 +1,8 @@
 package com.example.datingappclient.retrofit.repository;
 
-import android.content.Context;
-
 import com.example.datingappclient.model.AuthResponse;
 import com.example.datingappclient.model.TokenRefreshRequest;
-import com.example.datingappclient.retrofit.RetrofitClient;
-import com.example.datingappclient.retrofit.api.AuthAPI;
+import com.example.datingappclient.retrofit.controllers.AuthController;
 import com.example.datingappclient.retrofit.wrapper.Result;
 import com.example.datingappclient.retrofit.wrapper.ResultCallback;
 
@@ -17,14 +14,14 @@ import retrofit2.Response;
 
 public class AuthRepository {
 
-    private AuthAPI authAPI;
+    private final AuthController authController;
 
-    public AuthRepository(AuthAPI authAPI) {
-        this.authAPI = authAPI;
+    public AuthRepository(AuthController authController) {
+        this.authController = authController;
     }
 
     public void refreshToken(TokenRefreshRequest tokenRefreshRequest, ResultCallback<AuthResponse> callback) {
-        authAPI.refreshToken(tokenRefreshRequest).enqueue(new Callback<>() {
+        authController.refreshToken(tokenRefreshRequest).enqueue(new Callback<>() {
             @Override
             public void onResponse(Call<AuthResponse> call, Response<AuthResponse> response) {
                 if (response.isSuccessful() && response.body() != null) {
@@ -42,7 +39,7 @@ public class AuthRepository {
     }
 
     public AuthResponse refreshTokenSync(TokenRefreshRequest tokenRefreshRequest) throws IOException {
-        Response<AuthResponse> response = authAPI.refreshToken(tokenRefreshRequest).execute();
+        Response<AuthResponse> response = authController.refreshToken(tokenRefreshRequest).execute();
         if (response.isSuccessful() && response.body() != null) {
             return response.body();
         } else {
@@ -51,7 +48,7 @@ public class AuthRepository {
     }
 
     public void logout(int userId, ResultCallback<Void> callback) {
-        authAPI.logout(userId).enqueue(new Callback<>() {
+        authController.logout(userId).enqueue(new Callback<>() {
             @Override
             public void onResponse(Call<Void> call, Response<Void> response) {
                 if (response.isSuccessful()) callback.onResult(Result.success(null));

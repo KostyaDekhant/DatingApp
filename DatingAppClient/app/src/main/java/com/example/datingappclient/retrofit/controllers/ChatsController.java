@@ -1,4 +1,4 @@
-package com.example.datingappclient.retrofit.api;
+package com.example.datingappclient.retrofit.controllers;
 
 import com.example.datingappclient.model.ChatPayloadInfo;
 import com.example.datingappclient.model.dto.ChatDTO;
@@ -17,7 +17,7 @@ import retrofit2.http.POST;
 import retrofit2.http.Path;
 import retrofit2.http.Query;
 
-public interface ChatsAPI {
+public interface ChatsController {
     /* === Group Chats === */
     @GET("api/group_chats/{chatId}/info")
     Call<ChatInfoDTO> getChatInfo(@Path("chatId") int chatId);

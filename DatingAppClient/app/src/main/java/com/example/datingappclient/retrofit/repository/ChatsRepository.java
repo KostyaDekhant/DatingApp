@@ -7,7 +7,7 @@ import com.example.datingappclient.model.dto.ChatMemberDTO;
 import com.example.datingappclient.model.dto.ChatDTO;
 import com.example.datingappclient.model.dto.ChatInfoDTO;
 import com.example.datingappclient.retrofit.RetrofitClient;
-import com.example.datingappclient.retrofit.api.ChatsAPI;
+import com.example.datingappclient.retrofit.controllers.ChatsController;
 import com.example.datingappclient.retrofit.wrapper.Result;
 import com.example.datingappclient.retrofit.wrapper.ResultCallback;
 
@@ -19,16 +19,16 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 public class ChatsRepository {
-    private final ChatsAPI chatsAPI;
+    private final ChatsController chatsController;
 
     public ChatsRepository(Context context) {
-        chatsAPI = RetrofitClient.getClient(context).create(ChatsAPI.class);
+        chatsController = RetrofitClient.getClient(context).create(ChatsController.class);
     }
 
 
     /* === Group Chats === */
     public void fetchChatInfo(int chatId, ResultCallback<ChatInfoDTO> callback) {
-        chatsAPI.getChatInfo(chatId).enqueue(new Callback<>() {
+        chatsController.getChatInfo(chatId).enqueue(new Callback<>() {
             @Override
             public void onResponse(Call<ChatInfoDTO> call, Response<ChatInfoDTO> response) {
                 if (response.isSuccessful()) {
@@ -50,7 +50,7 @@ public class ChatsRepository {
     }
 
     public void fetchUserChats(int userId, int limit, int offset, ResultCallback<List<ChatDTO>> callback) {
-        chatsAPI.getChats(userId, limit, offset).enqueue(new Callback<>() {
+        chatsController.getChats(userId, limit, offset).enqueue(new Callback<>() {
             @Override
             public void onResponse(Call<List<ChatDTO>> call, Response<List<ChatDTO>> response) {
                 if (response.isSuccessful()) {
@@ -71,7 +71,7 @@ public class ChatsRepository {
     }
 
     public void fetchChatAvatar(int userId, int chatId, ResultCallback<ChatDTO> callback) {
-        chatsAPI.getChatAvatar(chatId, userId).enqueue(new Callback<>() {
+        chatsController.getChatAvatar(chatId, userId).enqueue(new Callback<>() {
             @Override
             public void onResponse(Call<ChatDTO> call, Response<ChatDTO> response) {
                 if (response.isSuccessful()) {
@@ -89,7 +89,7 @@ public class ChatsRepository {
     }
 
     public void fetchPossibleChatMembers(int userId, int chatId, ResultCallback<List<ChatMemberDTO>> callback) {
-        chatsAPI.getPossibleChatMembers(userId, chatId).enqueue(new Callback<>() {
+        chatsController.getPossibleChatMembers(userId, chatId).enqueue(new Callback<>() {
             @Override
             public void onResponse(Call<List<ChatMemberDTO>> call, Response<List<ChatMemberDTO>> response) {
                 if (response.isSuccessful()) {
@@ -108,7 +108,7 @@ public class ChatsRepository {
     }
 
     public void createChat(ChatDTO ChatDTO, ResultCallback<Integer> callback) {
-        chatsAPI.createGroupChat(ChatDTO).enqueue(new Callback<>() {
+        chatsController.createGroupChat(ChatDTO).enqueue(new Callback<>() {
             @Override
             public void onResponse(Call<Integer> call, Response<Integer> response) {
                 if (response.isSuccessful() && response.body() != null) {
@@ -126,7 +126,7 @@ public class ChatsRepository {
     }
 
     public void removeMemberFromChat(int userId, int chatId, int creatorId, ResultCallback<Void> callback) {
-        chatsAPI.removeMemberFromChat(chatId, userId, creatorId).enqueue(new Callback<>() {
+        chatsController.removeMemberFromChat(chatId, userId, creatorId).enqueue(new Callback<>() {
             @Override
             public void onResponse(Call<Void> call, Response<Void> response) {
                 if (response.isSuccessful()) callback.onResult(Result.success(null));
@@ -141,7 +141,7 @@ public class ChatsRepository {
     }
 
     public void addMembersToChat(int chatId, Set<Integer> chatMembersIds, ResultCallback<Void> callback) {
-        chatsAPI.addMembersToChat(chatId, chatMembersIds).enqueue(new Callback<>() {
+        chatsController.addMembersToChat(chatId, chatMembersIds).enqueue(new Callback<>() {
             @Override
             public void onResponse(Call<Void> call, Response<Void> response) {
                 if (response.isSuccessful()) {
@@ -159,7 +159,7 @@ public class ChatsRepository {
     }
 
     public void updateChat(ChatPayloadInfo payloadInfo, ResultCallback<Void> callback) {
-        chatsAPI.updateChat(payloadInfo.getChatId(), payloadInfo).enqueue(new Callback<>() {
+        chatsController.updateChat(payloadInfo.getChatId(), payloadInfo).enqueue(new Callback<>() {
             @Override
             public void onResponse(Call<Void> call, Response<Void> response) {
                 if (response.isSuccessful()) callback.onResult(Result.success(null));
@@ -174,7 +174,7 @@ public class ChatsRepository {
     }
 
     public void fetchChat(int chatId, int userId, ResultCallback<ChatDTO> callback) {
-        chatsAPI.getChat(chatId, userId).enqueue(new Callback<>() {
+        chatsController.getChat(chatId, userId).enqueue(new Callback<>() {
             @Override
             public void onResponse(Call<ChatDTO> call, Response<ChatDTO> response) {
                 if (response.isSuccessful()) {

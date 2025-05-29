@@ -4,7 +4,7 @@ import android.content.Context;
 
 import com.example.datingappclient.model.dto.LikeDTO;
 import com.example.datingappclient.retrofit.RetrofitClient;
-import com.example.datingappclient.retrofit.api.LikesAPI;
+import com.example.datingappclient.retrofit.controllers.LikesController;
 import com.example.datingappclient.retrofit.wrapper.Result;
 import com.example.datingappclient.retrofit.wrapper.ResultCallback;
 
@@ -15,15 +15,15 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 public class LikesRepository {
-    private final LikesAPI likesAPI;
+    private final LikesController likesController;
 
     public LikesRepository(Context context) {
-        likesAPI = RetrofitClient.getClient(context).create(LikesAPI.class);
+        likesController = RetrofitClient.getClient(context).create(LikesController.class);
     }
 
     /* === Methods === */
     public void fetchUserLikes(int userId, ResultCallback<List<LikeDTO>> callback) {
-        likesAPI.getLikes(userId).enqueue(new Callback<>() {
+        likesController.getLikes(userId).enqueue(new Callback<>() {
             @Override
             public void onResponse(Call<List<LikeDTO>> call, Response<List<LikeDTO>> response) {
                 if (!response.isSuccessful()) callback.onResult(Result.error("Не удалось получить лайки: " + response.code() + " " + response.message()));
@@ -43,7 +43,7 @@ public class LikesRepository {
     }
 
     public void sendLike(LikeDTO likeDTO, ResultCallback<Integer> callback) {
-        likesAPI.sendLike(likeDTO).enqueue(new Callback<>() {
+        likesController.sendLike(likeDTO).enqueue(new Callback<>() {
             @Override
             public void onResponse(Call<Integer> call, Response<Integer> response) {
                 if (response.code() == 409) callback.onResult(Result.error("Лайк уже был поставлен. " + response.message()));
@@ -64,7 +64,7 @@ public class LikesRepository {
     }
 
     public void deleteLike(LikeDTO likeDTO, ResultCallback<Integer> callback) {
-        likesAPI.deleteLike(likeDTO).enqueue(new Callback<>() {
+        likesController.deleteLike(likeDTO).enqueue(new Callback<>() {
             @Override
             public void onResponse(Call<Integer> call, Response<Integer> response) {
                 if (response.isSuccessful() && response.body() != null) {

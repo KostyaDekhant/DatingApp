@@ -1,4 +1,4 @@
-package com.example.datingappclient.retrofit.api;
+package com.example.datingappclient.retrofit.controllers;
 
 import com.example.datingappclient.model.AuthResponse;
 import com.example.datingappclient.model.TokenRefreshRequest;
@@ -9,7 +9,7 @@ import retrofit2.http.Body;
 import retrofit2.http.POST;
 import retrofit2.http.Query;
 
-public interface AuthAPI {
+public interface AuthController {
     @POST("auth/login")
     Call<AuthResponse> login(@Body AuthDTO authDTO);
 

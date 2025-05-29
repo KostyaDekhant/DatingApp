@@ -1,9 +1,6 @@
 package com.example.datingappclient.websocket;
 
-import static com.example.datingappclient.retrofit.RetrofitClient.getHTTPClient;
-
 import android.annotation.SuppressLint;
-import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
 
@@ -14,18 +11,12 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import com.example.datingappclient.DatingAppApplication;
 import com.example.datingappclient.TokenManager;
 import com.example.datingappclient.constants.Constants;
-import com.example.datingappclient.model.AuthResponse;
 import com.example.datingappclient.model.ChatPayloadInfo;
-import com.example.datingappclient.model.TokenRefreshRequest;
 import com.example.datingappclient.model.dto.ChatDTO;
 import com.example.datingappclient.model.dto.ChatInfoDTO;
 import com.example.datingappclient.model.dto.ChatMemberDTO;
 import com.example.datingappclient.model.dto.HistoryDTO;
 import com.example.datingappclient.model.dto.MessageDTO;
-import com.example.datingappclient.retrofit.RetrofitClient;
-import com.example.datingappclient.retrofit.api.AuthAPI;
-import com.example.datingappclient.retrofit.repository.AuthRepository;
-import com.example.datingappclient.retrofit.repository.TokenRepository;
 import com.example.datingappclient.retrofit.wrapper.Result;
 import com.example.datingappclient.retrofit.wrapper.ResultCallback;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -40,12 +31,7 @@ import java.util.Map;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
-import okhttp3.OkHttpClient;
-import retrofit2.Retrofit;
-import ua.naiksoftware.stomp.Stomp;
 import ua.naiksoftware.stomp.StompClient;
-import ua.naiksoftware.stomp.dto.StompHeader;
-import ua.naiksoftware.stomp.provider.OkHttpConnectionProvider;
 
 public class ChatWebSocketService {
 

@@ -6,7 +6,7 @@ import com.example.datingappclient.model.dto.CategoryDTO;
 import com.example.datingappclient.model.dto.InterestDTO;
 import com.example.datingappclient.model.dto.UserInterestDTO;
 import com.example.datingappclient.retrofit.RetrofitClient;
-import com.example.datingappclient.retrofit.api.BubblesAPI;
+import com.example.datingappclient.retrofit.controllers.BubblesController;
 import com.example.datingappclient.retrofit.wrapper.Result;
 import com.example.datingappclient.retrofit.wrapper.ResultCallback;
 
@@ -17,15 +17,15 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 public class BubblesRepository {
-    private final BubblesAPI bubblesAPI;
+    private final BubblesController bubblesController;
 
     public BubblesRepository(Context context) {
-        bubblesAPI = RetrofitClient.getClient(context).create(BubblesAPI.class);
+        bubblesController = RetrofitClient.getClient(context).create(BubblesController.class);
     }
 
     /* === Methods === */
     public void fetchCategories(ResultCallback<List<CategoryDTO>> callback) {
-        bubblesAPI.getListCategories().enqueue(new Callback<>() {
+        bubblesController.getListCategories().enqueue(new Callback<>() {
             @Override
             public void onResponse(Call<List<CategoryDTO>> call, Response<List<CategoryDTO>> response) {
                 if (response.isSuccessful() && response.body() != null) {
@@ -44,7 +44,7 @@ public class BubblesRepository {
     }
 
     public void fetchInterests(ResultCallback<List<InterestDTO>> callback) {
-        bubblesAPI.getListInterests().enqueue(new Callback<>() {
+        bubblesController.getListInterests().enqueue(new Callback<>() {
             @Override
             public void onResponse(Call<List<InterestDTO>> call, Response<List<InterestDTO>> response) {
                 if (response.isSuccessful() && response.body() != null) {
@@ -63,7 +63,7 @@ public class BubblesRepository {
     }
 
     public void fetchInterestsByCategory(int categoryId, ResultCallback<List<InterestDTO>> callback) {
-        bubblesAPI.getListInterestsByCategory(categoryId).enqueue(new Callback<>() {
+        bubblesController.getListInterestsByCategory(categoryId).enqueue(new Callback<>() {
             @Override
             public void onResponse(Call<List<InterestDTO>> call, Response<List<InterestDTO>> response) {
                 if (response.isSuccessful() && response.body() != null) {
@@ -82,7 +82,7 @@ public class BubblesRepository {
     }
 
     public void fetchUserInterestsByCategory(int userId, int categoryId, ResultCallback<List<UserInterestDTO>> callback) {
-        bubblesAPI.getListUserInterestsByCategory(userId, categoryId).enqueue(new Callback<>() {
+        bubblesController.getListUserInterestsByCategory(userId, categoryId).enqueue(new Callback<>() {
             @Override
             public void onResponse(Call<List<UserInterestDTO>> call, Response<List<UserInterestDTO>> response) {
                 if (response.isSuccessful() && response.body() != null) {
@@ -100,7 +100,7 @@ public class BubblesRepository {
     }
 
     public void addUserInterest(int userId, List<UserInterestDTO> interest, ResultCallback<Void> callback) {
-        bubblesAPI.addUserInterests(userId, interest).enqueue(new Callback<>() {
+        bubblesController.addUserInterests(userId, interest).enqueue(new Callback<>() {
             @Override
             public void onResponse(Call<Void> call, Response<Void> response) {
                 if (response.isSuccessful()) callback.onResult(Result.success(null));
@@ -115,7 +115,7 @@ public class BubblesRepository {
     }
 
     public void deleteUserInterests(int userId, List<UserInterestDTO> interest, ResultCallback<Void> callback) {
-        bubblesAPI.deleteUserInterests(userId, interest).enqueue(new Callback<>() {
+        bubblesController.deleteUserInterests(userId, interest).enqueue(new Callback<>() {
             @Override
             public void onResponse(Call<Void> call, Response<Void> response) {
                 if (response.isSuccessful()) callback.onResult(Result.success(null));
@@ -130,7 +130,7 @@ public class BubblesRepository {
     }
 
     public void fetchUserInterests(int userId, ResultCallback<List<UserInterestDTO>> callback) {
-        bubblesAPI.getListUserInterests(userId).enqueue(new Callback<>() {
+        bubblesController.getListUserInterests(userId).enqueue(new Callback<>() {
             @Override
             public void onResponse(Call<List<UserInterestDTO>> call, Response<List<UserInterestDTO>> response) {
                 if (response.isSuccessful()) {

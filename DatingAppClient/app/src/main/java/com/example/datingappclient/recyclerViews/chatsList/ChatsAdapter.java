@@ -1,7 +1,5 @@
 package com.example.datingappclient.recyclerViews.chatsList;
 
-import static android.view.View.VISIBLE;
-
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.util.Log;
@@ -17,8 +15,8 @@ import androidx.recyclerview.widget.ListAdapter;
 import com.example.datingappclient.R;
 import com.example.datingappclient.constants.Constants;
 import com.example.datingappclient.model.dto.ChatDTO;
+import com.example.datingappclient.model.dto.ChatMemberDTO;
 import com.example.datingappclient.retrofit.repository.ChatsRepository;
-import com.example.datingappclient.utils.DateUtils;
 import com.example.datingappclient.utils.ImageUtils;
 import com.example.datingappclient.viewmodels.ChatsViewModel;
 
@@ -112,7 +110,7 @@ public class ChatsAdapter extends ListAdapter<ChatDTO, ChatsHolder> {
     public void onViewRecycled(@NonNull ChatsHolder holder) {
         super.onViewRecycled(holder);
         // Очистка данных, отмена анимаций, обнуление слушателей и т. д.
-        holder.unsubscribeUpdate();
+        holder.unsubscribeUpdate(holder.getReceiverID());
     }
 
     private void setChatImage(ChatsHolder holder, byte[] chatImage) {

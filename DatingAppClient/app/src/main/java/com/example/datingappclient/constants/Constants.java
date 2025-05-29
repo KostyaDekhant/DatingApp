@@ -5,7 +5,7 @@ public class Constants {
     public final static String SERVER_ADDRESS2 = "26.134.122.35";
     public final static String SERVER_ADDRESS3 = "10.0.2.2"; // вместо локалхост!!
     public final static String SERVER_PORT1  = "8080";
-    public final static String SERVER_ADDRESS= "45.12.255.26";
+    public final static String SERVER_ADDRESS = "45.12.255.26";
     public final static String SERVER_PORT = "8081";
     public final static String GLOBAL_LOG_TAG = "DATINGAPP_LOGS: ";
 

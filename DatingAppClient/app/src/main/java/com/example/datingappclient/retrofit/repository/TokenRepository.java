@@ -3,7 +3,7 @@ package com.example.datingappclient.retrofit.repository;
 import android.content.Context;
 
 import com.example.datingappclient.retrofit.RetrofitClient;
-import com.example.datingappclient.retrofit.api.TokenAPI;
+import com.example.datingappclient.retrofit.controllers.TokenController;
 import com.example.datingappclient.retrofit.wrapper.Result;
 import com.example.datingappclient.retrofit.wrapper.ResultCallback;
 
@@ -12,14 +12,14 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 public class TokenRepository {
-    private final TokenAPI tokenAPI;
+    private final TokenController tokenController;
 
     public TokenRepository(Context context) {
-        tokenAPI = RetrofitClient.getClient(context).create(TokenAPI.class);
+        tokenController = RetrofitClient.getClient(context).create(TokenController.class);
     }
 
     public void tokenIsValid(ResultCallback<Boolean> callback) {
-        tokenAPI.tokenIsValid().enqueue(new Callback<>() {
+        tokenController.tokenIsValid().enqueue(new Callback<>() {
             @Override
             public void onResponse(Call<Void> call, Response<Void> response) {
                 if (response.isSuccessful()) callback.onResult(Result.success(true));

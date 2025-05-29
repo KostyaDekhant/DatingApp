@@ -1,4 +1,4 @@
-package com.example.datingappclient.retrofit.api;
+package com.example.datingappclient.retrofit.controllers;
 
 import com.example.datingappclient.model.dto.CategoryDTO;
 import com.example.datingappclient.model.dto.InterestDTO;
@@ -8,13 +8,12 @@ import java.util.List;
 
 import retrofit2.Call;
 import retrofit2.http.Body;
-import retrofit2.http.DELETE;
 import retrofit2.http.GET;
 import retrofit2.http.POST;
 import retrofit2.http.Path;
 import retrofit2.http.Query;
 
-public interface BubblesAPI {
+public interface BubblesController {
     @GET("/api/interests")
     Call<List<InterestDTO>> getListInterests();
 

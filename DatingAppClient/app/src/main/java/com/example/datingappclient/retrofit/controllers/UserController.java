@@ -1,7 +1,6 @@
-package com.example.datingappclient.retrofit.api;
+package com.example.datingappclient.retrofit.controllers;
 
 import com.example.datingappclient.model.AuthResponse;
-import com.example.datingappclient.model.TokenRefreshRequest;
 import com.example.datingappclient.model.dto.CompanyInfoDTO;
 import com.example.datingappclient.model.dto.AuthDTO;
 import com.example.datingappclient.model.dto.UserDTO;
@@ -14,7 +13,6 @@ import retrofit2.http.GET;
 import retrofit2.http.PATCH;
 import retrofit2.http.POST;
 import retrofit2.http.Path;
-import retrofit2.http.Query;
 
 /*
 
@@ -22,7 +20,8 @@ import retrofit2.http.Query;
     -- описание --
 
 */
-public interface UserAPI {
+public interface UserController {
+
     @GET("api/users/{userId}")
     Call<UserDTO> getUser(@Path("userId") int userId);
 

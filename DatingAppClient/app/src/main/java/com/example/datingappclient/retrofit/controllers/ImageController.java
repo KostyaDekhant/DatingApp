@@ -1,4 +1,4 @@
-package com.example.datingappclient.retrofit.api;
+package com.example.datingappclient.retrofit.controllers;
 
 import com.example.datingappclient.model.dto.PictureDTO;
 
@@ -12,7 +12,7 @@ import retrofit2.http.POST;
 import retrofit2.http.Path;
 import retrofit2.http.Query;
 
-public interface ImageAPI {
+public interface ImageController {
     @GET("api/users/{userId}/images")
     Call<List<Object[]>> getUserImages(@Path("userId") int userId, @Query("limit") int limit);
 

@@ -1,4 +1,4 @@
-package com.example.datingappclient.retrofit.api;
+package com.example.datingappclient.retrofit.controllers;
 
 import com.example.datingappclient.model.dto.FormDTO;
 import com.example.datingappclient.model.dto.FormsParametersDTO;
@@ -11,7 +11,7 @@ import retrofit2.http.GET;
 import retrofit2.http.POST;
 import retrofit2.http.Query;
 
-public interface FormsAPI {
+public interface FormsController {
     @GET("api/forms")
     Call<FormDTO> getForms__old(@Query("user_id") int userId, @Query("prev_user_id") int prevUserId);
 

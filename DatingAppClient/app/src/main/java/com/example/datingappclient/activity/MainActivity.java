@@ -4,7 +4,6 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.media.Image;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -37,7 +36,7 @@ import com.example.datingappclient.model.dto.CategoryDTO;
 import com.example.datingappclient.model.dto.InterestDTO;
 import com.example.datingappclient.model.dto.UserDTO;
 import com.example.datingappclient.retrofit.RetrofitClient;
-import com.example.datingappclient.retrofit.api.AuthAPI;
+import com.example.datingappclient.retrofit.controllers.AuthController;
 import com.example.datingappclient.retrofit.repository.AuthRepository;
 import com.example.datingappclient.retrofit.repository.BubblesRepository;
 import com.example.datingappclient.retrofit.repository.ChatsRepository;
@@ -246,7 +245,7 @@ public class MainActivity extends AppCompatActivity {
 
         String logTag = Constants.GLOBAL_LOG_TAG + "LOGOUT";
 
-        AuthRepository authRepository = new AuthRepository(RetrofitClient.getAuthOnlyClient(this).create(AuthAPI.class));
+        AuthRepository authRepository = new AuthRepository(RetrofitClient.getAuthOnlyClient(this).create(AuthController.class));
         authRepository.logout(tokenManager.getUserId(), result -> {
             if (result.status == Result.Status.SUCCESS) {
                 Log.i(logTag, "Success");

@@ -10,7 +10,7 @@ import com.example.datingappclient.DatingAppApplication;
 import com.example.datingappclient.TokenManager;
 import com.example.datingappclient.constants.Constants;
 import com.example.datingappclient.retrofit.RetrofitClient;
-import com.example.datingappclient.retrofit.api.AuthAPI;
+import com.example.datingappclient.retrofit.controllers.AuthController;
 import com.example.datingappclient.retrofit.repository.AuthRepository;
 import com.example.datingappclient.retrofit.repository.TokenRepository;
 
@@ -79,7 +79,7 @@ public class StompClientService {
         Map<String, String> headers = new HashMap<>();
         headers.put("Authorization", "Bearer " + tokenManager.getAccessToken());
         // Get https client
-        OkHttpClient customClient = getHTTPClient(context, new AuthRepository(RetrofitClient.getAuthOnlyClient(context).create(AuthAPI.class)), tokenManager);
+        OkHttpClient customClient = getHTTPClient(context, new AuthRepository(RetrofitClient.getAuthOnlyClient(context).create(AuthController.class)), tokenManager);
         OkHttpConnectionProvider connectionProvider =
                 new OkHttpConnectionProvider(SOCKET_URL, headers, customClient);
         // set client

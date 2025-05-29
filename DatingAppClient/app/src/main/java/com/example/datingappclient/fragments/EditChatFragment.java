@@ -78,8 +78,6 @@ public class EditChatFragment extends Fragment {
     private Bitmap selectedAvatarBitmap;
     private boolean avatarIsChanged;
 
-    private Disposable disposableUpdate;
-
     private EditChatFragment() {};
 
     public static EditChatFragment newInstance(Integer userId, ChatDTO chat) {
@@ -118,7 +116,7 @@ public class EditChatFragment extends Fragment {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        if (disposableUpdate != null) disposableUpdate.dispose();
+        chatsViewModel.unsubscribeUpdateChat(chat.getId());
     }
 
     private void setChatInfo() {
@@ -218,7 +216,7 @@ public class EditChatFragment extends Fragment {
         ChatPayloadInfo payloadInfo = new ChatPayloadInfo(chat.getId(), userId, chat.getName(), chatImage);
 
         AtomicReference<Disposable> disposableRef = new AtomicReference<>();
-        disposableUpdate = chatsViewModel.subscribeToUpdateChat(chat.getId(), result1 -> {
+        chatsViewModel.subscribeToUpdateChat(chat.getId(), result1 -> {
             Toast.makeText(requireContext(), "Чат успешно обновлен!", Toast.LENGTH_LONG).show();
             chatsRepository.fetchChat(chat.getId(), userId, result -> {
                 requireActivity().finish();
@@ -239,7 +237,7 @@ public class EditChatFragment extends Fragment {
                             break;
                         case ERROR:
                             Log.e(logTag, result.error);
-                            if (disposableUpdate != null) disposableUpdate.dispose();
+                            chatsViewModel.unsubscribeUpdateChat(payloadInfo.getChatId());
                             content.setVisibility(VISIBLE);
                             progressBar.setVisibility(GONE);
                             Toast.makeText(requireContext(), "Ошибка изменения чата!", Toast.LENGTH_LONG).show();

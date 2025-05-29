@@ -15,7 +15,7 @@ import com.example.datingappclient.fragments.SigninFragment;
 import com.example.datingappclient.model.AuthResponse;
 import com.example.datingappclient.model.TokenRefreshRequest;
 import com.example.datingappclient.retrofit.RetrofitClient;
-import com.example.datingappclient.retrofit.api.AuthAPI;
+import com.example.datingappclient.retrofit.controllers.AuthController;
 import com.example.datingappclient.retrofit.repository.AuthRepository;
 import com.example.datingappclient.retrofit.repository.TokenRepository;
 
@@ -87,7 +87,7 @@ public class AuthActivity extends AppCompatActivity {
         TokenManager tokenManager = new TokenManager(getApplicationContext());
 
         Retrofit authRetrofit = RetrofitClient.getAuthOnlyClient(this);
-        AuthRepository authRepository = new AuthRepository(authRetrofit.create(AuthAPI.class));
+        AuthRepository authRepository = new AuthRepository(authRetrofit.create(AuthController.class));
 
         new Thread(() -> {
             String refreshToken = tokenManager.getRefreshToken();

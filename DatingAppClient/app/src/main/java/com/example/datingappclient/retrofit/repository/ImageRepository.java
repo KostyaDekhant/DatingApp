@@ -5,7 +5,7 @@ import android.content.Context;
 import com.example.datingappclient.constants.Constants;
 import com.example.datingappclient.model.dto.PictureDTO;
 import com.example.datingappclient.retrofit.RetrofitClient;
-import com.example.datingappclient.retrofit.api.ImageAPI;
+import com.example.datingappclient.retrofit.controllers.ImageController;
 import com.example.datingappclient.retrofit.wrapper.Result;
 import com.example.datingappclient.retrofit.wrapper.ResultCallback;
 
@@ -16,15 +16,15 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 public class ImageRepository {
-    private final ImageAPI imageAPI;
+    private final ImageController imageController;
 
     public ImageRepository(Context context) {
-        imageAPI = RetrofitClient.getClient(context).create(ImageAPI.class);
+        imageController = RetrofitClient.getClient(context).create(ImageController.class);
     }
 
     // Получение изображений пользователя
     public void fetchUserImages(int userID, ResultCallback<List<Object[]>> callback) {
-        imageAPI.getUserImages(userID, Constants.IMAGES_LIMIT).enqueue(new Callback<>() {
+        imageController.getUserImages(userID, Constants.IMAGES_LIMIT).enqueue(new Callback<>() {
             @Override
             public void onResponse(Call<List<Object[]>> call, Response<List<Object[]>> response) {
                 if (response.isSuccessful() && response.body() != null) {
@@ -43,7 +43,7 @@ public class ImageRepository {
 
     // Загрузка изображения
     public void uploadImage(PictureDTO picture, ResultCallback<Integer> callback) {
-        imageAPI.uploadImage(picture.getUserId(), picture).enqueue(new Callback<>() {
+        imageController.uploadImage(picture.getUserId(), picture).enqueue(new Callback<>() {
             @Override
             public void onResponse(Call<Integer> call, Response<Integer> response) {
                 if (response.isSuccessful() && response.body() != null) {
@@ -62,7 +62,7 @@ public class ImageRepository {
 
     // Удаление изображения
     public void deleteImage(int imageId, ResultCallback<Void> callback) {
-        imageAPI.deleteImage(imageId).enqueue(new Callback<>() {
+        imageController.deleteImage(imageId).enqueue(new Callback<>() {
             @Override
             public void onResponse(Call<Void> call, Response<Void> response) {
                 if (response.isSuccessful()) {

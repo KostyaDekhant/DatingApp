@@ -5,7 +5,7 @@ import android.content.Context;
 import com.example.datingappclient.R;
 import com.example.datingappclient.TokenManager;
 import com.example.datingappclient.constants.Constants;
-import com.example.datingappclient.retrofit.api.AuthAPI;
+import com.example.datingappclient.retrofit.controllers.AuthController;
 import com.example.datingappclient.retrofit.repository.AuthRepository;
 import com.example.datingappclient.utils.gson.LocalDateDeserializer;
 import com.example.datingappclient.utils.gson.LocalDateSerializer;
@@ -51,7 +51,7 @@ public class RetrofitClient {
             Retrofit authRetrofit = RetrofitClient.getAuthOnlyClient(context);
             retrofit = new Retrofit.Builder()
                     .baseUrl(BASE_URL)
-                    .client(getHTTPClient(context, new AuthRepository(authRetrofit.create(AuthAPI.class)), new TokenManager(context)))
+                    .client(getHTTPClient(context, new AuthRepository(authRetrofit.create(AuthController.class)), new TokenManager(context)))
                     .addConverterFactory(GsonConverterFactory.create(gson))
                     .build();
         }

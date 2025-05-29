@@ -7,7 +7,7 @@ import com.example.datingappclient.model.dto.CompanyInfoDTO;
 import com.example.datingappclient.model.dto.AuthDTO;
 import com.example.datingappclient.model.dto.UserDTO;
 import com.example.datingappclient.retrofit.RetrofitClient;
-import com.example.datingappclient.retrofit.api.UserAPI;
+import com.example.datingappclient.retrofit.controllers.UserController;
 import com.example.datingappclient.retrofit.wrapper.Result;
 import com.example.datingappclient.retrofit.wrapper.ResultCallback;
 
@@ -18,16 +18,16 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 public class UserRepository {
-    private final UserAPI userAPI;
+    private final UserController userController;
 
     public UserRepository(Context context) {
-        userAPI = RetrofitClient.getClient(context).create(UserAPI.class);
+        userController = RetrofitClient.getClient(context).create(UserController.class);
     }
 
     /* === Methods === */
     // Получение информации о пользователе
     public void fetchUserInfo(int userId, ResultCallback<UserDTO> callback){
-        userAPI.getUser(userId).enqueue(new Callback<>() {
+        userController.getUser(userId).enqueue(new Callback<>() {
             @Override
             public void onResponse(Call<UserDTO> call, Response<UserDTO> response) {
                 if (response.isSuccessful() && response.body() != null) {
@@ -47,7 +47,7 @@ public class UserRepository {
 
     // Логин пользователя
     public void login(AuthDTO loginInfo, ResultCallback<AuthResponse> callback) {
-        userAPI.login(loginInfo).enqueue(new Callback<>() {
+        userController.login(loginInfo).enqueue(new Callback<>() {
             @Override
             public void onResponse(Call<AuthResponse> call, Response<AuthResponse> response) {
                 if (response.isSuccessful() && response.body() != null) {
@@ -66,7 +66,7 @@ public class UserRepository {
 
     // Регистрация пользователя
     public void signup(AuthDTO authData, ResultCallback<AuthResponse> callback) {
-        userAPI.signup(authData).enqueue(new Callback<>() {
+        userController.signup(authData).enqueue(new Callback<>() {
             @Override
             public void onResponse(Call<AuthResponse> call, Response<AuthResponse> response) {
                 if (response.isSuccessful() && response.body() != null) {
@@ -85,7 +85,7 @@ public class UserRepository {
 
     // Обновление пользователя
     public void updateUser (UserDTO userData, ResultCallback<Void> callback) {
-        userAPI.updateUser(userData.getId(), userData).enqueue(new Callback<>() {
+        userController.updateUser(userData.getId(), userData).enqueue(new Callback<>() {
             @Override
             public void onResponse(Call<Void> call, Response<Void> response) {
                 if (response.isSuccessful()) {
@@ -104,7 +104,7 @@ public class UserRepository {
 
     // Получение данных о компании, в которой работает пользователь
     public void fetchUserCompanyInfo(int userId, ResultCallback<CompanyInfoDTO> callback) {
-        userAPI.getUserCompany(userId).enqueue(new Callback<>() {
+        userController.getUserCompany(userId).enqueue(new Callback<>() {
             @Override
             public void onResponse(Call<CompanyInfoDTO> call, Response<CompanyInfoDTO> response) {
                 if (response.isSuccessful())  {
@@ -121,7 +121,7 @@ public class UserRepository {
     }
 
     public void updateUserCompanyInfo(int userId, CompanyInfoDTO companyInfo, ResultCallback<Void> callback) {
-        userAPI.updateUserCompany(userId, companyInfo).enqueue(new Callback<>() {
+        userController.updateUserCompany(userId, companyInfo).enqueue(new Callback<>() {
             @Override
             public void onResponse(Call<Void> call, Response<Void> response) {
                 if (response.isSuccessful()) callback.onResult(Result.success(null));
@@ -136,7 +136,7 @@ public class UserRepository {
     }
 
     public void fetchOnlineUsers(ResultCallback<List<Integer>> callback) {
-        userAPI.getOnlineUsers().enqueue(new Callback<>() {
+        userController.getOnlineUsers().enqueue(new Callback<>() {
             @Override
             public void onResponse(Call<List<Integer>> call, Response<List<Integer>> response) {
                 if (response.isSuccessful()) {

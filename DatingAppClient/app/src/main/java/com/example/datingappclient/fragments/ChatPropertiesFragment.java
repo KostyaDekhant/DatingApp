@@ -68,8 +68,6 @@ public class ChatPropertiesFragment extends Fragment {
 
     private ChatsViewModel chatsViewModel;
 
-    private Disposable disposable;
-
     private ChatPropertiesFragment() {}
 
     public static ChatPropertiesFragment newInstance (Integer user, ChatDTO chat) {
@@ -114,11 +112,11 @@ public class ChatPropertiesFragment extends Fragment {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        if (disposable != null) disposable.dispose();
+        chatsViewModel.unsubscribeUpdateChat(chat.getId());
     }
 
     private void subscribeToUpdateChat() {
-         disposable = chatsViewModel.subscribeToUpdateChat(chat.getId(), result -> {
+         chatsViewModel.subscribeToUpdateChat(chat.getId(), result -> {
             AtomicReference<Disposable> disposableRef = new AtomicReference<>();
 
             chatsRepository.fetchChat(chat.getId(), userId, chatResult -> {
@@ -128,7 +126,7 @@ public class ChatPropertiesFragment extends Fragment {
                 setChatName();
 
                 chatsRepository.fetchChatAvatar(userId, chat.getId(), avatarResult -> {
-                    chat.setImage(avatarResult.data.get(0).getImage());
+                    chat.setImage(avatarResult.data.getImage());
                     setChatImage();
                     // Отписываемся от обновления, если нужно
                     Disposable d = disposableRef.get();
@@ -273,14 +271,16 @@ public class ChatPropertiesFragment extends Fragment {
 
     private void leaveChat() {
         String logTag = Constants.GLOBAL_LOG_TAG + "LEAVE CHAT";
+        requireActivity().finish();
         chatsRepository.removeMemberFromChat(userId,  chat.getId(),chat.getChatInfo().getCreatedBy(), result -> {
             switch (result.status) {
                 case SUCCESS:
                     Log.i(logTag, "Пользователь " + userId + " покинул чат " + chat.getId());
+                    Toast.makeText(requireContext(), "Чат успешно покинут!", Toast.LENGTH_LONG).show();
                     chatsViewModel.deleteChat(chat.getId());
-                    requireActivity().finish();
                     break;
                 case ERROR:
+                    Toast.makeText(requireContext(), "Ошибка выхода из чата!", Toast.LENGTH_LONG).show();
                     Log.e(logTag, result.error);
                     break;
             }
