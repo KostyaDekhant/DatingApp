@@ -81,9 +81,9 @@ public class AuthController {
             );
             Integer userId = userService.getPkUserByLogin(login);
             if (refreshTokenService.existsByUserId(userId)) {
-                RefreshToken token = refreshTokenService.getTokenByUserId(userId);
-                if(token != null && refreshTokenService.verifyExpiration(token) != null)
-                    throw new UserAlreadyLoggedInException("Пользователь уже вошёл");
+//                RefreshToken token = refreshTokenService.getTokenByUserId(userId);
+//                if(token != null && refreshTokenService.verifyExpiration(token) != null)
+                  throw new UserAlreadyLoggedInException("Пользователь уже вошёл");
             }
 
             // Если нет исключения — выдаём токен
