@@ -52,6 +52,7 @@ public class RefreshTokenService {
         refreshToken.setUser(user);
         refreshToken.setExpiryDate(Instant.now().plusMillis(refreshTokenDurationMs));
         refreshToken.setToken(UUID.randomUUID().toString());
+        log.info("created refresh token for user with id " +  userId + ": " + refreshToken.getToken());
         return refreshTokenRepo.save(refreshToken);
     }
 
