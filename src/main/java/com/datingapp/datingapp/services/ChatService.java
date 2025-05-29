@@ -180,6 +180,8 @@ public class ChatService {
         try {
             GroupChatDto groupChatDto = new GroupChatDto();
             List<Object[]> avatar = groupChatRepo.findAvatars(chatId, userId);
+            if(avatar == null && avatar.isEmpty())
+                return null;
             groupChatDto.setPkGroupChat((Integer) avatar.getFirst()[0]);
             groupChatDto.setImage((byte[]) avatar.getFirst()[1]);
             return groupChatDto;
