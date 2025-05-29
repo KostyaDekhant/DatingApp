@@ -59,7 +59,7 @@ public class UserInterestController {
         return interests;
     }
 
-    @GetMapping("/interests/{id}")
+    @GetMapping("/categories/{id}/interests")
     public ResponseEntity<List<InterestDto>> listInterestById(@PathVariable int id) {
         List<InterestDto> interestList = userInterestService.listInterestByIdCategory(id, interests);
         return ResponseEntity.ok(interestList);
@@ -102,8 +102,8 @@ public class UserInterestController {
         }
         return ResponseEntity.ok(userInterestsDto);
     }
-    @GetMapping("/users/interests")
-    public ResponseEntity<List<UserInterestDto>> listUserInterest(@RequestParam("userId") int userId){
+    @GetMapping("/users/{userId}/interests")
+    public ResponseEntity<List<UserInterestDto>> listUserInterest(@PathVariable("userId") int userId){
         List<UserInterest> userInterests = userInterestService.userListInterest(userId);
         List<UserInterestDto> userInterestsDto = new ArrayList<>();
         for (UserInterest userInterest : userInterests) {
@@ -120,15 +120,15 @@ public class UserInterestController {
     }
 
 
-    @PostMapping("/users/interests")
-    public ResponseEntity<Void> addUserInterest(@RequestParam("userId") int userId,
+    @PostMapping("/users/{userId}/interests")
+    public ResponseEntity<Void> addUserInterest(@PathVariable("userId") int userId,
                                                                  @RequestBody List<UserInterestDto> payload) {
         userInterestService.addUserInterest(userId, payload);
         return ResponseEntity.ok().build();
     }
 
-    @PostMapping("/users/interests/remove")
-    public ResponseEntity<Void> removeUserInterest(@RequestParam("userId") int userId,
+    @PostMapping("/users/{userId}/interests/remove")
+    public ResponseEntity<Void> removeUserInterest(@PathVariable("userId") int userId,
                                                 @RequestBody List<UserInterestDto> payload) {
         userInterestService.removeUserInterest(userId, payload);
         return ResponseEntity.ok().build();

@@ -13,29 +13,30 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/likes")
+@RequestMapping("/api")
 @RequiredArgsConstructor
 public class LikeController {
     private final LikeService likeService;
 
     private static final Logger log = LoggerFactory.getLogger(LikeController.class);
-    @PostMapping
+
+    @PostMapping("/likes")
     public ResponseEntity<Integer> setLike(@RequestBody LikeDTO likeDTO) {
         int id = likeService.setLike(likeDTO);
         return ResponseEntity.ok(id);
     }
 
-    @GetMapping("/my_likes/{user_id}")
-    public ResponseEntity<List<LikeDTO>> getMyLikes(@PathVariable("user_id") int userId) { //LikeDTO
-        return ResponseEntity.ok(likeService.getMyLikes(userId));
-    }
+//    @GetMapping("/my_likes/{user_id}")
+//    public ResponseEntity<List<LikeDTO>> getMyLikes(@PathVariable("user_id") int userId) { //LikeDTO
+//        return ResponseEntity.ok(likeService.getMyLikes(userId));
+//    }
 
-    @GetMapping("/{user_id}")
-    public ResponseEntity<List<LikeDTO>> getReceivedLikes(@PathVariable("user_id") int userId) { //LikeDTO
+    @GetMapping("/users/{userId}/likes")
+    public ResponseEntity<List<LikeDTO>> getReceivedLikes(@PathVariable("userId") int userId) { //LikeDTO
         return ResponseEntity.ok(likeService.getReceivedLikes(userId));
     }
 
-    @DeleteMapping
+    @DeleteMapping("/likes")
     public ResponseEntity<Integer> deleteLike(  @RequestBody LikeDTO likeDTO ) throws UserNotExistsExceptions {
         int deleted = likeService.deleteLike(likeDTO);
         return ResponseEntity.ok(deleted);

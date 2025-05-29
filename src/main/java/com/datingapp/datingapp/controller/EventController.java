@@ -26,16 +26,16 @@ public class EventController {
         return ResponseEntity.ok().build();
     }
 
-    @PostMapping("/users")
+    @PostMapping("/{eventId}/members")
     public ResponseEntity<Void> addMembersToEvent(@RequestParam("memberIds") List<Integer> memberIds,
-                                                  @RequestParam("eventId") Integer eventId){
+                                                  @PathVariable("eventId") Integer eventId){
         eventService.addMembersToEvent(memberIds, eventId);
         return ResponseEntity.ok().build();
     }
 
-    @DeleteMapping("/users")
+    @DeleteMapping("/{eventId}/members")
     public ResponseEntity<Void> removeMembersToEvent(@RequestParam("memberIds") List<Integer> memberIds,
-                                                     @RequestParam("eventId") Integer eventId,
+                                                     @PathVariable("eventId") Integer eventId,
                                                      @RequestParam("organizerId") Integer organizerId){
         eventService.removeMembersFromEvent(memberIds, eventId, organizerId);
         return ResponseEntity.ok().build();

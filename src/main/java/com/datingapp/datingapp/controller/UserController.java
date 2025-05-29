@@ -45,8 +45,9 @@ public class UserController {
     }
 
     //Обновление данных пользователя
-    @PatchMapping("/users")
-    public ResponseEntity<Void> updateUser(@RequestBody UserDTO user) throws UserNotExistsExceptions {
+    @PatchMapping("/users/{userId}")
+    public ResponseEntity<Void> updateUser(@PathVariable("userId") Integer userId,
+                                           @RequestBody UserDTO user) throws UserNotExistsExceptions {
         Integer id = userService.updateUser(user);
         return ResponseEntity.ok().build();
     }

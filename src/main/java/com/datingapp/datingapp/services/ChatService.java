@@ -176,17 +176,13 @@ public class ChatService {
     }
 
     @Transactional
-    public List<GroupChatDto> getChatAvatars(int userId, List<Integer> chatIds){
+    public GroupChatDto getChatAvatars(int userId, int chatId){
         try {
-            List<GroupChatDto> groupChatDtos = new ArrayList<>();
-            List<Object[]> avatars = groupChatRepo.findAvatars(chatIds, userId);
-            for (Object[] avatar : avatars) {
-                GroupChatDto groupChatDto = new GroupChatDto();
-                groupChatDto.setPkGroupChat((Integer) avatar[0]);
-                groupChatDto.setImage((byte[]) avatar[1]);
-                groupChatDtos.add(groupChatDto);
-            }
-            return groupChatDtos;
+            GroupChatDto groupChatDto = new GroupChatDto();
+            List<Object[]> avatar = groupChatRepo.findAvatars(chatId, userId);
+            groupChatDto.setPkGroupChat((Integer) avatar.getFirst()[0]);
+            groupChatDto.setImage((byte[]) avatar.getFirst()[1]);
+            return groupChatDto;
         }
         catch (Exception e) {
             throw new RuntimeException("Ошибка при получении аватарок чатов: " + e.getMessage());

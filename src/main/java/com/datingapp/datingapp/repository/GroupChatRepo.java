@@ -114,7 +114,7 @@ WITH private_photos AS (
    AND p.id = 1
   WHERE
     cm.user_id <> :userId
-    AND cm.chat_id IN (:chatIds)
+    AND cm.chat_id = :chatIds
 )
 SELECT
   gc.pk_group_chat AS chatId,
@@ -122,7 +122,7 @@ SELECT
 FROM group_chat gc
 WHERE
   gc.is_group = TRUE
-  AND gc.pk_group_chat IN (:chatIds)
+  AND gc.pk_group_chat = :chatIds
 
 UNION ALL
 
@@ -133,7 +133,7 @@ FROM private_photos
 WHERE rn = 1
 """, nativeQuery = true)
     List<Object[]> findAvatars(
-            @Param("chatIds") List<Integer> chatIds,
+            @Param("chatId") int chatIds,
             @Param("userId")  int userId
     );
 
@@ -205,4 +205,40 @@ LEFT JOIN LATERAL (
     List<Object[]> getGroupChatByID(int chatId, int userId);
 }
 
-
+//
+//WITH private_photos AS (
+//        SELECT
+//                cm.chat_id,
+//        p.image       AS avatar,
+//        ROW_NUMBER() OVER (
+//PARTITION BY cm.chat_id
+//ORDER BY up.pk_picture
+//    ) AS rn
+//FROM chat_member cm
+//JOIN group_chat gc
+//ON gc.pk_group_chat = cm.chat_id
+//AND gc.is_group     = FALSE
+//LEFT JOIN user_pic up
+//ON up.pk_user = cm.user_id
+//LEFT JOIN picture p
+//ON p.pk_picture = up.pk_picture
+//AND p.id = 1
+//WHERE
+//cm.user_id <> 110
+//AND cm.chat_id = 28
+//        )
+//SELECT
+//gc.pk_group_chat AS chatId,
+//gc.image         AS avatar
+//FROM group_chat gc
+//        WHERE
+//gc.is_group = TRUE
+//AND gc.pk_group_chat = 28
+//
+//UNION ALL
+//
+//SELECT
+//chat_id   AS chatId,
+//avatar
+//FROM private_photos
+//WHERE rn = 1;

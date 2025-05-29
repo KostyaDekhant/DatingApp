@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 
 import java.util.List;
@@ -29,54 +30,50 @@ public class GroupChatController {
         this.chatService = chatService;
     }
 
-    @MessageMapping("/group_chats/create")
-    public int addChat(@RequestBody GroupChatDto groupChatDto) throws UserNotExistsExceptions {
-        log.info("Добавление чата");
-        GroupChat groupChat = chatService.saveGroupChat(groupChatDto);
-        int chatId = groupChat.getPkGroupChat();
-        groupChatDto.setPkGroupChat(chatId);
-        for(ChatMemberDTO chatMember : groupChatDto.getGroupChatInfoDto().getMembers()){
-            simpMessagingTemplate.convertAndSend(
-                    "/topic/group_chats/"+chatMember.getUserId()+"/created",
-                    groupChatDto
-            );
-        }
-        return chatId;
-    }
+//    @MessageMapping("/group_chats/create")
+//    public int addChat(@RequestBody GroupChatDto groupChatDto) throws UserNotExistsExceptions {
+//        log.info("Добавление чата");
+//        GroupChat groupChat = chatService.saveGroupChat(groupChatDto);
+//        int chatId = groupChat.getPkGroupChat();
+//        groupChatDto.setPkGroupChat(chatId);
+//        for(ChatMemberDTO chatMember : groupChatDto.getGroupChatInfoDto().getMembers()){
+//            simpMessagingTemplate.convertAndSend(
+//                    "/topic/group_chats/"+chatMember.getUserId()+"/created",
+//                    groupChatDto
+//            );
+//        }
+//        return chatId;
+//    }
 
-    @MessageMapping("/group_chats/update")
-    public void updateGroupChat(@RequestBody GroupChatPayloadInfo info) {
+//    @MessageMapping("/group_chats/update")
+//    public void updateGroupChat(@RequestBody GroupChatPayloadInfo info) {
+//        try {
+//            int chatId = info.getChatId();
+//            int userId = info.getUserId();
+//            String name = info.getName();
+//            byte[] image = null;
+//            if(info.getImage() != null)
+//                image = info.getImage();
+//            List<ChatMemberDTO> chatMemberDTOS = chatService.getChatInfo(chatId).getMembers();
+//            chatService.updateGroupChat(chatId, userId, name, image);
+//
+//            GroupChatDto groupChatDto = chatService.getChat(chatId,userId);
+//
+//            simpMessagingTemplate.convertAndSend(
+//                    "/topic/group_chats/"+chatId+"/updated",
+//                    groupChatDto
+//            );
+//        }
+//        catch (Exception e) {
+//            throw new ChatNotFoundException("Ошибка при обновлении чата: " + e.getMessage());
+//        }
+//    }
+
+    @MessageMapping("/group_chats/{chatId}/remove")
+    public void removeChat(@PathVariable("chatId") int chatId, @RequestBody GroupChatPayloadInfo info){
         try {
-            int chatId = info.getChatId();
-            int userId = info.getUserId();
-            String name = info.getName();
-            byte[] image = null;
-            if(info.getImage() != null)
-                image = info.getImage();
-            List<ChatMemberDTO> chatMemberDTOS = chatService.getChatInfo(chatId).getMembers();
-            chatService.updateGroupChat(chatId, userId, name, image);
-
-            GroupChatDto groupChatDto = chatService.getChat(chatId,userId);
-
-            simpMessagingTemplate.convertAndSend(
-                    "/topic/group_chats/"+chatId+"/updated",
-                    groupChatDto
-            );
-
-            //return ResponseEntity.ok().build();
-        }
-        catch (Exception e) {
-            throw new ChatNotFoundException("Ошибка при обновлении чата: " + e.getMessage());
-        }
-    }
-
-    @MessageMapping("/group_chats/remove")
-    public void removeChat(@RequestBody GroupChatPayloadInfo info){
-        try {
-            int chatId = info.getChatId();
             int creatorId = info.getUserId();
-            List<ChatMemberDTO> chatMemberDTOS = chatService.getChatInfo(chatId).getMembers();
-
+            //List<ChatMemberDTO> chatMemberDTOS = chatService.getChatInfo(chatId).getMembers();
 
             GroupChatDto groupChatDto = chatService.getChat(chatId, creatorId);
             chatService.deleteChat(chatId, creatorId);

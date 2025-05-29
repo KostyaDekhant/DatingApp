@@ -29,36 +29,19 @@ public class ChatController {
         this.chatService = chatService;
     }
 
-    @GetMapping("/chats/{userId}") //users
-    public ResponseEntity<List<ChatDTO>> findChatUsers(@PathVariable int userId) {
-        return ResponseEntity.ok(chatService.findChatUsers(userId));
-    }
 
     @GetMapping("/group_chats/{chatId}/users/{userId}") //users
     public ResponseEntity<List<ChatMemberDTO>> findGroupChatUsers(@PathVariable int userId, @PathVariable int chatId) {
         return ResponseEntity.ok(chatService.findGroupChatUsers(userId, chatId));
     }
 
-    @GetMapping("/chats/{chatId}/users/{userId}") //users
-    public ResponseEntity<ChatDTO> findChatUsers(@PathVariable int userId, @PathVariable int chatId) {
-        return ResponseEntity.ok(chatService.getChatById(userId, chatId));
-    }
-
-    @PostMapping("/chats")
-    public ResponseEntity<Integer> createChat(
-            @RequestParam int userA,
-            @RequestParam int userB) {
-        int chatId = chatService.createChat(userA, userB);
-        return ResponseEntity.ok(chatId);
-    }
-
-    @GetMapping("/group_chats/info")
-    public ResponseEntity<GroupChatInfoDto> getChatInfo(@RequestParam("chatId") int chatId) {
+    @GetMapping("/group_chats/{chatId}/info")
+    public ResponseEntity<GroupChatInfoDto> getChatInfo(@PathVariable("chatId") int chatId) {
         GroupChatInfoDto groupChatInfoDto = chatService.getChatInfo(chatId);
         return ResponseEntity.ok(groupChatInfoDto);
     }
 
-    @GetMapping("/group_chats")
+    @GetMapping("/users/{userId}/group_chats")
     public ResponseEntity< List<GroupChatDto>> getChats(@RequestParam("userId") int userId,
                                                         @RequestParam("limit") int limit,
                                                         @RequestParam("offset") int offset) {
@@ -72,8 +55,9 @@ public class ChatController {
         return ResponseEntity.ok(groupChatDto);
     }
 
-    @PatchMapping("/group_chats")
-    public ResponseEntity<Void> updateChat(@RequestBody GroupChatPayloadInfo payloadInfo) {
+    @PatchMapping("/group_chats/{chatId}")
+    public ResponseEntity<Void> updateChat(@PathVariable("chatId") int chatId,
+                                           @RequestBody GroupChatPayloadInfo payloadInfo) {
         log.info("Обновление чата: {}", payloadInfo.toString());
         chatService.updateGroupChat(payloadInfo.getChatId(), payloadInfo.getUserId(), payloadInfo.getName(), payloadInfo.getImage());
         broadcastUpdateChatEvent(payloadInfo.getChatId());
@@ -107,22 +91,22 @@ public class ChatController {
     }
 
 
-    @GetMapping("/group_chats/avatars")
-    public ResponseEntity< List<GroupChatDto>> getChatAvatars(@RequestParam("userId") int userId,
-                                                              @RequestParam("chatIds") List<Integer> chatIds) {
-        List<GroupChatDto> groupChatDtos = chatService.getChatAvatars(userId, chatIds);
+    @GetMapping("/group_chats/{chatId}/avatar")
+    public ResponseEntity<GroupChatDto> getChatAvatar(@RequestParam("userId") int userId,
+                                                              @PathVariable("chatId") int chatId) {
+        GroupChatDto groupChatDtos = chatService.getChatAvatars(userId, chatId);
         return ResponseEntity.ok(groupChatDtos);
     }
 
-    @PostMapping("/group_chats/users")
+    @PostMapping("/group_chats/{chatId}/members")
     public ResponseEntity<Void> addMembersToChat(@RequestParam("chatId") int chatId, @RequestParam("userIds") List<Integer> userIds) {
         chatService.addMembers(chatId, userIds);
         broadcastUpdateChatEvent(chatId);
         return ResponseEntity.ok().build();
     }
 
-    @DeleteMapping("/group_chats/{chatId}/users/{userId}/creator/{creatorId}")
-    public ResponseEntity<Void> removeMemberFromChat(@PathVariable int chatId, @PathVariable int userId, @PathVariable int creatorId) throws UserNotExistsExceptions {
+    @DeleteMapping("/group_chats/{chatId}/members/{userId}")
+    public ResponseEntity<Void> removeMemberFromChat(@PathVariable int chatId, @PathVariable int userId, @RequestParam("creatorId") int creatorId) throws UserNotExistsExceptions {
         chatService.deleteChatMember(chatId, userId, creatorId);
         broadcastUpdateChatEvent(chatId);
         return ResponseEntity.ok().build();

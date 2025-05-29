@@ -26,32 +26,32 @@ public class ImageController {
     private final ImageService imageService;
 
     //Загрузка фотографий на сервер
-    @PostMapping("/user_images/upload")
-    public ResponseEntity<Integer> imageUpload(@RequestBody MyPic myPic){
+    @PostMapping("/users/{userId}/images/upload")
+    public ResponseEntity<Integer> imageUpload(@PathVariable("userId") int userId, @RequestBody MyPic myPic){
         Integer id = imageService.imageUpload(myPic);
         return ResponseEntity.ok(id);
     }
 
     //Загрузка фотографий на сервер с postman'а
-    @PostMapping("/images2")
+    @PostMapping("/users/{userId}/images/upload/v2")
     public ResponseEntity<Integer> imageUpload2(@RequestParam("image") MultipartFile image,
-                                                @RequestParam("user_id") int user_id,
+                                                @PathVariable("userId") int user_id,
                                                 @RequestParam("image_id")int image_id) throws IOException {
         Integer id = imageService.imageUpload2(image, user_id, image_id);
         return ResponseEntity.ok(id);
     }
 
     //удалить фотографию
-    @DeleteMapping("/user_images/delete/{image_id}")
-    public ResponseEntity<Void> deleteImage(@PathVariable int image_id) throws ImageNotFoundException {
-        imageService.deleteImage(image_id);
+    @DeleteMapping("/images/{imageId}/delete")
+    public ResponseEntity<Void> deleteImage(@PathVariable("imageId") int imageId) throws ImageNotFoundException {
+        imageService.deleteImage(imageId);
         return ResponseEntity.ok().build();
     }
 
 
     //Получить фотки конкретного пользователя
-    @GetMapping("/user_images")
-    public ResponseEntity<List<Object[]>> getImages(@RequestParam("user_id") int user_id,
+    @GetMapping("/users/{userId}/images")
+    public ResponseEntity<List<Object[]>> getImages(@PathVariable("userId") int user_id,
                                                     @RequestParam("limit") int limit){
         List<Object[]> obj = imageService.getImages(user_id, limit);
         log.info("Получены фотографии для пользователя c id " + user_id + ": " + obj);
