@@ -268,6 +268,8 @@ select u.name from "user" u where pk_user = :userId
     List<Object[]> getUserInfoForEvent(@Param("userId") int user_id);
 
     User getUserByPkUser(Integer organizerId);
+
+    User getUserByLogin(String username);
 //SELECT DISTINCT ON (u2.pk_user)
 //     u2.name        AS name,
 //     p.image        AS avatar
