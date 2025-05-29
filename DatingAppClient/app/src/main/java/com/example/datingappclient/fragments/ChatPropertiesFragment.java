@@ -213,10 +213,14 @@ public class ChatPropertiesFragment extends Fragment {
                 if (menu instanceof MenuBuilder) {
                     ((MenuBuilder) menu).setOptionalIconsVisible(true);
 
-                    MenuItem menuItem = menu.findItem(R.id.action_delete_chat), menuItemEdit = menu.findItem(R.id.action_edit_chat);
+                    MenuItem menuItem = menu.findItem(R.id.action_delete_chat),
+                            menuItemEdit = menu.findItem(R.id.action_edit_chat),
+                            menuItemLeaveChat = menu.findItem(R.id.action_exit_chat);
+
                     boolean userIsCreator = Objects.equals(userId, chat.getChatInfo().getCreatedBy());
                     menuItem.setVisible(userIsCreator);
                     menuItemEdit.setVisible(userIsCreator);
+                    menuItemLeaveChat.setVisible(!userIsCreator);
                 }
             }
 
@@ -232,9 +236,55 @@ public class ChatPropertiesFragment extends Fragment {
                     showDeleteGroupDialog();
                     return true;
                 }
+                else if (menuItem.getItemId() == R.id.action_exit_chat) {
+                    showLeaveChatDialog();
+                    return true;
+                }
                 return false;
             }
         }, getViewLifecycleOwner());
+    }
+
+    private void showLeaveChatDialog() {
+        Bitmap bitmap = ImageUtils.getCroppedBitmap(ImageUtils.convertPrimitiveByteToBitmap(chat.getImage())); // твой Bitmap
+        Drawable drawable = null;
+        if (bitmap != null)
+            drawable = new BitmapDrawable(getResources(), bitmap);
+
+        AlertDialog dialog = new AlertDialog.Builder(requireContext())
+                .setIcon(drawable)
+                .setTitle(chat.getName())
+                .setMessage("Вы уверенны, что хотите покинуть чат?")
+                .setNegativeButton("Отмена", ((dialogInterface, i) -> dialogInterface.dismiss()))
+                .setPositiveButton("Покинуть чат", ((dialogInterface, i) -> leaveChat()))
+                .show();
+
+        // Кастомизация цвета
+        TypedValue typedValue = new TypedValue();
+        Resources.Theme theme = requireContext().getTheme();
+        theme.resolveAttribute(android.R.attr.colorPrimary, typedValue, true);
+        int colorPrimary = typedValue.data;
+
+        dialog.getButton(AlertDialog.BUTTON_POSITIVE)
+                .setTextColor(ContextCompat.getColor(requireContext(), R.color.red));
+        dialog.getButton(AlertDialog.BUTTON_NEGATIVE)
+                .setTextColor(colorPrimary);
+    }
+
+    private void leaveChat() {
+        String logTag = Constants.GLOBAL_LOG_TAG + "LEAVE CHAT";
+        chatsRepository.removeMemberFromChat(userId,  chat.getId(),chat.getChatInfo().getCreatedBy(), result -> {
+            switch (result.status) {
+                case SUCCESS:
+                    Log.i(logTag, "Пользователь " + userId + " покинул чат " + chat.getId());
+                    chatsViewModel.deleteChat(chat.getId());
+                    requireActivity().finish();
+                    break;
+                case ERROR:
+                    Log.e(logTag, result.error);
+                    break;
+            }
+        });
     }
 
     private void showDeleteGroupDialog() {

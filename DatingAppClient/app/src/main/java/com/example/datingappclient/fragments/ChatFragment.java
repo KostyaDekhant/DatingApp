@@ -179,8 +179,20 @@ public class ChatFragment extends Fragment {
             });
 
             chatsRepository.fetchChatInfo(chat.getId(), result -> {
-                if (chat != null) chat.setChatInfo(result.data);
-                chatMembersViewModel.setChatMembers(result.data.getMembers());
+                switch (result.status) {
+                    case SUCCESS:
+                        Log.d(logTag, "Получна информация о чате (и учатсники)");
+                        if (chat != null) chat.setChatInfo(result.data);
+                        chatMembersViewModel.setChatMembers(result.data.getMembers());
+                        break;
+                    case EMPTY:
+                        Log.d(logTag, "Информация о чате не найдена!");
+                        break;
+                    case ERROR:
+                        Log.e(logTag, result.error);
+                        break;
+                }
+
             });
         });
     }

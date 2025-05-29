@@ -11,4 +11,10 @@
         android:title="Удалить чат"
         android:icon="@drawable/ic_delete_chat"
         app:showAsAction="never" />
+
+    <item
+        android:id="@+id/action_exit_chat"
+        android:title="Покинуть чат"
+        android:icon="@drawable/ic_delete_chat"
+        app:showAsAction="never" />
 </menu>

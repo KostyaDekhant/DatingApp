@@ -166,6 +166,8 @@ public class ChatWebSocketService {
         }
     }
 
+    private Disposable historyDisposable;
+
     private final String triggerHistory = "/app/history/";
     @SuppressLint("CheckResult")
     public void getHistory(int chatId, int userId, MutableLiveData<List<MessageDTO>> historyLiveData) {
@@ -173,31 +175,33 @@ public class ChatWebSocketService {
 
         String jsonParams = getHistoryParams(logTag, offset, userId);
 
-        stompClient.topic("/topic/" + userId + "/history/" + chatId)
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(topicMessage -> {
-                    try {
-                        List<MessageDTO> messages = objectMapper.readValue(
-                                topicMessage.getPayload(),
-                                new TypeReference<List<MessageDTO>>() {}
-                        );
-                        Log.i(logTag, "Получено " + messages.size() + " сообщений!");
-                        fullHistory.addAll(messages);
-                        messages.addAll(fullHistory);
-                        historyLiveData.postValue(messages);
-                        if (messages.size() == Constants.MESSAGE_LIMIT) {
-                            offset += Constants.MESSAGE_LIMIT;
-                            stompClient.send(triggerHistory + chatId, getHistoryParams(logTag, offset, userId))
-                                    .subscribe(
-                                            () -> Log.d(logTag, "История запрошена"),
-                                            throwable -> Log.e(logTag, "Ошибка при запросе истории", throwable)
-                                    );
+        if (historyDisposable == null) {
+            historyDisposable = stompClient.topic("/topic/" + userId + "/history/" + chatId)
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(topicMessage -> {
+                        try {
+                            List<MessageDTO> messages = objectMapper.readValue(
+                                    topicMessage.getPayload(),
+                                    new TypeReference<List<MessageDTO>>() {
+                                    }
+                            );
+                            Log.i(logTag, "Получено " + messages.size() + " сообщений!");
+                            messages.addAll(fullHistory);
+                            historyLiveData.setValue(messages);
+                            if (messages.size() == Constants.MESSAGE_LIMIT) {
+                                offset += Constants.MESSAGE_LIMIT;
+                                stompClient.send(triggerHistory + chatId, getHistoryParams(logTag, offset, userId))
+                                        .subscribe(
+                                                () -> Log.d(logTag, "История запрошена"),
+                                                throwable -> Log.e(logTag, "Ошибка при запросе истории", throwable)
+                                        );
+                            }
+                        } catch (Exception e) {
+                            Log.e(logTag, "Ошибка при разборе истории", e);
                         }
-                    } catch (Exception e) {
-                        Log.e(logTag, "Ошибка при разборе истории", e);
-                    }
-                }, throwable -> Log.e(logTag, "Ошибка подписки на историю", throwable));
+                    }, throwable -> Log.e(logTag, "Ошибка подписки на историю", throwable));
+        }
 
         stompClient.send(triggerHistory + chatId, jsonParams)
                 .subscribe(
