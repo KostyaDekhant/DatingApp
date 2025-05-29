@@ -42,7 +42,7 @@ public class ChatController {
     }
 
     @GetMapping("/users/{userId}/group_chats")
-    public ResponseEntity< List<GroupChatDto>> getChats(@RequestParam("userId") int userId,
+    public ResponseEntity< List<GroupChatDto>> getChats(@PathVariable("userId") int userId,
                                                         @RequestParam("limit") int limit,
                                                         @RequestParam("offset") int offset) {
         List<GroupChatDto> groupChatDtos = chatService.getChats(userId, limit, offset);
