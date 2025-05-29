@@ -28,6 +28,7 @@ public class WebSocketEventListener {
             String username = user.getName();
             User entity = userRepository.findByName(username);
             if (entity != null) {
+                log.info("User " + username + " disconnected");
                 entity.setIsOnline(false);
                 userRepository.save(entity);
             }
