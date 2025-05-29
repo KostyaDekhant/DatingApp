@@ -344,6 +344,7 @@ public class UsereditFragment extends Fragment {
             bubblesRepository.fetchUserInterestsByCategory(user.getId(), category.getId(), result -> {
                 switch (result.status) {
                     case SUCCESS:
+                        Log.i(logTag, "Получено " + result.data.size() + "интересов в категории " + category.getName());
                         categoryInterestMap.put(category, result.data);
                         renderCategory(category, result.data);
                         break;

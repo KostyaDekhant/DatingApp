@@ -20,8 +20,12 @@ import okhttp3.Route;
 
 public class TokenAuthenticator implements Authenticator {
 
+
     private final AuthRepository authRepository;
     private final TokenManager tokenManager;
+
+    // объект блокировки
+    private final Object lock = new Object();
 
     public TokenAuthenticator(AuthRepository authRepository, TokenManager tokenManager) {
         this.authRepository = authRepository;
@@ -35,24 +39,41 @@ public class TokenAuthenticator implements Authenticator {
             return null;
         }
 
-        String logTag = Constants.GLOBAL_LOG_TAG + "TOKEN ERROR";
-        Log.e(logTag, "Ошибка входа, пробую обновить токен!" + response.message());
+        synchronized (lock) {
+            String newAccessToken = tokenManager.getAccessToken();
+            String logTag = Constants.GLOBAL_LOG_TAG + "TOKEN ERROR";
+            Log.d(logTag, "Токен не валиден (401), пробую обновить!");
+            // Возможно, кто-то уже обновил токен — проверим
+            String requestAccessToken = extractAccessToken(response.request());
+            if (newAccessToken != null && !newAccessToken.equals(requestAccessToken)) {
+                // Кто-то другой уже обновил — просто повторим запрос с новым токеном
+                Log.d(logTag, "Токен уже обновился (асинхронный запрос)");
+                return response.request().newBuilder()
+                        .header("Authorization", "Bearer " + newAccessToken)
+                        .build();
+            }
 
-        String refreshToken = tokenManager.getRefreshToken();
-        String token = tokenManager.getAccessToken();
+            Log.d(logTag, "Попытка обновления");
+            // Иначе — пытаемся обновить токен
+            String refreshToken = tokenManager.getRefreshToken();
+            if (refreshToken == null || refreshToken.isEmpty()) return null;
 
-        try {
-            AuthResponse authResponse = authRepository.refreshTokenSync(new TokenRefreshRequest(refreshToken));
-            tokenManager.saveAccessToken(authResponse.getToken());
-            tokenManager.saveRefreshToken(authResponse.getRefreshToken());
-            tokenManager.saveUserId(authResponse.getUserId());
+            try {
+                AuthResponse authResponse = authRepository.refreshTokenSync(new TokenRefreshRequest(refreshToken));
+                tokenManager.saveAccessToken(authResponse.getToken());
+                tokenManager.saveRefreshToken(authResponse.getRefreshToken());
+                tokenManager.saveUserId(authResponse.getUserId());
 
-            return response.request().newBuilder()
-                    .header("Authorization", "Bearer " + authResponse.getToken())
-                    .build();
-        } catch (IOException e) {
-            e.printStackTrace();
-            return null;
+                Log.d(logTag, "Токен обновлен успещно!");
+
+                return response.request().newBuilder()
+                        .header("Authorization", "Bearer " + authResponse.getToken())
+                        .build();
+
+            } catch (IOException e) {
+                e.printStackTrace();
+                return null;
+            }
         }
     }
 
@@ -60,5 +81,13 @@ public class TokenAuthenticator implements Authenticator {
         int count = 1;
         while ((response = response.priorResponse()) != null) count++;
         return count;
+    }
+
+    private String extractAccessToken(Request request) {
+        String header = request.header("Authorization");
+        if (header != null && header.startsWith("Bearer ")) {
+            return header.substring("Bearer ".length());
+        }
+        return null;
     }
 }
