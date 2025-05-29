@@ -210,27 +210,6 @@ public class ChatWebSocketService {
 
     // =============== UPDATE CHAT
     @SuppressLint("CheckResult")
-    public void sendUpdateGroupChat(ChatPayloadInfo updateInfo, ResultCallback<Void> callback) {
-        String logTag = Constants.GLOBAL_LOG_TAG + "UPDATE CHAT";
-        try {
-            String json = objectMapper.writeValueAsString(updateInfo);
-            stompClient.send("/app/group_chats/update", json)
-                    .subscribeOn(Schedulers.io())
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(() -> {
-                                Log.d(logTag, "Обновление чата отправлено, image size = " + updateInfo.getImage().length);
-                                callback.onResult(Result.success(null));
-                            },
-                            error -> {
-                                Log.e(logTag, "Ошибка обновления чата", error);
-                                callback.onResult(Result.error("Ошибка обновления чата " + error));
-                            });
-        } catch (Exception e) {
-            Log.e(logTag, "Ошибка сериализации", e);
-        }
-    }
-
-    @SuppressLint("CheckResult")
     public Disposable subscribeToChatUpdatedEvents(int chatId, ResultCallback<Boolean> callback) {
         String logTag = Constants.GLOBAL_LOG_TAG + "STOMP CHAT UPDATED";
         Disposable disposable = stompClient.topic("/topic/group_chats/" + chatId + "/updated")
@@ -250,35 +229,6 @@ public class ChatWebSocketService {
     }
 
     // =============== CREATE CHAT
-    @SuppressLint("CheckResult")
-    public void sendCreateGroupChat(ChatDTO chat, ResultCallback<Void> callback) {
-        String logTag = Constants.GLOBAL_LOG_TAG + "STOMP CREATE CHAT";
-        try {
-            String json = objectMapper.writeValueAsString(parseChat(chat));
-            Log.d(logTag, json);
-            stompClient.send("/app/group_chats/create", json)
-                    .subscribe(() -> {
-                                Log.d(logTag, "Создание чата отправлено");
-                                callback.onResult(Result.success(null));
-                            },
-                            error -> {
-                                Log.e(logTag, "Ошибка создания чата", error);
-                                callback.onResult(Result.error("Ошибка создания чата" + error));
-                            });
-        } catch (Exception e) {
-            Log.e(logTag, "Ошибка сериализации", e);
-        }
-    }
-
-    private ChatDTO parseChat(ChatDTO chat) {
-        List<ChatMemberDTO> chatMembers = new ArrayList<>();
-        for (ChatMemberDTO chatMember : chat.getChatInfo().getMembers()) {
-            chatMembers.add(new ChatMemberDTO(null, chatMember.getId(), null, false, false));
-        }
-        ChatInfoDTO chatInfo = new ChatInfoDTO(chat.getChatInfo().getCreatedBy(), chat.getChatInfo().getCreatedAt(), chatMembers, chat.getChatInfo().getIsGroup());
-        return new ChatDTO(chat.getId(), chat.getName(), chat.getLastMessage(), chat.getImage(), chatInfo);
-    }
-
     @SuppressLint("CheckResult")
     public Disposable subscribeToChatCreatedEvents(int userId, ResultCallback<Integer> callback) {
         String logTag = Constants.GLOBAL_LOG_TAG + "STOMP CHAT CREATED";

@@ -20,6 +20,7 @@ import com.example.datingappclient.retrofit.repository.ChatsRepository;
 import com.example.datingappclient.retrofit.wrapper.Result;
 import com.example.datingappclient.utils.DateUtils;
 import com.example.datingappclient.viewmodels.ChatsViewModel;
+import com.example.datingappclient.websocket.UpdateEventsController;
 
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -56,8 +57,14 @@ public class ChatsHolder extends RecyclerView.ViewHolder {
 
         this.chatsViewModel = viewModel;
 
+        UpdateEventsController updateEventsController = new UpdateEventsController();
+        updateEventsController.subscribeToChatUpdatedEvents(chatId, result -> {
+
+        });
+
         updateDisposable = viewModel.subscribeToUpdateChat(chatId, result1 -> {
-            Log.d(logTag, "Ивент обновления чата внутри холдера " + chatId);
+
+            Log.d(Constants.GLOBAL_LOG_TAG + "UPDATE CHAT", "ChatsHolder");
 
             chatsRepository.fetchChat(chatId, senderId, chatResult -> {
                 if (chatResult.status != Result.Status.SUCCESS || chatResult.data == null) return;
@@ -70,7 +77,7 @@ public class ChatsHolder extends RecyclerView.ViewHolder {
                     }
 
                     // Теперь обновляем чат
-                    viewModel.updateOrAddChat(chat);
+                    //viewModel.updateOrAddChat(chat);
 
                     // Отписываемся от обновления, если нужно
                     Disposable d = disposableRef.get();

@@ -116,9 +116,9 @@ public class ChatPropertiesFragment extends Fragment {
     }
 
     private void subscribeToUpdateChat() {
-         chatsViewModel.subscribeToUpdateChat(chat.getId(), result -> {
+        chatsViewModel.subscribeToUpdateChat(chat.getId(), result -> {
+            Log.d(Constants.GLOBAL_LOG_TAG + "UPDATE CHAT", "ChatPropertiesFragment");
             AtomicReference<Disposable> disposableRef = new AtomicReference<>();
-
             chatsRepository.fetchChat(chat.getId(), userId, chatResult -> {
                 if (chatResult.status != Result.Status.SUCCESS || chatResult.data == null) return;
 
@@ -272,6 +272,7 @@ public class ChatPropertiesFragment extends Fragment {
     private void leaveChat() {
         String logTag = Constants.GLOBAL_LOG_TAG + "LEAVE CHAT";
         requireActivity().finish();
+        chatsViewModel.clearUpdateSubscribes();
         chatsRepository.removeMemberFromChat(userId,  chat.getId(),chat.getChatInfo().getCreatedBy(), result -> {
             switch (result.status) {
                 case SUCCESS:

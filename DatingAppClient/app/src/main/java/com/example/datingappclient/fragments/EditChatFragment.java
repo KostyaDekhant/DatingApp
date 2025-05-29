@@ -217,6 +217,7 @@ public class EditChatFragment extends Fragment {
 
         AtomicReference<Disposable> disposableRef = new AtomicReference<>();
         chatsViewModel.subscribeToUpdateChat(chat.getId(), result1 -> {
+            Log.d(Constants.GLOBAL_LOG_TAG + "UPDATE CHAT", "EditChatFragment");
             Toast.makeText(requireContext(), "Чат успешно обновлен!", Toast.LENGTH_LONG).show();
             chatsRepository.fetchChat(chat.getId(), userId, result -> {
                 requireActivity().finish();

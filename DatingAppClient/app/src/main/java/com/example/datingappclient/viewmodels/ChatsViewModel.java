@@ -24,6 +24,8 @@ public class ChatsViewModel extends ViewModel {
     private final MutableLiveData<List<ChatDTO>> chats = new MutableLiveData<>();
     private final ChatWebSocketService webSocketService;
 
+    private List<Disposable> updateSubscribes = new ArrayList<>();
+
     public ChatsViewModel() {
         this.webSocketService = new ChatWebSocketService();
         initSubscriptions();
@@ -51,7 +53,15 @@ public class ChatsViewModel extends ViewModel {
     }
 
     public Disposable subscribeToUpdateChat(int chatId, ResultCallback<Boolean> callback) {
-        return webSocketService.subscribeToChatUpdatedEvents(chatId, callback);
+        Disposable disposable = webSocketService.subscribeToChatUpdatedEvents(chatId, callback);
+        updateSubscribes.add(disposable);
+        return disposable;
+    }
+
+    public void clearUpdateSubscribes() {
+        for (Disposable disposable : updateSubscribes) {
+            if (disposable != null) disposable.dispose();
+        }
     }
 
     public Disposable getUpdateChatSubscribe;
@@ -162,20 +172,6 @@ public class ChatsViewModel extends ViewModel {
         updatedList.removeIf(c -> c.getId() == chatId);
 
         chats.setValue(updatedList);
-    }
-
-    /**
-     * Отправка события на создание группового чата
-     */
-    public void createChat(ChatDTO chat, ResultCallback<Void> callback) {
-        webSocketService.sendCreateGroupChat(chat, callback);
-    }
-
-    /**
-     * Отправка события на обновление чата (название, аватар и т.п.)
-     */
-    public void updateChat(ChatPayloadInfo updateInfo, ResultCallback<Void> callback) {
-        webSocketService.sendUpdateGroupChat(updateInfo, callback);
     }
 
     /**

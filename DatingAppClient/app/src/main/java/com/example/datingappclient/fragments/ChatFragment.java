@@ -120,6 +120,7 @@ public class ChatFragment extends Fragment {
         // Подписываемся на измененеия чата, чтобы изменять его во фрагменте
         AtomicReference<Disposable> disposableRef = new AtomicReference<>();
         chatsViewModel.subscribeToUpdateChat(chat.getId(), result1 -> {
+            Log.d(Constants.GLOBAL_LOG_TAG + "UPDATE CHAT", "ChatFragment");
             if (chat == null) {
                 Disposable d = disposableRef.get();
                 if (d != null && !d.isDisposed()) {
@@ -148,7 +149,6 @@ public class ChatFragment extends Fragment {
                         break;
                 }
             });
-
             chatsRepository.fetchChat(chat.getId(), userId, result -> {
                 switch (result.status) {
                     case SUCCESS:
@@ -171,7 +171,6 @@ public class ChatFragment extends Fragment {
                     d.dispose();
                 }
             });
-
             chatsRepository.fetchChatInfo(chat.getId(), result -> {
                 switch (result.status) {
                     case SUCCESS:
@@ -195,13 +194,7 @@ public class ChatFragment extends Fragment {
         DatingAppApplication app = DatingAppApplication.getInstance();
         chatsViewModel = app.getChatsViewModel();
 
-        chatMembersViewModel = new ViewModelProvider(this, new ViewModelProvider.Factory() {
-            @NonNull
-            @Override
-            public <T extends androidx.lifecycle.ViewModel> T create(@NonNull Class<T> modelClass) {
-                return (T) new ChatMembersViewModel();
-            }
-        }).get(ChatMembersViewModel.class);
+        chatMembersViewModel = new ViewModelProvider(this).get(ChatMembersViewModel.class);
         app.setChatMembersViewModel(chatMembersViewModel);
     }
 
