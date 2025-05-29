@@ -107,15 +107,7 @@ public class ChatListFragment extends Fragment {
             chatsViewModel = app.getChatsViewModel();
         }
         else {
-            TokenManager tokenManager = new TokenManager(requireActivity().getApplicationContext());
-            String token = tokenManager.getAccessToken();
-            chatsViewModel = new ViewModelProvider(requireActivity(), new ViewModelProvider.Factory() {
-                @NonNull
-                @Override
-                public <T extends androidx.lifecycle.ViewModel> T create(@NonNull Class<T> modelClass) {
-                    return (T) new ChatsViewModel(token);
-                }
-            }).get(ChatsViewModel.class);
+            chatsViewModel = new ViewModelProvider(requireActivity()).get(ChatsViewModel.class);
             app.setChatsViewModel(chatsViewModel);
         }
 

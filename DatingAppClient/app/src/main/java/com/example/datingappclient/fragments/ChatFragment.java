@@ -65,8 +65,6 @@ public class ChatFragment extends Fragment {
     private ChatsViewModel chatsViewModel;
     private ChatMembersViewModel chatMembersViewModel;
 
-    private Disposable disposableUpdate;
-
     private ChatFragment() {}
 
     public static ChatFragment newInstance (Integer userId, ChatDTO chat) {
@@ -96,10 +94,8 @@ public class ChatFragment extends Fragment {
         setupChatsViewModel();
         subscribeUpdateChatEvent();
 
-        AuthResponse authResponse = getAuthResponse();
-
         // Инициализируем ViewModel с кастомной фабрикой
-        dialogViewModel = new ViewModelProvider(this, new DialogViewModelFactory(authResponse.getToken(), chat.getId(), userId)).get(DialogViewModel.class);
+        dialogViewModel = new ViewModelProvider(this, new DialogViewModelFactory(chat.getId(), userId)).get(DialogViewModel.class);
 
         renderUsername();
         renderChatImage();
@@ -116,14 +112,14 @@ public class ChatFragment extends Fragment {
     public void onDestroy() {
         super.onDestroy();
         dialogViewModel.disconnect();                               // Закрываем соединение
-        if (disposableUpdate != null) disposableUpdate.dispose();   // Отписываеся от обновлений чата
+        chatsViewModel.unsubscribeUpdateChat(chat.getId());         // Отписываеся от обновлений чата
         ChatDTO.selectedChat = null;
     }
 
     private void subscribeUpdateChatEvent() {
         // Подписываемся на измененеия чата, чтобы изменять его во фрагменте
         AtomicReference<Disposable> disposableRef = new AtomicReference<>();
-        disposableUpdate = chatsViewModel.subscribeToUpdateChat(chat.getId(), result1 -> {
+        chatsViewModel.subscribeToUpdateChat(chat.getId(), result1 -> {
             if (chat == null) {
                 Disposable d = disposableRef.get();
                 if (d != null && !d.isDisposed()) {
@@ -139,9 +135,8 @@ public class ChatFragment extends Fragment {
             chatsRepository.fetchChatAvatar(userId, chat.getId(), result -> {
                 switch (result.status) {
                     case SUCCESS:
-                        //chatsViewModel.updateOrAddChat(result.data.get(0));
                         if (chat != null) {
-                            chat.setImage(result.data.get(0).getImage());
+                            chat.setImage(result.data.getImage());
                             renderChatImage();
                         }
                         break;
@@ -158,7 +153,6 @@ public class ChatFragment extends Fragment {
                 switch (result.status) {
                     case SUCCESS:
                         Log.d(logTag, "Информация о чате обновлена!");
-                        //chatsViewModel.updateOrAddChat(result.data);
                         if (chat != null) {
                             chat.setName(result.data.getName());
                             renderUsername();
@@ -198,7 +192,7 @@ public class ChatFragment extends Fragment {
     }
 
     private void setupChatsViewModel() {
-        DatingAppApplication app = (DatingAppApplication) requireActivity().getApplication();
+        DatingAppApplication app = DatingAppApplication.getInstance();
         chatsViewModel = app.getChatsViewModel();
 
         chatMembersViewModel = new ViewModelProvider(this, new ViewModelProvider.Factory() {
@@ -277,12 +271,5 @@ public class ChatFragment extends Fragment {
             profileImage.setImageBitmap(croppedImage);
             profileImage.setPadding(0, 0, 0, 0);
         }
-    }
-
-    private AuthResponse getAuthResponse() {
-        TokenManager tokenManager = new TokenManager(requireActivity().getApplicationContext());
-        String token = tokenManager.getAccessToken();
-        int userId = tokenManager.getUserId();
-        return new AuthResponse(token, null, userId);
     }
 }
