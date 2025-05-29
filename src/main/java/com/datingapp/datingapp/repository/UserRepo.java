@@ -19,7 +19,6 @@ SELECT u.login FROM "user" u WHERE u.pk_user = :id
     List<String> getLoginByPkUser(Integer id);
 
     User findByName(String name);
-    Optional<User> findByLogin(String login);
 
     @Query(value = """
 SELECT
@@ -270,6 +269,8 @@ select u.name from "user" u where pk_user = :userId
     User getUserByPkUser(Integer organizerId);
 
     User getUserByLogin(String username);
+
+    Optional<User> findByLogin(String login);
 //SELECT DISTINCT ON (u2.pk_user)
 //     u2.name        AS name,
 //     p.image        AS avatar

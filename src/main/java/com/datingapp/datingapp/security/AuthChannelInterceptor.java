@@ -46,7 +46,7 @@ public class AuthChannelInterceptor implements ChannelInterceptor {
             String sessionId = accessor.getSessionId();
             StompCommand command = accessor.getCommand();
 
-            log.info("WebSocket {} — sessionId={}", command, sessionId);
+            log.info("WebSocket_{} — sessionId={}", command, sessionId);
 
             if (command == StompCommand.CONNECT) {
                 String token = accessor.getFirstNativeHeader("Authorization");

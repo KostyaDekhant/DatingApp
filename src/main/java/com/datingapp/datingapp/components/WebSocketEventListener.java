@@ -12,6 +12,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.socket.messaging.SessionDisconnectEvent;
 
 import java.security.Principal;
+import java.util.Optional;
 
 @Component
 public class WebSocketEventListener {
@@ -24,13 +25,14 @@ public class WebSocketEventListener {
     public void handleWebSocketDisconnectListener(SessionDisconnectEvent event) {
         StompHeaderAccessor accessor = StompHeaderAccessor.wrap(event.getMessage());
         Principal user = accessor.getUser();
+        log.info("User " + user.getName() + " disconnected");
         if (user != null) {
             String username = user.getName();
-            User entity = userRepository.findByName(username);
-            if (entity != null) {
-                log.info("User " + username + " disconnected");
-                entity.setIsOnline(false);
-                userRepository.save(entity);
+            Optional<User> entity = userRepository.findByLogin(username);
+            log.info("User " + entity);
+            if (entity.isPresent()) {
+                entity.get().setIsOnline(false);
+                userRepository.save(entity.get());
             }
         }
     }
