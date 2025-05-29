@@ -4,6 +4,7 @@ import com.datingapp.datingapp.controller.MessageController;
 import com.datingapp.datingapp.entity.User;
 import com.datingapp.datingapp.repository.UserRepo;
 import com.datingapp.datingapp.security.AuthChannelInterceptor;
+import com.datingapp.datingapp.services.OnlineStatusService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,14 +24,6 @@ public class WebSocketEventListener {
     @Autowired
     private UserRepo userRepository;
 
-    private final SimpMessagingTemplate simpMessagingTemplate;
-
-    record OnlineStatus(Integer id, Boolean isOnline) {}
-
-    public WebSocketEventListener(SimpMessagingTemplate simpMessagingTemplate) {
-        this.simpMessagingTemplate = simpMessagingTemplate;
-    }
-
     @EventListener
     public void handleWebSocketDisconnectListener(SessionDisconnectEvent event) {
         StompHeaderAccessor accessor = StompHeaderAccessor.wrap(event.getMessage());
@@ -43,8 +36,7 @@ public class WebSocketEventListener {
             if (entity.isPresent()) {
                 entity.get().setIsOnline(false);
                 userRepository.save(entity.get());
-                simpMessagingTemplate.convertAndSend("/topic/online",
-                        new OnlineStatus(entity.get().getPkUser(), false));
+                OnlineStatusService.sendOnlineStatus(entity.get().getPkUser(), false);
             }
         }
     }

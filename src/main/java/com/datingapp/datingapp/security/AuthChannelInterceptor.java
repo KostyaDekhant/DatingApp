@@ -3,6 +3,8 @@ package com.datingapp.datingapp.security;
 import com.datingapp.datingapp.controller.UserController;
 import com.datingapp.datingapp.entity.User;
 import com.datingapp.datingapp.repository.UserRepo;
+import com.datingapp.datingapp.services.OnlineStatusService;
+import org.hibernate.validator.internal.util.stereotypes.Lazy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,17 +33,13 @@ public class AuthChannelInterceptor implements ChannelInterceptor {
     private static final Logger log = LoggerFactory.getLogger(AuthChannelInterceptor.class);
     private final UserRepo userRepo;
 
-    private final SimpMessagingTemplate simpMessagingTemplate;
-
-    record OnlineStatus(Integer id, Boolean isOnline) {}
 
     @Autowired
     public AuthChannelInterceptor(JwtUtil jwtUtil,
-                                  UserDetailsService userDetailsService, UserRepo userRepo, SimpMessagingTemplate simpMessagingTemplate) {
+                                  UserDetailsService userDetailsService, UserRepo userRepo) {
         this.jwtUtil = jwtUtil;
         this.userDetailsService = userDetailsService;
         this.userRepo = userRepo;
-        this.simpMessagingTemplate = simpMessagingTemplate;
     }
 
     @Override
@@ -65,8 +63,7 @@ public class AuthChannelInterceptor implements ChannelInterceptor {
                         User user = userRepo.getUserByLogin(auth.getName());
                         user.setIsOnline(true);
                         userRepo.save(user);
-                        simpMessagingTemplate.convertAndSend("/topic/online",
-                                new OnlineStatus(user.getPkUser(), true));
+                        OnlineStatusService.sendOnlineStatus(user.getPkUser(), true);
                         log.info("WebSocket CONNECT authenticated as '{}'", auth.getName());
                     } catch (Exception e) {
                         log.warn("WebSocket CONNECT failed to authenticate: {}", e.getMessage());
