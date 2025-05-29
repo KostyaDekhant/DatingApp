@@ -83,7 +83,25 @@ public class ChatsAdapter extends ListAdapter<ChatDTO, ChatsHolder> {
 
         viewModel.subscribeToDeleteChat(chat.getId());
 
-        holder.subcribeToUpdateChat(chat.getId(), viewModel, chatsRepository, senderId);
+        holder.subscribeToUpdateChat(chat.getId(), viewModel, chatsRepository, senderId);
+
+        if (!isGroup ) {
+            chatsRepository.fetchChatInfo(chat.getId(), result -> {
+                switch (result.status) {
+                    case SUCCESS:
+                        for (ChatMemberDTO member : result.data.getMembers()) {
+                            if (member.getId() != senderId) {
+                                int receiverId = member.getId();
+                                holder.subscribeToUpdateOnline(receiverId);
+                                break;
+                            }
+                        }
+                        break;
+                    case ERROR:
+                        break;
+                }
+            });
+        }
 
         holder.itemView.setOnClickListener(view ->
                 chatClickListener.onChatClicked(chat)
@@ -118,7 +136,7 @@ public class ChatsAdapter extends ListAdapter<ChatDTO, ChatsHolder> {
             switch (result.status) {
                 case SUCCESS:
                     Log.i(logTag, "Получено изображение для чата " + chat.getId());
-                    byte[] chatImage = result.data.get(0).getImage();
+                    byte[] chatImage = result.data.getImage();
                     chat.setImage(chatImage);
                     break;
                 case ERROR:

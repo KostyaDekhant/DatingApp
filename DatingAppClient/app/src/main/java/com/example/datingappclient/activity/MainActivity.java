@@ -41,9 +41,11 @@ import com.example.datingappclient.retrofit.api.AuthAPI;
 import com.example.datingappclient.retrofit.repository.AuthRepository;
 import com.example.datingappclient.retrofit.repository.BubblesRepository;
 import com.example.datingappclient.retrofit.repository.ChatsRepository;
+import com.example.datingappclient.retrofit.repository.UserRepository;
 import com.example.datingappclient.retrofit.wrapper.Result;
 import com.example.datingappclient.utils.ImageUtils;
 import com.example.datingappclient.viewmodels.ChatMembersViewModel;
+import com.example.datingappclient.viewmodels.OnlineStatusViewModel;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationView;
 
@@ -51,7 +53,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class MainActivity extends AppCompatActivity {
@@ -59,6 +60,7 @@ public class MainActivity extends AppCompatActivity {
     /* === Repositories === */
     private BubblesRepository bubblesRepository;
     private ChatsRepository chatsRepository;
+    private UserRepository userRepository;
 
     /* === Android Object === */
     private DrawerLayout drawerLayout;
@@ -84,10 +86,13 @@ public class MainActivity extends AppCompatActivity {
         fetchCategories();
 
         TokenManager tokenManager = new TokenManager(this);
+        //Log.d("TOKEN", tokenManager.getAccessToken());
         userId = tokenManager.getUserId();
 
         // Получить контакты
         getUserContacts();
+
+        getOnlineUsers();
 
         // создания инстанса пользователя
         if (user == null) user = new UserDTO(userId);
@@ -101,10 +106,35 @@ public class MainActivity extends AppCompatActivity {
         getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, UserFragment.getInstance(user, true)).commit();
     }
 
+    private void getOnlineUsers() {
+        String logTag = Constants.GLOBAL_LOG_TAG + "ONLINE USERS";
+        if (DatingAppApplication.getInstance().getOnlineStatusViewModel() == null) {
+            DatingAppApplication.getInstance().setOnlineStatusViewModel(new ViewModelProvider(this).get(OnlineStatusViewModel.class));
+        }
+        OnlineStatusViewModel onlineStatusViewModel = DatingAppApplication.getInstance().getOnlineStatusViewModel();
+        userRepository.fetchOnlineUsers(result -> {
+            switch (result.status) {
+                case SUCCESS:
+                    Log.d(logTag, result.data.size() + " пользователей в сети!");
+                    for (Integer userId : result.data){
+                        onlineStatusViewModel.setOnlineStatus(userId, true);
+                    }
+                    break;
+                case ERROR:
+                    Log.e(logTag, result.error);
+                    break;
+                case EMPTY:
+                    Log.d(logTag, "Нет пользователей в сети!");
+                    break;
+            }
+        });
+    }
+
     private void setupRepository() {
         Context context = getApplicationContext();
         bubblesRepository = new BubblesRepository(context);
         chatsRepository = new ChatsRepository(context);
+        userRepository = new UserRepository(context);
     }
 
     private void receiveLogoutSignal() {

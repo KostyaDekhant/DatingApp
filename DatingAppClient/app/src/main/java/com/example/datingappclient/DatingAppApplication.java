@@ -6,6 +6,7 @@ import com.example.datingappclient.model.dto.CategoryDTO;
 import com.example.datingappclient.model.dto.InterestDTO;
 import com.example.datingappclient.viewmodels.ChatMembersViewModel;
 import com.example.datingappclient.viewmodels.ChatsViewModel;
+import com.example.datingappclient.viewmodels.OnlineStatusViewModel;
 
 import java.util.HashMap;
 import java.util.List;
@@ -20,6 +21,7 @@ public class DatingAppApplication extends Application {
     private ChatsViewModel chatsViewModel;
     private ChatMembersViewModel chatMembersViewModel;
     private ChatMembersViewModel contactsViewModel;
+    private OnlineStatusViewModel onlineStatusViewModel;
 
     // Кеш интересов и категорий
     private List<CategoryDTO> cachedCategories;

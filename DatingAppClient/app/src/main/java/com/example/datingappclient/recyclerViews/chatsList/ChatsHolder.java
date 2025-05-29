@@ -1,17 +1,17 @@
 package com.example.datingappclient.recyclerViews.chatsList;
 
+import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 
-import android.content.Context;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.datingappclient.DatingAppApplication;
 import com.example.datingappclient.R;
 import com.example.datingappclient.constants.Constants;
 import com.example.datingappclient.model.dto.ChatDTO;
@@ -21,7 +21,6 @@ import com.example.datingappclient.retrofit.wrapper.Result;
 import com.example.datingappclient.utils.DateUtils;
 import com.example.datingappclient.viewmodels.ChatsViewModel;
 
-import java.util.Objects;
 import java.util.concurrent.atomic.AtomicReference;
 
 import io.reactivex.disposables.Disposable;
@@ -36,9 +35,11 @@ public class ChatsHolder extends RecyclerView.ViewHolder {
     private byte[] byteImage;
 
     public TextView username, lastMessage, lastMessageTime;
-    public ImageView profileImage;
+    public ImageView profileImage, statusView;
 
-    private Disposable disposable;
+    private ChatsViewModel chatsViewModel;
+
+    private Disposable updateDisposable;
 
     public ChatsHolder(@NonNull View itemView) {
         super(itemView);
@@ -46,13 +47,16 @@ public class ChatsHolder extends RecyclerView.ViewHolder {
         lastMessage = itemView.findViewById(R.id.lastMessage_label);
         profileImage = itemView.findViewById(R.id.profile_image);
         lastMessageTime = itemView.findViewById(R.id.lastMessage_time);
+        statusView = itemView.findViewById(R.id.statusView);
     }
 
-    public void subcribeToUpdateChat(int chatId, ChatsViewModel viewModel, ChatsRepository chatsRepository, int senderId) {
+    public void subscribeToUpdateChat(int chatId, ChatsViewModel viewModel, ChatsRepository chatsRepository, int senderId) {
         String logTag = Constants.GLOBAL_LOG_TAG + "UPDATE CHAT";
         AtomicReference<Disposable> disposableRef = new AtomicReference<>();
 
-        disposable = viewModel.subscribeToUpdateChat(chatId, result1 -> {
+        this.chatsViewModel = viewModel;
+
+        updateDisposable = viewModel.subscribeToUpdateChat(chatId, result1 -> {
             Log.d(logTag, "Ивент обновления чата внутри холдера " + chatId);
 
             chatsRepository.fetchChat(chatId, senderId, chatResult -> {
@@ -61,8 +65,8 @@ public class ChatsHolder extends RecyclerView.ViewHolder {
                 ChatDTO chat = chatResult.data;
 
                 chatsRepository.fetchChatAvatar(senderId, chatId, avatarResult -> {
-                    if (avatarResult.status == Result.Status.SUCCESS && !avatarResult.data.isEmpty()) {
-                        chat.setImage(avatarResult.data.get(0).getImage());
+                    if (avatarResult.status == Result.Status.SUCCESS) {
+                        chat.setImage(avatarResult.data.getImage());
                     }
 
                     // Теперь обновляем чат
@@ -78,8 +82,9 @@ public class ChatsHolder extends RecyclerView.ViewHolder {
         });
     }
 
-    public void unsubscribeUpdate() {
-        if (disposable != null) disposable.dispose();
+    public void unsubscribeUpdate(int chatId) {
+        if (updateDisposable != null) updateDisposable.dispose();
+        chatsViewModel.unsubscribeUpdateChat(chatId);
     }
 
     public void setLastMessage(MessageDTO message, boolean isGroup, int userId) {
@@ -92,4 +97,8 @@ public class ChatsHolder extends RecyclerView.ViewHolder {
         lastMessageTime.setVisibility(VISIBLE);
     }
 
+    public void subscribeToUpdateOnline(int receiverId) {
+        boolean isOnline = DatingAppApplication.getInstance().getOnlineStatusViewModel().isUserOnline(receiverId);
+        statusView.setVisibility(isOnline ? VISIBLE : GONE);
+    }
 }
