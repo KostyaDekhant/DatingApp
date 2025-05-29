@@ -18,6 +18,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 
 @RestController
 @RequiredArgsConstructor
@@ -83,5 +85,11 @@ public class UserController {
         //userService.setUserCompanyInfo(id, ucfDto);
         userService.upsertUserCompanyInfo(id, ucfDto);
         return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/users/online")
+    public List<Integer> getOnlineUsers() {
+        return userService.findWhoIsOnline();
+
     }
 }

@@ -18,7 +18,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -199,4 +201,10 @@ public class UserService {
         }
     }
 
+    public List<Integer> findWhoIsOnline() {
+        return userRepo.findAllByIsOnlineTrue()
+                .stream()
+                .map(User::getPkUser)
+                .collect(Collectors.toList());
+    }
 }

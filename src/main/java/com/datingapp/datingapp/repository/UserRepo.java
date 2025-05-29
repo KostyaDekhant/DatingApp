@@ -271,6 +271,8 @@ select u.name from "user" u where pk_user = :userId
     User getUserByLogin(String username);
 
     Optional<User> findByLogin(String login);
+
+    List<User> findAllByIsOnlineTrue();
 //SELECT DISTINCT ON (u2.pk_user)
 //     u2.name        AS name,
 //     p.image        AS avatar

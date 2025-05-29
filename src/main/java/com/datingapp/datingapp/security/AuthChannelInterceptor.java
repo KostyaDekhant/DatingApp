@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.messaging.simp.stomp.StompCommand;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.messaging.support.ChannelInterceptor;
@@ -30,12 +31,17 @@ public class AuthChannelInterceptor implements ChannelInterceptor {
     private static final Logger log = LoggerFactory.getLogger(AuthChannelInterceptor.class);
     private final UserRepo userRepo;
 
+    private final SimpMessagingTemplate simpMessagingTemplate;
+
+    record OnlineStatus(Integer id, Boolean isOnline) {}
+
     @Autowired
     public AuthChannelInterceptor(JwtUtil jwtUtil,
-                                  UserDetailsService userDetailsService, UserRepo userRepo) {
+                                  UserDetailsService userDetailsService, UserRepo userRepo, SimpMessagingTemplate simpMessagingTemplate) {
         this.jwtUtil = jwtUtil;
         this.userDetailsService = userDetailsService;
         this.userRepo = userRepo;
+        this.simpMessagingTemplate = simpMessagingTemplate;
     }
 
     @Override
@@ -59,6 +65,8 @@ public class AuthChannelInterceptor implements ChannelInterceptor {
                         User user = userRepo.getUserByLogin(auth.getName());
                         user.setIsOnline(true);
                         userRepo.save(user);
+                        simpMessagingTemplate.convertAndSend("/topic/online",
+                                new OnlineStatus(user.getPkUser(), true));
                         log.info("WebSocket CONNECT authenticated as '{}'", auth.getName());
                     } catch (Exception e) {
                         log.warn("WebSocket CONNECT failed to authenticate: {}", e.getMessage());
