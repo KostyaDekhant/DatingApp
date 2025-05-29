@@ -87,7 +87,7 @@ public class RetrofitClient {
         return authRetrofit;
     }
 
-    private static OkHttpClient getHTTPClient(Context context, AuthRepository authRepository, TokenManager tokenManager) {
+    public static OkHttpClient getHTTPClient(Context context, AuthRepository authRepository, TokenManager tokenManager) {
         OkHttpClient.Builder httpClient = new OkHttpClient.Builder();
 
         // для HTTPS

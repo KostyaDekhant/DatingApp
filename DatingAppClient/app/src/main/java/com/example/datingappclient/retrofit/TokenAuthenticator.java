@@ -1,10 +1,13 @@
 package com.example.datingappclient.retrofit;
 
+import android.content.Intent;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
+import com.example.datingappclient.DatingAppApplication;
 import com.example.datingappclient.TokenManager;
 import com.example.datingappclient.constants.Constants;
 import com.example.datingappclient.model.AuthResponse;
@@ -56,7 +59,10 @@ public class TokenAuthenticator implements Authenticator {
             Log.d(logTag, "Попытка обновления");
             // Иначе — пытаемся обновить токен
             String refreshToken = tokenManager.getRefreshToken();
-            if (refreshToken == null || refreshToken.isEmpty()) return null;
+            if (refreshToken == null || refreshToken.isEmpty()) {
+                forceLogout();
+                return null;
+            }
 
             try {
                 AuthResponse authResponse = authRepository.refreshTokenSync(new TokenRefreshRequest(refreshToken));
@@ -89,5 +95,13 @@ public class TokenAuthenticator implements Authenticator {
             return header.substring("Bearer ".length());
         }
         return null;
+    }
+
+    private void forceLogout() {
+        TokenManager tokenManager = new TokenManager(DatingAppApplication.getInstance().getApplicationContext());
+        tokenManager.clearTokens();
+
+        Intent intent = new Intent("com.example.datingappclient.LOGOUT");
+        LocalBroadcastManager.getInstance(DatingAppApplication.getInstance().getApplicationContext()).sendBroadcast(intent);
     }
 }

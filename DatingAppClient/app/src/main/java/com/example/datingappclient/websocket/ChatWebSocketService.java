@@ -1,6 +1,9 @@
 package com.example.datingappclient.websocket;
 
+import static com.example.datingappclient.retrofit.RetrofitClient.getHTTPClient;
+
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
 
@@ -22,6 +25,7 @@ import com.example.datingappclient.model.dto.MessageDTO;
 import com.example.datingappclient.retrofit.RetrofitClient;
 import com.example.datingappclient.retrofit.api.AuthAPI;
 import com.example.datingappclient.retrofit.repository.AuthRepository;
+import com.example.datingappclient.retrofit.repository.TokenRepository;
 import com.example.datingappclient.retrofit.wrapper.Result;
 import com.example.datingappclient.retrofit.wrapper.ResultCallback;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -36,10 +40,12 @@ import java.util.Map;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
+import okhttp3.OkHttpClient;
 import retrofit2.Retrofit;
 import ua.naiksoftware.stomp.Stomp;
 import ua.naiksoftware.stomp.StompClient;
 import ua.naiksoftware.stomp.dto.StompHeader;
+import ua.naiksoftware.stomp.provider.OkHttpConnectionProvider;
 
 public class ChatWebSocketService {
 
@@ -49,14 +55,28 @@ public class ChatWebSocketService {
     private final List<MessageDTO> fullHistory = new ArrayList<>();
     private final ObjectMapper objectMapper = new ObjectMapper();
     private int offset;
+    private final String uri = "wss://" + Constants.SERVER_ADDRESS + ":" + Constants.SERVER_PORT + "/datingapp";
+
 
     @SuppressLint("CheckResult")
     public ChatWebSocketService(String token) {
+
+        Context context = DatingAppApplication.getInstance().getApplicationContext();
+        TokenManager tokenManager =new TokenManager(context);
+        Map<String, String> headers = new HashMap<>();
+        headers.put("Authorization", "Bearer " + tokenManager.getAccessToken());
+
+        OkHttpClient customClient = getHTTPClient(context, new AuthRepository(RetrofitClient.getAuthOnlyClient(context).create(AuthAPI.class)), tokenManager);
+
+        OkHttpConnectionProvider connectionProvider =
+                new OkHttpConnectionProvider(uri, headers, customClient);
+
+        stompClient = new StompClient(connectionProvider);
         // 1. Инициализация клиента
-        stompClient = Stomp.over(
+        /*stompClient = Stomp.over(
                 Stomp.ConnectionProvider.OKHTTP,
                 "ws://" + Constants.SERVER_ADDRESS + ":" + Constants.SERVER_PORT + "/datingapp"
-        );
+        );*/
 
         // 2. Подключение с токеном
         reconnect(token);
@@ -94,7 +114,7 @@ public class ChatWebSocketService {
 
     private boolean isTokenExpiredError(Throwable e) {
         String msg = e.getMessage();
-        return msg != null && (msg.contains("401") || msg.toLowerCase().contains("unauthorized"));
+        return msg != null && (msg.contains("401") || msg.contains("400") || msg.toLowerCase().contains("unauthorized"));
     }
 
     private void reconnect(String token) {
@@ -343,29 +363,10 @@ public class ChatWebSocketService {
         String logTag = Constants.GLOBAL_LOG_TAG + "TOKEN REFRESH (STOMP)";
         TokenManager tokenManager = new TokenManager(DatingAppApplication.getInstance().getApplicationContext());
 
-        String refreshToken = tokenManager.getRefreshToken();
-        if (refreshToken == null) {
-            Log.w(logTag, "Нет refresh token — переход на логин");
-            forceLogout();
-            return;
-        }
-
-        Retrofit authRetrofit = RetrofitClient.getAuthOnlyClient(DatingAppApplication.getInstance().getApplicationContext());
-        AuthRepository authRepository = new AuthRepository(authRetrofit.create(AuthAPI.class));
-
-        new Thread(() -> {
-            try {
-                AuthResponse authResponse = authRepository.refreshTokenSync(new TokenRefreshRequest(refreshToken));
-                tokenManager.saveAccessToken(authResponse.getToken());
-
-                Log.i(logTag, "Токен обновлён, переподключаем STOMP");
-                reconnect(authResponse.getToken());
-
-            } catch (IOException e) {
-                Log.e(logTag, "Ошибка при обновлении токена", e);
-                forceLogout();
-            }
-        }).start();
+        TokenRepository tokenRepository = new TokenRepository(DatingAppApplication.getInstance().getApplicationContext());
+        tokenRepository.tokenIsValid(result -> {
+            reconnect(tokenManager.getAccessToken());
+        });
     }
 
     private void forceLogout() {
