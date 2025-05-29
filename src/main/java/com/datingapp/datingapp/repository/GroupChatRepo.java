@@ -114,7 +114,7 @@ WITH private_photos AS (
    AND p.id = 1
   WHERE
     cm.user_id <> :userId
-    AND cm.chat_id = :chatIds
+    AND cm.chat_id = :chatId
 )
 SELECT
   gc.pk_group_chat AS chatId,
@@ -122,7 +122,7 @@ SELECT
 FROM group_chat gc
 WHERE
   gc.is_group = TRUE
-  AND gc.pk_group_chat = :chatIds
+  AND gc.pk_group_chat = :chatId
 
 UNION ALL
 
@@ -133,7 +133,7 @@ FROM private_photos
 WHERE rn = 1
 """, nativeQuery = true)
     List<Object[]> findAvatars(
-            @Param("chatId") int chatIds,
+            @Param("chatId") int chatId,
             @Param("userId")  int userId
     );
 
