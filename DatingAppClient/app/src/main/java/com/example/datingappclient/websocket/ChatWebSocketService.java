@@ -50,81 +50,27 @@ import ua.naiksoftware.stomp.provider.OkHttpConnectionProvider;
 public class ChatWebSocketService {
 
     private final StompClient stompClient;
+
     private final Map<Integer, MutableLiveData<MessageDTO>> messageStreams = new HashMap<>();
     private final MutableLiveData<Integer> deletedChatIdStream = new MutableLiveData<>();
+    private final MutableLiveData<Integer> updatedChatIdStream = new MutableLiveData<>();
+
     private final List<MessageDTO> fullHistory = new ArrayList<>();
     private final ObjectMapper objectMapper = new ObjectMapper();
     private int offset;
+
     private final String uri = "wss://" + Constants.SERVER_ADDRESS + ":" + Constants.SERVER_PORT + "/datingapp";
 
+    private final Map<Integer, Disposable> messageDisposables = new HashMap<>();
+    private final Map<Integer, Disposable> updatedChatDisposables = new HashMap<>();
+    private final Map<Integer, Disposable> deletedChatDisposables = new HashMap<>();
 
-    @SuppressLint("CheckResult")
-    public ChatWebSocketService(String token) {
 
-        Context context = DatingAppApplication.getInstance().getApplicationContext();
-        TokenManager tokenManager =new TokenManager(context);
-        Map<String, String> headers = new HashMap<>();
-        headers.put("Authorization", "Bearer " + tokenManager.getAccessToken());
-
-        OkHttpClient customClient = getHTTPClient(context, new AuthRepository(RetrofitClient.getAuthOnlyClient(context).create(AuthAPI.class)), tokenManager);
-
-        OkHttpConnectionProvider connectionProvider =
-                new OkHttpConnectionProvider(uri, headers, customClient);
-
-        stompClient = new StompClient(connectionProvider);
-        // 1. Инициализация клиента
-        /*stompClient = Stomp.over(
-                Stomp.ConnectionProvider.OKHTTP,
-                "ws://" + Constants.SERVER_ADDRESS + ":" + Constants.SERVER_PORT + "/datingapp"
-        );*/
-
-        // 2. Подключение с токеном
-        reconnect(token);
-
-        String logTag = Constants.GLOBAL_LOG_TAG + "STOMP HEALTHCHECK";
-        // 3. Отслеживание состояния соединения
-        stompClient.lifecycle()
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(event -> {
-                    switch (event.getType()) {
-                        case OPENED:
-                            Log.d(logTag, "Соединение открыто");
-                            break;
-                        case ERROR:
-                            Throwable exception = event.getException();
-                            Log.e(logTag, "Ошибка соединения ", exception);
-
-                            if (exception != null && isTokenExpiredError(exception)) {
-                                Log.w(logTag, "Возможен истёкший токен — пробуем обновить");
-                                refreshTokenAndReconnect();
-                            } else {
-                                Log.e(logTag, "Неизвестная ошибка — повторное подключение");
-                                reconnect(token);
-                            }
-                            break;
-                        case CLOSED:
-                            Log.d(logTag, "Соединение закрыто " + event.getMessage());
-                            break;
-                    }
-                }, throwable -> {
-                    Log.e(logTag, "Ошибка в lifecycle подписке", throwable);
-                });
+    public ChatWebSocketService() {
+        stompClient = new StompClientService().getClient();
     }
 
-    private boolean isTokenExpiredError(Throwable e) {
-        String msg = e.getMessage();
-        return msg != null && (msg.contains("401") || msg.contains("400") || msg.toLowerCase().contains("unauthorized"));
-    }
-
-    private void reconnect(String token) {
-        List<StompHeader> headers = List.of(new StompHeader("Authorization", "Bearer " + token));
-        stompClient.connect(headers);
-    }
-
-    /**
-     * Подписка на сообщения чата по chatId.
-     */
+    // =============== MESSAGES
     @SuppressLint("CheckResult")
     public LiveData<MessageDTO> subscribeToChat(int chatId) {
         if (messageStreams.containsKey(chatId)) {
@@ -135,7 +81,7 @@ public class ChatWebSocketService {
         messageStreams.put(chatId, liveData);
 
         String logTag = Constants.GLOBAL_LOG_TAG + "STOMP GET MESSAGE";
-        stompClient.topic("/topic/messages/" + chatId)
+        Disposable disposable = stompClient.topic("/topic/messages/" + chatId)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(topicMessage -> {
@@ -146,6 +92,7 @@ public class ChatWebSocketService {
                         Log.e(logTag, "Ошибка при разборе сообщения", e);
                     }
                 }, throwable -> Log.e(logTag, "Ошибка подписки на чат " + chatId, throwable));
+        messageDisposables.put(chatId, disposable);
 
         return liveData;
     }
@@ -166,9 +113,12 @@ public class ChatWebSocketService {
         }
     }
 
+
+    // =============== HISTORY
     private Disposable historyDisposable;
 
     private final String triggerHistory = "/app/history/";
+
     @SuppressLint("CheckResult")
     public void getHistory(int chatId, int userId, MutableLiveData<List<MessageDTO>> historyLiveData) {
         String logTag = Constants.GLOBAL_LOG_TAG + "STOMP CHAT HISTORY";
@@ -222,9 +172,7 @@ public class ChatWebSocketService {
         return jsonParams;
     }
 
-    /**
-     * Закрытие соединения (вызывать при завершении работы Activity/Fragment).
-     */
+    // =============== DISCONNECT
     public void disconnect() {
         String logTag = Constants.GLOBAL_LOG_TAG + "STOMP DISCONNECT";
         if (stompClient != null && stompClient.isConnected()) {
@@ -233,6 +181,7 @@ public class ChatWebSocketService {
         }
     }
 
+    // =============== DELETE CHAT
     @SuppressLint("CheckResult")
     public void sendDeleteGroupChat(int chatId, int userId, ResultCallback<Void> callback) {
         String logTag = Constants.GLOBAL_LOG_TAG + "DELETE CHAT";
@@ -258,7 +207,7 @@ public class ChatWebSocketService {
     @SuppressLint("CheckResult")
     public void subscribeToChatDeletedEvents(int chatId, ResultCallback<Void> callback) {
         String logTag = Constants.GLOBAL_LOG_TAG + "STOMP CHAT DELETED";
-        stompClient.topic("/topic/group_chats/" + chatId + "/deleted")
+        Disposable disposable = stompClient.topic("/topic/group_chats/" + chatId + "/deleted")
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(message -> {
@@ -270,8 +219,10 @@ public class ChatWebSocketService {
                         Log.e(logTag, "Ошибка при получении удалённого чата", e);
                     }
                 }, throwable -> Log.e(logTag, "Ошибка подписки на удаление чатов", throwable));
+        deletedChatDisposables.put(chatId, disposable);
     }
 
+    // =============== UPDATE CHAT
     @SuppressLint("CheckResult")
     public void sendUpdateGroupChat(ChatPayloadInfo updateInfo, ResultCallback<Void> callback) {
         String logTag = Constants.GLOBAL_LOG_TAG + "UPDATE CHAT";
@@ -296,7 +247,7 @@ public class ChatWebSocketService {
     @SuppressLint("CheckResult")
     public Disposable subscribeToChatUpdatedEvents(int chatId, ResultCallback<Boolean> callback) {
         String logTag = Constants.GLOBAL_LOG_TAG + "STOMP CHAT UPDATED";
-        return stompClient.topic("/topic/group_chats/" + chatId + "/updated")
+        Disposable disposable = stompClient.topic("/topic/group_chats/" + chatId + "/updated")
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(message -> {
@@ -308,8 +259,11 @@ public class ChatWebSocketService {
                         callback.onResult(Result.error("Ошибка при обновлении чата " + chatId + " " + e));
                     }
                 }, throwable -> Log.e(logTag, "Ошибка подписки на обновления чатов", throwable));
+        updatedChatDisposables.put(chatId, disposable);
+        return disposable;
     }
 
+    // =============== CREATE CHAT
     @SuppressLint("CheckResult")
     public void sendCreateGroupChat(ChatDTO chat, ResultCallback<Void> callback) {
         String logTag = Constants.GLOBAL_LOG_TAG + "STOMP CREATE CHAT";
@@ -347,8 +301,6 @@ public class ChatWebSocketService {
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(message -> {
                     try {
-                        //ChatDTO chat = objectMapper.readValue(message.getPayload(), ChatDTO.class);
-                        //updatedChatStream.postValue(chat);
                         int chatId = objectMapper.readValue(message.getPayload(), Integer.class);
                         Log.i(logTag, "Ивент создания чата: " + chatId);
                         callback.onResult(Result.success(chatId));
@@ -363,21 +315,33 @@ public class ChatWebSocketService {
         return deletedChatIdStream;
     }
 
-    private void refreshTokenAndReconnect() {
-        String logTag = Constants.GLOBAL_LOG_TAG + "TOKEN REFRESH (STOMP)";
-        TokenManager tokenManager = new TokenManager(DatingAppApplication.getInstance().getApplicationContext());
-
-        TokenRepository tokenRepository = new TokenRepository(DatingAppApplication.getInstance().getApplicationContext());
-        tokenRepository.tokenIsValid(result -> {
-            reconnect(tokenManager.getAccessToken());
-        });
-    }
-
     private void forceLogout() {
         TokenManager tokenManager = new TokenManager(DatingAppApplication.getInstance().getApplicationContext());
         tokenManager.clearTokens();
 
         Intent intent = new Intent("com.example.datingappclient.LOGOUT");
         LocalBroadcastManager.getInstance(DatingAppApplication.getInstance().getApplicationContext()).sendBroadcast(intent);
+    }
+
+    public void unsubscribeFromChat(int chatId) {
+        Disposable disposable = messageDisposables.remove(chatId);
+        if (disposable != null && !disposable.isDisposed()) {
+            disposable.dispose();
+        }
+        messageStreams.remove(chatId);
+    }
+
+    public void unsubscribeFromChatUpdatedEvents(int chatId) {
+        Disposable disposable = updatedChatDisposables.remove(chatId);
+        if (disposable != null && !disposable.isDisposed()) {
+            disposable.dispose();
+        }
+    }
+
+    public void unsubscribeFromChatDeletedEvents(int chatId) {
+        Disposable disposable = deletedChatDisposables.remove(chatId);
+        if (disposable != null && !disposable.isDisposed()) {
+            disposable.dispose();
+        }
     }
 }

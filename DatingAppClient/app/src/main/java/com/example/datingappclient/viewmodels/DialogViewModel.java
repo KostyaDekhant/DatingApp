@@ -15,8 +15,8 @@ public class DialogViewModel extends ViewModel {
     private final MutableLiveData<List<MessageDTO>> messages = new MutableLiveData<>(new ArrayList<>());
 
 
-    public DialogViewModel(String token, int chatId, int userId) {
-        webSocketService = new ChatWebSocketService(token);
+    public DialogViewModel(int chatId, int userId) {
+        webSocketService = new ChatWebSocketService();
 
         webSocketService.subscribeToChat(chatId).observeForever(message -> {
             List<MessageDTO> current = new ArrayList<>(messages.getValue());

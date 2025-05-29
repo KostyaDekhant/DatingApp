@@ -24,8 +24,8 @@ public class ChatsViewModel extends ViewModel {
     private final MutableLiveData<List<ChatDTO>> chats = new MutableLiveData<>();
     private final ChatWebSocketService webSocketService;
 
-    public ChatsViewModel(String token) {
-        this.webSocketService = new ChatWebSocketService(token);
+    public ChatsViewModel() {
+        this.webSocketService = new ChatWebSocketService();
         initSubscriptions();
     }
 
@@ -52,6 +52,12 @@ public class ChatsViewModel extends ViewModel {
 
     public Disposable subscribeToUpdateChat(int chatId, ResultCallback<Boolean> callback) {
         return webSocketService.subscribeToChatUpdatedEvents(chatId, callback);
+    }
+
+    public Disposable getUpdateChatSubscribe;
+
+    public void unsubscribeUpdateChat(int chatId) {
+        webSocketService.unsubscribeFromChatUpdatedEvents(chatId);
     }
 
     public void subscribeToCreateChat(int userId) {
@@ -146,6 +152,8 @@ public class ChatsViewModel extends ViewModel {
     }
 
     public void deleteChat(int chatId) {
+        unsubscribeFromChat(chatId);
+
         List<ChatDTO> currentList = chats.getValue();
 
         if (currentList == null || currentList.isEmpty()) return;
@@ -176,5 +184,11 @@ public class ChatsViewModel extends ViewModel {
     public void deleteChatFromServer(int chatId, int userId, ResultCallback<Void> callback) {
         webSocketService.sendDeleteGroupChat(chatId, userId, callback);
         deleteChat(chatId);
+    }
+
+    private void unsubscribeFromChat(int chatId) {
+        webSocketService.unsubscribeFromChat(chatId);
+        webSocketService.unsubscribeFromChatUpdatedEvents(chatId);
+        webSocketService.unsubscribeFromChatDeletedEvents(chatId);
     }
 }
