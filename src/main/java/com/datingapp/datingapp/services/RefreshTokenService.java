@@ -1,10 +1,13 @@
 package com.datingapp.datingapp.services;
 
+import com.datingapp.datingapp.controller.ImageController;
 import com.datingapp.datingapp.entity.RefreshToken;
 import com.datingapp.datingapp.repository.RefreshTokenRepo;
 import com.datingapp.datingapp.repository.UserRepo;
 import com.datingapp.datingapp.entity.User;
 import com.datingapp.datingapp.exception.TokenRefreshException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,6 +18,7 @@ import java.util.UUID;
 
 @Service
 public class RefreshTokenService {
+    private static final Logger log = LoggerFactory.getLogger(RefreshTokenService.class);
 
     @Value("${jwt.refresh-expiration-ms}")
     private Long refreshTokenDurationMs;
@@ -38,7 +42,11 @@ public class RefreshTokenService {
                 .orElseThrow(() -> new TokenRefreshException("User not found"));
 
         // Optionally delete existing tokens:
-        refreshTokenRepo.deleteByUser(user);
+        RefreshToken token =  getTokenByUserId(userId);
+        if(token != null) {
+            log.info("token: " + token.getToken());
+            refreshTokenRepo.deleteByUser(user);
+        }
 
         RefreshToken refreshToken = new RefreshToken();
         refreshToken.setUser(user);
