@@ -28,6 +28,7 @@ import com.example.datingappclient.TokenManager;
 import com.example.datingappclient.constants.Constants;
 import com.example.datingappclient.fragments.ChatListFragment;
 import com.example.datingappclient.fragments.ContactsFragment;
+import com.example.datingappclient.fragments.EventsFragment;
 import com.example.datingappclient.fragments.GroupChatMembersFragment;
 import com.example.datingappclient.fragments.LikeFragment;
 import com.example.datingappclient.fragments.FormsFragment;
@@ -229,6 +230,11 @@ public class MainActivity extends AppCompatActivity {
             }
             else if (id == R.id.nav_contacts) {
                 getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, ContactsFragment.newInstance(userId))
+                        .addToBackStack(null)
+                        .commit();
+            }
+            else if (id == R.id.nav_events) {
+                getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, EventsFragment.newInstance(userId))
                         .addToBackStack(null)
                         .commit();
             }

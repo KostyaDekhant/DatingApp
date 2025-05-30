@@ -28,6 +28,24 @@ public class DateUtils {
         }
     }
 
+    public static String formatTimeRange(Timestamp start, Timestamp end) {
+        SimpleDateFormat dayFormat = new SimpleDateFormat("d MMMM", new Locale("ru"));
+        SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm", Locale.getDefault());
+
+        String startDay = dayFormat.format(start);
+        String endDay = dayFormat.format(end);
+        String startTime = timeFormat.format(start);
+        String endTime = timeFormat.format(end);
+
+        if (startDay.equals(endDay)) {
+            // Один и тот же день
+            return String.format("%s, %s–%s", startDay, startTime, endTime);
+        } else {
+            // Разные дни
+            return String.format("%s, %s – %s, %s", startDay, startTime, endDay, endTime);
+        }
+    }
+
     public static int dateToAge(LocalDate date) {
         try {
             LocalDate today = LocalDate.now();

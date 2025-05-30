@@ -33,5 +33,6 @@ public interface BubblesController {
     Call<Void> addUserInterests(@Path("userId") int userId, @Body List<UserInterestDTO> payload);
 
     @POST("/api/users/{userId}/interests/remove")
-    Call<Void> deleteUserInterests(@Query("userId") int userId, @Body List<UserInterestDTO> payload);
+    Call<Void> deleteUserInterests(@Path("userId") int userId, @Body List<UserInterestDTO> payload);
 }
+

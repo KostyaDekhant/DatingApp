@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="10dp"
+    app:cardCornerRadius="20dp"
+    app:cardElevation="4dp"
+    app:strokeWidth="0dp"
+    android:animateLayoutChanges="true">
+
+    <LinearLayout
+        android:id="@+id/cardRoot"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:animateLayoutChanges="true">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:paddingVertical="10dp"
+            android:paddingHorizontal="20dp">
+
+            <TextView
+                android:id="@+id/eventTime"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                android:text="HH:mm - HH:mm"
+                android:textStyle="bold"
+                android:textSize="?attr/textSizeSmall"/>
+            <TextView
+                android:id="@+id/eventTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="TITLE"
+                android:textStyle="bold"
+                android:textColor="?attr/textColorContrast"
+                android:textSize="?attr/textSizeLarge"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/eventTime"
+                />
+
+            <TextView
+                android:id="@+id/eventDescription"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/eventTitle"
+                app:layout_constraintEnd_toStartOf="@id/countMembers"
+                app:layout_constraintHorizontal_bias="0"
+                android:layout_marginTop="10dp"
+                android:text="Description"
+                android:textSize="?attr/textSizeMedium"
+                android:maxLines="2"
+                android:ellipsize="end"
+                />
+
+            <TextView
+                android:id="@+id/countMembers"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Count members"
+                android:textSize="?attr/textSizeMedium"
+                app:layout_constraintBottom_toTopOf="@id/joinEventButton"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/membersList"
+                app:layout_constraintVertical_bias="1.0" />
+
+            <TextView
+                android:id="@+id/fullDescription"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:layout_constraintTop_toBottomOf="@id/eventDescription"
+                app:layout_constraintStart_toStartOf="parent"
+                android:layout_marginTop="8dp"
+                android:text="Полное описание..."
+                android:textSize="?attr/textSizeMedium"
+                android:visibility="gone"
+                />
+
+            <LinearLayout
+                android:id="@+id/membersList"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:visibility="gone"
+                app:layout_constraintTop_toBottomOf="@id/fullDescription"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                android:layout_marginTop="4dp"
+                android:layout_marginBottom="10dp"/>
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/joinEventButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Присоединиться"
+                android:textColor="?attr/textColorMainReverse"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/countMembers"/>
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </LinearLayout>
+</com.google.android.material.card.MaterialCardView>

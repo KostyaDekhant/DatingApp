@@ -157,11 +157,10 @@ public class ChatPropertiesFragment extends Fragment {
 
     private void setAddMembersButton() {
         View addMembers = activityView.findViewById(R.id.add_members);
-        addMembers.setOnClickListener(view -> {
-            getParentFragmentManager().beginTransaction().replace(R.id.fragment_container, EditChatMembersFragment.newInstance(userId, chat.getId(), chat.getChatInfo().getMembers()))
-                    .addToBackStack(null)
-                    .commit();
-        });
+        addMembers.setOnClickListener(view -> getParentFragmentManager().beginTransaction()
+                .replace(R.id.fragment_container, EditChatMembersFragment.newInstance(userId, chat.getId(), chat.getChatInfo().getMembers()))
+                .addToBackStack(null)
+                .commit());
 
         boolean userIsOwner = userId.equals(chat.getChatInfo().getCreatedBy());
         if (!chat.getChatInfo().getIsGroup() || !userIsOwner) addMembers.setVisibility(GONE);
@@ -225,7 +224,6 @@ public class ChatPropertiesFragment extends Fragment {
             @Override
             public boolean onMenuItemSelected(@NonNull MenuItem menuItem) {
                 if (menuItem.getItemId() == R.id.action_edit_chat) {
-                    // TODO: handle edit action
                     getParentFragmentManager().beginTransaction().replace(R.id.fragment_container, EditChatFragment.newInstance(userId, chat))
                             .addToBackStack(null)
                             .commit();

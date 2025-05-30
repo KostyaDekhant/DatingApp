@@ -180,7 +180,6 @@ public class UserFragment extends Fragment implements View.OnClickListener {
     }
 
     private void getUserBubbles() {
-        // TODO: загрузить и отобразить только часть баблов (сколько влезет), а последний должен быть с текстом "+n", где n - кол-во оставшихся
         String logTag = Constants.GLOBAL_LOG_TAG + "USER BUBBLES";
 
         BubblesRepository repository = new BubblesRepository(requireContext());
