@@ -39,6 +39,18 @@ LIMIT 1;
     Message getLastMessage(int chatId);
 
     Message getMessageByPkMessage(Integer integer);
+
+    @Query(value= """
+   SELECT m.*
+   FROM message m
+   LEFT JOIN message_read mr
+     ON m.pk_message = mr.message_id AND mr.user_id = :userId
+   WHERE m.pk_chat = :chatId
+     AND mr.message_id IS NULL
+    AND m.pk_user != :userId
+   ORDER BY m.time DESC; 
+""", nativeQuery = true)
+    List<Message> getUnreadMessages(int chatId, int userId);
+
+    boolean existsByPkMessageAndPkUser(int messageId, int userId);
 }
-
-

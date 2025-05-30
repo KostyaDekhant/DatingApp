@@ -28,6 +28,8 @@ public class MessageController {
     private final ChatService chatService;
     private final UserService userService;
 
+    record ReadMessageNotification(int userId, List<Integer> messageIds) {};
+
     @Autowired
     public MessageController(MessageService messageService, NotificationController notificationController,
                              SimpMessagingTemplate simpMessagingTemplate, ChatService chatService,
@@ -79,5 +81,23 @@ public class MessageController {
         ); //ToUser
         log.info("История отправлена " +history);
         return history;
+    }
+
+    @MessageMapping("/group_chats/{chatId}/users/{userId}/messages/read")
+    public void handleReadStatus(@DestinationVariable int chatId,
+                                 @DestinationVariable int userId,
+                                 ReadMessagePayload payload) {
+        for (int messageId : payload.getReadMessageIds()) {
+            if (!messageService.existsByMessage_IdAndUser_Id(messageId, userId)) {
+                Message message = messageService.getMessageByPkMessage(messageId);
+                User user = userService.getUserById(userId);
+                messageService.saveReadMessage(new MessageRead(message, user));
+            }
+        }
+
+        simpMessagingTemplate.convertAndSend(
+                "/topic/group_chats/" + chatId + "/read",
+                new ReadMessageNotification(userId, payload.getReadMessageIds())
+        );
     }
 }

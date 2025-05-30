@@ -32,6 +32,12 @@ public class UserService {
     private final UserCompanyRepo userCompanyRepo;
 
     @Transactional
+    public User getUserById(int id) {
+        Optional<User> user = userRepo.findById(id);
+        return user.orElse(null);
+    }
+
+    @Transactional
     public Integer signupUser(User user) {
         Optional<User> tempOptional = userRepo.findByLogin(user.getLogin());
         if (tempOptional.isPresent()) {

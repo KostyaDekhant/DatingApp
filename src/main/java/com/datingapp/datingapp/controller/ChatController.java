@@ -111,4 +111,10 @@ public class ChatController {
         broadcastUpdateChatEvent(chatId);
         return ResponseEntity.ok().build();
     }
+
+    @GetMapping("/group_chats/{chatId}/messages/unread")
+    public ResponseEntity<List<MessageDTO>> getUnreadMessages(@PathVariable int chatId, @RequestParam("userId") int userId) {
+        return ResponseEntity.ok(chatService.getUnreadMessages(chatId, userId));
+    }
+
 }
