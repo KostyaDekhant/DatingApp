@@ -1,14 +1,18 @@
 package com.example.datingappclient.fragments;
 
+import android.app.DatePickerDialog;
+import android.app.TimePickerDialog;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 import android.widget.Toolbar;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -22,12 +26,16 @@ import com.example.datingappclient.model.dto.EventsParamsDTO;
 import com.example.datingappclient.recyclerViews.ChatMembersAdapter;
 import com.example.datingappclient.recyclerViews.EventsAdapter;
 import com.example.datingappclient.retrofit.repository.EventsRepository;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.List;
+import java.util.Locale;
 
 public class EventsFragment extends Fragment {
 
@@ -51,9 +59,100 @@ public class EventsFragment extends Fragment {
 
         setupRepository();
         setupToolbar();
+        setupCreateEventButton();
         initViews();
 
         return activityView;
+    }
+
+    private void setupCreateEventButton() {
+        FloatingActionButton createEventButton = activityView.findViewById(R.id.createEvent);
+        createEventButton.setOnClickListener(v -> {
+            openCreateEventDialog();
+        });
+    }
+
+    private void openCreateEventDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
+        builder.setTitle("Создание мероприятия");
+
+        View dialogView = LayoutInflater.from(requireContext()).inflate(R.layout.dialog_create_event, null);
+        builder.setView(dialogView);
+
+        EditText titleInput = dialogView.findViewById(R.id.inputTitle);
+        EditText descriptionInput = dialogView.findViewById(R.id.inputDescription);
+        EditText locationInput = dialogView.findViewById(R.id.inputLocation);
+        EditText capacityInput = dialogView.findViewById(R.id.inputCapacity);
+        EditText startTimeInput = dialogView.findViewById(R.id.inputStartTime);
+        EditText endTimeInput = dialogView.findViewById(R.id.inputEndTime);
+
+        startTimeInput.setOnClickListener(v -> showDateTimePicker(startTimeInput));
+        endTimeInput.setOnClickListener(v -> showDateTimePicker(endTimeInput));
+
+        builder.setPositiveButton("Создать", (dialog, which) -> {
+            String title = titleInput.getText().toString();
+            String description = descriptionInput.getText().toString();
+            String location = locationInput.getText().toString();
+            int capacity = Integer.parseInt(capacityInput.getText().toString());
+            Timestamp startTime = Timestamp.valueOf(startTimeInput.getText().toString());
+            Timestamp endTime = Timestamp.valueOf(endTimeInput.getText().toString());
+
+            EventDTO newEvent = new EventDTO(
+                    null,
+                    title,
+                    description,
+                    startTime,
+                    endTime,
+                    location,
+                    capacity,
+                    null,
+                    null,
+                    new ArrayList<>() //TODO: добавление участников
+            );
+
+            createEvent(newEvent);
+        });
+
+        builder.setNegativeButton("Отмена", (dialog, which) -> dialog.dismiss());
+        builder.create().show();
+    }
+
+    private void showDateTimePicker(EditText target) {
+        Calendar calendar = Calendar.getInstance();
+        DatePickerDialog datePicker = new DatePickerDialog(requireContext(), (view, year, month, day) -> {
+            calendar.set(Calendar.YEAR, year);
+            calendar.set(Calendar.MONTH, month);
+            calendar.set(Calendar.DAY_OF_MONTH, day);
+
+            TimePickerDialog timePicker = new TimePickerDialog(requireContext(), (view1, hour, minute) -> {
+                calendar.set(Calendar.HOUR_OF_DAY, hour);
+                calendar.set(Calendar.MINUTE, minute);
+                calendar.set(Calendar.SECOND, 0);
+
+                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
+                target.setText(sdf.format(calendar.getTime()));
+
+            }, calendar.get(Calendar.HOUR_OF_DAY), calendar.get(Calendar.MINUTE), true);
+
+            timePicker.show();
+
+        }, calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH));
+
+        datePicker.show();
+    }
+
+    private void createEvent(EventDTO newEvent) {
+        String logTag = Constants.GLOBAL_LOG_TAG + "CREATE EVENT";
+        eventsRepository.createEvent(newEvent, result -> {
+            switch (result.status) {
+                case SUCCESS:
+                    Log.d(logTag, "Успешно создано мероприятие");
+                    break;
+                case ERROR:
+                    Log.e(logTag, result.error);
+                    break;
+            }
+        });
     }
 
     private void setupRepository() {

@@ -24,4 +24,17 @@
         app:layout_constraintTop_toBottomOf="@id/toolbar"
         app:layout_constraintBottom_toBottomOf="parent"/>
 
+    <!-- Floating action button -->
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/createEvent"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_margin="16dp"
+        android:src="@drawable/create_chat"
+        app:tint="?attr/textColorMainReverse"
+        android:contentDescription="Создать мероприятие"
+        android:backgroundTint="?attr/colorPrimary" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

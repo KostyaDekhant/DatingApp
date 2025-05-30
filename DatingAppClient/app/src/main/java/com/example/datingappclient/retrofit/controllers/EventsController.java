@@ -13,15 +13,15 @@ import retrofit2.http.Path;
 import retrofit2.http.Query;
 
 public interface EventsController {
-    @POST("/api/events")
+    @POST("/api/event")
     Call<List<EventDTO>> getEvents(@Body EventsParamsDTO params);
 
-    @POST("/api/events/create")
+    @POST("/api/event/create")
     Call<Void> createEvent(@Body EventDTO event);
 
-    @POST("/api/events/{eventId}/members")
+    @POST("/api/event/{eventId}/members")
     Call<Void> addMembersToEvent(@Path("eventId") int userId, @Query("memberIds") List<Integer> memberIds);
 
-    @DELETE("/api/events/{eventId}/members")
+    @DELETE("/api/event/{eventId}/members")
     Call<Void> removeMembersFromEvent(@Path("eventId") int userId, @Query("memberIds") List<Integer> memberIds, @Query("organizerId") int organizerId);
 }
