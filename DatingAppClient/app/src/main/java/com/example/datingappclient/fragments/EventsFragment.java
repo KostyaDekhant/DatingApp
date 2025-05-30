@@ -146,6 +146,9 @@ public class EventsFragment extends Fragment {
         eventsRepository.createEvent(newEvent, result -> {
             switch (result.status) {
                 case SUCCESS:
+                    List<EventDTO> currentList = adapter.getCurrentList();
+                    currentList.add(newEvent);
+                    adapter.submitList(currentList);
                     Log.d(logTag, "Успешно создано мероприятие");
                     break;
                 case ERROR:
@@ -185,8 +188,8 @@ public class EventsFragment extends Fragment {
 
     private EventsParamsDTO getEventsParams() {
         EventsParamsDTO params = new EventsParamsDTO(
-                LocalDateTime.of(2025, 1, 1, 0, 0, 0),   // start_time
-                LocalDateTime.of(2025, 12, 31, 23, 59, 59), // end_time
+                Timestamp.valueOf("2025-01-01 00:00:00"),   // start_time
+                Timestamp.valueOf("2025-12-31 23:59:59"), // end_time
                 50,     // capacity
                 20,     // limit: сколько элементов хотим получить
                 0       // offset: с какого по счёту (0 — с начала)

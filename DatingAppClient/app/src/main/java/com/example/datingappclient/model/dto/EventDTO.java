@@ -1,6 +1,7 @@
 package com.example.datingappclient.model.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.google.gson.annotations.SerializedName;
 
 import java.sql.Timestamp;
 import java.util.List;
@@ -17,24 +18,24 @@ import lombok.Setter;
 @AllArgsConstructor
 @EqualsAndHashCode
 public class EventDTO {
-    @JsonProperty("pk_event")
+    @SerializedName("pk_event")
     private Integer id;
-    @JsonProperty("title")
+    @SerializedName("title")
     private String title;
-    @JsonProperty("description")
+    @SerializedName("description")
     private String description;
-    @JsonProperty("start_time")
+    @SerializedName("start_time")
     private Timestamp startTime;
-    @JsonProperty("end_time")
+    @SerializedName("end_time")
     private Timestamp endTime;
-    @JsonProperty("location")
+    @SerializedName("location")
     private String location;
-    @JsonProperty("capacity")
+    @SerializedName("capacity")
     private Integer capacity;
-    @JsonProperty("organizer_id")
+    @SerializedName("organizer_id")
     private Integer organizerId;
-    @JsonProperty("chat_id")
+    @SerializedName("chat_id")
     private Integer chatId;
-    @JsonProperty("members")
+    @SerializedName("members")
     private List<EventMemberDTO> members;
 }

@@ -44,14 +44,14 @@ public class EventsAdapter extends ListAdapter<EventDTO, EventsAdapter.EventView
     public EventsAdapter(OnJoinClickListener listener) {
         super(DIFF_CALLBACK);
         this.listener = listener;
-        setHasStableIds(true);
+        //setHasStableIds(true);
     }
 
-    @Override
+   /* @Override
     public long getItemId(int position) {
         return getItem(position).getId();
     }
-
+*/
 
     @NonNull
     @Override
@@ -123,7 +123,10 @@ public class EventsAdapter extends ListAdapter<EventDTO, EventsAdapter.EventView
 
         public void bind(EventDTO event, boolean isExpanded) {
             eventTitle.setText(event.getTitle());
-            eventTime.setText(DateUtils.formatTimeRange(event.getStartTime(), event.getEndTime()));
+            if (event.getStartTime() != null && event.getEndTime() != null)
+                eventTime.setText(DateUtils.formatTimeRange(event.getStartTime(), event.getEndTime()));
+            else
+                eventTime.setText("Время не задано");
             eventDescription.setText(event.getDescription());
             fullDescription.setText(event.getDescription());
             countMembers.setText("Участников: " + event.getMembers().size());
