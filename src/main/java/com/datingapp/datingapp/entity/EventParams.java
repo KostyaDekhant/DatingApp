@@ -7,16 +7,15 @@ import jakarta.persistence.Entity;
 import lombok.Data;
 
 import java.sql.Timestamp;
-import java.time.LocalDateTime;
 
 @Data
 public class EventParams {
     @JsonProperty("start_time")
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss.SSS")
-    private LocalDateTime startTime;
+    private Timestamp startTime;
     @JsonProperty("end_time")
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss.SSS")
-    private LocalDateTime  endTime;
+    private Timestamp  endTime;
     @JsonProperty("capacity")
     private Integer capacity;
     @JsonProperty("limit")

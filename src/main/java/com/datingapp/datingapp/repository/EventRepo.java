@@ -23,8 +23,8 @@ public interface EventRepo extends JpaRepository<Event, Integer> {
 """,nativeQuery = true
     )
     List<Event> queryEvents(
-            @Param("startTime") LocalDateTime startTime,
-            @Param("endTime") LocalDateTime endTime,
+            @Param("startTime") Timestamp startTime,
+            @Param("endTime") Timestamp endTime,
             @Param("capacity")  Integer capacity,
             @Param("limit")     Integer limit,
             @Param("offset")    Integer offset
