@@ -15,6 +15,7 @@ import androidx.recyclerview.widget.ListAdapter;
 import com.example.datingappclient.R;
 import com.example.datingappclient.constants.Constants;
 import com.example.datingappclient.model.dto.ChatDTO;
+import com.example.datingappclient.model.dto.ChatInfoDTO;
 import com.example.datingappclient.model.dto.ChatMemberDTO;
 import com.example.datingappclient.retrofit.repository.ChatsRepository;
 import com.example.datingappclient.utils.ImageUtils;
@@ -61,7 +62,7 @@ public class ChatsAdapter extends ListAdapter<ChatDTO, ChatsHolder> {
         holder.setReceiverID(chat.getId());
 
         // render init last message
-        boolean isGroup = chat.getChatInfo() != null && chat.getChatInfo().getIsGroup();
+        boolean isGroup = chat.getChatInfo() == null || chat.getChatInfo().getIsGroup();
         holder.setLastMessage(chat.getLastMessage(), isGroup, senderId);
 
         // Установить изображение, если оно есть
@@ -83,23 +84,25 @@ public class ChatsAdapter extends ListAdapter<ChatDTO, ChatsHolder> {
 
         holder.subscribeToUpdateChat(chat.getId(), viewModel, chatsRepository, senderId);
 
-        if (!isGroup ) {
-            chatsRepository.fetchChatInfo(chat.getId(), result -> {
-                switch (result.status) {
-                    case SUCCESS:
-                        for (ChatMemberDTO member : result.data.getMembers()) {
-                            if (member.getId() != senderId) {
-                                int receiverId = member.getId();
-                                holder.subscribeToUpdateOnline(receiverId);
-                                break;
-                            }
+        chatsRepository.fetchChatInfo(chat.getId(), result -> {
+            switch (result.status) {
+                case SUCCESS:
+                    ChatInfoDTO chatInfo = result.data;
+                    if (chatInfo.getIsGroup()) return;
+
+                    for (ChatMemberDTO member : result.data.getMembers()) {
+                        if (member.getId() != senderId) {
+                            int receiverId = member.getId();
+                            holder.subscribeToUpdateOnline(receiverId);
+                            break;
                         }
-                        break;
-                    case ERROR:
-                        break;
-                }
-            });
-        }
+                    }
+                    break;
+                case ERROR:
+                    break;
+            }
+        });
+
 
         holder.itemView.setOnClickListener(view ->
                 chatClickListener.onChatClicked(chat)

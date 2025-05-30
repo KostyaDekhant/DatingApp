@@ -1,5 +1,6 @@
 package com.example.datingappclient.recyclerViews;
 
+import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 
 import android.content.Context;
@@ -23,6 +24,7 @@ import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.ListAdapter;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.datingappclient.DatingAppApplication;
 import com.example.datingappclient.R;
 import com.example.datingappclient.constants.Constants;
 import com.example.datingappclient.model.dto.ChatMemberDTO;
@@ -116,6 +118,8 @@ public class ChatMembersAdapter extends ListAdapter<ChatMemberDTO, ChatMembersAd
                 return true;
             });
         }
+        if (!isEditMembers())
+            holder.statusOnline(chatMemberDTO.getId());
     }
 
     private void showPopupMenu(View v, ChatMemberDTO chatMemberDTO) {
@@ -207,7 +211,7 @@ public class ChatMembersAdapter extends ListAdapter<ChatMemberDTO, ChatMembersAd
 
     static class ViewHolder extends RecyclerView.ViewHolder {
 
-        ImageView avatarImageView, checkmark;
+        ImageView avatarImageView, checkmark, statusView;
         TextView nameTextView, statusTextView, ownerTextView;
         View container, avatarBorder;
 
@@ -220,6 +224,12 @@ public class ChatMembersAdapter extends ListAdapter<ChatMemberDTO, ChatMembersAd
             checkmark = itemView.findViewById(R.id.checkmark);
             avatarBorder = itemView.findViewById(R.id.avatarBorder);
             ownerTextView = itemView.findViewById(R.id.ownerTextView);
+            statusView = itemView.findViewById(R.id.statusView);
+        }
+
+        public void statusOnline(int userId) {
+            boolean isOnline = DatingAppApplication.getInstance().getOnlineStatusViewModel().isUserOnline(userId);
+            statusView.setVisibility(isOnline ? VISIBLE : GONE);
         }
     }
 

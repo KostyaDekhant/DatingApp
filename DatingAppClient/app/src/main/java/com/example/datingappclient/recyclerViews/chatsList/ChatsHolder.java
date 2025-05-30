@@ -77,7 +77,7 @@ public class ChatsHolder extends RecyclerView.ViewHolder {
                     }
 
                     // Теперь обновляем чат
-                    //viewModel.updateOrAddChat(chat);
+                    viewModel.updateOrAddChat(chat);
 
                     // Отписываемся от обновления, если нужно
                     Disposable d = disposableRef.get();
