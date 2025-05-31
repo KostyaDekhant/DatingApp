@@ -115,7 +115,6 @@ public class ChatFragment extends Fragment {
     }
 
     private void setupOnlineStatusUpdate() {
-
         int receiverId = chat.getChatInfo().getPersonalReceiver(userId);
         if (receiverId != 0) {
             ImageView onlineStatusView = activityView.findViewById(R.id.statusView);
@@ -131,7 +130,6 @@ public class ChatFragment extends Fragment {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        dialogViewModel.disconnect();                               // Закрываем соединение
         chatsViewModel.unsubscribeUpdateChat(chat.getId());         // Отписываеся от обновлений чата
         ChatDTO.selectedChat = null;
     }
@@ -228,7 +226,10 @@ public class ChatFragment extends Fragment {
     }
 
     private void subscribeGetMessage() {
-        dialogViewModel.getMessages().observe(this.getViewLifecycleOwner(), messages -> messagesAdapter.submitList(new ArrayList<>(messages)));
+        dialogViewModel.getMessages().observe(this.getViewLifecycleOwner(), messages ->
+                messagesAdapter.submitList(new ArrayList<>(messages)));
+        dialogViewModel.resetHistoryCache(chat.getId());
+        dialogViewModel.getHistory(chat.getId(), userId);
     }
 
     private void enableAutoScrollOnNewMessage() {

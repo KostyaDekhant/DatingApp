@@ -14,7 +14,6 @@ public class DialogViewModel extends ViewModel {
     private final ChatWebSocketService webSocketService;
     private final MutableLiveData<List<MessageDTO>> messages = new MutableLiveData<>(new ArrayList<>());
 
-
     public DialogViewModel(int chatId, int userId) {
         webSocketService = ChatWebSocketService.getInstance();
 
@@ -24,17 +23,23 @@ public class DialogViewModel extends ViewModel {
             messages.postValue(current);
         });
 
-        webSocketService.getHistory(chatId, userId, messages);
+        webSocketService.subscribeHistory(chatId, userId, messages);
     }
 
     public LiveData<List<MessageDTO>> getMessages() {
         return messages;
     }
+
     public void sendMessage(MessageDTO message) {
         webSocketService.sendMessage(message);
     }
 
-    public void disconnect() {
-        // webSocketService.disconnect();
+    public void resetHistoryCache(int chatId) {
+        messages.setValue(webSocketService.getCacheHistory(chatId));
     }
+
+    public void getHistory(int chatId, int userId) {
+        webSocketService.triggerHistoryRequest(chatId, userId);
+    }
+
 }

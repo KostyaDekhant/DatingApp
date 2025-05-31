@@ -12,9 +12,6 @@ import com.example.datingappclient.DatingAppApplication;
 import com.example.datingappclient.TokenManager;
 import com.example.datingappclient.constants.Constants;
 import com.example.datingappclient.model.ChatPayloadInfo;
-import com.example.datingappclient.model.dto.ChatDTO;
-import com.example.datingappclient.model.dto.ChatInfoDTO;
-import com.example.datingappclient.model.dto.ChatMemberDTO;
 import com.example.datingappclient.model.dto.HistoryDTO;
 import com.example.datingappclient.model.dto.MessageDTO;
 import com.example.datingappclient.retrofit.wrapper.Result;
@@ -27,6 +24,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
@@ -42,13 +40,15 @@ public class ChatWebSocketService {
     private final MutableLiveData<Integer> deletedChatIdStream = new MutableLiveData<>();
     private final MutableLiveData<Integer> updatedChatIdStream = new MutableLiveData<>();
 
-    private final List<MessageDTO> fullHistory = new ArrayList<>();
+    private final Map<Integer, Integer> historyOffsets = new HashMap<>();
+    private final Map<Integer, List<MessageDTO>> historyCache = new HashMap<>();
+
+    //private final List<MessageDTO> fullHistory = new ArrayList<>();
     private final ObjectMapper objectMapper = new ObjectMapper();
     private int offset;
 
-    private final String uri = "wss://" + Constants.SERVER_ADDRESS + ":" + Constants.SERVER_PORT + "/datingapp";
-
     private final Map<Integer, Disposable> messageDisposables = new HashMap<>();
+    private final Map<Integer, Disposable> historyDisposables = new HashMap<>();
     private final Map<Integer, Disposable> updatedChatDisposables = new HashMap<>();
     private final Map<Integer, Disposable> deletedChatDisposables = new HashMap<>();
 
@@ -106,18 +106,15 @@ public class ChatWebSocketService {
     }
 
     // =============== HISTORY
-    private Disposable historyDisposable;
-
     private final String triggerHistory = "/app/history/";
 
     @SuppressLint("CheckResult")
-    public void getHistory(int chatId, int userId, MutableLiveData<List<MessageDTO>> historyLiveData) {
+    public void subscribeHistory(int chatId, int userId, MutableLiveData<List<MessageDTO>> historyLiveData) {
         String logTag = Constants.GLOBAL_LOG_TAG + "STOMP CHAT HISTORY";
-
-        String jsonParams = getHistoryParams(logTag, offset, userId);
-
-        if (historyDisposable == null) {
-            historyDisposable = stompClient.topic("/topic/" + userId + "/history/" + chatId)
+        List<MessageDTO> chatHistory = historyCache.getOrDefault(chatId, new ArrayList<>());
+        AtomicInteger currentOffset = new AtomicInteger(historyOffsets.getOrDefault(chatId, chatHistory.size()));
+        if (!historyDisposables.containsKey(chatId)) {
+            Disposable disposable = stompClient.topic("/topic/" + userId + "/history/" + chatId)
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe(topicMessage -> {
@@ -128,27 +125,44 @@ public class ChatWebSocketService {
                                     }
                             );
                             Log.i(logTag, "Получено " + messages.size() + " сообщений!");
-                            messages.addAll(fullHistory);
-                            historyLiveData.setValue(messages);
+
+                            chatHistory.addAll(0, messages);
+                            historyLiveData.setValue(new ArrayList<>(chatHistory));
+                            currentOffset.addAndGet(messages.size());
+                            historyOffsets.put(chatId, currentOffset.get());
+
+                            /*messages.addAll(chatHistory);
+                            historyLiveData.setValue(messages);*/
+
                             if (messages.size() == Constants.MESSAGE_LIMIT) {
-                                offset += Constants.MESSAGE_LIMIT;
-                                stompClient.send(triggerHistory + chatId, getHistoryParams(logTag, offset, userId))
-                                        .subscribe(
-                                                () -> Log.d(logTag, "История запрошена"),
-                                                throwable -> Log.e(logTag, "Ошибка при запросе истории", throwable)
-                                        );
+                                sendHistoryRequest(chatId, userId, currentOffset.get());
+                            } else {
+                                //historyOffsets.put(chatId, 0);
+                                historyCache.put(chatId, chatHistory);
                             }
                         } catch (Exception e) {
                             Log.e(logTag, "Ошибка при разборе истории", e);
                         }
                     }, throwable -> Log.e(logTag, "Ошибка подписки на историю", throwable));
-        }
 
+            historyDisposables.put(chatId, disposable);
+        }
+    }
+
+    @SuppressLint("CheckResult")
+    private void sendHistoryRequest(int chatId, int userId, int offset) {
+        String logTag = Constants.GLOBAL_LOG_TAG + "STOMP CHAT HISTORY";
+        String jsonParams = getHistoryParams(logTag, offset, userId);
         stompClient.send(triggerHistory + chatId, jsonParams)
                 .subscribe(
-                        () -> Log.d(logTag, "Первый запрос отправлен"),
-                        throwable -> Log.e(logTag, "Ошибка отправки первого запроса", throwable)
+                        () -> Log.d(logTag, "Запрос истории со смещением: " + offset),
+                        throwable -> Log.e(logTag, "Ошибка запроса истории", throwable)
                 );
+    }
+
+    public void triggerHistoryRequest(int chatId, int userId) {
+        int offset = historyOffsets.getOrDefault(chatId, 0);
+        sendHistoryRequest(chatId, userId, offset);
     }
 
     private String getHistoryParams(String logTag, int offset, int userId) {
@@ -162,16 +176,6 @@ public class ChatWebSocketService {
         }
         return jsonParams;
     }
-
-    // =============== DISCONNECT
-    public void disconnect() {
-        String logTag = Constants.GLOBAL_LOG_TAG + "STOMP DISCONNECT";
-        if (stompClient != null && stompClient.isConnected()) {
-            stompClient.disconnect();
-            Log.d(logTag, "Отключение от WebSocket");
-        }
-    }
-
     // =============== DELETE CHAT
     @SuppressLint("CheckResult")
     public void sendDeleteGroupChat(int chatId, int userId, ResultCallback<Void> callback) {
@@ -256,14 +260,6 @@ public class ChatWebSocketService {
         return deletedChatIdStream;
     }
 
-    private void forceLogout() {
-        TokenManager tokenManager = new TokenManager(DatingAppApplication.getInstance().getApplicationContext());
-        tokenManager.clearTokens();
-
-        Intent intent = new Intent("com.example.datingappclient.LOGOUT");
-        LocalBroadcastManager.getInstance(DatingAppApplication.getInstance().getApplicationContext()).sendBroadcast(intent);
-    }
-
     public void unsubscribeFromChat(int chatId) {
         Disposable disposable = messageDisposables.remove(chatId);
         if (disposable != null && !disposable.isDisposed()) {
@@ -284,5 +280,9 @@ public class ChatWebSocketService {
         if (disposable != null && !disposable.isDisposed()) {
             disposable.dispose();
         }
+    }
+
+    public List<MessageDTO> getCacheHistory(int chatId) {
+        return historyCache.getOrDefault(chatId, new ArrayList<>());
     }
 }

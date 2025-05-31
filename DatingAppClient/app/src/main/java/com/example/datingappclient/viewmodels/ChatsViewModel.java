@@ -145,13 +145,6 @@ public class ChatsViewModel extends ViewModel {
         return webSocketService.subscribeToChat(chatId);
     }
 
-    /**
-     * Завершение соединения с WebSocket (по завершению UI-жизни)
-     */
-    public void disconnectWebSocket() {
-        webSocketService.disconnect();
-    }
-
     @Override
     protected void onCleared() {
         super.onCleared();
