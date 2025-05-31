@@ -20,7 +20,7 @@ WHERE e.start_time >= :startTime
     (e.end_time IS NOT NULL AND e.end_time <= :endTime) OR
     (e.end_time IS NULL     AND e.start_time <= :endTime)
   )
-  AND e.capacity <= :capacity
+  AND (e.capacity IS NULL OR e.capacity <= :capacity)
 ORDER BY e.start_time
 LIMIT :limit OFFSET :offset;
 """,nativeQuery = true

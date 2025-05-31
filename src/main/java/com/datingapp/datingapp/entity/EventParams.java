@@ -11,10 +11,10 @@ import java.sql.Timestamp;
 @Data
 public class EventParams {
     @JsonProperty("start_time")
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss.SSS")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss.SSS", timezone = "GMT+7")
     private Timestamp startTime;
     @JsonProperty("end_time")
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss.SSS")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss.SSS", timezone = "GMT+7")
     private Timestamp  endTime;
     @JsonProperty("capacity")
     private Integer capacity;

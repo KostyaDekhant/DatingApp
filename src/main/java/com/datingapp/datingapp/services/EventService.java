@@ -28,6 +28,7 @@ public class EventService {
     public List<EventDTO> getEvents(EventParams eventParams) {
         try {
             List<EventDTO> eventDTOs = new ArrayList<>();
+            log.info(eventParams.getStartTime() + " " + eventParams.getEndTime());
             List<Event> events = eventRepo.queryEvents( eventParams.getStartTime(),
                                                         eventParams.getEndTime(),
                                                         eventParams.getCapacity(),
