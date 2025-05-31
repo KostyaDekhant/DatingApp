@@ -36,6 +36,8 @@ public class EventDTO {
     private Integer organizerId;
     @SerializedName("chat_id")
     private Integer chatId;
+
     @SerializedName("members")
+    @JsonProperty("members")
     private List<EventMemberDTO> members;
 }

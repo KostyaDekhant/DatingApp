@@ -28,6 +28,16 @@ public class DateUtils {
         }
     }
 
+    public static String formatTime(Timestamp timestamp) {
+        SimpleDateFormat dayFormat = new SimpleDateFormat("d MMMM", new Locale("ru"));
+        SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm", Locale.getDefault());
+
+        String day = dayFormat.format(timestamp);
+        String time = timeFormat.format(timestamp);
+
+        return String.format("%s, %s", day, time);
+    }
+
     public static String formatTimeRange(Timestamp start, Timestamp end) {
         SimpleDateFormat dayFormat = new SimpleDateFormat("d MMMM", new Locale("ru"));
         SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm", Locale.getDefault());

@@ -3,11 +3,15 @@ package com.example.datingappclient.fragments;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
+import android.widget.ImageButton;
+import android.widget.Toast;
 import android.widget.Toolbar;
 
 import androidx.annotation.NonNull;
@@ -27,6 +31,7 @@ import com.example.datingappclient.recyclerViews.ChatMembersAdapter;
 import com.example.datingappclient.recyclerViews.EventsAdapter;
 import com.example.datingappclient.retrofit.repository.EventsRepository;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.textfield.TextInputLayout;
 
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
@@ -36,6 +41,7 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
+import java.util.function.Consumer;
 
 public class EventsFragment extends Fragment {
 
@@ -72,6 +78,8 @@ public class EventsFragment extends Fragment {
         });
     }
 
+    private Timestamp startTimestamp;
+    private Timestamp endTimestamp;
     private void openCreateEventDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
         builder.setTitle("Создание мероприятия");
@@ -86,39 +94,105 @@ public class EventsFragment extends Fragment {
         EditText startTimeInput = dialogView.findViewById(R.id.inputStartTime);
         EditText endTimeInput = dialogView.findViewById(R.id.inputEndTime);
 
-        startTimeInput.setOnClickListener(v -> showDateTimePicker(startTimeInput));
-        endTimeInput.setOnClickListener(v -> showDateTimePicker(endTimeInput));
 
-        builder.setPositiveButton("Создать", (dialog, which) -> {
-            String title = titleInput.getText().toString();
+        TextInputLayout layoutTitle = dialogView.findViewById(R.id.layoutTitle);
+        TextInputLayout layoutStartTime = dialogView.findViewById(R.id.layoutStartTime);
+
+        clearErrorOnInput(layoutTitle, titleInput);
+        clearErrorOnInput(layoutStartTime, startTimeInput);
+
+        // Кнопки сброса дат
+        ImageButton clearStartTime = dialogView.findViewById(R.id.clearStartTime);
+        ImageButton clearEndTime = dialogView.findViewById(R.id.clearEndTime);
+
+        // Сброс времени начала
+        clearStartTime.setOnClickListener(v -> {
+            startTimeInput.setText("");
+            startTimestamp = null;
+        });
+
+        // Сброс времени окончания
+        clearEndTime.setOnClickListener(v -> {
+            endTimeInput.setText("");
+            endTimestamp = null;
+        });
+
+        // Обработчики взятия времени
+        startTimeInput.setOnClickListener(v -> showDateTimePicker(startTimeInput, null, ts -> startTimestamp = ts));
+        endTimeInput.setOnClickListener(v -> {
+            if (startTimestamp == null) {
+                Toast.makeText(requireContext(), "Сначала выберите дату и время начала", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            showDateTimePicker(endTimeInput, startTimestamp, ts -> endTimestamp = ts);
+        });
+
+        // Кнопки
+        builder.setPositiveButton("Создать", null);
+        builder.setNegativeButton("Отмена", (dialog, which) -> dialog.dismiss());
+
+        AlertDialog dialog = builder.create();
+        dialog.show();
+
+        // ✅ Обработка кнопки создания
+        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(v -> {
+            boolean hasError = false;
+
+            String title = titleInput.getText().toString().trim();
+            String startStr = startTimeInput.getText().toString().trim();
+
+            if (title.isEmpty()) {
+                hasError = true;
+                layoutTitle.setError("Обязательное поле");       // показывает красную подсказку и рамку
+                layoutTitle.setErrorEnabled(true);               // (необязательно, для совместимости)
+            }
+
+            if (startStr.isEmpty()) {
+                hasError = true;
+                layoutStartTime.setError("Обязательное поле");       // показывает красную подсказку и рамку
+                layoutStartTime.setErrorEnabled(true);               // (необязательно, для совместимости)
+            }
+
+            if (hasError) {
+                Toast.makeText(requireContext(), "Заполните обязательные поля", Toast.LENGTH_SHORT).show();
+                return; // диалог остаётся открытым
+            }
+
+            // Всё ок — создаём событие
             String description = descriptionInput.getText().toString();
             String location = locationInput.getText().toString();
-            int capacity = Integer.parseInt(capacityInput.getText().toString());
-            Timestamp startTime = Timestamp.valueOf(startTimeInput.getText().toString());
-            Timestamp endTime = Timestamp.valueOf(endTimeInput.getText().toString());
+            String capasityString = capacityInput.getText().toString();
+            Integer capacity = capasityString.isEmpty() ? null : Integer.parseInt(capasityString);
+            Timestamp startTime = Timestamp.valueOf(startStr);
+            Timestamp endTime = endTimestamp;
 
             EventDTO newEvent = new EventDTO(
-                    null,
-                    title,
-                    description,
-                    startTime,
-                    endTime,
-                    location,
-                    capacity,
-                    null,
-                    null,
-                    new ArrayList<>() //TODO: добавление участников
+                    null, title, description, startTime, endTime, location, capacity,
+                    userId, -1, new ArrayList<>()
             );
 
             createEvent(newEvent);
+            dialog.dismiss(); // теперь можно закрыть вручную
         });
 
-        builder.setNegativeButton("Отмена", (dialog, which) -> dialog.dismiss());
-        builder.create().show();
     }
 
-    private void showDateTimePicker(EditText target) {
+    private void clearErrorOnInput(TextInputLayout layout, EditText editText) {
+        editText.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                layout.setError(null);
+                layout.setErrorEnabled(false);
+            }
+
+            @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            @Override public void afterTextChanged(Editable s) {}
+        });
+    }
+
+    private void showDateTimePicker(EditText target, @Nullable Timestamp minTimestamp, @NonNull Consumer<Timestamp> onTimestampSelected) {
         Calendar calendar = Calendar.getInstance();
+
         DatePickerDialog datePicker = new DatePickerDialog(requireContext(), (view, year, month, day) -> {
             calendar.set(Calendar.YEAR, year);
             calendar.set(Calendar.MONTH, month);
@@ -129,14 +203,36 @@ public class EventsFragment extends Fragment {
                 calendar.set(Calendar.MINUTE, minute);
                 calendar.set(Calendar.SECOND, 0);
 
+                Timestamp selectedTimestamp = new Timestamp(calendar.getTimeInMillis());
+
+                // ⚠ Проверка, если minTimestamp задан и дата совпадает
+                if (minTimestamp != null) {
+                    Calendar minCal = Calendar.getInstance();
+                    minCal.setTimeInMillis(minTimestamp.getTime());
+
+                    boolean sameDay = calendar.get(Calendar.YEAR) == minCal.get(Calendar.YEAR)
+                            && calendar.get(Calendar.DAY_OF_YEAR) == minCal.get(Calendar.DAY_OF_YEAR);
+
+                    if (sameDay && selectedTimestamp.before(minTimestamp)) {
+                        Toast.makeText(requireContext(), "Время не может быть раньше времени начала", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                }
+
+                // Всё ок — выводим
                 SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
-                target.setText(sdf.format(calendar.getTime()));
+                target.setText(sdf.format(selectedTimestamp));
+                onTimestampSelected.accept(selectedTimestamp);
 
             }, calendar.get(Calendar.HOUR_OF_DAY), calendar.get(Calendar.MINUTE), true);
 
             timePicker.show();
 
         }, calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH));
+
+        if (minTimestamp != null) {
+            datePicker.getDatePicker().setMinDate(minTimestamp.getTime());
+        }
 
         datePicker.show();
     }
@@ -146,7 +242,7 @@ public class EventsFragment extends Fragment {
         eventsRepository.createEvent(newEvent, result -> {
             switch (result.status) {
                 case SUCCESS:
-                    List<EventDTO> currentList = adapter.getCurrentList();
+                    List<EventDTO> currentList = new ArrayList<>(adapter.getCurrentList());
                     currentList.add(newEvent);
                     adapter.submitList(currentList);
                     Log.d(logTag, "Успешно создано мероприятие");

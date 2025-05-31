@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:padding="20dp">
@@ -7,47 +8,128 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:dividerPadding="8dp">
 
-        <EditText
-            android:id="@+id/inputTitle"
+        <!-- Название мероприятия -->
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/layoutTitle"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Название мероприятия" />
+            android:hint="Название мероприятия">
 
-        <EditText
-            android:id="@+id/inputDescription"
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/inputTitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- Описание -->
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/layoutDescription"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Описание" />
+            android:hint="Описание">
 
-        <EditText
-            android:id="@+id/inputLocation"
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/inputDescription"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- Место проведения -->
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/layoutLocation"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Место проведения" />
+            android:hint="Место проведения">
 
-        <EditText
-            android:id="@+id/inputCapacity"
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/inputLocation"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- Вместимость -->
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/layoutCapacity"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:inputType="number"
-            android:hint="Вместимость" />
+            android:hint="Вместимость">
 
-        <EditText
-            android:id="@+id/inputStartTime"
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/inputCapacity"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="number"/>
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- Дата и время начала -->
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:focusable="false"
-            android:clickable="true"
-            android:hint="Дата и время начала" />
+            android:orientation="horizontal">
 
-        <EditText
-            android:id="@+id/inputEndTime"
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/layoutStartTime"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                android:layout_width="wrap_content"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:hint="Дата и время начала">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/inputStartTime"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:focusable="false"
+                    android:clickable="true"/>
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <ImageButton
+                android:id="@+id/clearStartTime"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:src="@android:drawable/ic_menu_close_clear_cancel"
+                android:contentDescription="Очистить дату начала" />
+        </LinearLayout>
+
+        <!-- Дата и время окончания -->
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:focusable="false"
-            android:clickable="true"
-            android:hint="Дата и время окончания" />
+            android:orientation="horizontal">
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/layoutEndTime"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:hint="Дата и время окончания">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/inputEndTime"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:focusable="false"
+                    android:clickable="true"/>
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <ImageButton
+                android:id="@+id/clearEndTime"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="Очистить дату окончания"
+                android:src="@android:drawable/ic_menu_close_clear_cancel" />
+        </LinearLayout>
     </LinearLayout>
 </ScrollView>

@@ -123,10 +123,14 @@ public class EventsAdapter extends ListAdapter<EventDTO, EventsAdapter.EventView
 
         public void bind(EventDTO event, boolean isExpanded) {
             eventTitle.setText(event.getTitle());
-            if (event.getStartTime() != null && event.getEndTime() != null)
-                eventTime.setText(DateUtils.formatTimeRange(event.getStartTime(), event.getEndTime()));
-            else
+            // Format time
+            if (event.getStartTime() == null && event.getEndTime() == null)
                 eventTime.setText("Время не задано");
+            else if (event.getEndTime() == null)
+                eventTime.setText(DateUtils.formatTime(event.getStartTime()));
+            else
+                eventTime.setText(DateUtils.formatTimeRange(event.getStartTime(), event.getEndTime()));
+            //
             eventDescription.setText(event.getDescription());
             fullDescription.setText(event.getDescription());
             countMembers.setText("Участников: " + event.getMembers().size());

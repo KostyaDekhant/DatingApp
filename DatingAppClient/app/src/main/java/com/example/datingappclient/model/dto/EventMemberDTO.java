@@ -1,6 +1,7 @@
 package com.example.datingappclient.model.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.google.gson.annotations.SerializedName;
 
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
@@ -14,8 +15,8 @@ import lombok.Setter;
 @AllArgsConstructor
 @EqualsAndHashCode
 public class EventMemberDTO {
-    @JsonProperty("userId")
+    @SerializedName("userId")
     private Integer id;
-    @JsonProperty("username")
+    @SerializedName("username")
     private String name;
 }
