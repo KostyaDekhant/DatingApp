@@ -13,13 +13,16 @@ import java.util.List;
 @Repository
 public interface EventRepo extends JpaRepository<Event, Integer> {
     @Query(value = """
-            SELECT e.*
-            FROM event e
-            WHERE e.start_time <= :startTime
-                AND e.end_time   >= :endTime
-                AND e.capacity    <= :capacity
-            ORDER BY e.start_time
-            LIMIT :limit OFFSET :offset
+SELECT e.*
+FROM event e
+WHERE e.start_time >= :startTime
+  AND (
+    (e.end_time IS NOT NULL AND e.end_time <= :endTime) OR
+    (e.end_time IS NULL     AND e.start_time <= :endTime)
+  )
+  AND e.capacity <= :capacity
+ORDER BY e.start_time
+LIMIT :limit OFFSET :offset;
 """,nativeQuery = true
     )
     List<Event> queryEvents(
