@@ -277,11 +277,11 @@ public class LikeFragment extends Fragment {
         java.sql.Timestamp timestamp = new Timestamp(System.currentTimeMillis());
         ChatInfoDTO groupChatInfo = new ChatInfoDTO(user.getId(), timestamp , chatMembers, false);
 
-        return new ChatDTO(null, null, null, null, groupChatInfo);
+        return new ChatDTO(null, null, null, null, groupChatInfo, null);
     }
 
     private void startChatActivity(int chatId, LikeDTO like) {
-        ChatDTO chat = new ChatDTO(chatId, like.getUserName(), null, like.getImage(), null);
+        ChatDTO chat = new ChatDTO(chatId, like.getUserName(), null, like.getImage(), null, null);
         Intent intent = new Intent(requireContext(), ChatActivity.class);
         intent.putExtra("userId", user.getId());
         ChatDTO.selectedChat = chat;

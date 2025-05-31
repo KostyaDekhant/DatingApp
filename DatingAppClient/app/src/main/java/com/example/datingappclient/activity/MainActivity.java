@@ -263,6 +263,7 @@ public class MainActivity extends AppCompatActivity {
             if (result.status == Result.Status.SUCCESS) {
                 Log.i(logTag, "Success");
                 tokenManager.clearTokens();
+                DatingAppApplication.getInstance().disconnect();
                 Intent intent = new Intent(MainActivity.this, AuthActivity.class);
                 intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK); // очистить стек
                 startActivity(intent);

@@ -47,6 +47,13 @@ public class StompClientService {
         return service;
     }
 
+    private boolean forceDisconnect = false;
+    public void disconnect() {
+        forceDisconnect = true;
+        Log.d(Constants.GLOBAL_LOG_TAG + "DISCONNECT",  "Закрываю соеденение!");
+        client.disconnect();
+    }
+
     @SuppressLint("CheckResult")
     private void subscribeLifecycle() {
         String logTag = Constants.GLOBAL_LOG_TAG + "STOMP LIFECYCLE";
@@ -72,8 +79,12 @@ public class StompClientService {
                             }
                             break;
                         case CLOSED:
-                            Log.d(logTag, "Соединение закрыто. Попытка переподключения");
-                            reconnect();
+                            Log.d(logTag, "Соединение закрыто");
+                            if (!forceDisconnect) {
+                                Log.d(logTag, "Попытка переподключения");
+                                reconnect();
+                            }
+                            else forceDisconnect = false;
                             break;
                     }
                 }, throwable -> {
@@ -108,5 +119,11 @@ public class StompClientService {
     private boolean isTokenExpiredError(Throwable e) {
         String msg = e.getMessage();
         return msg != null && (msg.contains("401") || msg.contains("400") || msg.toLowerCase().contains("unauthorized"));
+    }
+
+    public void connect() {
+        if (!client.isConnected()) {
+            reconnect();
+        }
     }
 }

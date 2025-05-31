@@ -62,6 +62,7 @@ public class ContactsFragment extends Fragment {
         ChatMembersViewModel contacts = app.getContactsViewModel();
         membersAdapter = new ChatMembersAdapter(requireContext(), userId, 0);
         membersAdapter.setEditMembers(false);
+        membersAdapter.observeOnlineStatus(getViewLifecycleOwner());
 
         if (contacts != null) {
             membersAdapter.setFullList(contacts.getChatMembers().getValue());

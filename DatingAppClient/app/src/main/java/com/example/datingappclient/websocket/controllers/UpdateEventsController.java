@@ -1,11 +1,15 @@
-package com.example.datingappclient.websocket;
+package com.example.datingappclient.websocket.controllers;
 
 import android.annotation.SuppressLint;
 import android.util.Log;
 
 import com.example.datingappclient.constants.Constants;
+import com.example.datingappclient.model.dto.OnlineStatusDTO;
 import com.example.datingappclient.retrofit.wrapper.Result;
 import com.example.datingappclient.retrofit.wrapper.ResultCallback;
+import com.example.datingappclient.websocket.StompClientService;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;

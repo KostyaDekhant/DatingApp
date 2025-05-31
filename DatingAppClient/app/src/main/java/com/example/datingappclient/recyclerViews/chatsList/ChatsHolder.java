@@ -20,7 +20,7 @@ import com.example.datingappclient.retrofit.repository.ChatsRepository;
 import com.example.datingappclient.retrofit.wrapper.Result;
 import com.example.datingappclient.utils.DateUtils;
 import com.example.datingappclient.viewmodels.ChatsViewModel;
-import com.example.datingappclient.websocket.UpdateEventsController;
+import com.example.datingappclient.websocket.controllers.UpdateEventsController;
 
 import java.util.concurrent.atomic.AtomicReference;
 

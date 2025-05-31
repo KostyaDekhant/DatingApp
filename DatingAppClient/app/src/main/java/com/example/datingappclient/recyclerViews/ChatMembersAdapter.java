@@ -20,6 +20,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
+import androidx.lifecycle.LifecycleOwner;
 import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.ListAdapter;
 import androidx.recyclerview.widget.RecyclerView;
@@ -27,9 +28,12 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.datingappclient.DatingAppApplication;
 import com.example.datingappclient.R;
 import com.example.datingappclient.constants.Constants;
+import com.example.datingappclient.model.dto.ChatDTO;
+import com.example.datingappclient.model.dto.ChatInfoDTO;
 import com.example.datingappclient.model.dto.ChatMemberDTO;
 import com.example.datingappclient.retrofit.repository.ChatsRepository;
 import com.example.datingappclient.utils.ImageUtils;
+import com.example.datingappclient.viewmodels.OnlineStatusViewModel;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -54,6 +58,8 @@ public class ChatMembersAdapter extends ListAdapter<ChatMemberDTO, ChatMembersAd
     private final int userId;
     private final int chatId;
 
+    private final OnlineStatusViewModel onlineStatusViewModel;
+
     @Setter
     private boolean editMembers;
 
@@ -66,6 +72,7 @@ public class ChatMembersAdapter extends ListAdapter<ChatMemberDTO, ChatMembersAd
         chatsRepository = new ChatsRepository(context);
         this.userId = userId;
         this.chatId = chatId;
+        onlineStatusViewModel = DatingAppApplication.getInstance().getOnlineStatusViewModel();
     }
 
     @NonNull
@@ -207,6 +214,17 @@ public class ChatMembersAdapter extends ListAdapter<ChatMemberDTO, ChatMembersAd
             }
         }
         return selected;
+    }
+
+    public void observeOnlineStatus(LifecycleOwner lifecycleOwner) {
+        onlineStatusViewModel.getOnlineStatuses().observe(lifecycleOwner, map -> {
+            for (int i = 0; i < getItemCount(); i++) {
+                ChatMemberDTO member = getItem(i);
+                if (member != null && map.containsKey(member.getId())) {
+                    notifyItemChanged(i);
+                }
+            }
+        });
     }
 
     static class ViewHolder extends RecyclerView.ViewHolder {

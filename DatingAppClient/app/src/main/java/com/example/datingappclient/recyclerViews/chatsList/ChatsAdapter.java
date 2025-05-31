@@ -12,6 +12,7 @@ import androidx.lifecycle.LifecycleOwner;
 import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.ListAdapter;
 
+import com.example.datingappclient.DatingAppApplication;
 import com.example.datingappclient.R;
 import com.example.datingappclient.constants.Constants;
 import com.example.datingappclient.model.dto.ChatDTO;
@@ -20,6 +21,7 @@ import com.example.datingappclient.model.dto.ChatMemberDTO;
 import com.example.datingappclient.retrofit.repository.ChatsRepository;
 import com.example.datingappclient.utils.ImageUtils;
 import com.example.datingappclient.viewmodels.ChatsViewModel;
+import com.example.datingappclient.viewmodels.OnlineStatusViewModel;
 
 import java.util.Objects;
 
@@ -35,6 +37,7 @@ public class ChatsAdapter extends ListAdapter<ChatDTO, ChatsHolder> {
     private final int senderId;
     private final LifecycleOwner lifecycleOwner;
     private final Context context;
+    private final OnlineStatusViewModel onlineStatusViewModel;
 
     public ChatsAdapter(ChatsAdapter.OnChatClickListener listener, ChatsViewModel viewModel, int senderId, Context context, LifecycleOwner owner) {
         super(DIFF_CALLBACK);
@@ -44,6 +47,7 @@ public class ChatsAdapter extends ListAdapter<ChatDTO, ChatsHolder> {
         this.context = context;
         chatsRepository = new ChatsRepository(context);
         this.lifecycleOwner = owner;
+        onlineStatusViewModel = DatingAppApplication.getInstance().getOnlineStatusViewModel();
     }
 
     @NonNull
@@ -56,7 +60,6 @@ public class ChatsAdapter extends ListAdapter<ChatDTO, ChatsHolder> {
     @Override
     public void onBindViewHolder(@NonNull ChatsHolder holder, int position) {
         ChatDTO chat = getItem(position);
-        Log.d("ChatDebug", "Чат отображен " + chat.getId());
 
         holder.username.setText(chat.getName());
         holder.setReceiverID(chat.getId());
@@ -80,25 +83,30 @@ public class ChatsAdapter extends ListAdapter<ChatDTO, ChatsHolder> {
                     holder.setLastMessage(message, isGroup, senderId);
                 });
 
+        // Подписка на ивент удаления чата
         viewModel.subscribeToDeleteChat(chat.getId());
-
+        // Подписка на ивент изменения чата
         holder.subscribeToUpdateChat(chat.getId(), viewModel, chatsRepository, senderId);
 
-        chatsRepository.fetchChatInfo(chat.getId(), result -> {
-            switch (result.status) {
-                case SUCCESS:
-                    int receiverId = result.data.getPersonalReceiver(senderId);
-                    if (receiverId != 0)
-                        holder.subscribeToUpdateOnline(receiverId);
-                case ERROR:
-                    break;
-            }
-        });
-
+        if (chat.getPartnerId() != null) {
+            holder.subscribeToUpdateOnline(chat.getPartnerId());
+        }
 
         holder.itemView.setOnClickListener(view ->
                 chatClickListener.onChatClicked(chat)
         );
+    }
+
+    public void observeOnlineStatus() {
+        onlineStatusViewModel.getOnlineStatuses().observe(lifecycleOwner, map -> {
+            for (int i = 0; i < getItemCount(); i++) {
+                ChatDTO chat = getItem(i);
+                // только для личных чатов, где нужен онлайн другого участника
+                if ( chat.getPartnerId() != null && map.containsKey( chat.getPartnerId())) {
+                    notifyItemChanged(i); // обновить карточку
+                }
+            }
+        });
     }
 
     @Override

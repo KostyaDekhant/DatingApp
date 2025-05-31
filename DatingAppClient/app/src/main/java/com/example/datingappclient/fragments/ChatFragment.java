@@ -17,6 +17,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -27,6 +28,7 @@ import com.example.datingappclient.TokenManager;
 import com.example.datingappclient.constants.Constants;
 import com.example.datingappclient.model.AuthResponse;
 import com.example.datingappclient.model.dto.ChatDTO;
+import com.example.datingappclient.model.dto.ChatMemberDTO;
 import com.example.datingappclient.model.dto.MessageDTO;
 import com.example.datingappclient.recyclerViews.messageList.MessagesAdapter;
 import com.example.datingappclient.retrofit.repository.ChatsRepository;
@@ -34,6 +36,7 @@ import com.example.datingappclient.utils.ImageUtils;
 import com.example.datingappclient.viewmodels.ChatMembersViewModel;
 import com.example.datingappclient.viewmodels.ChatsViewModel;
 import com.example.datingappclient.viewmodels.DialogViewModel;
+import com.example.datingappclient.viewmodels.OnlineStatusViewModel;
 import com.example.datingappclient.viewmodels.factory.DialogViewModelFactory;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
@@ -112,11 +115,16 @@ public class ChatFragment extends Fragment {
     }
 
     private void setupOnlineStatusUpdate() {
-        ImageView onlineStatusView = activityView.findViewById(R.id.statusView);
+
         int receiverId = chat.getChatInfo().getPersonalReceiver(userId);
         if (receiverId != 0) {
-            boolean isOnline = DatingAppApplication.getInstance().getOnlineStatusViewModel().isUserOnline(receiverId);
-            onlineStatusView.setVisibility(isOnline ? VISIBLE : GONE);
+            ImageView onlineStatusView = activityView.findViewById(R.id.statusView);
+            DatingAppApplication app = DatingAppApplication.getInstance();
+            OnlineStatusViewModel onlineStatusViewModel = app.getOnlineStatusViewModel();
+            onlineStatusViewModel.getOnlineStatuses().observe(getViewLifecycleOwner(), map -> {
+                boolean isOnline = DatingAppApplication.getInstance().getOnlineStatusViewModel().isUserOnline(receiverId);
+                onlineStatusView.setVisibility(isOnline ? VISIBLE : GONE);
+            });
         }
     }
 

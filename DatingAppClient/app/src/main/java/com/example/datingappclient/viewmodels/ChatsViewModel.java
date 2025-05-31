@@ -48,9 +48,6 @@ public class ChatsViewModel extends ViewModel {
         webSocketService.subscribeToChatDeletedEvents(chatId, callback);
     }
 
-    public void subscribeToUpdateChat(int chatId) {
-        webSocketService.subscribeToChatUpdatedEvents(chatId, result -> {});
-    }
 
     public Disposable subscribeToUpdateChat(int chatId, ResultCallback<Boolean> callback) {
         Disposable disposable = webSocketService.subscribeToChatUpdatedEvents(chatId, callback);

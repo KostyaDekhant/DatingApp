@@ -112,6 +112,7 @@ public class ChatListFragment extends Fragment {
         }
 
         chatsAdapter = new ChatsAdapter(this::startChatActivity, chatsViewModel, user.getId(), requireContext(), getViewLifecycleOwner());
+        chatsAdapter.observeOnlineStatus();
         recyclerView.setAdapter(chatsAdapter);
 
         LinearLayoutManager layoutManager = (LinearLayoutManager) recyclerView.getLayoutManager();

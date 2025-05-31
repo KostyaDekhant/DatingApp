@@ -39,6 +39,9 @@ public class ChatDTO {
     @SerializedName("group_chat_info")
     private ChatInfoDTO chatInfo;
 
+    @JsonProperty("partnerId")
+    private Integer partnerId;
+
     // Используется для передачи выбранного чата ChatListFragment -> ChatActivity
     public static ChatDTO selectedChat;
 
