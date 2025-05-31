@@ -1,5 +1,6 @@
 package com.datingapp.datingapp.config;
 
+import com.google.api.client.util.Value;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.FirebaseOptions;
@@ -10,6 +11,8 @@ import java.io.FileInputStream;
 
 @Configuration
 public class FirebaseConfig {
+    @Value("${firebase.service-account-file}")
+    private String firebaseKeyPath;
 
     @PostConstruct
     public void initialize() {
