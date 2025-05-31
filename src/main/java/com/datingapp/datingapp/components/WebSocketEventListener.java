@@ -32,9 +32,10 @@ public class WebSocketEventListener {
         if (user != null) {
             String username = user.getName();
             Optional<User> entity = userRepository.findByLogin(username);
-            log.info("User " + entity);
+            //log.info("User " + entity);
             if (entity.isPresent()) {
                 entity.get().setIsOnline(false);
+                log.info("user " + entity.get().getName() + " is offline");
                 userRepository.save(entity.get());
                 OnlineStatusService.sendOnlineStatus(entity.get().getPkUser(), false);
             }
