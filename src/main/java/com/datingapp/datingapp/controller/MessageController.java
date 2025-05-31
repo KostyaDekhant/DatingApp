@@ -76,8 +76,8 @@ public class MessageController {
                     Boolean isOnline = user.getIsOnline();
                     String token = user.getFcmToken();
                     log.info("Попытка отправить смс пользователю с id " + chatMember.getUserId());
-                    if (!isOnline && token != null) {
-                        log.info("Пользователь не онлайн, отправляем смс");
+                    if (token != null) {
+                        log.info("Отправляем смс");
                         fcmService.sendPushNotificationToUser(
                                 token,
                                 "Новое сообщение в чате",
