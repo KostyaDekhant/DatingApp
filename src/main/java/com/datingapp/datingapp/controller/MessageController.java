@@ -64,7 +64,7 @@ public class MessageController {
         int userId = messageDTO.getPkUser();
         int chat_id = mess.getPkChat();
         try {
-            List<ChatMemberDTO> chatMemberDTOs = chatService.findGroupChatUsers(userId, chat_id);
+            List<ChatMemberDTO> chatMemberDTOs = chatService.getChatMembers(chat_id);
 
             simpMessagingTemplate.convertAndSend(
                     "/topic/messages/" + chat_id,
@@ -78,9 +78,10 @@ public class MessageController {
                     log.info("Попытка отправить смс пользователю с id " + chatMember.getUserId());
                     if (token != null) {
                         log.info("Отправляем смс");
+                        String name = chatService.getChatName(chat_id, chatMember.getUserId());
                         fcmService.sendPushNotificationToUser(
                                 token,
-                                "Новое сообщение в чате",
+                                name,
                                 mess.getMessage(),
                                 Map.of("chatId", String.valueOf(chat_id))
                         );

@@ -346,4 +346,14 @@ public class ChatService {
         }
         return unreadMessagesDTO;
     }
+
+    @Transactional
+    public List<ChatMemberDTO> getChatMembers(int chatId) {
+        return getChatMembersFromObject(chatMemberRepo.findByChatId(chatId));
+    }
+
+    @Transactional
+    public String getChatName(int chatId, int userId) {
+        return chatRepo.getName(chatId, userId);
+    }
 }

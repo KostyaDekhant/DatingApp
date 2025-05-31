@@ -24,4 +24,23 @@ public interface ChatRepo extends JpaRepository<Chat, Integer> {
             "END AS record_exists;" , nativeQuery = true)
     boolean isChatExists(@Param("pk_user") int pk_user, @Param("pk_user1") int pk_user1);
 
+
+    @Query(value = """
+SELECT
+    CASE
+        WHEN gc.is_group THEN gc.name
+        ELSE other_user.name
+    END AS chat_name
+FROM group_chat gc
+LEFT JOIN LATERAL (
+    SELECT u.name
+    FROM chat_member cm2
+    JOIN "user" u ON u.pk_user = cm2.user_id
+    WHERE cm2.chat_id = gc.pk_group_chat
+      AND cm2.user_id <> :userId
+    LIMIT 1
+) other_user ON TRUE
+WHERE gc.pk_group_chat = :chatId;
+""", nativeQuery = true)
+    String getName(int chatId, int userId);
 }
