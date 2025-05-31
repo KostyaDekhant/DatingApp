@@ -87,17 +87,9 @@ public class ChatsAdapter extends ListAdapter<ChatDTO, ChatsHolder> {
         chatsRepository.fetchChatInfo(chat.getId(), result -> {
             switch (result.status) {
                 case SUCCESS:
-                    ChatInfoDTO chatInfo = result.data;
-                    if (chatInfo.getIsGroup()) return;
-
-                    for (ChatMemberDTO member : result.data.getMembers()) {
-                        if (member.getId() != senderId) {
-                            int receiverId = member.getId();
-                            holder.subscribeToUpdateOnline(receiverId);
-                            break;
-                        }
-                    }
-                    break;
+                    int receiverId = result.data.getPersonalReceiver(senderId);
+                    if (receiverId != 0)
+                        holder.subscribeToUpdateOnline(receiverId);
                 case ERROR:
                     break;
             }

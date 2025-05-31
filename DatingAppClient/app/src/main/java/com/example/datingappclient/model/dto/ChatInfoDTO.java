@@ -43,4 +43,14 @@ public class ChatInfoDTO {
         }
         return null; // если не найден
     }
+
+    public int getPersonalReceiver(int senderId) {
+        if (isGroup) return 0;
+        for (ChatMemberDTO member : members) {
+            if (member.getId() != senderId) {
+                return member.getId();
+            }
+        }
+        return 0;
+    }
 }

@@ -1,6 +1,8 @@
 package com.example.datingappclient.fragments;
 
 import static android.content.Context.MODE_PRIVATE;
+import static android.view.View.GONE;
+import static android.view.View.VISIBLE;
 
 import android.graphics.Bitmap;
 import android.os.Bundle;
@@ -92,6 +94,7 @@ public class ChatFragment extends Fragment {
         enableAutoScrollOnNewMessage();
 
         setupChatsViewModel();
+        setupOnlineStatusUpdate();
         subscribeUpdateChatEvent();
 
         // Инициализируем ViewModel с кастомной фабрикой
@@ -106,6 +109,15 @@ public class ChatFragment extends Fragment {
         subscribeGetMessage();
 
         return activityView;
+    }
+
+    private void setupOnlineStatusUpdate() {
+        ImageView onlineStatusView = activityView.findViewById(R.id.statusView);
+        int receiverId = chat.getChatInfo().getPersonalReceiver(userId);
+        if (receiverId != 0) {
+            boolean isOnline = DatingAppApplication.getInstance().getOnlineStatusViewModel().isUserOnline(receiverId);
+            onlineStatusView.setVisibility(isOnline ? VISIBLE : GONE);
+        }
     }
 
     @Override
