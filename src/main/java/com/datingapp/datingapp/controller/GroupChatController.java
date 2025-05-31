@@ -9,6 +9,7 @@ import com.datingapp.datingapp.services.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
@@ -70,7 +71,7 @@ public class GroupChatController {
 //    }
 
     @MessageMapping("/group_chats/{chatId}/remove")
-    public void removeChat(@PathVariable("chatId") int chatId, @RequestBody GroupChatPayloadInfo info){
+    public void removeChat(@DestinationVariable("chatId") int chatId, @RequestBody GroupChatPayloadInfo info){
         try {
             int creatorId = info.getUserId();
             //List<ChatMemberDTO> chatMemberDTOS = chatService.getChatInfo(chatId).getMembers();
