@@ -17,25 +17,25 @@ import android.widget.Toolbar;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.datingappclient.DatingAppApplication;
 import com.example.datingappclient.R;
 import com.example.datingappclient.constants.Constants;
 import com.example.datingappclient.model.dto.EventDTO;
 import com.example.datingappclient.model.dto.EventMemberDTO;
 import com.example.datingappclient.model.dto.EventsParamsDTO;
-import com.example.datingappclient.recyclerViews.ChatMembersAdapter;
+import com.example.datingappclient.model.dto.UserDTO;
 import com.example.datingappclient.recyclerViews.EventsAdapter;
 import com.example.datingappclient.retrofit.repository.EventsRepository;
+import com.google.android.material.button.MaterialButton;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.textfield.TextInputLayout;
 
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -45,16 +45,16 @@ import java.util.function.Consumer;
 
 public class EventsFragment extends Fragment {
 
-    private int userId;
+    private UserDTO user;
     private View activityView;
     private EventsAdapter adapter;
     private EventsRepository eventsRepository;
 
     private EventsFragment() {}
 
-    public static Fragment newInstance(int userId) {
+    public static Fragment newInstance(UserDTO user) {
         EventsFragment fragment = new EventsFragment();
-        fragment.userId = userId;
+        fragment.user = user;
         return fragment;
     }
 
@@ -168,7 +168,7 @@ public class EventsFragment extends Fragment {
 
             EventDTO newEvent = new EventDTO(
                     null, title, description, startTime, endTime, location, capacity,
-                    userId, -1, new ArrayList<>()
+                    user.getId(), -1, new ArrayList<>()
             );
 
             createEvent(newEvent);
@@ -271,15 +271,67 @@ public class EventsFragment extends Fragment {
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         recyclerView.setItemAnimator(null);
 
-        adapter = new EventsAdapter(event -> {
-            // Здесь можно навигацию или Toast
-            // Например: Toast.makeText(getContext(), "Вы присоединились к " + event.getTitle(), Toast.LENGTH_SHORT).show();
-        });
+        adapter = new EventsAdapter(new EventsAdapter.OnJoinClickListener() {
+            @Override
+            public void onJoinClick(EventDTO event, EventsAdapter.OnClickResult callback) {
+                joinToEvent(event, callback);
+            }
+
+            @Override
+            public void onLeaveClick(EventDTO event, EventsAdapter.OnClickResult callback) {
+                leaveFromEvent(event, callback);
+            }
+        }, user.getId());
+
         recyclerView.setAdapter(adapter);
 
         EventsParamsDTO params = getEventsParams();
         loadEvents(params);
         //loadFakeData(); // пока нет API
+    }
+
+    private void leaveFromEvent(EventDTO event, EventsAdapter.OnClickResult callback) {
+        String logTag = Constants.GLOBAL_LOG_TAG + "LEAVE EVENT";
+
+        List<Integer> member = new ArrayList<>();
+        member.add(user.getId());
+
+        eventsRepository.removeMembersFromEvent(event.getId(), member, event.getOrganizerId(), result -> {
+            switch (result.status) {
+                case SUCCESS:
+                    Log.i(logTag, "Успешно покинуто мероприятие");
+                    Toast.makeText(getContext(), "Вы покинули мероприятие " + event.getTitle(), Toast.LENGTH_SHORT).show();
+                    event.leave(user.getId());
+                    callback.onClick(false);
+                    break;
+                case ERROR:
+                    Log.e(logTag, result.error);
+                    Toast.makeText(getContext(), "Ошибка выхода их мероприятия " + event.getTitle(), Toast.LENGTH_SHORT).show();
+                    break;
+            }
+        });
+    }
+
+    private void joinToEvent(EventDTO event, EventsAdapter.OnClickResult callback) {
+        String logTag = Constants.GLOBAL_LOG_TAG + "JOIN TO EVENT";
+
+        List<Integer> member = new ArrayList<>();
+        member.add(user.getId());
+
+        eventsRepository.addMembersToEvent(event.getId(), member, result -> {
+            switch (result.status) {
+                case SUCCESS:
+                    Log.i(logTag, "Успешно присоедено к мероприятию");
+                    Toast.makeText(getContext(), "Вы присоединились к " + event.getTitle(), Toast.LENGTH_SHORT).show();
+                    event.join(user.getId(), user.getName());
+                    callback.onClick(true);
+                    break;
+                case ERROR:
+                    Log.e(logTag, result.error);
+                    Toast.makeText(getContext(), "Ошибка присоеденения к мероприятию " + event.getTitle(), Toast.LENGTH_SHORT).show();
+                    break;
+            }
+        });
     }
 
     private EventsParamsDTO getEventsParams() {

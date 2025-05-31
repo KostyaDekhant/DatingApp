@@ -1,16 +1,11 @@
 package com.example.datingappclient.recyclerViews;
 
-import android.animation.LayoutTransition;
 import android.annotation.SuppressLint;
 import android.transition.AutoTransition;
 import android.transition.ChangeBounds;
-import android.transition.ChangeTransform;
 import android.transition.Fade;
-import android.transition.Slide;
 import android.transition.TransitionManager;
 import android.transition.TransitionSet;
-import android.transition.Visibility;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,6 +13,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.ListAdapter;
 import androidx.recyclerview.widget.RecyclerView;
@@ -28,30 +24,24 @@ import com.example.datingappclient.model.dto.EventMemberDTO;
 import com.example.datingappclient.utils.DateUtils;
 import com.google.android.material.button.MaterialButton;
 
-import java.util.Date;
 import java.util.List;
 
 public class EventsAdapter extends ListAdapter<EventDTO, EventsAdapter.EventViewHolder> {
 
     private int expandedPosition = RecyclerView.NO_POSITION;
     private final OnJoinClickListener listener;
-
+    private int userId;
 
     public interface OnJoinClickListener {
-        void onJoinClick(EventDTO event);
+        void onJoinClick(EventDTO event, OnClickResult callback);
+        void onLeaveClick(EventDTO event, OnClickResult callback);
     }
 
-    public EventsAdapter(OnJoinClickListener listener) {
+    public EventsAdapter(OnJoinClickListener listener, int userId) {
         super(DIFF_CALLBACK);
         this.listener = listener;
-        //setHasStableIds(true);
+        this.userId = userId;
     }
-
-   /* @Override
-    public long getItemId(int position) {
-        return getItem(position).getId();
-    }
-*/
 
     @NonNull
     @Override
@@ -75,7 +65,7 @@ public class EventsAdapter extends ListAdapter<EventDTO, EventsAdapter.EventView
         EventDTO event = getItem(position);
         boolean isExpanded = position == expandedPosition;
 
-        holder.bind(event, isExpanded);
+        holder.bind(event, isExpanded, userId);
 
         // Клик по карточке
         holder.itemView.setOnClickListener(v -> {
@@ -98,7 +88,28 @@ public class EventsAdapter extends ListAdapter<EventDTO, EventsAdapter.EventView
         });
 
         // Клик по кнопке
-        holder.joinButton.setOnClickListener(v -> listener.onJoinClick(event));
+        changeClickListener(event, holder);
+    }
+
+    public interface OnClickResult {
+        void onClick(boolean success);
+    }
+    public void changeClickListener(EventDTO event, EventViewHolder holder) {
+        holder.joinButton.setOnClickListener(view -> {
+            if (event.userIsMember(userId)) {
+                listener.onLeaveClick(event, callback -> {
+                    holder.setupButton(callback);
+                    changeClickListener(event, holder);
+                    holder.updateCountMembers();
+                });
+            } else {
+                listener.onJoinClick(event, callback -> {
+                    holder.setupButton(callback);
+                    holder.updateCountMembers();
+                    changeClickListener(event, holder);
+                });
+            }
+        });
     }
 
     static class EventViewHolder extends RecyclerView.ViewHolder {
@@ -121,7 +132,8 @@ public class EventsAdapter extends ListAdapter<EventDTO, EventsAdapter.EventView
             cardRoot = itemView.findViewById(R.id.cardRoot);
         }
 
-        public void bind(EventDTO event, boolean isExpanded) {
+        public void bind(EventDTO event, boolean isExpanded, int userId) {
+            this.event = event;
             eventTitle.setText(event.getTitle());
             // Format time
             if (event.getStartTime() == null && event.getEndTime() == null)
@@ -133,19 +145,23 @@ public class EventsAdapter extends ListAdapter<EventDTO, EventsAdapter.EventView
             //
             eventDescription.setText(event.getDescription());
             fullDescription.setText(event.getDescription());
-            countMembers.setText("Участников: " + event.getMembers().size());
 
-            membersList.removeAllViews();
+            boolean isMember = event.userIsMember(userId);
+            setupButton(isMember);
 
-            for (EventMemberDTO member : event.getMembers()) {
-                TextView memberView = new TextView(itemView.getContext());
-                memberView.setText("- " + member.getName());
-                memberView.setTextSize(14);
-                membersList.addView(memberView);
-            }
+            updateCountMembers();
 
-            this.event = event;
             setExpandedState(isExpanded); // отдельно анимируем только это
+        }
+
+        private void setupButton(boolean isMember) {
+            if (isMember) {
+                joinButton.setText("Покинуть");
+                joinButton.setBackgroundColor(ContextCompat.getColor(itemView.getContext(), R.color.holo_dark_red));
+            } else {
+                joinButton.setText("Присоединиться");
+                joinButton.setBackgroundColor(ContextCompat.getColor(itemView.getContext(), R.color.green));
+            }
         }
 
         public void setExpandedState(boolean isExpanded) {
@@ -161,6 +177,18 @@ public class EventsAdapter extends ListAdapter<EventDTO, EventsAdapter.EventView
             fullDescription.setVisibility(isExpanded ? View.VISIBLE : View.GONE);
             eventDescription.setVisibility(isExpanded ? View.GONE : View.VISIBLE);
             membersList.setVisibility(isExpanded ? View.VISIBLE : View.GONE);
+        }
+
+        public void updateCountMembers() {
+            countMembers.setText("Участников: " + event.getMembers().size());
+            membersList.removeAllViews();
+
+            for (EventMemberDTO member : event.getMembers()) {
+                TextView memberView = new TextView(itemView.getContext());
+                memberView.setText("- " + member.getName());
+                memberView.setTextSize(14);
+                membersList.addView(memberView);
+            }
         }
     }
 

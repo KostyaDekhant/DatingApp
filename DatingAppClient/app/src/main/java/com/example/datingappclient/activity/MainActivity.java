@@ -234,7 +234,7 @@ public class MainActivity extends AppCompatActivity {
                         .commit();
             }
             else if (id == R.id.nav_events) {
-                getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, EventsFragment.newInstance(userId))
+                getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, EventsFragment.newInstance(user))
                         .addToBackStack(null)
                         .commit();
             }

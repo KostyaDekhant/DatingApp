@@ -40,4 +40,21 @@ public class EventDTO {
     @SerializedName("members")
     @JsonProperty("members")
     private List<EventMemberDTO> members;
+
+    public boolean userIsMember(int userId) {
+        for (EventMemberDTO member : members)
+            if (member.getId() == userId) return true;
+        return false;
+    }
+
+    public void leave(int userId) {
+        if (members == null) return;
+        members.removeIf(member -> member.getId() == userId);
+    }
+
+    public void join(int userId, String name) {
+        if (!userIsMember(userId)) {
+            members.add(new EventMemberDTO(userId, name));
+        }
+    }
 }
