@@ -27,7 +27,7 @@ public class ChatsViewModel extends ViewModel {
     private List<Disposable> updateSubscribes = new ArrayList<>();
 
     public ChatsViewModel() {
-        this.webSocketService = new ChatWebSocketService();
+        this.webSocketService = ChatWebSocketService.getInstance();
         initSubscriptions();
     }
 

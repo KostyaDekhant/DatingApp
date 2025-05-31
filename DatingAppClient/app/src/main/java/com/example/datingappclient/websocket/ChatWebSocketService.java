@@ -35,7 +35,8 @@ import ua.naiksoftware.stomp.StompClient;
 
 public class ChatWebSocketService {
 
-    private final StompClient stompClient;
+    private StompClient stompClient;
+    private static ChatWebSocketService webSocketService;
 
     private final Map<Integer, MutableLiveData<MessageDTO>> messageStreams = new HashMap<>();
     private final MutableLiveData<Integer> deletedChatIdStream = new MutableLiveData<>();
@@ -51,9 +52,14 @@ public class ChatWebSocketService {
     private final Map<Integer, Disposable> updatedChatDisposables = new HashMap<>();
     private final Map<Integer, Disposable> deletedChatDisposables = new HashMap<>();
 
+    private ChatWebSocketService() {
+        stompClient = StompClientService.getInstance().getClient();
+    }
 
-    public ChatWebSocketService() {
-        stompClient = new StompClientService().getClient();
+    public static ChatWebSocketService getInstance() {
+        if (webSocketService == null)
+            webSocketService = new ChatWebSocketService();
+        return webSocketService;
     }
 
     // =============== MESSAGES
@@ -98,7 +104,6 @@ public class ChatWebSocketService {
             throw new RuntimeException(e);
         }
     }
-
 
     // =============== HISTORY
     private Disposable historyDisposable;

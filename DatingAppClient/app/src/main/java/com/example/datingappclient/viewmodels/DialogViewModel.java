@@ -16,7 +16,7 @@ public class DialogViewModel extends ViewModel {
 
 
     public DialogViewModel(int chatId, int userId) {
-        webSocketService = new ChatWebSocketService();
+        webSocketService = ChatWebSocketService.getInstance();
 
         webSocketService.subscribeToChat(chatId).observeForever(message -> {
             List<MessageDTO> current = new ArrayList<>(messages.getValue());
@@ -30,7 +30,6 @@ public class DialogViewModel extends ViewModel {
     public LiveData<List<MessageDTO>> getMessages() {
         return messages;
     }
-
     public void sendMessage(MessageDTO message) {
         webSocketService.sendMessage(message);
     }

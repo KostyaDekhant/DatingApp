@@ -31,12 +31,20 @@ public class StompClientService {
 
     @Getter
     private StompClient client;
+    private static StompClientService service;
     private TokenManager tokenManager;
 
-    public StompClientService() {
+    private StompClientService() {
         initClient();
         reconnect();
         subscribeLifecycle();
+    }
+
+    public static StompClientService getInstance() {
+        if (service == null)  {
+            service = new StompClientService();
+        }
+        return service;
     }
 
     @SuppressLint("CheckResult")
@@ -64,7 +72,8 @@ public class StompClientService {
                             }
                             break;
                         case CLOSED:
-                            Log.d(logTag, "Соединение закрыто " + event.getMessage());
+                            Log.d(logTag, "Соединение закрыто. Попытка переподключения");
+                            reconnect();
                             break;
                     }
                 }, throwable -> {

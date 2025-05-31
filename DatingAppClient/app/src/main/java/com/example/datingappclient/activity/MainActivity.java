@@ -45,6 +45,7 @@ import com.example.datingappclient.retrofit.repository.UserRepository;
 import com.example.datingappclient.retrofit.wrapper.Result;
 import com.example.datingappclient.utils.ImageUtils;
 import com.example.datingappclient.viewmodels.ChatMembersViewModel;
+import com.example.datingappclient.viewmodels.ChatsViewModel;
 import com.example.datingappclient.viewmodels.OnlineStatusViewModel;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationView;
@@ -80,7 +81,13 @@ public class MainActivity extends AppCompatActivity {
             return insets;
         });
 
+        // init socket connect
+        DatingAppApplication app = (DatingAppApplication) getApplication();
+        ChatsViewModel chatsViewModel = new ViewModelProvider(this).get(ChatsViewModel.class);
+        app.setChatsViewModel(chatsViewModel);
+
         receiveLogoutSignal();
+
         setupRepository();
         // get all interests
         fetchCategories();

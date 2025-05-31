@@ -17,7 +17,7 @@ public class UpdateEventsController {
     private final StompClient client;
 
     public UpdateEventsController() {
-        client = new StompClientService().getClient();
+        client = StompClientService.getInstance().getClient();
     }
 
     // =============== UPDATE CHAT
