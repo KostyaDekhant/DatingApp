@@ -19,6 +19,9 @@ public class GroupChatDto{
     @JsonProperty("last_message")
     private MessageDTO lastMessage;
 
+    @JsonProperty("partnerId")
+    private Integer partnerId;
+
     @JsonProperty("group_chat_info")
     private GroupChatInfoDto groupChatInfoDto;
 
@@ -30,12 +33,13 @@ public class GroupChatDto{
         //this.createdAt = null;
         this.image = null;
         this.groupChatInfoDto = null;
+        this.partnerId = null;
         //this.members = null;
     }
 
     public GroupChatDto(Integer pkGroupChat, String name
             //, int createdBy, Timestamp createdAt
-            , byte[] image, MessageDTO lastMessage) {
+            , byte[] image, MessageDTO lastMessage, Integer partnerId) {
                         //, List<ChatMemberDTO> members) {
         this.pkGroupChat = pkGroupChat;
         this.name = name;
@@ -43,6 +47,7 @@ public class GroupChatDto{
 //        this.createdBy = createdBy;
 //        this.createdAt = createdAt;
         this.image = image;
+        this.partnerId = partnerId;
         //this.members = members;
     }
 

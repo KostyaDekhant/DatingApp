@@ -112,6 +112,7 @@ public class ChatService {
             List<GroupChatDto> groupChatDtos = new ArrayList<>();
             for(GroupChat groupChat : chatIds){//groupChats
                 Integer pkGroupChat = groupChat.getPkGroupChat();
+                Integer partnerId = null;
                 String name = "";
                 //byte[] image = null;
                 if(groupChat.getIsGroup()) {
@@ -119,26 +120,13 @@ public class ChatService {
                     //image = groupChat.getImage();
                 }
                 else{
-                    //List<Object[]> nameImages = groupChatRepo.getUserInfo(pkGroupChat, userId);
-                    //Object[] nameImage = nameImages.get(0);
                     name = groupChatRepo.getUserName(pkGroupChat, userId).getFirst();
-                    // Если результат NULL (например, пользователь не найден)
-//                    if (nameImage == null || nameImage.length < 2) {
-//                        name = "";
-//                        //image = null;
-//                    } else {
-//                        name = (nameImage[0] != null) ? nameImage[0].toString() : "";
-////                        try {
-////                            image = (nameImage[1] != null) ? (byte[]) nameImage[1] : null;
-////                        } catch (ClassCastException e) {
-////                            image = null;
-////                        }
-//                    }
+                    partnerId = groupChatRepo.getPartnerId(pkGroupChat, userId);
                 }
                 //String message = messRepo.getLastMessage(pkGroupChat);
                 Message lastMessage = messRepo.getLastMessage(pkGroupChat);
                 MessageDTO lastMessageDTO = new MessageDTO(lastMessage);
-                GroupChatDto groupChatDto = new GroupChatDto(pkGroupChat, name,null, lastMessageDTO);
+                GroupChatDto groupChatDto = new GroupChatDto(pkGroupChat, name, null, lastMessageDTO, partnerId);
                 groupChatDtos.add(groupChatDto);
             }
             //log.info("Полученные чаты: " + groupChatDtos.toString());
@@ -198,8 +186,9 @@ public class ChatService {
             GroupChatDto groupChatDto = new GroupChatDto();
             groupChatDto.setPkGroupChat((((Number) chatInfo[0]).intValue()));
             groupChatDto.setName((String) chatInfo[1]);
-            if(chatInfo[2] != null) {
-                Message lastMessage = messRepo.getMessageByPkMessage((Integer) chatInfo[2]);
+            groupChatDto.setPartnerId(chatInfo[2] == null ? null : (Integer) chatInfo[2]);
+            if(chatInfo[3] != null) {
+                Message lastMessage = messRepo.getMessageByPkMessage((Integer) chatInfo[3]);
                 MessageDTO lastMessageDTO = new MessageDTO(lastMessage);
                 groupChatDto.setLastMessage(lastMessageDTO);
             }

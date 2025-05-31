@@ -23,6 +23,11 @@ gc.pk_group_chat       AS chat_id,
 WHEN gc.is_group THEN gc.name
 ELSE other_user.name
 END                     AS chat_name,
+     CASE
+       WHEN NOT gc.is_group THEN other_user.user_id
+       ELSE NULL
+     END AS partner_id, 
+
 lm.pk_message              AS last_message,
   COALESCE(lm.time, gc.created_at)            AS last_time
 FROM
@@ -203,6 +208,15 @@ LEFT JOIN LATERAL (
 ) other_user ON TRUE                
 """, nativeQuery = true)
     List<Object[]> getGroupChatByID(int chatId, int userId);
+
+    @Query(value = """
+SELECT
+u.pk_user
+FROM chat_member cm
+LEFT JOIN "user" u ON cm.user_id = u.pk_user
+WHERE cm.user_id != :userId AND cm.chat_id = :pkGroupChat LIMIT 1
+""", nativeQuery = true)
+    Integer getPartnerId(Integer pkGroupChat,Integer userId);
 }
 
 //
