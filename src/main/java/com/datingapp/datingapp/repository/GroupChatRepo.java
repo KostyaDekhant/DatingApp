@@ -48,7 +48,7 @@ LEFT JOIN LATERAL (
 
   -- LATERAL-джоин: для «прямых» чатов находим единственного другого участника
 LEFT JOIN LATERAL (
-        SELECT u.name
+        SELECT u.pk_user AS user_id, u.name
                 FROM chat_member cm2
                 JOIN "user" u
                 ON u.pk_user = cm2.user_id
