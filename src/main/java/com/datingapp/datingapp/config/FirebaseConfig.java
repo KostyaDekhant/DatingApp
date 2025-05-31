@@ -15,7 +15,7 @@ public class FirebaseConfig {
     public void initialize() {
         try {
             FileInputStream serviceAccount =
-                    new FileInputStream("src/main/resources/podor-28518-firebase-adminsdk-fbsvc-eb1c6a239d.json");
+                    new FileInputStream(firebaseKeyPath);
 
             FirebaseOptions options = FirebaseOptions.builder()
                     .setCredentials(GoogleCredentials.fromStream(serviceAccount))
