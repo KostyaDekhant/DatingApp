@@ -56,7 +56,7 @@ public class UserControllerTests {
 
         // Создание тестового пользователя
         User user = new User("testUser", date, 180, "Male", true, timestamp,
-                hashedPassword, "Test description", "testLogin", salt);
+                hashedPassword, "Test description", "testLogin", salt, null);
 
         // Мокинг поведения репозитория при сохранении пользователя
         when(userRepo.save(any(User.class))).thenReturn(user);
@@ -92,7 +92,7 @@ public class UserControllerTests {
 
         // Создание тестового пользователя
         User user = new User("testUser", date, 180, "Male", true, timestamp,
-                hashedPassword, "Test description", "testLogin", salt);
+                hashedPassword, "Test description", "testLogin", salt, null);
         user.setPkUser(1);
 
         // Мокинг поведения репозитория при поиске пользователя по ID
@@ -128,12 +128,12 @@ public class UserControllerTests {
 
         // Создание тестового пользователя
         User existingUser = new User("testUser", date, 180, "Male", true, timestamp,
-                hashedPassword, "Test description", "testLogin", salt);
+                hashedPassword, "Test description", "testLogin", salt, null);
         existingUser.setPkUser(1);
 
         // Создание обновленного тестового пользователя
         User updatedUser = new User("updatedUser", date, 180, "Male", true, timestamp,
-                hashedPassword, "Updated description", "testLogin", salt);
+                hashedPassword, "Updated description", "testLogin", salt, null);
 
         // Мокинг поведения репозитория при поиске пользователя по ID и его сохранении
         when(userRepo.findById(1)).thenReturn(Optional.of(existingUser));
@@ -197,7 +197,7 @@ public class UserControllerTests {
 
         // Создание тестового пользователя
         User user = new User("testUser", date, 180, "Male", true, timestamp,
-                hashedPassword, "Test description", "testLogin", salt);
+                hashedPassword, "Test description", "testLogin", salt, null);
         user.setPkUser(1);
 
         // Мокинг поведения репозитория при поиске пользователя по логину и сервиса верификации пароля

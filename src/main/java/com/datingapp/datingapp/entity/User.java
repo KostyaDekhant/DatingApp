@@ -57,9 +57,13 @@ public class User {
     @JsonProperty("salt")
     private String salt;
 
+    @Column(name = "fcm_token")
+    @JsonProperty("fcm_token")
+    private String fcmToken;
+
     public User(String name, LocalDate birthday, int height, String gender,
                 Boolean isOnline, Timestamp lastOnline, String password,
-                String description, String login, String salt) {
+                String description, String login, String salt, String fcmToken) {
         this.name = name;
         this.birthday = birthday;
         this.height = height;
@@ -70,6 +74,7 @@ public class User {
         this.description = description;
         this.login = login;
         this.salt = salt;
+        this.fcmToken = fcmToken;
     }
 
     public User() {
@@ -84,6 +89,7 @@ public class User {
         this.description = "";
         this.login = "";
         this.salt = null;
+        this.fcmToken = "";
     }
 
     public User(UserDTO userDTO) {
@@ -98,6 +104,7 @@ public class User {
         this.password = "";
         this.login = "";
         this.salt = null;
+        this.fcmToken = "";
     }
 
 

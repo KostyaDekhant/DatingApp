@@ -1,8 +1,11 @@
 package com.datingapp.datingapp.controller;
 
 import com.datingapp.datingapp.entity.*;
+import com.datingapp.datingapp.exception.ChatNotFoundException;
 import com.datingapp.datingapp.exception.UserNotExistsExceptions;
+import com.datingapp.datingapp.repository.GroupChatRepo;
 import com.datingapp.datingapp.services.ChatService;
+import com.datingapp.datingapp.services.FcmService;
 import com.datingapp.datingapp.services.MessageService;
 import com.datingapp.datingapp.services.UserService;
 import org.slf4j.Logger;
@@ -18,6 +21,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import java.security.Principal;
 
 import java.util.List;
+import java.util.Map;
 
 @Controller
 public class MessageController {
@@ -27,18 +31,20 @@ public class MessageController {
     private final SimpMessagingTemplate simpMessagingTemplate;
     private final ChatService chatService;
     private final UserService userService;
+    private final FcmService fcmService;
 
     record ReadMessageNotification(int userId, List<Integer> messageIds) {};
 
     @Autowired
     public MessageController(MessageService messageService, NotificationController notificationController,
                              SimpMessagingTemplate simpMessagingTemplate, ChatService chatService,
-                             UserService userService) {
+                             UserService userService, FcmService fcmService) {
         this.notificationController = notificationController;
         this.messageService = messageService;
         this.simpMessagingTemplate = simpMessagingTemplate;
         this.chatService = chatService;
         this.userService = userService;
+        this.fcmService = fcmService;
     }
 
     // Эндпоинт для отправки тестового сообщения всем клиентам
@@ -58,10 +64,27 @@ public class MessageController {
         int userId = messageDTO.getPkUser();
         int chat_id = mess.getPkChat();
         try {
+            List<ChatMemberDTO> chatMemberDTOs = chatService.findGroupChatUsers(userId, chat_id);
+
             simpMessagingTemplate.convertAndSend(
                     "/topic/messages/" + chat_id,
                     messageService.saveMessage(mess));
 
+            for (ChatMemberDTO chatMember : chatMemberDTOs) {
+                if(chatMember.getUserId() != userId) {
+                    User user = userService.getUserById(chatMember.getUserId());
+                    Boolean isOnline = user.getIsOnline();
+                    String token = user.getFcmToken();
+                    if (!isOnline && token != null) {
+                        fcmService.sendPushNotificationToUser(
+                                token,
+                                "Новое сообщение в чате",
+                                mess.getMessage(),
+                                Map.of("chatId", String.valueOf(chat_id))
+                        );
+                    }
+                }
+            }
             //return messageService.saveMessage(mess);
         } catch (Exception e) {
             e.printStackTrace();
