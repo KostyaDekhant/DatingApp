@@ -346,6 +346,7 @@ public class ChatService {
             MessageDTO messageDTO = new MessageDTO(unreadMessage);
             unreadMessagesDTO.add(messageDTO);
         }
+        log.info("Непрочитанные смс: " + unreadMessagesDTO.toString());
         return unreadMessagesDTO;
     }
 
@@ -357,6 +358,7 @@ public class ChatService {
             MessageDTO messageDTO = new MessageDTO(unreadMessage);
             unreadMessagesDTO.add(messageDTO);
         }
+        log.info("Непрочитанные смс: " + unreadMessagesDTO.toString());
         return unreadMessagesDTO;
     }
 

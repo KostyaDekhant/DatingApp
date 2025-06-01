@@ -114,11 +114,13 @@ public class ChatController {
 
     @GetMapping("/group_chats/{chatId}/users/{userId}/messages/unread")
     public ResponseEntity<List<MessageDTO>> getUnreadMessages(@PathVariable int chatId, @PathVariable("userId") int userId) {
+        log.info("Попытка отправить непрочитанные сообщения юзера с id " + userId + " в чате с id " + chatId);
         return ResponseEntity.ok(chatService.getUnreadMessages(chatId, userId));
     }
 
     @GetMapping("/group_chats/{chatId}/messages/unread")
     public ResponseEntity<List<MessageDTO>> getAnotherUnreadMessages(@PathVariable int chatId, @RequestParam("userId") int userId) {
+        log.info("Попытка отправить непрочитанные сообщения других участников в чате с id " + chatId);
         return ResponseEntity.ok(chatService.getAnotherUnreadMessages(chatId, userId));
     }
 }
