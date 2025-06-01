@@ -68,5 +68,18 @@ ORDER BY m.time DESC;
 """, nativeQuery = true)
     List<Message> getAnotherUnreadMessages(int chatId, int userId);
 
+    @Query(value= """
+SELECT COUNT(*) AS unread_count
+FROM message m
+LEFT JOIN message_read mr
+  ON m.pk_message = mr.message_id AND mr.user_id = :userId
+WHERE m.pk_chat = :chatId
+  AND mr.message_id IS NULL
+  AND m.pk_user != :userId;
+""", nativeQuery = true)
+    Integer getCountOfUnreadMessages(Integer chatId, Integer userId);
+
+
+
     boolean existsByPkMessageAndPkUser(int messageId, int userId);
 }

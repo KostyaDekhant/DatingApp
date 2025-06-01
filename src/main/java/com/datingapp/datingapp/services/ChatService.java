@@ -141,7 +141,7 @@ public class ChatService {
     public List<GroupChatDto> getChats(int userId, int limit, int offset){
         try {
             List<GroupChatDto> groupChatDtos =
-                    getChatsInfoFromObject(groupChatRepo.getChatsInfo(userId, limit, offset));
+                    getChatsInfoFromObject(groupChatRepo.getChatsInfo(userId, limit, offset), userId);
             return groupChatDtos;
         }
         catch (Exception e) {
@@ -154,7 +154,7 @@ public class ChatService {
         try {
             log.info("Попытка получить чат с id " + chatId + " для пользователя c id " + userId);
             GroupChatDto groupChatDtos =
-                    getChatsInfoFromObject(groupChatRepo.getGroupChatByID(chatId, userId)).getFirst();
+                    getChatsInfoFromObject(groupChatRepo.getGroupChatByID(chatId, userId), userId).getFirst();
             log.info("Полученный чат: " + groupChatDtos);
             return groupChatDtos;
         }
@@ -180,7 +180,7 @@ public class ChatService {
     }
 
 
-    private List<GroupChatDto> getChatsInfoFromObject(List<Object[]> chatsInfo) {
+    private List<GroupChatDto> getChatsInfoFromObject(List<Object[]> chatsInfo, Integer userId) {
         List<GroupChatDto> groupChatDtos = new ArrayList<>();
         for (var chatInfo : chatsInfo) {
             GroupChatDto groupChatDto = new GroupChatDto();
@@ -192,6 +192,7 @@ public class ChatService {
                 MessageDTO lastMessageDTO = new MessageDTO(lastMessage);
                 groupChatDto.setLastMessage(lastMessageDTO);
             }
+            groupChatDto.setUnreadCount(messRepo.getCountOfUnreadMessages(groupChatDto.getPkGroupChat() ,userId));
             groupChatDtos.add(groupChatDto);
         }
         return groupChatDtos;
@@ -357,6 +358,11 @@ public class ChatService {
             unreadMessagesDTO.add(messageDTO);
         }
         return unreadMessagesDTO;
+    }
+
+    @Transactional
+    public Integer getCountOfUnreadMessages(int chatId, int userId) {
+        return messRepo.getCountOfUnreadMessages(chatId, userId);
     }
 
     @Transactional

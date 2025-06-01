@@ -22,6 +22,9 @@ public class GroupChatDto{
     @JsonProperty("partnerId")
     private Integer partnerId;
 
+    @JsonProperty("unread_count")
+    private Integer unreadCount;
+
     @JsonProperty("group_chat_info")
     private GroupChatInfoDto groupChatInfoDto;
 
