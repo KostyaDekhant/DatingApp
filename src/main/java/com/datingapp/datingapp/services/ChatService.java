@@ -337,8 +337,20 @@ public class ChatService {
 
     }
 
+    @Transactional
     public List<MessageDTO> getUnreadMessages(int chatId, int userId) {
         List<Message> unreadMessages = messRepo.getUnreadMessages(chatId, userId);
+        List<MessageDTO> unreadMessagesDTO = new ArrayList<>();
+        for(Message unreadMessage : unreadMessages){
+            MessageDTO messageDTO = new MessageDTO(unreadMessage);
+            unreadMessagesDTO.add(messageDTO);
+        }
+        return unreadMessagesDTO;
+    }
+
+    @Transactional
+    public List<MessageDTO> getAnotherUnreadMessages(int chatId, int userId) {
+        List<Message> unreadMessages = messRepo.getAnotherUnreadMessages(chatId, userId);
         List<MessageDTO> unreadMessagesDTO = new ArrayList<>();
         for(Message unreadMessage : unreadMessages){
             MessageDTO messageDTO = new MessageDTO(unreadMessage);

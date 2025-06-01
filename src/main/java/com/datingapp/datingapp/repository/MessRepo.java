@@ -52,5 +52,21 @@ LIMIT 1;
 """, nativeQuery = true)
     List<Message> getUnreadMessages(int chatId, int userId);
 
+    @Query(value= """
+SELECT m.*
+FROM message m
+WHERE m.pk_chat = :chatId
+  AND m.pk_user != :userId
+  AND NOT EXISTS (
+      SELECT 1
+      FROM message_read mr
+      JOIN chat_member cm ON cm.user_id = mr.user_id AND cm.chat_id = m.pk_chat
+      WHERE mr.message_id = m.pk_message
+        AND mr.user_id != m.pk_user -- Исключаем отправителя
+  )
+ORDER BY m.time DESC;
+""", nativeQuery = true)
+    List<Message> getAnotherUnreadMessages(int chatId, int userId);
+
     boolean existsByPkMessageAndPkUser(int messageId, int userId);
 }

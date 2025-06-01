@@ -112,9 +112,13 @@ public class ChatController {
         return ResponseEntity.ok().build();
     }
 
-    @GetMapping("/group_chats/{chatId}/messages/unread")
-    public ResponseEntity<List<MessageDTO>> getUnreadMessages(@PathVariable int chatId, @RequestParam("userId") int userId) {
+    @GetMapping("/group_chats/{chatId}/users/{userId}/messages/unread")
+    public ResponseEntity<List<MessageDTO>> getUnreadMessages(@PathVariable int chatId, @PathVariable("userId") int userId) {
         return ResponseEntity.ok(chatService.getUnreadMessages(chatId, userId));
     }
 
+    @GetMapping("/group_chats/{chatId}/messages/unread")
+    public ResponseEntity<List<MessageDTO>> getAnotherUnreadMessages(@PathVariable int chatId, @RequestParam("userId") int userId) {
+        return ResponseEntity.ok(chatService.getAnotherUnreadMessages(chatId, userId));
+    }
 }
