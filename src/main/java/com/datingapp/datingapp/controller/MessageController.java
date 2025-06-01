@@ -113,14 +113,17 @@ public class MessageController {
     public void handleReadStatus(@DestinationVariable int chatId,
                                  @DestinationVariable int userId,
                                  ReadMessagePayload payload) {
+        log.info("Попытка установить статус прочитанности сообщений для чата id " + chatId + " от юзера с id " + userId);
         for (int messageId : payload.getReadMessageIds()) {
+            log.info("Сообщение с id " + messageId);
             if (!messageService.existsByMessage_IdAndUser_Id(messageId, userId)) {
                 Message message = messageService.getMessageByPkMessage(messageId);
                 User user = userService.getUserById(userId);
                 messageService.saveReadMessage(new MessageRead(message, user));
+                log.info("Сообщение с id "+ messageId + " прочитано " + user.getName());
             }
         }
-
+        log.info("Отправка прочитанных смс всем в чате с id " + chatId);
         simpMessagingTemplate.convertAndSend(
                 "/topic/group_chats/" + chatId + "/read",
                 new ReadMessageNotification(userId, payload.getReadMessageIds())
