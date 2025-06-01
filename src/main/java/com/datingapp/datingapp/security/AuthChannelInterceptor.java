@@ -83,6 +83,11 @@ public class AuthChannelInterceptor implements ChannelInterceptor {
                 log.info("WebSocket SUBSCRIBE to {} — sessionId={}", destination, sessionId);
             }
 
+            if (command == StompCommand.UNSUBSCRIBE) {
+                String destination = accessor.getDestination();
+                log.info("WebSocket UNSUBSCRIBE to {} — sessionId={}", destination, sessionId);
+            }
+
             if (command == StompCommand.SEND) {
                 String destination = accessor.getDestination();
                 log.info("WebSocket SEND to {} — sessionId={}", destination, sessionId);
