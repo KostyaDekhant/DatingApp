@@ -7,6 +7,6 @@ import java.io.Serializable;
 @Data
 public class MessageReadId implements Serializable {
 
-    private Long message;
-    private Long user;
+    private Integer message;
+    private Integer user;
 }
