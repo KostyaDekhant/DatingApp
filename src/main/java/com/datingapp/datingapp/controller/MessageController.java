@@ -112,7 +112,7 @@ public class MessageController {
     @MessageMapping("/group_chats/{chatId}/users/{userId}/messages/read")
     public void handleReadStatus(@DestinationVariable int chatId,
                                  @DestinationVariable int userId,
-                                 ReadMessagePayload payload) {
+                                 @RequestBody ReadMessagePayload payload) {
         log.info("Попытка установить статус прочитанности сообщений для чата id " + chatId + " от юзера с id " + userId);
         for (int messageId : payload.getReadMessageIds()) {
             log.info("Сообщение с id " + messageId);
