@@ -56,7 +56,7 @@ LIMIT 1;
 SELECT m.*
 FROM message m
 WHERE m.pk_chat = :chatId
-  AND m.pk_user != :userId
+  AND m.pk_user = :userId
   AND NOT EXISTS (
       SELECT 1
       FROM message_read mr
