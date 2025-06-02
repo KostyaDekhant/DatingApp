@@ -99,7 +99,7 @@ public class ChatController {
     }
 
     @PostMapping("/group_chats/{chatId}/members")
-    public ResponseEntity<Void> addMembersToChat(@RequestParam("chatId") int chatId, @RequestParam("userIds") List<Integer> userIds) {
+    public ResponseEntity<Void> addMembersToChat(@PathVariable("chatId") int chatId, @RequestParam("userIds") List<Integer> userIds) {
         chatService.addMembers(chatId, userIds);
         broadcastUpdateChatEvent(chatId);
         return ResponseEntity.ok().build();
