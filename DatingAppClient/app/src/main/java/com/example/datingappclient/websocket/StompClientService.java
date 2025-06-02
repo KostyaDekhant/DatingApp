@@ -32,12 +32,21 @@ public class StompClientService {
     @Getter
     private StompClient client;
     private static StompClientService service;
+    @Getter
+    private final SubscriptionManager subscriptionManager;
     private TokenManager tokenManager;
+
+    private static final int MAX_RECONNECT_ATTEMPTS = 5;
+    private static final long RECONNECT_DELAY_MS = 60 * 1000; // 1 минута
+
+    private int reconnectAttempts = 0;
+    private boolean reconnectPaused = false;
 
     private StompClientService() {
         initClient();
         reconnect();
         subscribeLifecycle();
+        subscriptionManager = new SubscriptionManager(client);
     }
 
     public static StompClientService getInstance() {
@@ -65,6 +74,10 @@ public class StompClientService {
                     switch (event.getType()) {
                         case OPENED:
                             Log.d(logTag, "Соединение открыто");
+                            reconnectAttempts = 0; // сброс после успешного соединения
+                            if (subscriptionManager != null) {
+                                subscriptionManager.resubscribeAll();
+                            }
                             break;
                         case ERROR:
                             Throwable exception = event.getException();
@@ -107,6 +120,27 @@ public class StompClientService {
     }
 
     private void reconnect() {
+        if (reconnectPaused) {
+            Log.w(Constants.GLOBAL_LOG_TAG + "STOMP RECONNECT", "Пауза реконнекта активна — попытка проигнорирована");
+            return;
+        }
+
+        if (reconnectAttempts >= MAX_RECONNECT_ATTEMPTS) {
+            Log.w(Constants.GLOBAL_LOG_TAG + "STOMP RECONNECT", "Превышено количество попыток — таймаут 1 минута");
+            reconnectPaused = true;
+            reconnectAttempts = 0;
+
+            new android.os.Handler(android.os.Looper.getMainLooper()).postDelayed(() -> {
+                reconnectPaused = false;
+                Log.i(Constants.GLOBAL_LOG_TAG + "STOMP RECONNECT", "Таймаут окончен — разрешаем реконнекты");
+                reconnect(); // можно попытаться снова
+            }, RECONNECT_DELAY_MS);
+
+            return;
+        }
+
+        reconnectAttempts++;
+        Log.i(Constants.GLOBAL_LOG_TAG + "STOMP RECONNECT", "Попытка реконнекта #" + reconnectAttempts);
         List<StompHeader> headers = List.of(new StompHeader("Authorization", "Bearer " + tokenManager.getAccessToken()));
         client.connect(headers);
     }

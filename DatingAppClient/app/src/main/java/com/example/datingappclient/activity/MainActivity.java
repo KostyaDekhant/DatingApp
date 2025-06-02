@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
@@ -35,7 +36,9 @@ import com.example.datingappclient.fragments.FormsFragment;
 import com.example.datingappclient.fragments.UserFragment;
 import com.example.datingappclient.model.dto.CategoryDTO;
 import com.example.datingappclient.model.dto.InterestDTO;
+import com.example.datingappclient.model.dto.OnlineStatusDTO;
 import com.example.datingappclient.model.dto.UserDTO;
+import com.example.datingappclient.notifications.FCMService;
 import com.example.datingappclient.retrofit.RetrofitClient;
 import com.example.datingappclient.retrofit.controllers.AuthController;
 import com.example.datingappclient.retrofit.repository.AuthRepository;
@@ -49,6 +52,7 @@ import com.example.datingappclient.viewmodels.ChatsViewModel;
 import com.example.datingappclient.viewmodels.OnlineStatusViewModel;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationView;
+import com.google.firebase.messaging.FirebaseMessaging;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -86,6 +90,9 @@ public class MainActivity extends AppCompatActivity {
         ChatsViewModel chatsViewModel = new ViewModelProvider(this).get(ChatsViewModel.class);
         app.setChatsViewModel(chatsViewModel);
 
+        // get FCM token
+        getFCMtoken();
+
         receiveLogoutSignal();
 
         setupRepository();
@@ -99,8 +106,6 @@ public class MainActivity extends AppCompatActivity {
         // Получить контакты
         getUserContacts();
 
-        getOnlineUsers();
-
         // создания инстанса пользователя
         if (user == null) user = new UserDTO(userId);
         else user.setId(userId);
@@ -111,6 +116,28 @@ public class MainActivity extends AppCompatActivity {
         setupSlideMenu();
 
         getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, UserFragment.getInstance(user, true)).commit();
+
+
+        // new Handler(Looper.getMainLooper()).postDelayed(() -> webSocketService.triggerHistoryRequest(chatId, userId), 150);
+        new Handler(getMainLooper()).postDelayed(() -> getOnlineUsers(), 100);
+        //getOnlineUsers();
+    }
+
+    private void getFCMtoken() {
+        FirebaseMessaging.getInstance().getToken()
+                .addOnCompleteListener(task -> {
+                    if (!task.isSuccessful()) {
+                        Log.w("FCM", "Ошибка получения токена", task.getException());
+                        return;
+                    }
+
+                    // Получили токен
+                    String token = task.getResult();
+                    Log.d("FCM", "Токен: " + token);
+                    // Отправь на сервер
+                    FCMService fcmService = new FCMService();
+                    fcmService.sendTokenToServer(token);
+                });
     }
 
     private void getOnlineUsers() {
@@ -122,9 +149,10 @@ public class MainActivity extends AppCompatActivity {
         userRepository.fetchOnlineUsers(result -> {
             switch (result.status) {
                 case SUCCESS:
-                    Log.d(logTag, result.data.size() + " пользователей в сети!");
-                    for (Integer userId : result.data){
-                        onlineStatusViewModel.setOnlineStatus(userId, true);
+                    //Log.d(logTag, result.data.size() + " пользователей в сети!");
+                    for (OnlineStatusDTO onlineStatus : result.data){
+                        onlineStatusViewModel.setOnlineStatus(onlineStatus);
+                        if(onlineStatus.isOnline()) Log.d(logTag, "Пользователь " + onlineStatus.getUserId() + " в сети");
                     }
                     break;
                 case ERROR:

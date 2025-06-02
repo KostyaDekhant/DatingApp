@@ -2,6 +2,7 @@ package com.example.datingappclient;
 
 import android.app.Activity;
 import android.app.Application;
+import android.app.Dialog;
 import android.os.Bundle;
 import android.util.Log;
 
@@ -11,8 +12,10 @@ import com.example.datingappclient.model.dto.InterestDTO;
 import com.example.datingappclient.utils.AppLifecycleManager;
 import com.example.datingappclient.viewmodels.ChatMembersViewModel;
 import com.example.datingappclient.viewmodels.ChatsViewModel;
+import com.example.datingappclient.viewmodels.DialogViewModel;
 import com.example.datingappclient.viewmodels.OnlineStatusViewModel;
 import com.example.datingappclient.websocket.StompClientService;
+import com.google.firebase.FirebaseApp;
 
 import java.util.HashMap;
 import java.util.List;
@@ -28,6 +31,7 @@ public class DatingAppApplication extends Application {
     private ChatMembersViewModel chatMembersViewModel;
     private ChatMembersViewModel contactsViewModel;
     private OnlineStatusViewModel onlineStatusViewModel;
+    private DialogViewModel dialogViewModel;
 
     // Кеш интересов и категорий
     private List<CategoryDTO> cachedCategories;
@@ -41,6 +45,7 @@ public class DatingAppApplication extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
+        FirebaseApp.initializeApp(this);
         tokenManager = new TokenManager(this);
         instance = this;
         activityCallback();

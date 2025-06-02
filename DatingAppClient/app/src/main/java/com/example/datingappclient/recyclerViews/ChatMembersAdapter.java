@@ -125,8 +125,10 @@ public class ChatMembersAdapter extends ListAdapter<ChatMemberDTO, ChatMembersAd
                 return true;
             });
         }
+
         if (!isEditMembers())
             holder.statusOnline(chatMemberDTO.getId());
+
     }
 
     private void showPopupMenu(View v, ChatMemberDTO chatMemberDTO) {

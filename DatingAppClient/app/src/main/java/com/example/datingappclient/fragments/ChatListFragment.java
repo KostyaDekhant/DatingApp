@@ -1,6 +1,7 @@
 package com.example.datingappclient.fragments;
 
-import static android.content.Context.MODE_PRIVATE;
+import static android.view.View.GONE;
+import static android.view.View.VISIBLE;
 
 import android.app.Activity;
 import android.content.Context;
@@ -10,19 +11,19 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ProgressBar;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-import androidx.recyclerview.widget.SimpleItemAnimator;
 
 import com.example.datingappclient.DatingAppApplication;
-import com.example.datingappclient.TokenManager;
 import com.example.datingappclient.activity.ChatActivity;
 import com.example.datingappclient.R;
 import com.example.datingappclient.constants.Constants;
@@ -45,6 +46,8 @@ public class ChatListFragment extends Fragment {
     /* === Android Objects === */
     private View activityView;
     private RecyclerView recyclerView;
+    private  ConstraintLayout layout;
+    private ProgressBar progressBar;
 
     /* === Other === */
     private UserDTO user;
@@ -67,10 +70,19 @@ public class ChatListFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         activityView = inflater.inflate(R.layout.fragment_chatlist, container, false);
 
+        layout = activityView.findViewById(R.id.mainContent);
+        progressBar = activityView.findViewById(R.id.progressBar);
+
+        layout.setVisibility(GONE);
+        progressBar.setVisibility(VISIBLE);
+
         setupRepository();
         setupCreateChatButton();
         setupRecyclerView();
         setupViewModel();
+
+        // require recyclerView &  chatsAdapter
+        enableAutoScrollOnChatMoved();
 
         initChats();
 
@@ -100,6 +112,21 @@ public class ChatListFragment extends Fragment {
         recyclerView.getRecycledViewPool().setMaxRecycledViews(0, 0);
     }
 
+    private void enableAutoScrollOnChatMoved() {
+        chatsAdapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
+            @Override
+            public void onItemRangeMoved(int fromPosition, int toPosition, int itemCount) {
+                if (toPosition == 0 && isAtTopOfChatList()) {
+                    recyclerView.post(() -> recyclerView.scrollToPosition(0));
+                }
+            }
+        });
+    }
+
+    private boolean isAtTopOfChatList() {
+        return ((LinearLayoutManager) recyclerView.getLayoutManager()).findFirstVisibleItemPosition() == 0;
+    }
+
     private void setupViewModel() {
         DatingAppApplication app = (DatingAppApplication) requireActivity().getApplication();
 
@@ -111,7 +138,7 @@ public class ChatListFragment extends Fragment {
             app.setChatsViewModel(chatsViewModel);
         }
 
-        chatsAdapter = new ChatsAdapter(this::startChatActivity, chatsViewModel, user.getId(), requireContext(), getViewLifecycleOwner());
+        chatsAdapter = new ChatsAdapter((chat1, view) -> startChatActivity(chat1), chatsViewModel, user.getId(), requireContext(), getViewLifecycleOwner());
         chatsAdapter.observeOnlineStatus();
         recyclerView.setAdapter(chatsAdapter);
 
@@ -157,6 +184,7 @@ public class ChatListFragment extends Fragment {
 
     // Предотвращаем повторный вызов загрузки чатов при многократном клике на вкладку списка чатов
     private static boolean isChatsLoading;
+    private boolean isFirstPartLoad;
     private void initChats() {
         if (isChatsLoading) return;
         isChatsLoading = true;
@@ -175,6 +203,11 @@ public class ChatListFragment extends Fragment {
                     offset += limit;
                     // Если получили кол-во чатов = limit, то запрашиваем еще раз
                     chatsViewModel.addChats(new ArrayList<>(result.data));
+                    if (!isFirstPartLoad) {
+                        progressBar.setVisibility(GONE);
+                        layout.setVisibility(VISIBLE);
+                        isFirstPartLoad = true;
+                    }
                     if (result.data.size() == limit) getUserChats();
                     else isChatsLoading = false;
                     break;
@@ -206,7 +239,6 @@ public class ChatListFragment extends Fragment {
         getChatInfo(chat.getId(), chatInfo -> {
             chat.setChatInfo(chatInfo);
             ChatDTO.selectedChat = chat;
-
             chatLauncher.launch(intent);
         });
     }

@@ -5,6 +5,7 @@ import android.content.Context;
 import com.example.datingappclient.model.AuthResponse;
 import com.example.datingappclient.model.dto.CompanyInfoDTO;
 import com.example.datingappclient.model.dto.AuthDTO;
+import com.example.datingappclient.model.dto.OnlineStatusDTO;
 import com.example.datingappclient.model.dto.UserDTO;
 import com.example.datingappclient.retrofit.RetrofitClient;
 import com.example.datingappclient.retrofit.controllers.UserController;
@@ -135,10 +136,10 @@ public class UserRepository {
         });
     }
 
-    public void fetchOnlineUsers(ResultCallback<List<Integer>> callback) {
+    public void fetchOnlineUsers(ResultCallback<List<OnlineStatusDTO>> callback) {
         userController.getOnlineUsers().enqueue(new Callback<>() {
             @Override
-            public void onResponse(Call<List<Integer>> call, Response<List<Integer>> response) {
+            public void onResponse(Call<List<OnlineStatusDTO>> call, Response<List<OnlineStatusDTO>> response) {
                 if (response.isSuccessful()) {
                     if (response.body() != null && !response.body().isEmpty()) callback.onResult(Result.success(response.body()));
                     else callback.onResult(Result.empty());
@@ -147,7 +148,7 @@ public class UserRepository {
             }
 
             @Override
-            public void onFailure(Call<List<Integer>> call, Throwable throwable) {
+            public void onFailure(Call<List<OnlineStatusDTO>> call, Throwable throwable) {
                 callback.onResult(Result.error("Ошибка сети или ошибка при обработке данных: " + throwable.getMessage()));
             }});
     }

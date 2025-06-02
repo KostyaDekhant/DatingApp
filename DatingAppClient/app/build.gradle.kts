@@ -1,5 +1,7 @@
 plugins {
     alias(libs.plugins.android.application)
+    id("com.google.gms.google-services") // <== обязательно для FCM
+
 }
 
 android {
@@ -85,4 +87,6 @@ dependencies {
     implementation ("com.github.yuyakaido:cardstackview:2.3.4")
 
     implementation ("androidx.core:core-splashscreen:1.0.1")
+
+    implementation("com.google.firebase:firebase-messaging:23.4.0")
 }

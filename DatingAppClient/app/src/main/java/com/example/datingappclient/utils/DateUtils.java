@@ -9,6 +9,7 @@ import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.Period;
 import java.time.format.DateTimeFormatter;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
 
@@ -36,6 +37,26 @@ public class DateUtils {
         String time = timeFormat.format(timestamp);
 
         return String.format("%s, %s", day, time);
+    }
+
+    public static String formatSmartTime(Timestamp timestamp) {
+        if (timestamp == null) return "";
+
+        Calendar inputCal = Calendar.getInstance();
+        inputCal.setTimeInMillis(timestamp.getTime());
+
+        Calendar todayCal = Calendar.getInstance();
+
+        boolean isToday = inputCal.get(Calendar.YEAR) == todayCal.get(Calendar.YEAR)
+                && inputCal.get(Calendar.DAY_OF_YEAR) == todayCal.get(Calendar.DAY_OF_YEAR);
+
+        if (isToday) {
+            SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm", Locale.getDefault());
+            return timeFormat.format(timestamp);
+        } else {
+            SimpleDateFormat fullFormat = new SimpleDateFormat("d MMMM, HH:mm", new Locale("ru"));
+            return fullFormat.format(timestamp);
+        }
     }
 
     public static String formatTimeRange(Timestamp start, Timestamp end) {

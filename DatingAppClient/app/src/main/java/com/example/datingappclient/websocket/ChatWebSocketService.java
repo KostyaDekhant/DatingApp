@@ -36,16 +36,16 @@ public class ChatWebSocketService {
     private StompClient stompClient;
     private static ChatWebSocketService webSocketService;
 
-    private final Map<Integer, MutableLiveData<MessageDTO>> messageStreams = new HashMap<>();
     private final MutableLiveData<Integer> deletedChatIdStream = new MutableLiveData<>();
     private final MutableLiveData<Integer> updatedChatIdStream = new MutableLiveData<>();
 
     private final Map<Integer, Integer> historyOffsets = new HashMap<>();
     private final Map<Integer, List<MessageDTO>> historyCache = new HashMap<>();
 
-    //private final List<MessageDTO> fullHistory = new ArrayList<>();
     private final ObjectMapper objectMapper = new ObjectMapper();
-    private int offset;
+
+    private final Map<Integer, MutableLiveData<MessageDTO>> messageStreams = new HashMap<>();
+    private final Map<Integer, MutableLiveData<List<MessageDTO>>> historyStreams = new HashMap<>();
 
     private final Map<Integer, Disposable> messageDisposables = new HashMap<>();
     private final Map<Integer, Disposable> historyDisposables = new HashMap<>();
@@ -65,6 +65,7 @@ public class ChatWebSocketService {
     // =============== MESSAGES
     @SuppressLint("CheckResult")
     public LiveData<MessageDTO> subscribeToChat(int chatId) {
+        /*// Если уже есть активная подписка — возвращаем существующую LiveData
         if (messageStreams.containsKey(chatId)) {
             return messageStreams.get(chatId);
         }
@@ -73,20 +74,34 @@ public class ChatWebSocketService {
         messageStreams.put(chatId, liveData);
 
         String logTag = Constants.GLOBAL_LOG_TAG + "STOMP GET MESSAGE";
-        Disposable disposable = stompClient.topic("/topic/messages/" + chatId)
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(topicMessage -> {
-                    try {
-                        MessageDTO message = objectMapper.readValue(topicMessage.getPayload(), new TypeReference<MessageDTO>() {});
-                        liveData.postValue(message);
-                    } catch (Exception e) {
-                        Log.e(logTag, "Ошибка при разборе сообщения", e);
-                    }
-                }, throwable -> Log.e(logTag, "Ошибка подписки на чат " + chatId, throwable));
-        messageDisposables.put(chatId, disposable);
+        if (!messageDisposables.containsKey(chatId)) {
+            Disposable disposable = stompClient.topic("/topic/messages/" + chatId)
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(topicMessage -> {
+                        try {
+                            MessageDTO message = objectMapper.readValue(topicMessage.getPayload(), new TypeReference<MessageDTO>() {});
+                            Log.i(logTag, message.toString());
 
-        return liveData;
+                            liveData.postValue(message);
+                            int currentOffset = historyOffsets.getOrDefault(chatId, 0);
+                            historyOffsets.put(chatId, currentOffset + 1);
+
+                            List<MessageDTO> current = historyCache.getOrDefault(chatId, new ArrayList<>());
+                            current.add(message);
+                            historyCache.put(chatId, current);
+                        } catch (Exception e) {
+                            Log.e(logTag, "Ошибка при разборе сообщения", e);
+                        }
+                    }, throwable -> Log.e(logTag, "Ошибка подписки на чат " + chatId, throwable));
+            messageDisposables.put(chatId, disposable);
+        }
+        return liveData;*/
+
+        return StompClientService
+                .getInstance()
+                .getSubscriptionManager()
+                .subscribeToChatMessages(chatId);
     }
 
     @SuppressLint("CheckResult")
@@ -107,38 +122,49 @@ public class ChatWebSocketService {
 
     // =============== HISTORY
     private final String triggerHistory = "/app/history/";
-
     @SuppressLint("CheckResult")
-    public void subscribeHistory(int chatId, int userId, MutableLiveData<List<MessageDTO>> historyLiveData) {
+    public LiveData<List<MessageDTO>> subscribeHistory(int chatId, int userId) {
+        /*MutableLiveData<List<MessageDTO>> historyLiveData = new MutableLiveData<>();
         String logTag = Constants.GLOBAL_LOG_TAG + "STOMP CHAT HISTORY";
-        List<MessageDTO> chatHistory = historyCache.getOrDefault(chatId, new ArrayList<>());
-        AtomicInteger currentOffset = new AtomicInteger(historyOffsets.getOrDefault(chatId, chatHistory.size()));
-        if (!historyDisposables.containsKey(chatId)) {
-            Disposable disposable = stompClient.topic("/topic/" + userId + "/history/" + chatId)
+
+        // ❗ Сначала проверим, что и подписка, и LiveData есть
+        if (historyStreams.containsKey(chatId) && historyDisposables.containsKey(chatId)) {
+            return historyStreams.get(chatId);
+        }
+        // ❗ Если есть старый поток, но нет активной подписки — пересоздаём
+        historyLiveData = new MutableLiveData<>();
+        historyStreams.put(chatId, historyLiveData);
+
+        if (historyDisposables.containsKey(chatId)) {
+            historyDisposables.get(chatId).dispose();
+            historyDisposables.remove(chatId);
+        }
+        MutableLiveData<List<MessageDTO>> finalHistoryLiveData = historyLiveData;
+        Disposable disposable = stompClient.topic("/topic/" + userId + "/history/" + chatId)
+                    .doOnSubscribe(d -> {
+                        Log.d(logTag, "Подписка активна, теперь можно отправлять запрос");
+                    })
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe(topicMessage -> {
                         try {
                             List<MessageDTO> messages = objectMapper.readValue(
                                     topicMessage.getPayload(),
-                                    new TypeReference<List<MessageDTO>>() {
-                                    }
+                                    new TypeReference<List<MessageDTO>>() {}
                             );
                             Log.i(logTag, "Получено " + messages.size() + " сообщений!");
 
-                            chatHistory.addAll(0, messages);
-                            historyLiveData.setValue(new ArrayList<>(chatHistory));
-                            currentOffset.addAndGet(messages.size());
-                            historyOffsets.put(chatId, currentOffset.get());
+                            List<MessageDTO> chatHistory = historyCache.getOrDefault(chatId, new ArrayList<>());
+                            int currentOffset = historyOffsets.getOrDefault(chatId, chatHistory.size());
 
-                            /*messages.addAll(chatHistory);
-                            historyLiveData.setValue(messages);*/
+                            chatHistory.addAll(0, messages);
+                            historyCache.put(chatId, chatHistory);
+                            finalHistoryLiveData.setValue(new ArrayList<>(chatHistory));
+
+                            historyOffsets.put(chatId, currentOffset + messages.size());
 
                             if (messages.size() == Constants.MESSAGE_LIMIT) {
-                                sendHistoryRequest(chatId, userId, currentOffset.get());
-                            } else {
-                                //historyOffsets.put(chatId, 0);
-                                historyCache.put(chatId, chatHistory);
+                                sendHistoryRequest(chatId, userId, currentOffset + messages.size());
                             }
                         } catch (Exception e) {
                             Log.e(logTag, "Ошибка при разборе истории", e);
@@ -146,10 +172,15 @@ public class ChatWebSocketService {
                     }, throwable -> Log.e(logTag, "Ошибка подписки на историю", throwable));
 
             historyDisposables.put(chatId, disposable);
-        }
+
+        return historyLiveData;*/
+        return StompClientService
+                .getInstance()
+                .getSubscriptionManager()
+                .subscribeToChatHistory(chatId, userId);
     }
 
-    @SuppressLint("CheckResult")
+    /*@SuppressLint("CheckResult")
     private void sendHistoryRequest(int chatId, int userId, int offset) {
         String logTag = Constants.GLOBAL_LOG_TAG + "STOMP CHAT HISTORY";
         String jsonParams = getHistoryParams(logTag, offset, userId);
@@ -163,9 +194,9 @@ public class ChatWebSocketService {
     public void triggerHistoryRequest(int chatId, int userId) {
         int offset = historyOffsets.getOrDefault(chatId, 0);
         sendHistoryRequest(chatId, userId, offset);
-    }
+    }*/
 
-    private String getHistoryParams(String logTag, int offset, int userId) {
+   /* private String getHistoryParams(String logTag, int offset, int userId) {
         HistoryDTO params = new HistoryDTO(userId, Constants.MESSAGE_LIMIT, offset);
         String jsonParams = "";
         try {
@@ -175,7 +206,7 @@ public class ChatWebSocketService {
             Log.e(logTag, e.getMessage());
         }
         return jsonParams;
-    }
+    }*/
     // =============== DELETE CHAT
     @SuppressLint("CheckResult")
     public void sendDeleteGroupChat(int chatId, int userId, ResultCallback<Void> callback) {
@@ -187,7 +218,7 @@ public class ChatWebSocketService {
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe(() -> {
-                                Log.d(logTag, "Удаление чата отправлено");
+                                Log.d(logTag, "Удаление чата отправлено\n" + json);
                                 callback.onResult(Result.success(null));
                             },
                             error -> {
@@ -201,7 +232,7 @@ public class ChatWebSocketService {
 
     @SuppressLint("CheckResult")
     public void subscribeToChatDeletedEvents(int chatId, ResultCallback<Void> callback) {
-        String logTag = Constants.GLOBAL_LOG_TAG + "STOMP CHAT DELETED";
+        /*String logTag = Constants.GLOBAL_LOG_TAG + "STOMP CHAT DELETED";
         Disposable disposable = stompClient.topic("/topic/group_chats/" + chatId + "/deleted")
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
@@ -214,13 +245,20 @@ public class ChatWebSocketService {
                         Log.e(logTag, "Ошибка при получении удалённого чата", e);
                     }
                 }, throwable -> Log.e(logTag, "Ошибка подписки на удаление чатов", throwable));
-        deletedChatDisposables.put(chatId, disposable);
+        deletedChatDisposables.put(chatId, disposable);*/
+        StompClientService
+                .getInstance()
+                .getSubscriptionManager()
+                .subscribeToChatDeletedEvent(chatId, deletedId -> {
+                    deletedChatIdStream.postValue(deletedId);
+                    callback.onResult(Result.success(null));
+                });
     }
 
     // =============== UPDATE CHAT
     @SuppressLint("CheckResult")
     public Disposable subscribeToChatUpdatedEvents(int chatId, ResultCallback<Boolean> callback) {
-        String logTag = Constants.GLOBAL_LOG_TAG + "STOMP CHAT UPDATED";
+        /*String logTag = Constants.GLOBAL_LOG_TAG + "STOMP CHAT UPDATED";
         Disposable disposable = stompClient.topic("/topic/group_chats/" + chatId + "/updated")
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
@@ -234,13 +272,19 @@ public class ChatWebSocketService {
                     }
                 }, throwable -> Log.e(logTag, "Ошибка подписки на обновления чатов", throwable));
         updatedChatDisposables.put(chatId, disposable);
+        return disposable;*/
+        Disposable disposable = StompClientService
+                .getInstance()
+                .getSubscriptionManager()
+                .subscribeToChatUpdatedEvent(chatId, updatedId -> callback.onResult(Result.success(true)));
+        updatedChatDisposables.put(chatId, disposable);
         return disposable;
     }
 
     // =============== CREATE CHAT
     @SuppressLint("CheckResult")
     public Disposable subscribeToChatCreatedEvents(int userId, ResultCallback<Integer> callback) {
-        String logTag = Constants.GLOBAL_LOG_TAG + "STOMP CHAT CREATED";
+       /* String logTag = Constants.GLOBAL_LOG_TAG + "STOMP CHAT CREATED";
         return stompClient.topic("/topic/group_chats/" + userId + "/created")
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
@@ -253,7 +297,11 @@ public class ChatWebSocketService {
                         Log.e(logTag, "Ошибка при создании чата", e);
                         callback.onResult(Result.error("Ошибка при создании чата " + e));
                     }
-                }, throwable -> Log.e(logTag, "Ошибка глобальной подписки", throwable));
+                }, throwable -> Log.e(logTag, "Ошибка глобальной подписки", throwable));*/
+        return  StompClientService
+                .getInstance()
+                .getSubscriptionManager()
+                .subscribeToChatCreatedEvent(userId, chatId -> callback.onResult(Result.success(chatId)));
     }
 
     public LiveData<Integer> getDeletedChatIdStream() {
@@ -261,11 +309,11 @@ public class ChatWebSocketService {
     }
 
     public void unsubscribeFromChat(int chatId) {
-        Disposable disposable = messageDisposables.remove(chatId);
+        /*Disposable disposable = messageDisposables.remove(chatId);
         if (disposable != null && !disposable.isDisposed()) {
             disposable.dispose();
         }
-        messageStreams.remove(chatId);
+        messageStreams.remove(chatId);*/
     }
 
     public void unsubscribeFromChatUpdatedEvents(int chatId) {
@@ -273,6 +321,8 @@ public class ChatWebSocketService {
         if (disposable != null && !disposable.isDisposed()) {
             disposable.dispose();
         }
+       /* String topic = "/topic/group_chats/" + chatId + "/updated";
+        StompClientService.getInstance().getSubscriptionManager().unsubscribe(topic);*/
     }
 
     public void unsubscribeFromChatDeletedEvents(int chatId) {

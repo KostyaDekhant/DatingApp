@@ -38,6 +38,14 @@ public class ChatMemberDTO {
     @JsonIgnore
     private transient boolean chatOwner;
 
+    public ChatMemberDTO(ChatMemberDTO other) {
+        this.name = other.name;
+        this.id = other.id;
+        this.image = other.image != null ? Arrays.copyOf(other.image, other.image.length) : null;
+        this.isAlreadyInChat = other.isAlreadyInChat;
+        this.chatOwner = other.chatOwner;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

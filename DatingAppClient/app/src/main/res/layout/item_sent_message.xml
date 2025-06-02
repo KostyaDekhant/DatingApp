@@ -28,12 +28,29 @@
         android:id="@+id/textDateTime"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-
-        android:layout_marginEnd="10dp"
-
+        android:layout_marginEnd="5dp"
         android:text="Время отправки"
         android:textColor="#262626"
         app:layout_constraintTop_toBottomOf="@id/textMessage"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintEnd_toStartOf="@id/checkmark" />
+
+    <ImageView
+        android:id="@+id/checkmark"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:scaleType="fitCenter"
+        android:src="@drawable/ic_message_read_status"
+        app:layout_constraintEnd_toEndOf="@id/textMessage"
+        app:layout_constraintTop_toBottomOf="@id/textMessage"/>
+
+    <ImageView
+        android:id="@+id/checkmark2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="15dp"
+        android:visibility="gone"
+        android:src="@drawable/ic_message_read_status"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/textMessage"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

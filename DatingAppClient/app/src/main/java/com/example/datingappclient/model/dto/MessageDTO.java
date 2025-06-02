@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.gson.annotations.SerializedName;
 
 import java.sql.Timestamp;
+import java.util.Objects;
 
 
 import lombok.EqualsAndHashCode;
@@ -17,6 +18,7 @@ import lombok.Setter;
 @NoArgsConstructor
 public class MessageDTO {
     @JsonProperty("pk_message")
+    @SerializedName("pk_message")
     private int id;
 
     @JsonProperty("message")
@@ -30,6 +32,7 @@ public class MessageDTO {
     private int senderId;
 
     @JsonProperty("pk_chat")
+    @SerializedName("pk_chat")
     private int chatId;
 
     public MessageDTO(String message, Timestamp sendtime, int senderId, int chatId) {
@@ -50,6 +53,14 @@ public class MessageDTO {
                 '}';
     }
 
+    public MessageDTO(MessageDTO other) {
+        this.id = other.id;
+        this.message = other.message;
+        this.sendtime = other.sendtime != null ? new Timestamp(other.sendtime.getTime()) : null;
+        this.senderId = other.senderId;
+        this.chatId = other.chatId;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -58,15 +69,12 @@ public class MessageDTO {
         return id == messageDTO.id &&
                 senderId == messageDTO.senderId &&
                 chatId == messageDTO.chatId &&
-                message.equals(messageDTO.message); // Без сравнения sendtime
+                Objects.equals(message, messageDTO.message) &&
+                Objects.equals(sendtime, messageDTO.sendtime);
     }
 
     @Override
     public int hashCode() {
-        int result = Integer.hashCode(id);
-        result = 31 * result + message.hashCode();
-        result = 31 * result + Integer.hashCode(senderId);
-        result = 31 * result + Integer.hashCode(chatId);
-        return result;
+        return Objects.hash(id, message, sendtime, senderId, chatId);
     }
 }

@@ -1,5 +1,6 @@
 package com.example.datingappclient.recyclerViews.chatsList;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.util.Log;
@@ -16,19 +17,20 @@ import com.example.datingappclient.DatingAppApplication;
 import com.example.datingappclient.R;
 import com.example.datingappclient.constants.Constants;
 import com.example.datingappclient.model.dto.ChatDTO;
-import com.example.datingappclient.model.dto.ChatInfoDTO;
-import com.example.datingappclient.model.dto.ChatMemberDTO;
 import com.example.datingappclient.retrofit.repository.ChatsRepository;
 import com.example.datingappclient.utils.ImageUtils;
 import com.example.datingappclient.viewmodels.ChatsViewModel;
 import com.example.datingappclient.viewmodels.OnlineStatusViewModel;
+import com.example.datingappclient.websocket.controllers.MessagesController;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 public class ChatsAdapter extends ListAdapter<ChatDTO, ChatsHolder> {
 
     public interface OnChatClickListener {
-        void onChatClicked(ChatDTO chat);
+        void onChatClicked(ChatDTO chat, View view);
     }
 
     private final ChatsAdapter.OnChatClickListener chatClickListener;
@@ -38,6 +40,7 @@ public class ChatsAdapter extends ListAdapter<ChatDTO, ChatsHolder> {
     private final LifecycleOwner lifecycleOwner;
     private final Context context;
     private final OnlineStatusViewModel onlineStatusViewModel;
+    private final MessagesController messagesController = MessagesController.getInstance();
 
     public ChatsAdapter(ChatsAdapter.OnChatClickListener listener, ChatsViewModel viewModel, int senderId, Context context, LifecycleOwner owner) {
         super(DIFF_CALLBACK);
@@ -62,7 +65,7 @@ public class ChatsAdapter extends ListAdapter<ChatDTO, ChatsHolder> {
         ChatDTO chat = getItem(position);
 
         holder.username.setText(chat.getName());
-        holder.setReceiverID(chat.getId());
+        holder.setChatId(chat.getId());
 
         // render init last message
         boolean isGroup = chat.getChatInfo() == null || chat.getChatInfo().getIsGroup();
@@ -75,16 +78,14 @@ public class ChatsAdapter extends ListAdapter<ChatDTO, ChatsHolder> {
         else {
             setChatImage(holder, chat.getImage());
         }
-        // Подписка на LiveData для сообщений этого чата
-        String logTag = Constants.GLOBAL_LOG_TAG + "GET MESSAGE";
-        viewModel.getMessageStream(chat.getId())
-                .observe(lifecycleOwner, message -> {
-                    Log.d(logTag, message.toString());
-                    holder.setLastMessage(message, isGroup, senderId);
-                });
+
+        // Устновить непрочитанные, если есть
+        holder.setMessageCount(chat.getUnreadCount());
+
 
         // Подписка на ивент удаления чата
         viewModel.subscribeToDeleteChat(chat.getId());
+
         // Подписка на ивент изменения чата
         holder.subscribeToUpdateChat(chat.getId(), viewModel, chatsRepository, senderId);
 
@@ -93,8 +94,49 @@ public class ChatsAdapter extends ListAdapter<ChatDTO, ChatsHolder> {
         }
 
         holder.itemView.setOnClickListener(view ->
-                chatClickListener.onChatClicked(chat)
+                chatClickListener.onChatClicked(chat, view)
         );
+
+       /* messagesController.subscribeToReadMessages(chat.getId())
+                .observe(lifecycleOwner, notification -> {
+                    Log.d(Constants.GLOBAL_LOG_TAG + "HOLDER READ MESSAGE",
+                            "Сейчас непрочитанных сообщений: " + chat.getUnreadCount() +
+                                    "\nПрочитаны сообщения " + notification);
+
+                    if (notification.getUserId() == senderId) {
+                        int newUnreadCount = chat.getUnreadCount() - notification.getMessageIds().size();
+                        chat.setUnreadCount(newUnreadCount); // чтобы не было < 0
+                        holder.setMessageCount(chat.getUnreadCount());
+                    }
+                });*/
+
+        // Подписка на LiveData для сообщений этого чата
+        String logTag = Constants.GLOBAL_LOG_TAG + "GET MESSAGE IN HOLDER";
+        //boolean isGroup = chat.getChatInfo() == null || chat.getChatInfo().getIsGroup();
+        viewModel.getMessageStream(chat.getId())
+                .observe(lifecycleOwner, message -> {
+                    if (chat.getLastMessage() != null && chat.getLastMessage().getId() == message.getId()) {
+                        return; // дубликат
+                    }
+                    Log.d(logTag, message.toString() + "\n" + chat.getUnreadCount() + " непрочитанных сообщений в чате!");
+                    ChatDTO temp = chat.copy();
+                    if (message.getSenderId() != senderId) temp.setUnreadCount(chat.getUnreadCount() + 1);
+                    temp.setLastMessage(message);
+                    viewModel.updateOrAddChat(temp);
+
+                    holder.setMessageCount(temp.getUnreadCount());
+                    holder.setLastMessage(message, isGroup, senderId);
+                    //moveChatToTop(temp.getId());
+                });
+    }
+
+    @Override
+    public void onViewAttachedToWindow(@NonNull ChatsHolder holder) {
+        super.onViewAttachedToWindow(holder);
+        /*ChatDTO chat = getItem(holder.getAdapterPosition());
+        if (chat != null)*/
+
+
     }
 
     public void observeOnlineStatus() {
@@ -109,11 +151,29 @@ public class ChatsAdapter extends ListAdapter<ChatDTO, ChatsHolder> {
         });
     }
 
+    public void moveChatToTop(int chatId) {
+        List<ChatDTO> currentList = new ArrayList<>(getCurrentList());
+        int index = -1;
+
+        for (int i = 0; i < currentList.size(); i++) {
+            if (currentList.get(i).getId() == chatId) {
+                index = i;
+                break;
+            }
+        }
+
+        if (index >= 0) {
+            ChatDTO chat = currentList.remove(index);
+            currentList.add(0, chat);
+            submitList(currentList); // обновляем адаптер
+        }
+    }
+
     @Override
     public void onViewRecycled(@NonNull ChatsHolder holder) {
         super.onViewRecycled(holder);
         // Очистка данных, отмена анимаций, обнуление слушателей и т. д.
-        holder.unsubscribeUpdate(holder.getReceiverID());
+        holder.unsubscribeUpdate(holder.getChatId());
     }
 
     private void setChatImage(ChatsHolder holder, byte[] chatImage) {
@@ -136,7 +196,7 @@ public class ChatsAdapter extends ListAdapter<ChatDTO, ChatsHolder> {
         chatsRepository.fetchChatAvatar(senderId, chat.getId(), result -> {
             switch (result.status) {
                 case SUCCESS:
-                    Log.i(logTag, "Получено изображение для чата " + chat.getId());
+                    //Log.i(logTag, "Получено изображение для чата " + chat.getId());
                     byte[] chatImage = result.data.getImage();
                     chat.setImage(chatImage);
                     break;
@@ -144,7 +204,7 @@ public class ChatsAdapter extends ListAdapter<ChatDTO, ChatsHolder> {
                     Log.e(logTag, result.error);
                     break;
                 case EMPTY:
-                    Log.i(logTag, "Изображение для чата " + chat.getId() + " не найдено");
+                    //Log.i(logTag, "Изображение для чата " + chat.getId() + " не найдено");
                     break;
             }
             callback.onImage();
@@ -154,12 +214,19 @@ public class ChatsAdapter extends ListAdapter<ChatDTO, ChatsHolder> {
     private static final DiffUtil.ItemCallback<ChatDTO> DIFF_CALLBACK = new DiffUtil.ItemCallback<>() {
         @Override
         public boolean areItemsTheSame(@NonNull ChatDTO oldItem, @NonNull ChatDTO newItem) {
+            //Log.d("EQUALS_ITEMS", oldItem.toString() + "\n" + newItem.toString() + "\n" + oldItem.equals(newItem));
             return Objects.equals(oldItem.getId(), newItem.getId());
         }
 
+        @SuppressLint("DiffUtilEquals")
         @Override
         public boolean areContentsTheSame(@NonNull ChatDTO oldItem, @NonNull ChatDTO newItem) {
             //return false;
+            boolean same = oldItem.equals(newItem);
+            if (!same) {
+                Log.d("DIFF_UTIL", "Чат " + oldItem.getId() + " изменён! Обновляем...");
+                Log.d("DIFF_UTIL_CONTENT", oldItem.toString() + "\n" + newItem.toString() + "\n" + oldItem.equals(newItem));
+            }
             return oldItem.equals(newItem); // должен быть переопределён equals
         }
     };

@@ -190,7 +190,7 @@ public class CreateGroupChatFragment extends Fragment {
 
         // create group chat
         ChatInfoDTO groupChatInfo = new ChatInfoDTO(user.getId(), null, chatMembers, true);
-        return new ChatDTO(null, chatname, null, null, groupChatInfo, null);
+        return new ChatDTO(null, chatname, null,null, null, groupChatInfo, null);
     }
 
     private void createGroupChat(ChatDTO chat) {

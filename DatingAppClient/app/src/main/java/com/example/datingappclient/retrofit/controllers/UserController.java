@@ -3,6 +3,7 @@ package com.example.datingappclient.retrofit.controllers;
 import com.example.datingappclient.model.AuthResponse;
 import com.example.datingappclient.model.dto.CompanyInfoDTO;
 import com.example.datingappclient.model.dto.AuthDTO;
+import com.example.datingappclient.model.dto.OnlineStatusDTO;
 import com.example.datingappclient.model.dto.UserDTO;
 
 import java.util.List;
@@ -35,7 +36,7 @@ public interface UserController {
     Call<Void> updateUserCompany(@Path("userId") int userId, @Body CompanyInfoDTO companyInfo);
 
     @GET("api/users/online")
-    Call<List<Integer>> getOnlineUsers();
+    Call<List<OnlineStatusDTO>> getOnlineUsers();
 
     // TODO: перенести в контроллер Auth
     @POST("auth/login")

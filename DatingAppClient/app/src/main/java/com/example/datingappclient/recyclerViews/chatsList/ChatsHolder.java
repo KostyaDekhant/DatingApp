@@ -32,10 +32,10 @@ import lombok.Setter;
 @Setter
 public class ChatsHolder extends RecyclerView.ViewHolder {
 
-    private Integer receiverID;
+    private Integer chatId;
     private byte[] byteImage;
 
-    public TextView username, lastMessage, lastMessageTime;
+    public TextView username, lastMessage, lastMessageTime, countUnreadView;
     public ImageView profileImage, statusView;
 
     private ChatsViewModel chatsViewModel;
@@ -49,6 +49,9 @@ public class ChatsHolder extends RecyclerView.ViewHolder {
         profileImage = itemView.findViewById(R.id.profile_image);
         lastMessageTime = itemView.findViewById(R.id.lastMessage_time);
         statusView = itemView.findViewById(R.id.statusView);
+        countUnreadView = itemView.findViewById(R.id.countUnread);
+
+
     }
 
     public void subscribeToUpdateChat(int chatId, ChatsViewModel viewModel, ChatsRepository chatsRepository, int senderId) {
@@ -58,14 +61,10 @@ public class ChatsHolder extends RecyclerView.ViewHolder {
         this.chatsViewModel = viewModel;
 
         UpdateEventsController updateEventsController = new UpdateEventsController();
-        updateEventsController.subscribeToChatUpdatedEvents(chatId, result -> {
-
-        });
+        updateEventsController.subscribeToChatUpdatedEvents(chatId, result -> {});
 
         updateDisposable = viewModel.subscribeToUpdateChat(chatId, result1 -> {
-
             Log.d(Constants.GLOBAL_LOG_TAG + "UPDATE CHAT", "ChatsHolder");
-
             chatsRepository.fetchChat(chatId, senderId, chatResult -> {
                 if (chatResult.status != Result.Status.SUCCESS || chatResult.data == null) return;
 
@@ -102,6 +101,15 @@ public class ChatsHolder extends RecyclerView.ViewHolder {
         lastMessage.setText(prefix + message.getMessage());
         lastMessageTime.setText(DateUtils.timestampToHoursMins(message.getSendtime()));
         lastMessageTime.setVisibility(VISIBLE);
+    }
+
+    public void setMessageCount(Integer count) {
+        if (count != null && count > 0) {
+            countUnreadView.setVisibility(VISIBLE);
+            countUnreadView.setText(String.valueOf(count));
+        }
+        else
+            countUnreadView.setVisibility(GONE);
     }
 
     public void subscribeToUpdateOnline(int receiverId) {

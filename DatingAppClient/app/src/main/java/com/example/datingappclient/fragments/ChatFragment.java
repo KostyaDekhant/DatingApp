@@ -4,18 +4,26 @@ import static android.content.Context.MODE_PRIVATE;
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 
+import android.content.Context;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.os.Bundle;
+import android.os.Message;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.ViewModelProvider;
@@ -32,12 +40,16 @@ import com.example.datingappclient.model.dto.ChatMemberDTO;
 import com.example.datingappclient.model.dto.MessageDTO;
 import com.example.datingappclient.recyclerViews.messageList.MessagesAdapter;
 import com.example.datingappclient.retrofit.repository.ChatsRepository;
+import com.example.datingappclient.retrofit.repository.MessagesRepository;
+import com.example.datingappclient.retrofit.wrapper.Result;
+import com.example.datingappclient.utils.DateUtils;
 import com.example.datingappclient.utils.ImageUtils;
 import com.example.datingappclient.viewmodels.ChatMembersViewModel;
 import com.example.datingappclient.viewmodels.ChatsViewModel;
 import com.example.datingappclient.viewmodels.DialogViewModel;
 import com.example.datingappclient.viewmodels.OnlineStatusViewModel;
 import com.example.datingappclient.viewmodels.factory.DialogViewModelFactory;
+import com.example.datingappclient.websocket.controllers.MessagesController;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
 
@@ -46,6 +58,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
 import io.reactivex.disposables.Disposable;
@@ -53,13 +66,20 @@ import io.reactivex.disposables.Disposable;
 public class ChatFragment extends Fragment {
     /* === Repository === */
     private ChatsRepository chatsRepository;
+    private MessagesRepository messagesRepository;
+
+    private MessagesController messagesController;
 
     /* === Android Objects === */
     private View activityView;
     private RecyclerView messagesRecyclerView;
     private MessagesAdapter messagesAdapter;
-    private TextView usernameLabel;
+    private TextView usernameLabel, lastOnlineView;
     private ImageView profileImage;
+
+    private ConstraintLayout layout;
+    private ProgressBar progressBar;
+    private ImageView onlineStatusView;
 
     /* === Other === */
     Integer userId;
@@ -84,24 +104,32 @@ public class ChatFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         activityView = inflater.inflate(R.layout.fragment_dialog, container, false);
 
+        layout = activityView.findViewById(R.id.mainContent);
+        progressBar = activityView.findViewById(R.id.progressBar);
+
+        layout.setVisibility(GONE);
+        progressBar.setVisibility(VISIBLE);
+
         setupMessageRecyclerView();
 
         chatsRepository = new ChatsRepository(requireContext());
+        messagesRepository = new MessagesRepository(requireContext());
+
+        messagesController = MessagesController.getInstance();
 
         usernameLabel = activityView.findViewById(R.id.username_label);
+        lastOnlineView = activityView.findViewById(R.id.lastOnlineView);
         profileImage = activityView.findViewById(R.id.profile_image);
-
-        messagesAdapter = new MessagesAdapter(userId, chat.getChatInfo());
-        messagesRecyclerView.setAdapter(messagesAdapter);
-
-        enableAutoScrollOnNewMessage();
-
-        setupChatsViewModel();
-        setupOnlineStatusUpdate();
-        subscribeUpdateChatEvent();
+        onlineStatusView = activityView.findViewById(R.id.statusView);
 
         // Инициализируем ViewModel с кастомной фабрикой
-        dialogViewModel = new ViewModelProvider(this, new DialogViewModelFactory(chat.getId(), userId)).get(DialogViewModel.class);
+        DatingAppApplication app = DatingAppApplication.getInstance();
+        if (app.getDialogViewModel() == null) {
+            dialogViewModel = new ViewModelProvider(this, new DialogViewModelFactory(chat.getId(), userId)).get(DialogViewModel.class);
+            app.setDialogViewModel(dialogViewModel);
+        }
+        else
+            dialogViewModel = app.getDialogViewModel();
 
         renderUsername();
         renderChatImage();
@@ -109,29 +137,144 @@ public class ChatFragment extends Fragment {
         setupSendButton();
         openChatEdit();
 
-        subscribeGetMessage();
-
         return activityView;
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        setupChatsViewModel();
+        setupOnlineStatusUpdate();
+        subscribeUpdateChatEvent();
+
+        getChatUnreadMessages(this::setupMessageAdapter);
+
+        subscribeToGetReadMessages();
+        getPersonalUnreadMessages(this::sendReadMessages);
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        layout.setVisibility(VISIBLE);
+        progressBar.setVisibility(GONE);
+    }
+
+    private void subscribeToGetReadMessages() {
+        String logTag = Constants.GLOBAL_LOG_TAG + "GET READ MESSAGES";
+
+        messagesController.subscribeToReadMessages(chat.getId())
+                .observe(getViewLifecycleOwner(), notification -> {
+                    if (notification == null) return;
+
+                    Log.i(logTag, "Прочитанные сообщения получены успешно");
+
+                    if (messagesAdapter != null) {
+                        messagesAdapter.markMessagesAsRead(notification);
+                    } else {
+                        Log.w(logTag, "messagesAdapter ещё не инициализирован");
+                    }
+                });
+    }
+
+    private void setupMessageAdapter(List<MessageDTO> loaded) {
+        messagesAdapter = new MessagesAdapter(userId, chat.getChatInfo(), loaded);
+        messagesRecyclerView.setAdapter(messagesAdapter);
+
+        enableAutoScrollOnNewMessage();
+        subscribeGetMessage();
+    }
+
+    interface UnreadMessagesCallback {
+        void onLoaded(List<MessageDTO> messages);
+    }
+    private void getPersonalUnreadMessages(UnreadMessagesCallback callback) {
+        String logTag = Constants.GLOBAL_LOG_TAG + "GET UNREAD";
+        messagesRepository.fetchPersonalUnreadMessages(chat.getId(), userId, result -> {
+            switch(result.status) {
+                case SUCCESS:
+                    Log.i(logTag, "Получено " + result.data.size() + " непрочитанных сообщений (мной)!");
+                    callback.onLoaded(result.data);
+                    break;
+                case EMPTY:
+                    Log.i(logTag, "Все сообщения прочитаны (мной)!");
+                    callback.onLoaded(new ArrayList<>());
+                    break;
+                case ERROR:
+                    Log.e(logTag, result.error);
+                    callback.onLoaded(new ArrayList<>());
+                    break;
+            }
+        });
+    }
+
+    private void getChatUnreadMessages(UnreadMessagesCallback callback) {
+        String logTag = Constants.GLOBAL_LOG_TAG + "GET UNREAD";
+        messagesRepository.fetchChatUnreadMessages(chat.getId(), userId, result -> {
+            switch(result.status) {
+                case SUCCESS:
+                    Log.i(logTag, "Получено " + result.data.size() + " непрочитанных сообщений (другими)!");
+                    callback.onLoaded(result.data);
+                    break;
+                case EMPTY:
+                    Log.i(logTag, "Все сообщения прочитаны (другими)!");
+                    callback.onLoaded(new ArrayList<>());
+                    break;
+                case ERROR:
+                    Log.e(logTag, result.error);
+                    callback.onLoaded(new ArrayList<>());
+                    break;
+            }
+        });
     }
 
     private void setupOnlineStatusUpdate() {
         int receiverId = chat.getChatInfo().getPersonalReceiver(userId);
         if (receiverId != 0) {
-            ImageView onlineStatusView = activityView.findViewById(R.id.statusView);
+            // init render
+            renderOnline(receiverId);
+
             DatingAppApplication app = DatingAppApplication.getInstance();
             OnlineStatusViewModel onlineStatusViewModel = app.getOnlineStatusViewModel();
-            onlineStatusViewModel.getOnlineStatuses().observe(getViewLifecycleOwner(), map -> {
-                boolean isOnline = DatingAppApplication.getInstance().getOnlineStatusViewModel().isUserOnline(receiverId);
-                onlineStatusView.setVisibility(isOnline ? VISIBLE : GONE);
-            });
+
+            onlineStatusViewModel.getOnlineStatuses().observe(getViewLifecycleOwner(), map -> renderOnline(receiverId));
         }
+        else lastOnlineView.setVisibility(GONE);
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
         chatsViewModel.unsubscribeUpdateChat(chat.getId());         // Отписываеся от обновлений чата
+        //dialogViewModel.unsubscribeFromChat(chat.getId());
         ChatDTO.selectedChat = null;
+    }
+
+    private void renderOnline(int receiverId) {
+        boolean isOnline = DatingAppApplication.getInstance().getOnlineStatusViewModel().isUserOnline(receiverId);
+        Timestamp lastOnline = DatingAppApplication.getInstance().getOnlineStatusViewModel().getLastOnline(receiverId);
+        onlineStatusView.setVisibility(isOnline ? VISIBLE : GONE);
+
+        lastOnlineView.setVisibility(VISIBLE);
+        if (lastOnline != null) {
+            lastOnlineView.setText("Был(а) в сети: " + DateUtils.formatSmartTime(lastOnline));
+            lastOnlineView.setTextColor(getThemeColor(R.attr.textColorFade));
+        }
+        else {
+            lastOnlineView.setText("в сети");
+            lastOnlineView.setTextColor(getThemeColor(R.attr.textColorContrast));
+        }
+    }
+
+    private int getThemeColor(int textColorFade) {
+        TypedValue typedValue = new TypedValue();
+        Context context = lastOnlineView.getContext();
+        Resources.Theme theme = context.getTheme();
+        // Укажи нужный атрибут, например R.attr.textColorSecondary
+        theme.resolveAttribute(textColorFade, typedValue, true);
+
+        // Получаем цвет из resolved attribute
+        @ColorInt int color = ContextCompat.getColor(context, typedValue.resourceId);
+        return color;
     }
 
     private void subscribeUpdateChatEvent() {
@@ -208,6 +351,31 @@ public class ChatFragment extends Fragment {
         });
     }
 
+    private void sendReadMessage(MessageDTO message) {
+        List<Integer> list = new ArrayList<>();
+        list.add(message.getId());
+
+        messagesAdapter.addUnreadMessage(message.getId());
+
+        messagesController.sendReadMessages(chat.getId(), userId, list, result -> {});
+    }
+
+    private void sendReadMessages(List<MessageDTO> unreadMessages) {
+        if (unreadMessages.isEmpty()) return;
+
+        List<Integer> ids = new ArrayList<>();
+        for (MessageDTO message : unreadMessages) ids.add(message.getId());
+        messagesController.sendReadMessages(chat.getId(), userId, ids, result -> {
+            if (result.status == Result.Status.SUCCESS) {
+                ChatDTO temp = chat.copy();
+                temp.setUnreadCount(0);
+                chatsViewModel.updateOrAddChat(temp);
+            }
+            else Log.e(Constants.GLOBAL_LOG_TAG + "READ MESSAGES", result.error);
+        });
+
+    };
+
     private void setupChatsViewModel() {
         DatingAppApplication app = DatingAppApplication.getInstance();
         chatsViewModel = app.getChatsViewModel();
@@ -217,6 +385,7 @@ public class ChatFragment extends Fragment {
     }
 
     private void openChatEdit() {
+        dialogViewModel.unsubscribeFromChat(chat.getId());
         View field = activityView.findViewById(R.id.userinfo);
         field.setOnClickListener((view -> {
             getParentFragmentManager().beginTransaction().replace(R.id.fragment_container, ChatPropertiesFragment.newInstance(userId, chat))
@@ -225,12 +394,24 @@ public class ChatFragment extends Fragment {
         }));
     }
 
+    private boolean isFirstPartLoad;
+
     private void subscribeGetMessage() {
-        dialogViewModel.getMessages().observe(this.getViewLifecycleOwner(), messages ->
-                messagesAdapter.submitList(new ArrayList<>(messages)));
         dialogViewModel.resetHistoryCache(chat.getId());
-        dialogViewModel.getHistory(chat.getId(), userId);
+        dialogViewModel.getHistory(chat.getId(), userId, getViewLifecycleOwner());
+
+        dialogViewModel.getMessages().observe(this.getViewLifecycleOwner(), messages -> {
+            messagesAdapter.submitList(new ArrayList<>(messages));
+            if (!isFirstPartLoad) {
+                isFirstPartLoad = true;
+                layout.setVisibility(VISIBLE);
+                progressBar.setVisibility(GONE);
+            }
+        });
+
+        dialogViewModel.subscribeToChat(chat.getId(), getViewLifecycleOwner(), this::sendReadMessage);
     }
+
 
     private void enableAutoScrollOnNewMessage() {
         messagesAdapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {

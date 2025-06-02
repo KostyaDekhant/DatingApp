@@ -44,6 +44,19 @@ public class ChatInfoDTO {
         return null; // если не найден
     }
 
+    public ChatInfoDTO(ChatInfoDTO other) {
+        this.createdBy = other.createdBy;
+        this.createdAt = other.createdAt != null ? new Timestamp(other.createdAt.getTime()) : null;
+        this.isGroup = other.isGroup;
+
+        if (other.members != null) {
+            this.members = new java.util.ArrayList<>();
+            for (ChatMemberDTO member : other.members) {
+                this.members.add(new ChatMemberDTO(member));
+            }
+        }
+    }
+
     public int getPersonalReceiver(int senderId) {
         if (isGroup) return 0;
         for (ChatMemberDTO member : members) {
