@@ -58,7 +58,7 @@ public class ChatController {
     @PatchMapping("/group_chats/{chatId}")
     public ResponseEntity<Void> updateChat(@PathVariable("chatId") int chatId,
                                            @RequestBody GroupChatPayloadInfo payloadInfo) {
-        log.info("Обновление чата: {}", payloadInfo.toString());
+        log.info("Обновление чата с id {}, длина фотки: {}",chatId, payloadInfo.getImage().length);
         chatService.updateGroupChat(payloadInfo.getChatId(), payloadInfo.getUserId(), payloadInfo.getName(), payloadInfo.getImage());
         broadcastUpdateChatEvent(payloadInfo.getChatId());
         return ResponseEntity.ok().build();
