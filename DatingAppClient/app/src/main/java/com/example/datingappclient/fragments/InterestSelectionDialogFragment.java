@@ -164,8 +164,7 @@ public class InterestSelectionDialogFragment extends DialogFragment {
 
             for (int i = 0; i < layout.getChildCount(); i++) {
                 View child = layout.getChildAt(i);
-                if (child instanceof CheckBox) {
-                    CheckBox cb = (CheckBox) child;
+                if (child instanceof CheckBox cb) {
                     InterestDTO dto = (InterestDTO) cb.getTag(R.id.TAG_INTEREST_OBJECT);
                     boolean matches = dto.getName().toLowerCase().contains(query);
                     cb.setVisibility(matches ? View.VISIBLE : View.GONE);

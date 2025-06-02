@@ -46,7 +46,7 @@ public class GroupChatMembersFragment extends Fragment {
 
     private UserDTO user;
 
-    private GroupChatMembersFragment() {};
+    private GroupChatMembersFragment() {}
 
     public static GroupChatMembersFragment newInstance(UserDTO user) {
         GroupChatMembersFragment fragment = new GroupChatMembersFragment();

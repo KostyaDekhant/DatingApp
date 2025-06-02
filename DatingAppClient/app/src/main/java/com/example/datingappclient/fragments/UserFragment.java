@@ -81,14 +81,13 @@ public class UserFragment extends Fragment implements View.OnClickListener {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         activityView = inflater.inflate(R.layout.fragment_user, container, false);
-        ImageButton button = activityView.findViewById(R.id.edit_button);
-        button.setOnClickListener(this);
+
+        setupEditButton();
 
         navView = requireActivity().findViewById(R.id.nav_view);
+        profileImage = activityView.findViewById(R.id.profile_image);
 
         setupRepository();
-
-        profileImage = activityView.findViewById(R.id.profile_image);
 
         // если только после авторизации, то запрашиваем инфу о пользователе
         if (isLogin) {
@@ -108,6 +107,11 @@ public class UserFragment extends Fragment implements View.OnClickListener {
         return activityView;
     }
 
+    private void setupEditButton() {
+        ImageButton button = activityView.findViewById(R.id.edit_button);
+        button.setOnClickListener(this);
+    }
+
     private void setupRepository() {
         userRepository = new UserRepository(requireContext());
         imageRepository = new ImageRepository(requireContext());
@@ -121,15 +125,19 @@ public class UserFragment extends Fragment implements View.OnClickListener {
                     user.copyFrom(result.data);
                     Log.i(logTag, user.toString());
                     setUserinfo();
+                    setNavInfo();
 
-                    TextView headerName = navView.findViewById(R.id.nav_header_name);
-                    headerName.setText(user.getName());
                     break;
                 case ERROR:
                     Log.e(logTag, result.error);
                     break;
             }
         }) ;
+    }
+
+    private void setNavInfo() {
+        TextView headerName = navView.findViewById(R.id.nav_header_name);
+        headerName.setText(user.getName());
     }
 
     private void getUserCompanyInfo(int userId) {

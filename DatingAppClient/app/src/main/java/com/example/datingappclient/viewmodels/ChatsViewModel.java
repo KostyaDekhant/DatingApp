@@ -24,7 +24,7 @@ public class ChatsViewModel extends ViewModel {
     private final MutableLiveData<List<ChatDTO>> chats = new MutableLiveData<>();
     private final ChatWebSocketService webSocketService;
 
-    private List<Disposable> updateSubscribes = new ArrayList<>();
+    private final List<Disposable> updateSubscribes = new ArrayList<>();
 
     public ChatsViewModel() {
         this.webSocketService = ChatWebSocketService.getInstance();

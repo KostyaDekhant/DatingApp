@@ -23,7 +23,7 @@ public class DialogViewModel extends ViewModel {
     @Getter
     private final MutableLiveData<List<MessageDTO>> messages = new MutableLiveData<>(new ArrayList<>());
 
-    private int userId;
+    private final int userId;
 
     public DialogViewModel(int chatId, int userId) {
         webSocketService = ChatWebSocketService.getInstance();

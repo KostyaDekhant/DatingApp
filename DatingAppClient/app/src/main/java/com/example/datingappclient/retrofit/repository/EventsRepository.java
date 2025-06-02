@@ -17,7 +17,7 @@ import retrofit2.Response;
 
 public class EventsRepository {
 
-    private EventsController eventsController;
+    private final EventsController eventsController;
 
     public EventsRepository (Context context) {
         eventsController = RetrofitClient.getClient(context).create(EventsController.class);

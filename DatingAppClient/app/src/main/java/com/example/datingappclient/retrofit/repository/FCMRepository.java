@@ -13,7 +13,7 @@ import retrofit2.Response;
 
 public class FCMRepository {
 
-    private FCMController fcmController;
+    private final FCMController fcmController;
 
     public FCMRepository(Context context) {
         fcmController = RetrofitClient.getClient(context).create(FCMController.class);

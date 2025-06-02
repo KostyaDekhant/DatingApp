@@ -1,6 +1,5 @@
 package com.example.datingappclient.fragments;
 
-import static android.content.Context.MODE_PRIVATE;
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 
@@ -8,7 +7,6 @@ import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.os.Bundle;
-import android.os.Message;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
@@ -25,18 +23,14 @@ import androidx.annotation.Nullable;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.datingappclient.DatingAppApplication;
 import com.example.datingappclient.R;
-import com.example.datingappclient.TokenManager;
 import com.example.datingappclient.constants.Constants;
-import com.example.datingappclient.model.AuthResponse;
 import com.example.datingappclient.model.dto.ChatDTO;
-import com.example.datingappclient.model.dto.ChatMemberDTO;
 import com.example.datingappclient.model.dto.MessageDTO;
 import com.example.datingappclient.recyclerViews.messageList.MessagesAdapter;
 import com.example.datingappclient.retrofit.repository.ChatsRepository;
@@ -120,6 +114,8 @@ public class ChatFragment extends Fragment {
         usernameLabel = activityView.findViewById(R.id.username_label);
         lastOnlineView = activityView.findViewById(R.id.lastOnlineView);
         profileImage = activityView.findViewById(R.id.profile_image);
+        profileImage.setTransitionName("profile_photo");
+
         onlineStatusView = activityView.findViewById(R.id.statusView);
 
         // Инициализируем ViewModel с кастомной фабрикой
@@ -135,7 +131,7 @@ public class ChatFragment extends Fragment {
         renderChatImage();
         setupReturnButton();
         setupSendButton();
-        openChatEdit();
+        setupClickOnChat();
 
         return activityView;
     }
@@ -374,7 +370,7 @@ public class ChatFragment extends Fragment {
             else Log.e(Constants.GLOBAL_LOG_TAG + "READ MESSAGES", result.error);
         });
 
-    };
+    }
 
     private void setupChatsViewModel() {
         DatingAppApplication app = DatingAppApplication.getInstance();
@@ -384,14 +380,23 @@ public class ChatFragment extends Fragment {
         app.setChatMembersViewModel(chatMembersViewModel);
     }
 
-    private void openChatEdit() {
+    private void setupClickOnChat() {
         dialogViewModel.unsubscribeFromChat(chat.getId());
         View field = activityView.findViewById(R.id.userinfo);
-        field.setOnClickListener((view -> {
-            getParentFragmentManager().beginTransaction().replace(R.id.fragment_container, ChatPropertiesFragment.newInstance(userId, chat))
-                    .addToBackStack(null)
-                    .commit();
-        }));
+        if (chat.getPartnerId() == null)
+            field.setOnClickListener(view -> openFragment(ChatPropertiesFragment.newInstance(userId, chat)));
+        else
+            field.setOnClickListener(view -> openFragment(ProfileFragment.getInstance(chat.getPartnerId())));
+    }
+
+    private void openFragment(Fragment fragment) {
+        getParentFragmentManager()
+                .beginTransaction()
+                .setReorderingAllowed(true)
+                .addSharedElement(profileImage, "profile_photo")
+                .replace(R.id.fragment_container, fragment)
+                .addToBackStack(null)
+                .commit();
     }
 
     private boolean isFirstPartLoad;

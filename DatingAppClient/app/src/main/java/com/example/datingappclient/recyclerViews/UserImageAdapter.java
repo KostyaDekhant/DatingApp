@@ -7,7 +7,9 @@ import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.viewpager2.widget.ViewPager2;
 
+import com.example.datingappclient.R;
 import com.example.datingappclient.model.UserImage;
 
 import java.util.List;
@@ -34,6 +36,7 @@ public class UserImageAdapter extends RecyclerView.Adapter<UserImageAdapter.View
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         Bitmap image = images.get(position).getImage();
         holder.imageView.setImageBitmap(image);
+        holder.imageView.setTransitionName("profile_photo");
     }
 
     @Override
@@ -41,6 +44,19 @@ public class UserImageAdapter extends RecyclerView.Adapter<UserImageAdapter.View
         if (images == null) return 0;
         return images.size();
     }
+
+    public ImageView getCurrentImageViewFromPager(ViewPager2 viewPager) {
+        RecyclerView recyclerView = (RecyclerView) viewPager.getChildAt(0);
+        int currentPosition = viewPager.getCurrentItem();
+
+        RecyclerView.ViewHolder holder = recyclerView.findViewHolderForAdapterPosition(currentPosition);
+        if (holder instanceof UserImageAdapter.ViewHolder) {
+            return ((UserImageAdapter.ViewHolder) holder).imageView;
+        }
+        return null;
+    }
+
+
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
         ImageView imageView;

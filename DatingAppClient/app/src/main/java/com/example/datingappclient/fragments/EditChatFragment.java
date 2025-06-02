@@ -78,7 +78,7 @@ public class EditChatFragment extends Fragment {
     private Bitmap selectedAvatarBitmap;
     private boolean avatarIsChanged;
 
-    private EditChatFragment() {};
+    private EditChatFragment() {}
 
     public static EditChatFragment newInstance(Integer userId, ChatDTO chat) {
         EditChatFragment fragment = new EditChatFragment();

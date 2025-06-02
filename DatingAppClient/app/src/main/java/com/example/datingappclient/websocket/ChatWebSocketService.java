@@ -33,7 +33,7 @@ import ua.naiksoftware.stomp.StompClient;
 
 public class ChatWebSocketService {
 
-    private StompClient stompClient;
+    private final StompClient stompClient;
     private static ChatWebSocketService webSocketService;
 
     private final MutableLiveData<Integer> deletedChatIdStream = new MutableLiveData<>();

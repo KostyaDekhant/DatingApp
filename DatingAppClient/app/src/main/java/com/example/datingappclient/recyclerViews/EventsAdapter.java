@@ -30,7 +30,7 @@ public class EventsAdapter extends ListAdapter<EventDTO, EventsAdapter.EventView
 
     private int expandedPosition = RecyclerView.NO_POSITION;
     private final OnJoinClickListener listener;
-    private int userId;
+    private final int userId;
 
     public interface OnJoinClickListener {
         void onJoinClick(EventDTO event, OnClickResult callback);

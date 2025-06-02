@@ -1,0 +1,212 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:fitsSystemWindows="true"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <FrameLayout
+        android:id="@+id/mainContent"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@android:color/transparent"
+        android:layout_marginTop="70dp">
+
+        <!-- Изображение пользователя -->
+        <androidx.viewpager2.widget.ViewPager2
+            android:id="@+id/profile_image"
+            android:background="@android:color/transparent"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="horizontal" />
+
+        <!-- Индикаторы изображений -->
+        <com.google.android.material.tabs.TabLayout
+            android:id="@+id/image_indicator"
+            android:layout_width="wrap_content"
+            android:layout_height="?attr/indicatorHeight"
+            android:layout_marginTop="15dp"
+            android:layout_gravity="center_horizontal"
+
+            android:background="@android:color/transparent"
+            app:tabBackground="@drawable/tab_selector"
+            app:tabGravity="center"
+
+            app:tabIndicator="@null"
+            app:tabIndicatorHeight="0dp"
+            app:tabMode="fixed"
+            app:tabRippleColor="@null" />
+
+        <!-- Градиент поверх -->
+        <View
+            android:id="@+id/gradientOverlay"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_gravity="bottom"
+            android:background="@drawable/bottom_gradient"
+            app:layout_anchor="@+id/mainContent"
+            app:layout_anchorGravity="center" />
+    </FrameLayout>
+
+    <!-- BottomSheet -->
+    <androidx.core.widget.NestedScrollView
+        android:id="@+id/bottom_sheet"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/bottom_gradient"
+        app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingVertical="10dp">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+            <!-- Инфа о юзере -->
+            <TextView
+                android:id="@+id/username_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+
+                android:text="ИМЯ ПОЛЬЗОВАТЕЛЯ,"
+                android:textColor="?attr/textColorMainReverse"
+                android:textSize="?attr/textSizeLarge"
+                android:textStyle="bold"
+
+                app:layout_constraintBottom_toTopOf="@+id/interests_container"
+                app:layout_constraintStart_toStartOf="parent" />
+
+            <TextView
+                android:id="@+id/age_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="5dp"
+
+                android:text="ВОЗРАСТ"
+                android:textColor="?attr/textColorMainReverse"
+                android:textSize="?attr/textSizeLarge"
+                android:textStyle="bold"
+
+                app:layout_constraintBottom_toTopOf="@+id/interests_container"
+                app:layout_constraintStart_toEndOf="@+id/username_label" />
+
+            <!-- Баблы -->
+            <com.google.android.flexbox.FlexboxLayout
+                android:id="@+id/interests_container"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="16dp"
+                android:paddingTop="5dp"
+                app:flexWrap="wrap"
+                app:justifyContent="flex_start"
+                app:layout_constraintBottom_toTopOf="@id/description_label"
+                app:layout_constraintStart_toStartOf="parent" />
+
+            <!-- Описание -->
+            <TextView
+                android:id="@+id/description_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginBottom="15dp"
+
+                android:ellipsize="end"
+                android:maxLines="2"
+                android:text="ОПИСАНИЕ"
+
+                android:textColor="?attr/textColorMainReverse"
+                android:textSize="?attr/textSizeMedium"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintHorizontal_bias="0"
+                app:layout_constraintStart_toStartOf="parent" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+            <!-- Заголовок -->
+            <TextView
+                android:id="@+id/usercompany_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:layout_marginStart="16dp"
+                android:text="В КОМПАНИИ"
+                android:textColor="?attr/textColorMainReverse"
+                android:textSize="?attr/textSizeMedium"/>
+
+            <!-- Поле: должность -->
+            <TextView
+                android:id="@+id/role_value"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="16dp"
+                android:text="Должность"
+                android:textColor="?attr/textColorMainReverse"
+                android:textSize="?attr/textSizeSmall" />
+
+            <!-- Компания -->
+            <TextView
+                android:id="@+id/company_value"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="16dp"
+                android:text="Компания"
+                android:textColor="?attr/textColorMainReverse"
+                android:textSize="?attr/textSizeSmall" />
+
+            <!-- Отдел -->
+            <TextView
+                android:id="@+id/department_value"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="16dp"
+                android:text="Отдел"
+                android:textColor="?attr/textColorMainReverse"
+                android:textSize="?attr/textSizeSmall" />
+
+            <!-- Офис -->
+            <TextView
+                android:id="@+id/office_value"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="16dp"
+                android:text="Офис"
+                android:textColor="?attr/textColorMainReverse"
+                android:textSize="?attr/textSizeSmall" />
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
+
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="70dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:background="@drawable/border_bottom"
+        app:title="Вернуться"
+        app:titleTextColor="?attr/textColorMain"
+        android:paddingVertical="10dp"
+        app:navigationIcon="@drawable/return_arrow" />
+
+    <ProgressBar
+        android:id="@+id/progressBar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:visibility="gone"/>
+
+
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

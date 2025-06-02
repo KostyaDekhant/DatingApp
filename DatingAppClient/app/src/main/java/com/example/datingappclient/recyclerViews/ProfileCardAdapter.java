@@ -132,7 +132,7 @@ public class ProfileCardAdapter extends RecyclerView.Adapter<ProfileCardAdapter.
         List<UserImage> images;
         List<UserInterestDTO> interests;
 
-        private View view;
+        private final View view;
 
         ViewHolder(@NonNull View itemView) {
             super(itemView);

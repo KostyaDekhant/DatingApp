@@ -62,7 +62,7 @@ public class EditChatMembersFragment extends Fragment {
     private Integer userId, chatId;
     private List<ChatMemberDTO> chatMembers;
 
-    private EditChatMembersFragment() {};
+    private EditChatMembersFragment() {}
 
     public static EditChatMembersFragment newInstance(Integer userId,Integer chatId, List<ChatMemberDTO> chatMembers) {
         EditChatMembersFragment fragment = new EditChatMembersFragment();

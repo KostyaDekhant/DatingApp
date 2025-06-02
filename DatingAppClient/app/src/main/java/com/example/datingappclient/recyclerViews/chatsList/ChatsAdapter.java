@@ -82,7 +82,6 @@ public class ChatsAdapter extends ListAdapter<ChatDTO, ChatsHolder> {
         // Устновить непрочитанные, если есть
         holder.setMessageCount(chat.getUnreadCount());
 
-
         // Подписка на ивент удаления чата
         viewModel.subscribeToDeleteChat(chat.getId());
 
@@ -225,7 +224,7 @@ public class ChatsAdapter extends ListAdapter<ChatDTO, ChatsHolder> {
             boolean same = oldItem.equals(newItem);
             if (!same) {
                 Log.d("DIFF_UTIL", "Чат " + oldItem.getId() + " изменён! Обновляем...");
-                Log.d("DIFF_UTIL_CONTENT", oldItem.toString() + "\n" + newItem.toString() + "\n" + oldItem.equals(newItem));
+                Log.d("DIFF_UTIL_CONTENT", oldItem + "\n" + newItem + "\n" + oldItem.equals(newItem));
             }
             return oldItem.equals(newItem); // должен быть переопределён equals
         }

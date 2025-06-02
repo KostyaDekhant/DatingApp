@@ -16,7 +16,7 @@ import retrofit2.Response;
 
 public class MessagesRepository {
 
-    private MessagesController messagesController;
+    private final MessagesController messagesController;
 
     public MessagesRepository(Context context) {
         messagesController = RetrofitClient.getClient(context).create(MessagesController.class);

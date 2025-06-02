@@ -75,10 +75,10 @@ public class CreateGroupChatFragment extends Fragment {
 
     private ChatsViewModel chatsViewModel;
 
-    private Disposable disposableCreate = null;
+    private final Disposable disposableCreate = null;
 
 
-    private CreateGroupChatFragment() {};
+    private CreateGroupChatFragment() {}
 
     public static CreateGroupChatFragment newInstance(UserDTO user, List<ChatMemberDTO> chatMembers) {
         CreateGroupChatFragment fragment = new CreateGroupChatFragment();
