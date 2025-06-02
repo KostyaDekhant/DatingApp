@@ -138,6 +138,10 @@ public class SubscriptionManager {
         String topic = "/topic/" + userId + "/history/" + chatId;
 
         if (historyStreams.containsKey(chatId)) {
+            List<MessageDTO> cached = historyCache.get(chatId);
+            if (cached != null && !cached.isEmpty()) {
+                historyStreams.get(chatId).postValue(new ArrayList<>(cached));
+            }
             return historyStreams.get(chatId);
         }
 
