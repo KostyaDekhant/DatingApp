@@ -186,9 +186,14 @@ public class ChatService {
             GroupChatDto groupChatDto = new GroupChatDto();
             groupChatDto.setPkGroupChat((((Number) chatInfo[0]).intValue()));
             groupChatDto.setName((String) chatInfo[1]);
-            groupChatDto.setPartnerId(chatInfo[2] == null ? null : (Integer) chatInfo[2]);
-            if(chatInfo[3] != null) {
-                Message lastMessage = messRepo.getMessageByPkMessage((Integer) chatInfo[3]);
+            int index = 2;
+            log.info("Длина ответа chatInfo  " + chatInfo.length);
+            if(chatInfo.length == 5) {
+                groupChatDto.setPartnerId(chatInfo[index] == null ? null : (Integer) chatInfo[index]);
+                index++;
+            }
+            if(chatInfo[index] != null) {
+                Message lastMessage = messRepo.getMessageByPkMessage((Integer) chatInfo[index]);
                 MessageDTO lastMessageDTO = new MessageDTO(lastMessage);
                 groupChatDto.setLastMessage(lastMessageDTO);
             }
