@@ -187,7 +187,6 @@ public class ChatService {
             groupChatDto.setPkGroupChat((((Number) chatInfo[0]).intValue()));
             groupChatDto.setName((String) chatInfo[1]);
             int index = 2;
-            log.info("Длина ответа chatInfo  " + chatInfo.length);
             if(chatInfo.length == 5) {
                 groupChatDto.setPartnerId(chatInfo[index] == null ? null : (Integer) chatInfo[index]);
                 index++;
