@@ -63,7 +63,7 @@ public class AuthChannelInterceptor implements ChannelInterceptor {
                         user.setIsOnline(true);
                         userRepo.save(user);
                         log.info("user " + auth.getName() + " is online");
-                        OnlineStatusService.sendOnlineStatus(user.getPkUser(), true);
+                        OnlineStatusService.sendOnlineStatus(user.getPkUser(), true, null);
                         log.info("WebSocket CONNECT authenticated as '{}'", auth.getName());
                     } catch (Exception e) {
                         log.warn("WebSocket CONNECT failed to authenticate: {}", e.getMessage());

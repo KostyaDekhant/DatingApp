@@ -7,6 +7,7 @@ import com.datingapp.datingapp.entity.UserDTO;
 import com.datingapp.datingapp.exception.UserCompanyInfoNotExistsException;
 import com.datingapp.datingapp.exception.UserExceptionsWithCode;
 import com.datingapp.datingapp.exception.UserNotExistsExceptions;
+import com.datingapp.datingapp.services.OnlineStatusService;
 import com.datingapp.datingapp.services.PasswordService;
 import com.datingapp.datingapp.services.UserService;
 import lombok.RequiredArgsConstructor;
@@ -18,6 +19,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -89,8 +91,17 @@ public class UserController {
     }
 
     @GetMapping("/users/online")
-    public List<Integer> getOnlineUsers() {
-        return userService.findWhoIsOnline();
-
+    public List<OnlineStatusService.OnlineStatus> getOnlineUsers() {
+        List<OnlineStatusService.OnlineStatus> onlineUsers = new ArrayList<>();
+        List<Integer> onlineList = userService.findWhoIsOnline();
+        for (Integer i : onlineList) {
+            onlineUsers.add(new OnlineStatusService.OnlineStatus(i, true, null));
+        }
+        List<Integer> offlineList = userService.findWhoIsOffline();
+        for (Integer i : offlineList) {
+            onlineUsers.add(new OnlineStatusService.OnlineStatus(i, false, userService.getUserById(i).getLastOnline()));
+        }
+        return onlineUsers;
     }
+
 }

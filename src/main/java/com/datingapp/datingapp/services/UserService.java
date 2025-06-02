@@ -18,6 +18,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.stereotype.Service;
 
+import java.sql.Timestamp;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -213,4 +214,25 @@ public class UserService {
                 .map(User::getPkUser)
                 .collect(Collectors.toList());
     }
+
+    public List<Integer> findWhoIsOffline() {
+        return userRepo.findAllByIsOnlineFalse()
+                .stream()
+                .map(User::getPkUser)
+                .collect(Collectors.toList());
+    }
+//
+//    @Transactional
+//    public Timestamp setLastOnline(int userId) throws UserNotExistsExceptions {
+//        try {
+//            Timestamp timestamp = new Timestamp(System.currentTimeMillis());
+//            User user = userRepo.findById(userId).get();
+//            user.setLastOnline(timestamp);
+//            userRepo.save(user);
+//            return timestamp;
+//        }
+//        catch(Exception e){
+//            throw new UserNotExistsExceptions("Ошибка при установке времени онлайна: "+ e.getMessage());
+//        }
+//    }
 }
