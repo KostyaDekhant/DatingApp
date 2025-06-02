@@ -197,7 +197,7 @@ public class ChatPropertiesFragment extends Fragment {
 
         AppCompatActivity activity = (AppCompatActivity) requireActivity();
         activity.setSupportActionBar(toolbar);
-        activity.getSupportActionBar().setDisplayShowTitleEnabled(false);
+//        activity.getSupportActionBar().setDisplayShowTitleEnabled(false);
 
         toolbar.setNavigationOnClickListener(view -> getParentFragmentManager().popBackStack());
 

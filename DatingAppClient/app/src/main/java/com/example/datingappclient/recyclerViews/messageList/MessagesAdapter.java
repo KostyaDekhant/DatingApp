@@ -11,6 +11,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.ListAdapter;
 
@@ -66,6 +67,16 @@ public class MessagesAdapter extends ListAdapter<MessageDTO, MessagesHolder> {
 
         // Установить текст
         holder.textMessage.setText(message.getMessage());
+        // Получаем layout params и задаем отступы
+        /*ConstraintLayout.LayoutParams params = (ConstraintLayout.LayoutParams) holder.textMessage.getLayoutParams();
+        if (getItemViewType(position) == VIEW_TYPE_SENT) {
+            params.setMargins(10, 0, 0, 0);
+        }
+        else {
+            params.setMargins(0, 0, 10, 0);
+        }
+        holder.textMessage.setLayoutParams(params);
+        holder.textMessage.requestLayout();*/
 
         // Установить время
         if (message.getSendtime() != null) {

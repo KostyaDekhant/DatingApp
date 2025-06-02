@@ -13,9 +13,10 @@
         <androidx.appcompat.widget.Toolbar
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize"
-            android:background="?attr/colorOnPrimary"
-            app:title=""
+            android:layout_height="70dp"
+            android:padding="10dp"
+            android:background="?attr/textColorMainReverse"
+            app:title="Свойства чата"
             app:navigationIcon="@drawable/return_arrow" />
 
 
