@@ -97,6 +97,18 @@ public class ChatPropertiesFragment extends Fragment {
         adapter = new ChatMembersAdapter(requireContext(), userId,  chat.getId());
         adapter.setUserIsOwner(userId.equals(chat.getChatInfo().getCreatedBy()));
 
+        adapter.setMemberClickListener(member -> {
+            Fragment profileFragment = ProfileFragment.getInstance(member.getId());
+
+            requireActivity()
+                    .getSupportFragmentManager()
+                    .beginTransaction()
+                    .setReorderingAllowed(true)
+                    .replace(R.id.fragment_container, profileFragment)
+                    .addToBackStack(null)
+                    .commit();
+        });
+
         RecyclerView recyclerView = activityView.findViewById(R.id.usersRecyclerView);
         recyclerView.setAdapter(adapter);
 

@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:fitsSystemWindows="true"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
     <FrameLayout
         android:id="@+id/mainContent"
+        android:fitsSystemWindows="true"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="@android:color/transparent"
@@ -190,10 +190,10 @@
 
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbar"
+
         android:layout_width="match_parent"
         android:layout_height="70dp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
+        android:layout_gravity="top"
         android:background="@drawable/border_bottom"
         app:title="Вернуться"
         app:titleTextColor="?attr/textColorMain"
@@ -206,7 +206,6 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:visibility="gone"/>
-
 
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

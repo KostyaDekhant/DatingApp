@@ -24,6 +24,8 @@ import com.example.datingappclient.recyclerViews.ChatMembersAdapter;
 import com.example.datingappclient.retrofit.repository.ChatsRepository;
 import com.example.datingappclient.viewmodels.ChatMembersViewModel;
 
+import java.util.Objects;
+
 public class ContactsFragment extends Fragment {
 
     /* === Repository === */
@@ -70,6 +72,18 @@ public class ContactsFragment extends Fragment {
 
             contacts.getChatMembers().observe(getViewLifecycleOwner(), membersAdapter::submitList);
         }
+        membersAdapter.setMemberClickListener(member -> {
+            Fragment profileFragment = Objects.equals(member.getId(), userId) ? UserFragment.getInstance() : ProfileFragment.getInstance(member.getId());
+
+            requireActivity()
+                    .getSupportFragmentManager()
+                    .beginTransaction()
+                    .setReorderingAllowed(true)
+                    .replace(R.id.fragment_container, profileFragment)
+                    .addToBackStack(null)
+                    .commit();
+        });
+
 
         return activityView;
     }

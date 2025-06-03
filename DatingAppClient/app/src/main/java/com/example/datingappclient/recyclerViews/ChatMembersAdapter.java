@@ -20,6 +20,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
+import androidx.fragment.app.Fragment;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.ListAdapter;
@@ -28,10 +29,15 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.datingappclient.DatingAppApplication;
 import com.example.datingappclient.R;
 import com.example.datingappclient.constants.Constants;
+import com.example.datingappclient.fragments.ChatPropertiesFragment;
+import com.example.datingappclient.fragments.ProfileFragment;
+import com.example.datingappclient.model.UserImage;
 import com.example.datingappclient.model.dto.ChatDTO;
 import com.example.datingappclient.model.dto.ChatInfoDTO;
 import com.example.datingappclient.model.dto.ChatMemberDTO;
 import com.example.datingappclient.retrofit.repository.ChatsRepository;
+import com.example.datingappclient.retrofit.repository.ImageRepository;
+import com.example.datingappclient.retrofit.wrapper.Result;
 import com.example.datingappclient.utils.ImageUtils;
 import com.example.datingappclient.viewmodels.OnlineStatusViewModel;
 
@@ -66,6 +72,13 @@ public class ChatMembersAdapter extends ListAdapter<ChatMemberDTO, ChatMembersAd
     @Setter
     private boolean userIsOwner;
 
+    public interface OnMemberClickListener {
+        void onMemberClick(ChatMemberDTO member);
+    }
+
+    @Setter
+    private OnMemberClickListener memberClickListener;
+
     public ChatMembersAdapter(Context context, int userId, int chatId) {
         super(DIFF_CALLBACK);
         this.context = context;
@@ -90,10 +103,7 @@ public class ChatMembersAdapter extends ListAdapter<ChatMemberDTO, ChatMembersAd
         //holder.statusTextView.setText(chatMemberDTO.get());
 
         // аватар
-        if (chatMemberDTO.getImage() != null) {
-            Bitmap bmp = ImageUtils.convertPrimitiveByteToBitmap(chatMemberDTO.getImage());
-            holder.avatarImageView.setImageBitmap(ImageUtils.getCroppedBitmap(bmp));
-        }
+        holder.setMemberImage(chatMemberDTO.getId());
 
         // метка владельца
         if (chatMemberDTO.isChatOwner()) holder.ownerTextView.setVisibility(VISIBLE);
@@ -126,8 +136,15 @@ public class ChatMembersAdapter extends ListAdapter<ChatMemberDTO, ChatMembersAd
             });
         }
 
-        if (!isEditMembers())
+        if (!isEditMembers()) {
             holder.statusOnline(chatMemberDTO.getId());
+
+            holder.itemView.setOnClickListener(v -> {
+                if (memberClickListener != null) {
+                    memberClickListener.onMemberClick(chatMemberDTO);
+                }
+            });
+        }
 
     }
 
@@ -250,6 +267,20 @@ public class ChatMembersAdapter extends ListAdapter<ChatMemberDTO, ChatMembersAd
         public void statusOnline(int userId) {
             boolean isOnline = DatingAppApplication.getInstance().getOnlineStatusViewModel().isUserOnline(userId);
             statusView.setVisibility(isOnline ? VISIBLE : GONE);
+        }
+
+
+        public void setMemberImage(int memberId) {
+            ImageRepository imageRepository = new ImageRepository(DatingAppApplication.getInstance().getApplicationContext());
+            imageRepository.fetchUserImages(memberId, 1, result -> {
+                if (result.status == Result.Status.SUCCESS) {
+                    List<UserImage> image = ImageUtils.objectListToUserImageList(result.data);
+                    if (!image.isEmpty()) {
+                        avatarImageView.setImageBitmap(ImageUtils.getCroppedBitmap(image.get(0).getImage()));
+                        avatarImageView.setPadding(0,0,0,0);
+                    }
+                }
+            });
         }
     }
 

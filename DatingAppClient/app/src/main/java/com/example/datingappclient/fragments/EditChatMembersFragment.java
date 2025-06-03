@@ -173,7 +173,8 @@ public class EditChatMembersFragment extends Fragment {
             switch (result.status) {
                 case SUCCESS:
                     Log.i(logTag, "В чат " + chatId + "добавлены пользователи " + adapter.getSelectedUserIds());
-                    requireActivity().finish();
+                    getParentFragmentManager().popBackStack();
+                    //requireActivity().finish();
                     break;
                 case ERROR:
                     Toast.makeText(requireContext(), "Ошибка добавления пользователей!", Toast.LENGTH_LONG).show();

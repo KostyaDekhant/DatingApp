@@ -41,6 +41,25 @@ public class ImageRepository {
         });
     }
 
+    // Получение изображений пользователя (с лимитом)
+    public void fetchUserImages(int userID, int limit, ResultCallback<List<Object[]>> callback) {
+        imageController.getUserImages(userID, limit).enqueue(new Callback<>() {
+            @Override
+            public void onResponse(Call<List<Object[]>> call, Response<List<Object[]>> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    callback.onResult(Result.success(response.body()));
+                } else {
+                    callback.onResult(Result.empty());
+                }
+            }
+
+            @Override
+            public void onFailure(Call<List<Object[]>> call, Throwable throwable) {
+                callback.onResult(Result.error("Ошибка сети или ошибка обработки данных:  " + throwable.getMessage()));
+            }
+        });
+    }
+
     // Загрузка изображения
     public void uploadImage(PictureDTO picture, ResultCallback<Integer> callback) {
         imageController.uploadImage(picture.getUserId(), picture).enqueue(new Callback<>() {
