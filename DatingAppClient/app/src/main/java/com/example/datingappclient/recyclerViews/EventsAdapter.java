@@ -113,7 +113,7 @@ public class EventsAdapter extends ListAdapter<EventDTO, EventsAdapter.EventView
     }
 
     static class EventViewHolder extends RecyclerView.ViewHolder {
-        TextView eventTitle, eventTime, eventDescription, countMembers, fullDescription;
+        TextView eventTitle, eventTime, eventDescription, countMembers, fullDescription, eventLocation;
         LinearLayout membersList, cardRoot;
         MaterialButton joinButton;
 
@@ -122,6 +122,7 @@ public class EventsAdapter extends ListAdapter<EventDTO, EventsAdapter.EventView
         public EventViewHolder(@NonNull View itemView) {
             super(itemView);
             eventTitle = itemView.findViewById(R.id.eventTitle);
+            eventLocation = itemView.findViewById(R.id.eventLocation);
             eventTime = itemView.findViewById(R.id.eventTime);
             eventDescription = itemView.findViewById(R.id.eventDescription);
             countMembers = itemView.findViewById(R.id.countMembers);
@@ -134,7 +135,14 @@ public class EventsAdapter extends ListAdapter<EventDTO, EventsAdapter.EventView
 
         public void bind(EventDTO event, boolean isExpanded, int userId) {
             this.event = event;
+
+            // Title
             eventTitle.setText(event.getTitle());
+
+            // Location
+            String location = event.getLocation().isEmpty() ? "" : "Локация: " + event.getLocation();
+            eventLocation.setText(location);
+
             // Format time
             if (event.getStartTime() == null && event.getEndTime() == null)
                 eventTime.setText("Время не задано");
@@ -142,7 +150,8 @@ public class EventsAdapter extends ListAdapter<EventDTO, EventsAdapter.EventView
                 eventTime.setText(DateUtils.formatTime(event.getStartTime()));
             else
                 eventTime.setText(DateUtils.formatTimeRange(event.getStartTime(), event.getEndTime()));
-            //
+
+            // Description
             eventDescription.setText(event.getDescription());
             fullDescription.setText(event.getDescription());
 
@@ -180,7 +189,9 @@ public class EventsAdapter extends ListAdapter<EventDTO, EventsAdapter.EventView
         }
 
         public void updateCountMembers() {
-            countMembers.setText("Участников: " + event.getMembers().size());
+            String countMembersText = "Участников: " + event.getMembers().size();
+            if (event.getCapacity() != null) countMembersText += " из " + event.getCapacity();
+            countMembers.setText(countMembersText);
             membersList.removeAllViews();
 
             for (EventMemberDTO member : event.getMembers()) {

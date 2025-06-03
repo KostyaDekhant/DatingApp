@@ -61,9 +61,24 @@
                 />
 
             <TextView
+                android:id="@+id/eventLocation"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:text="Location"
+                android:textSize="?attr/textSizeMedium"
+                app:layout_constraintEnd_toStartOf="@id/countMembers"
+                app:layout_constraintHorizontal_bias="0.0"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/fullDescription" />
+
+            <TextView
                 android:id="@+id/countMembers"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
                 android:text="Count members"
                 android:textSize="?attr/textSizeMedium"
                 app:layout_constraintBottom_toTopOf="@id/joinEventButton"
@@ -89,7 +104,7 @@
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
                 android:visibility="gone"
-                app:layout_constraintTop_toBottomOf="@id/fullDescription"
+                app:layout_constraintTop_toBottomOf="@id/eventLocation"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 android:layout_marginTop="4dp"
