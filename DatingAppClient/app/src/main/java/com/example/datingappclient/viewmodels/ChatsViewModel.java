@@ -95,7 +95,7 @@ public class ChatsViewModel extends ViewModel {
         // Потом добавим остальные, кроме обновлённого
         for (ChatDTO c : currentList) {
             if (!Objects.equals(c.getId(), chat.getId())) {
-                newList.add(c.copy());
+                newList.add(c);
             } else {
                 updated = true;
             }
