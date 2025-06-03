@@ -15,7 +15,7 @@
             android:layout_width="match_parent"
             android:layout_height="70dp"
             android:padding="10dp"
-            android:background="?attr/textColorMainReverse"
+            android:background="@drawable/border_bottom"
             app:title="Свойства чата"
             app:navigationIcon="@drawable/return_arrow" />
 

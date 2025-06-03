@@ -4,6 +4,8 @@ import static com.example.datingappclient.retrofit.RetrofitClient.getHTTPClient;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 
 import com.example.datingappclient.DatingAppApplication;
@@ -43,6 +45,7 @@ public class StompClientService {
     private boolean reconnectPaused = false;
 
     private StompClientService() {
+        Log.d("STOMP SINGLETON", "КОНСТРУКТОР ВЫЗВАН");
         initClient();
         reconnect();
         subscribeLifecycle();
@@ -63,9 +66,19 @@ public class StompClientService {
         client.disconnect();
     }
 
+    private boolean lifecycleSubscribed = false;
     @SuppressLint("CheckResult")
     private void subscribeLifecycle() {
         String logTag = Constants.GLOBAL_LOG_TAG + "STOMP LIFECYCLE";
+
+        if (lifecycleSubscribed) {
+            Log.w(logTag, "subscribeLifecycle() — повторный вызов проигнорирован!");
+            return;
+        }
+        lifecycleSubscribed = true;
+
+        Log.d(logTag, "subscribeLifecycle() — подписываюсь впервые!");
+
         // Отслеживание состояния соединения
         client.lifecycle()
                 .subscribeOn(Schedulers.io())
@@ -74,6 +87,7 @@ public class StompClientService {
                     switch (event.getType()) {
                         case OPENED:
                             Log.d(logTag, "Соединение открыто");
+                            isConnecting = false;
                             reconnectAttempts = 0; // сброс после успешного соединения
                             if (subscriptionManager != null) {
                                 subscriptionManager.resubscribeAll();
@@ -93,6 +107,7 @@ public class StompClientService {
                             break;
                         case CLOSED:
                             Log.d(logTag, "Соединение закрыто");
+                            isConnecting = false;
                             if (!forceDisconnect) {
                                 Log.d(logTag, "Попытка переподключения");
                                 reconnect();
@@ -119,27 +134,33 @@ public class StompClientService {
         client = new StompClient(connectionProvider);
     }
 
+    private boolean isConnecting = false;
+
     private void reconnect() {
+        if (client.isConnected() || isConnecting) {
+            Log.w(Constants.GLOBAL_LOG_TAG + "STOMP RECONNECT", "Клиент уже подключен или идёт подключение — попытка проигнорирована");
+            return;
+        }
+
         if (reconnectPaused) {
             Log.w(Constants.GLOBAL_LOG_TAG + "STOMP RECONNECT", "Пауза реконнекта активна — попытка проигнорирована");
             return;
         }
 
         if (reconnectAttempts >= MAX_RECONNECT_ATTEMPTS) {
-            Log.w(Constants.GLOBAL_LOG_TAG + "STOMP RECONNECT", "Превышено количество попыток — таймаут 1 минута");
             reconnectPaused = true;
             reconnectAttempts = 0;
 
-            new android.os.Handler(android.os.Looper.getMainLooper()).postDelayed(() -> {
+            new Handler(Looper.getMainLooper()).postDelayed(() -> {
                 reconnectPaused = false;
-                Log.i(Constants.GLOBAL_LOG_TAG + "STOMP RECONNECT", "Таймаут окончен — разрешаем реконнекты");
-                reconnect(); // можно попытаться снова
+                reconnect();
             }, RECONNECT_DELAY_MS);
-
             return;
         }
 
         reconnectAttempts++;
+        isConnecting = true;
+
         Log.i(Constants.GLOBAL_LOG_TAG + "STOMP RECONNECT", "Попытка реконнекта #" + reconnectAttempts);
         List<StompHeader> headers = List.of(new StompHeader("Authorization", "Bearer " + tokenManager.getAccessToken()));
         client.connect(headers);

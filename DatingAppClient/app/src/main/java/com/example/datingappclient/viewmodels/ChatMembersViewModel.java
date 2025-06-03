@@ -25,4 +25,8 @@ public class ChatMembersViewModel extends ViewModel {
         newList.addAll(members.getValue());
         members.setValue(newList);
     }
+
+    public void clear() {
+        members.setValue(new ArrayList<>());
+    }
 }

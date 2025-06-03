@@ -7,6 +7,8 @@ import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
@@ -43,6 +45,8 @@ import com.example.datingappclient.viewmodels.ChatsViewModel;
 import com.example.datingappclient.viewmodels.DialogViewModel;
 import com.example.datingappclient.viewmodels.OnlineStatusViewModel;
 import com.example.datingappclient.viewmodels.factory.DialogViewModelFactory;
+import com.example.datingappclient.websocket.StompClientService;
+import com.example.datingappclient.websocket.SubscriptionManager;
 import com.example.datingappclient.websocket.controllers.MessagesController;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
@@ -145,7 +149,10 @@ public class ChatFragment extends Fragment {
         getChatUnreadMessages(this::setupMessageAdapter);
 
         subscribeToGetReadMessages();
-        getPersonalUnreadMessages(this::sendReadMessages);
+        //getPersonalUnreadMessages(this::sendReadMessages);
+        chatsViewModel.getUnreadMessages(chat.getId(), userId).observe(getViewLifecycleOwner(), messages -> {
+            sendReadMessages(messages);
+        });
     }
 
     @Override
@@ -155,10 +162,17 @@ public class ChatFragment extends Fragment {
         progressBar.setVisibility(GONE);
     }
 
+    @Override
+    public void onStart() {
+        super.onStart();
+    }
+
     private void subscribeToGetReadMessages() {
         String logTag = Constants.GLOBAL_LOG_TAG + "GET READ MESSAGES";
-
-        messagesController.subscribeToReadMessages(chat.getId())
+        StompClientService
+                .getInstance()
+                .getSubscriptionManager()
+                .subscribeToReadMessages(chat.getId())
                 .observe(getViewLifecycleOwner(), notification -> {
                     if (notification == null) return;
 
@@ -169,7 +183,7 @@ public class ChatFragment extends Fragment {
                     } else {
                         Log.w(logTag, "messagesAdapter ещё не инициализирован");
                     }
-                });
+                });;
     }
 
     private void setupMessageAdapter(List<MessageDTO> loaded) {
@@ -241,7 +255,7 @@ public class ChatFragment extends Fragment {
     public void onDestroy() {
         super.onDestroy();
         chatsViewModel.unsubscribeUpdateChat(chat.getId());         // Отписываеся от обновлений чата
-        //dialogViewModel.unsubscribeFromChat(chat.getId());
+        dialogViewModel.clear();
         ChatDTO.selectedChat = null;
     }
 
@@ -352,7 +366,6 @@ public class ChatFragment extends Fragment {
         list.add(message.getId());
 
         messagesAdapter.addUnreadMessage(message.getId());
-
         messagesController.sendReadMessages(chat.getId(), userId, list, result -> {});
     }
 
@@ -402,10 +415,10 @@ public class ChatFragment extends Fragment {
     private boolean isFirstPartLoad;
 
     private void subscribeGetMessage() {
-        dialogViewModel.resetHistoryCache(chat.getId());
-        dialogViewModel.getHistory(chat.getId(), userId, getViewLifecycleOwner());
+        dialogViewModel.subscribeToHistory(chat.getId(), userId, getViewLifecycleOwner());
 
-        dialogViewModel.getMessages().observe(this.getViewLifecycleOwner(), messages -> {
+        dialogViewModel.getMessages().observe(getViewLifecycleOwner(), messages -> {
+            Log.d(Constants.GLOBAL_LOG_TAG + "CHAT FRAGMENT", "Observe get new messages! Count: " + messages.size() );
             messagesAdapter.submitList(new ArrayList<>(messages));
             if (!isFirstPartLoad) {
                 isFirstPartLoad = true;

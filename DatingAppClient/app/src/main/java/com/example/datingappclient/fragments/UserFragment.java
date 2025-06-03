@@ -137,7 +137,7 @@ public class UserFragment extends Fragment implements View.OnClickListener {
 
     private void setNavInfo() {
         TextView headerName = navView.findViewById(R.id.nav_header_name);
-        headerName.setText(user.getName());
+        if (headerName != null) headerName.setText(user.getName());
     }
 
     private void getUserCompanyInfo(int userId) {

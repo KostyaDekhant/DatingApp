@@ -1,7 +1,5 @@
 package com.example.datingappclient.viewmodels;
 
-import android.os.Handler;
-import android.os.Looper;
 import android.util.Log;
 
 import androidx.lifecycle.LifecycleOwner;
@@ -39,17 +37,12 @@ public class DialogViewModel extends ViewModel {
         webSocketService.sendMessage(message);
     }
 
-    public void resetHistoryCache(int chatId) {
-        messages.setValue(webSocketService.getCacheHistory(chatId));
-    }
 
-    public void getHistory(int chatId, int userId, LifecycleOwner lifecycleOwner) {
+    public void subscribeToHistory(int chatId, int userId, LifecycleOwner lifecycleOwner) {
         webSocketService.subscribeHistory(chatId, userId).observe(lifecycleOwner, history -> {
             Log.i(Constants.GLOBAL_LOG_TAG + "HISTORY IN DVM", "Кол-во сообщений в истории: " + history.size());
             messages.setValue(new ArrayList<>(history));
         });
-        //
-        // new Handler(Looper.getMainLooper()).postDelayed(() -> webSocketService.triggerHistoryRequest(chatId, userId), 150);
     }
 
     public interface OnMessage {
@@ -69,5 +62,9 @@ public class DialogViewModel extends ViewModel {
 
     public void unsubscribeFromChat(int chatId) {
         webSocketService.unsubscribeFromChat(chatId);
+    }
+
+    public void clear() {
+        messages.setValue(new ArrayList<>());
     }
 }

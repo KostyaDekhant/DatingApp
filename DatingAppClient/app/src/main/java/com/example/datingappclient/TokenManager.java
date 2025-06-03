@@ -54,6 +54,10 @@ public class TokenManager {
         return sharedPreferences.getInt(KEY_USER_ID, 0);
     }
 
+    public boolean isValid() {
+        return getAccessToken() != null && getRefreshToken() != null && getUserId() != 0;
+    }
+
     public void clearTokens() {
         Log.d("TOKEN_MANAGER", "Удаляем токены" );
         sharedPreferences.edit()

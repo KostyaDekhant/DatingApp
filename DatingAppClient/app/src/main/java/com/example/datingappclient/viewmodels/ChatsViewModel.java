@@ -13,6 +13,7 @@ import com.example.datingappclient.model.dto.MessageDTO;
 import com.example.datingappclient.retrofit.wrapper.Result;
 import com.example.datingappclient.retrofit.wrapper.ResultCallback;
 import com.example.datingappclient.websocket.ChatWebSocketService;
+import com.example.datingappclient.websocket.StompClientService;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,6 +30,10 @@ public class ChatsViewModel extends ViewModel {
     public ChatsViewModel() {
         this.webSocketService = ChatWebSocketService.getInstance();
         initSubscriptions();
+    }
+
+    public void clear() {
+        chats.setValue(new ArrayList<>());
     }
 
     private void initSubscriptions() {
@@ -81,12 +86,41 @@ public class ChatsViewModel extends ViewModel {
         List<ChatDTO> currentList = chats.getValue();
         if (currentList == null) currentList = new ArrayList<>();
 
+        List<ChatDTO> newList = new ArrayList<>();
+        boolean updated = false;
+
+        // Сначала добавим обновлённый чат в начало
+        newList.add(chat.copy());
+
+        // Потом добавим остальные, кроме обновлённого
+        for (ChatDTO c : currentList) {
+            if (!Objects.equals(c.getId(), chat.getId())) {
+                newList.add(c.copy());
+            } else {
+                updated = true;
+            }
+        }
+
+        if (updated) {
+            Log.d(logTag, "Обновлён и перемещён чат " + chat.getId());
+        } else {
+            Log.d(logTag, "Новый чат добавлен! " + chat.getId());
+        }
+
+        chats.setValue(newList);
+    }
+
+    /*public void updateOrAddChat(ChatDTO chat) {
+        String logTag = Constants.GLOBAL_LOG_TAG + "UPDATE/ADD CHAT";
+        List<ChatDTO> currentList = chats.getValue();
+        if (currentList == null) currentList = new ArrayList<>();
+
         List<ChatDTO> newList = new ArrayList<>(currentList);
         boolean updated = false;
 
         for (int i = 0; i < newList.size(); i++) {
             if (Objects.equals(newList.get(i).getId(), chat.getId())) {
-                newList.set(i, chat);
+                newList.set(i, chat.copy());
                 updated = true;
                 break;
             }
@@ -99,7 +133,53 @@ public class ChatsViewModel extends ViewModel {
             Log.d(logTag, "Обновлен существующий чат " + chat.getId());
         }
 
-        chats.setValue(newList); // триггер для submitList
+        chats.setValue(newList);
+    }*/
+
+    public void moveChatToTop(ChatDTO updatedChat) {
+        List<ChatDTO> currentList = chats.getValue();
+        if (currentList == null) return;
+
+        List<ChatDTO> newList = new ArrayList<>();
+        boolean found = false;
+
+        for (ChatDTO chat : currentList) {
+            if (Objects.equals(chat.getId(), updatedChat.getId())) {
+                if (!found) {
+                    newList.add(updatedChat.copy());
+                    found = true;
+                }
+            } else {
+                newList.add(chat.copy());
+            }
+        }
+
+        if (!found) {
+            newList.add(0, updatedChat.copy());
+        }
+
+        chats.setValue(newList);
+    }
+
+    public void moveChatToTop(int chatId) {
+        List<ChatDTO> currentList = chats.getValue();
+        if (currentList == null) return;
+
+        List<ChatDTO> tempList = new ArrayList<>(currentList);
+        int index = -1;
+
+        for (int i = 0; i < tempList.size(); i++) {
+            if (tempList.get(i).getId() == chatId) {
+                index = i;
+                break;
+            }
+        }
+
+        if (index >= 0) {
+            ChatDTO chat = tempList.remove(index);
+            tempList.add(0, chat);
+            setChats(tempList); // обновляем адаптер
+        }
     }
 
     /**
@@ -176,5 +256,12 @@ public class ChatsViewModel extends ViewModel {
         webSocketService.unsubscribeFromChat(chatId);
         webSocketService.unsubscribeFromChatUpdatedEvents(chatId);
         webSocketService.unsubscribeFromChatDeletedEvents(chatId);
+    }
+
+    public LiveData<List<MessageDTO>> getUnreadMessages(int chatId, int userId) {
+        return StompClientService
+                .getInstance()
+                .getSubscriptionManager()
+                .getPersonalUnreadMessages(chatId, userId);
     }
 }

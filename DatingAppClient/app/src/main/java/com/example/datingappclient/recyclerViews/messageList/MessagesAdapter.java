@@ -67,16 +67,6 @@ public class MessagesAdapter extends ListAdapter<MessageDTO, MessagesHolder> {
 
         // Установить текст
         holder.textMessage.setText(message.getMessage());
-        // Получаем layout params и задаем отступы
-        /*ConstraintLayout.LayoutParams params = (ConstraintLayout.LayoutParams) holder.textMessage.getLayoutParams();
-        if (getItemViewType(position) == VIEW_TYPE_SENT) {
-            params.setMargins(10, 0, 0, 0);
-        }
-        else {
-            params.setMargins(0, 0, 10, 0);
-        }
-        holder.textMessage.setLayoutParams(params);
-        holder.textMessage.requestLayout();*/
 
         // Установить время
         if (message.getSendtime() != null) {
@@ -110,17 +100,24 @@ public class MessagesAdapter extends ListAdapter<MessageDTO, MessagesHolder> {
     }
 
     public void markMessagesAsRead(ReadMessageNotification notification) {
-        Log.d(Constants.GLOBAL_LOG_TAG + "NOTIF IN MESADAP", notification.toString());
+        String logTag = Constants.GLOBAL_LOG_TAG + "NOTIF IN MESADAP";
+        Log.d(logTag, notification.toString());
         if (notification.getUserId() == senderID) return;
+
+        Log.d(logTag, "Прочитано не пользователем. Пытаюсь найти сообщение в адаптере");
         List<Integer> readMessageIds = notification.getMessageIds();
         boolean changed = false;
         for (Integer id : readMessageIds) {
             if (unreadMessageIds.remove(id)) {
+                Log.d(logTag, "Прочитано не пользователем. Нашел и удалил из Set'а непрочитанных");
                 int index = findIndexById(id);
                 if (index != -1) {
+                    Log.d(logTag, "Прочитано не пользователем. Нашел в адаптере, обновляю");
                     notifyItemChanged(index);
                     changed = true;
                 }
+                else
+                    Log.e(logTag, "Прочитано не пользователем. Не нашел в адаптере, ошибка обновления");
             }
         }
     }

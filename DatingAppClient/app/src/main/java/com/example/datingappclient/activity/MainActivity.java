@@ -50,6 +50,8 @@ import com.example.datingappclient.utils.ImageUtils;
 import com.example.datingappclient.viewmodels.ChatMembersViewModel;
 import com.example.datingappclient.viewmodels.ChatsViewModel;
 import com.example.datingappclient.viewmodels.OnlineStatusViewModel;
+import com.example.datingappclient.websocket.StompClientService;
+import com.example.datingappclient.websocket.SubscriptionManager;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.messaging.FirebaseMessaging;
@@ -87,8 +89,11 @@ public class MainActivity extends AppCompatActivity {
 
         // init socket connect
         DatingAppApplication app = (DatingAppApplication) getApplication();
+        app.connect();
+
         ChatsViewModel chatsViewModel = new ViewModelProvider(this).get(ChatsViewModel.class);
         app.setChatsViewModel(chatsViewModel);
+
 
         // get FCM token
         getFCMtoken();
@@ -291,7 +296,18 @@ public class MainActivity extends AppCompatActivity {
             if (result.status == Result.Status.SUCCESS) {
                 Log.i(logTag, "Success");
                 tokenManager.clearTokens();
+
+                StompClientService.getInstance().getSubscriptionManager()
+                        .clearAll();
+                StompClientService.getInstance().getSubscriptionManager()
+                        .clearLiveData();
+
                 DatingAppApplication.getInstance().disconnect();
+
+                DatingAppApplication.getInstance().clear();
+
+                DatingAppApplication.isActive = false;
+
                 Intent intent = new Intent(MainActivity.this, AuthActivity.class);
                 intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK); // очистить стек
                 startActivity(intent);

@@ -9,6 +9,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.lifecycle.LifecycleOwner;
+import androidx.lifecycle.Observer;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.datingappclient.DatingAppApplication;
@@ -115,5 +117,47 @@ public class ChatsHolder extends RecyclerView.ViewHolder {
     public void subscribeToUpdateOnline(int receiverId) {
         boolean isOnline = DatingAppApplication.getInstance().getOnlineStatusViewModel().isUserOnline(receiverId);
         statusView.setVisibility(isOnline ? VISIBLE : GONE);
+    }
+
+    public Observer<MessageDTO> messageObserver;
+
+    public void subscribeToGetMessage(ChatDTO chat, int senderId, ChatsViewModel viewModel, LifecycleOwner lifecycleOwner) {
+        String logTag = Constants.GLOBAL_LOG_TAG + "GET MESSAGE IN HOLDER";
+        boolean isGroup = chat.getChatInfo() == null || chat.getChatInfo().getIsGroup();
+
+        // старая версия - переделал под Observer, чтобы в при одном и том же бинде не использовать тот же .observe()
+        /*viewModel.getMessageStream(chat.getId())
+                .observe(lifecycleOwner, message -> {
+                    if (chat.getLastMessage() != null && chat.getLastMessage().getId() == message.getId()) {
+                        return; // дубликат
+                    }
+                    Log.d(logTag, message.toString() + "\n" + chat.getUnreadCount() + " непрочитанных сообщений в чате!");
+
+                    if (message.getSenderId() != senderId) chat.setUnreadCount(chat.getUnreadCount() + 1);
+                    chat.setLastMessage(message);
+                    //viewModel.updateOrAddChat(chat);
+
+                    setMessageCount(chat.getUnreadCount());
+                    setLastMessage(message, isGroup, senderId);
+                    //moveChatToTop(temp.getId());
+                });
+        */
+
+        /*messageObserver = message -> {
+            if (chat.getLastMessage() != null && chat.getLastMessage().getId() == message.getId()) {
+                return; // дубликат
+            }
+            Log.d(logTag, message.toString() + "\n" + chat.getUnreadCount() + " непрочитанных сообщений в чате (уже)! Добавляю еще одно");
+
+            if (message.getSenderId() != senderId) chat.setUnreadCount(chat.getUnreadCount() + 1);
+            chat.setLastMessage(message);
+            //viewModel.updateOrAddChat(chat);
+
+            setMessageCount(chat.getUnreadCount());
+            setLastMessage(message, isGroup, senderId);
+            //moveChatToTop(temp.getId());
+        };
+
+        viewModel.getMessageStream(chat.getId()).observe(lifecycleOwner, messageObserver);*/
     }
 }

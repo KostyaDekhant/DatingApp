@@ -8,7 +8,9 @@ import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
+import com.example.datingappclient.DatingAppApplication;
 import com.example.datingappclient.model.dto.OnlineStatusDTO;
+import com.example.datingappclient.websocket.StompClientService;
 import com.example.datingappclient.websocket.controllers.OnlineStatusController;
 
 import java.sql.Timestamp;
@@ -47,7 +49,8 @@ public class OnlineStatusViewModel extends AndroidViewModel {
 
     public Boolean isUserOnline(int userId) {
         Map<Integer, OnlineStatusDTO> map = onlineStatusMap.getValue();
-        return map != null && map.containsKey(userId) && map.get(userId).isOnline();
+        return  userId == DatingAppApplication.getTokenManager().getUserId() ||
+                map != null && map.containsKey(userId) && map.get(userId).isOnline();
     }
 
     public Timestamp getLastOnline(int userId) {
@@ -59,7 +62,7 @@ public class OnlineStatusViewModel extends AndroidViewModel {
     }
 
     public void subscribeToUpdateOnlineStatus() {
-        onlineStatusController.subscribeToUpdateOnlineStatus(result -> {
+        /*onlineStatusController.subscribeToUpdateOnlineStatus(result -> {
             switch (result.status) {
                 case SUCCESS:
                     setOnlineStatus(result.data);
@@ -68,6 +71,10 @@ public class OnlineStatusViewModel extends AndroidViewModel {
                     // TODO: логирование или уведомление
                     break;
             }
-        });
+        });*/
+        StompClientService
+                .getInstance()
+                .getSubscriptionManager()
+                .subscribeToOnlineStatusUpdates(this::setOnlineStatus);
     }
 }

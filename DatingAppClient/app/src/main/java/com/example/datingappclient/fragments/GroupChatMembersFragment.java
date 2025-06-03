@@ -149,9 +149,7 @@ public class GroupChatMembersFragment extends Fragment {
 
     private void setupToolbar() {
         Toolbar toolbar = activityView.findViewById(R.id.toolbar);
-        toolbar.setNavigationOnClickListener(v -> {
-            getParentFragmentManager().popBackStack();
-        });
+        toolbar.setNavigationOnClickListener(v -> getParentFragmentManager().popBackStack());
     }
 
     private void animUnderlineEdit() {

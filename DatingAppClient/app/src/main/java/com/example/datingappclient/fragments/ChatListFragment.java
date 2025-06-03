@@ -12,6 +12,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
@@ -37,6 +38,10 @@ import com.example.datingappclient.viewmodels.ChatsViewModel;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Objects;
+import java.util.Set;
 
 public class ChatListFragment extends Fragment {
 
@@ -84,24 +89,28 @@ public class ChatListFragment extends Fragment {
         // require recyclerView &  chatsAdapter
         enableAutoScrollOnChatMoved();
 
-        initChats();
-
         return activityView;
     }
 
     @Override
-    public void onDestroyView() {
-        super.onDestroyView();
+    public void onStart() {
+        super.onStart();
+        initChats();
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (!isChatsLoading)
+            hideProgressBar();
     }
 
     private void setupCreateChatButton() {
         FloatingActionButton fabCreateChat = activityView.findViewById(R.id.createChat);
-        fabCreateChat.setOnClickListener(v -> {
-            getParentFragmentManager().beginTransaction()
-                    .replace(R.id.fragment_container, GroupChatMembersFragment.newInstance(user))
-                    .addToBackStack(null)
-                    .commit();
-        });
+        fabCreateChat.setOnClickListener(v -> getParentFragmentManager().beginTransaction()
+                .replace(R.id.fragment_container, GroupChatMembersFragment.newInstance(user))
+                .addToBackStack(null)
+                .commit());
     }
 
     private void setupRecyclerView() {
@@ -127,6 +136,8 @@ public class ChatListFragment extends Fragment {
         return ((LinearLayoutManager) recyclerView.getLayoutManager()).findFirstVisibleItemPosition() == 0;
     }
 
+    private final Set<Integer> subscribedChatIds = new HashSet<>();
+
     private void setupViewModel() {
         DatingAppApplication app = (DatingAppApplication) requireActivity().getApplication();
 
@@ -140,23 +151,54 @@ public class ChatListFragment extends Fragment {
 
         chatsAdapter = new ChatsAdapter((chat1, view) -> startChatActivity(chat1), chatsViewModel, user.getId(), requireContext(), getViewLifecycleOwner());
         chatsAdapter.observeOnlineStatus();
+
         recyclerView.setAdapter(chatsAdapter);
 
-        LinearLayoutManager layoutManager = (LinearLayoutManager) recyclerView.getLayoutManager();
+        subscribeToGetChats();
+        subscribeToCreateChat();
+    }
 
+    private void subscribeToGetChats() {
+        LinearLayoutManager layoutManager = (LinearLayoutManager) recyclerView.getLayoutManager();
         chatsViewModel.getChats().observe(getViewLifecycleOwner(), chatList -> {
+            Log.d("chat1", chatsAdapter.getCurrentList().toString());
+            Log.d("chat1", chatList.toString());
             if (layoutManager.findFirstVisibleItemPosition() == 0) {
                 chatsAdapter.submitList(chatList, () -> recyclerView.scrollToPosition(0));
             } else {
                 chatsAdapter.submitList(chatList);
             }
+            subscribeToChats(chatList);
         });
+    }
 
+    private void subscribeToCreateChat() {
+        TextView emptyList = activityView.findViewById(R.id.noChats_label);
         chatsViewModel.subscribeToCreateChat(user.getId(), result -> {
-           if (result.status == Result.Status.SUCCESS) {
-               getUserChat(result.data, chat -> chatsViewModel.updateOrAddChat(chat));
-           }
+            if (result.status == Result.Status.SUCCESS) {
+                getUserChat(result.data, chat -> {
+                    chatsViewModel.updateOrAddChat(chat);
+                    emptyList.setVisibility(GONE);
+                });
+            }
         });
+    }
+
+    private void subscribeToChats(List<ChatDTO> chatList) {
+        for (ChatDTO chat : chatList) {
+            if (subscribedChatIds.contains(chat.getId())) continue;
+
+            subscribedChatIds.add(chat.getId());
+            chatsViewModel.getMessageStream(chat.getId())
+                    .observe(getViewLifecycleOwner(), message -> {
+                        ChatDTO temp = chat.copy();
+                        if (message.getSenderId() != user.getId()) {
+                            temp.setUnreadCount(temp.getUnreadCount() + 1);
+                        }
+                        temp.setLastMessage(message);
+                        chatsViewModel.updateOrAddChat(temp);
+                    });
+        }
     }
 
     public interface ChatCallback {
@@ -172,6 +214,7 @@ public class ChatListFragment extends Fragment {
                     break;
                 case ERROR:
                     Log.e(logTag, result.error);
+                    callback.onLoaded(null);
                     break;
             }
         });
@@ -203,22 +246,30 @@ public class ChatListFragment extends Fragment {
                     offset += limit;
                     // Если получили кол-во чатов = limit, то запрашиваем еще раз
                     chatsViewModel.addChats(new ArrayList<>(result.data));
-                    if (!isFirstPartLoad) {
-                        progressBar.setVisibility(GONE);
-                        layout.setVisibility(VISIBLE);
-                        isFirstPartLoad = true;
-                    }
                     if (result.data.size() == limit) getUserChats();
                     else isChatsLoading = false;
                     break;
                 case EMPTY:
                     Log.i(logTag, "Чаты для пользователя " + user.getId() + " отсутствуют! offset=" + offset );
+                    isChatsLoading = false;
                     break;
                 case ERROR:
                     Log.e(logTag, result.error);
+                    isChatsLoading = false;
                     break;
             }
+            hideProgressBar();
+
         });
+    }
+
+    private void hideProgressBar() {
+        progressBar.setVisibility(GONE);
+        layout.setVisibility(VISIBLE);
+        if (chatsViewModel.getChats().getValue() != null && chatsViewModel.getChats().getValue().isEmpty()) {
+            TextView emptyList = activityView.findViewById(R.id.noChats_label);
+            emptyList.setVisibility(VISIBLE);
+        }
     }
 
     public final ActivityResultLauncher<Intent> chatLauncher =

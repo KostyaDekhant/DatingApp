@@ -40,7 +40,6 @@ public class ChatsAdapter extends ListAdapter<ChatDTO, ChatsHolder> {
     private final LifecycleOwner lifecycleOwner;
     private final Context context;
     private final OnlineStatusViewModel onlineStatusViewModel;
-    private final MessagesController messagesController = MessagesController.getInstance();
 
     public ChatsAdapter(ChatsAdapter.OnChatClickListener listener, ChatsViewModel viewModel, int senderId, Context context, LifecycleOwner owner) {
         super(DIFF_CALLBACK);
@@ -109,33 +108,6 @@ public class ChatsAdapter extends ListAdapter<ChatDTO, ChatsHolder> {
                     }
                 });*/
 
-        // Подписка на LiveData для сообщений этого чата
-        String logTag = Constants.GLOBAL_LOG_TAG + "GET MESSAGE IN HOLDER";
-        //boolean isGroup = chat.getChatInfo() == null || chat.getChatInfo().getIsGroup();
-        viewModel.getMessageStream(chat.getId())
-                .observe(lifecycleOwner, message -> {
-                    if (chat.getLastMessage() != null && chat.getLastMessage().getId() == message.getId()) {
-                        return; // дубликат
-                    }
-                    Log.d(logTag, message.toString() + "\n" + chat.getUnreadCount() + " непрочитанных сообщений в чате!");
-                    ChatDTO temp = chat.copy();
-                    if (message.getSenderId() != senderId) temp.setUnreadCount(chat.getUnreadCount() + 1);
-                    temp.setLastMessage(message);
-                    viewModel.updateOrAddChat(temp);
-
-                    holder.setMessageCount(temp.getUnreadCount());
-                    holder.setLastMessage(message, isGroup, senderId);
-                    //moveChatToTop(temp.getId());
-                });
-    }
-
-    @Override
-    public void onViewAttachedToWindow(@NonNull ChatsHolder holder) {
-        super.onViewAttachedToWindow(holder);
-        /*ChatDTO chat = getItem(holder.getAdapterPosition());
-        if (chat != null)*/
-
-
     }
 
     public void observeOnlineStatus() {
@@ -150,23 +122,7 @@ public class ChatsAdapter extends ListAdapter<ChatDTO, ChatsHolder> {
         });
     }
 
-    public void moveChatToTop(int chatId) {
-        List<ChatDTO> currentList = new ArrayList<>(getCurrentList());
-        int index = -1;
 
-        for (int i = 0; i < currentList.size(); i++) {
-            if (currentList.get(i).getId() == chatId) {
-                index = i;
-                break;
-            }
-        }
-
-        if (index >= 0) {
-            ChatDTO chat = currentList.remove(index);
-            currentList.add(0, chat);
-            submitList(currentList); // обновляем адаптер
-        }
-    }
 
     @Override
     public void onViewRecycled(@NonNull ChatsHolder holder) {
@@ -213,16 +169,16 @@ public class ChatsAdapter extends ListAdapter<ChatDTO, ChatsHolder> {
     private static final DiffUtil.ItemCallback<ChatDTO> DIFF_CALLBACK = new DiffUtil.ItemCallback<>() {
         @Override
         public boolean areItemsTheSame(@NonNull ChatDTO oldItem, @NonNull ChatDTO newItem) {
-            //Log.d("EQUALS_ITEMS", oldItem.toString() + "\n" + newItem.toString() + "\n" + oldItem.equals(newItem));
-            return Objects.equals(oldItem.getId(), newItem.getId());
+            boolean same = Objects.equals(oldItem.getId(), newItem.getId());
+            if (!same || oldItem.getId() == 27 || newItem.getId() == 27) Log.d("EQUALS_ITEMS", oldItem.toString() + "\n" + newItem.toString() + "\n" + oldItem.equals(newItem));
+            return same;
         }
 
-        @SuppressLint("DiffUtilEquals")
         @Override
         public boolean areContentsTheSame(@NonNull ChatDTO oldItem, @NonNull ChatDTO newItem) {
             //return false;
             boolean same = oldItem.equals(newItem);
-            if (!same) {
+            if (!same || oldItem.getId() == 27 || newItem.getId() == 27) {
                 Log.d("DIFF_UTIL", "Чат " + oldItem.getId() + " изменён! Обновляем...");
                 Log.d("DIFF_UTIL_CONTENT", oldItem + "\n" + newItem + "\n" + oldItem.equals(newItem));
             }

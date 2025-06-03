@@ -10,9 +10,9 @@
         android:layout_height="wrap_content"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        android:background="?attr/colorOnPrimary"
+        android:background="@drawable/border_bottom"
         android:title="Мероприятия"
-        android:titleTextColor="?attr/textColorMainReverse"
+        android:titleTextColor="?attr/textColorMain"
         android:navigationIcon="@drawable/return_arrow"
         />
 

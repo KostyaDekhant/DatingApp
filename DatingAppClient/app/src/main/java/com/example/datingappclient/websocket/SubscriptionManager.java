@@ -1,5 +1,9 @@
 package com.example.datingappclient.websocket;
 
+import static com.example.datingappclient.retrofit.wrapper.Result.Status.EMPTY;
+import static com.example.datingappclient.retrofit.wrapper.Result.Status.ERROR;
+import static com.example.datingappclient.retrofit.wrapper.Result.Status.SUCCESS;
+
 import android.annotation.SuppressLint;
 import android.os.Handler;
 import android.os.Looper;
@@ -9,11 +13,19 @@ import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
+import com.example.datingappclient.DatingAppApplication;
 import com.example.datingappclient.constants.Constants;
+import com.example.datingappclient.fragments.ChatFragment;
+import com.example.datingappclient.model.ReadMessageNotification;
+import com.example.datingappclient.model.dto.ChatDTO;
 import com.example.datingappclient.model.dto.HistoryDTO;
 import com.example.datingappclient.model.dto.MessageDTO;
+import com.example.datingappclient.model.dto.OnlineStatusDTO;
+import com.example.datingappclient.retrofit.repository.MessagesRepository;
 import com.example.datingappclient.retrofit.wrapper.Result;
 import com.example.datingappclient.retrofit.wrapper.ResultCallback;
+import com.example.datingappclient.viewmodels.ChatsViewModel;
+import com.example.datingappclient.websocket.controllers.MessagesController;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -79,13 +91,48 @@ public class SubscriptionManager {
         Log.d(logTag, "Все подписки удалены");
     }
 
+    public void clearLiveData() {
+        historyCache.clear();
+        historyOffsets.clear();
+        historyStreams.clear();
+
+        messageStreams.clear();
+
+        personalUnreadMessagesStreams.clear();
+        readMessageStreams.clear();
+    }
+
     public void resubscribeAll() {
         Log.d(logTag, "Восстанавливаю подписки");
         Map<String, Consumer<String>> handlersCopy = new HashMap<>(handlers);
         clearAll();
-        for (Map.Entry<String, Consumer<String>> entry : handlersCopy.entrySet()) {
-            subscribe(entry.getKey(), entry.getValue());
+
+        // Дополнительно: если пользователь находится в активном чате, восстановить важные подписки
+        if (ChatDTO.selectedChat != null) {
+            int chatId = ChatDTO.selectedChat.getId();
+            int userId = DatingAppApplication.getTokenManager().getUserId(); // Или другой способ получить userId
+
+            historyCache.remove(chatId);
+            historyOffsets.put(chatId, 0);
+            subscribeToChatHistory(chatId, userId);
+            fetchUnreadMessages(chatId, DatingAppApplication.getTokenManager().getUserId());
+
+            subscribeToChatMessages(chatId);
+            subscribeToReadMessages(chatId);
         }
+
+        new Handler(Looper.getMainLooper()).postDelayed(() -> {
+            for (Map.Entry<String, Consumer<String>> entry : handlersCopy.entrySet()) {
+                subscribe(entry.getKey(), entry.getValue());
+            }
+        }, 250);
+    }
+
+    public void resubscribeTopic(String topic) {
+        Log.d(logTag, "Восстанавливаю подписку");
+        if (subscriptions.get(topic) != null) subscriptions.get(topic).dispose();
+        subscriptions.remove(topic);
+        subscribe(topic, handlers.getOrDefault(topic, (cosumne) -> {}));;
     }
 
     // ===== Специальная подписка для сообщений чата =====
@@ -132,8 +179,6 @@ public class SubscriptionManager {
     private final Map<Integer, MutableLiveData<List<MessageDTO>>> historyStreams = new HashMap<>();
     private final Map<Integer, List<MessageDTO>> historyCache = new HashMap<>();
     private final Map<Integer, Integer> historyOffsets = new HashMap<>();
-    private final Map<Integer, Integer> userIdsForHistory = new HashMap<>();
-
     public LiveData<List<MessageDTO>> subscribeToChatHistory(int chatId, int userId) {
         String topic = "/topic/" + userId + "/history/" + chatId;
 
@@ -142,12 +187,13 @@ public class SubscriptionManager {
             if (cached != null && !cached.isEmpty()) {
                 historyStreams.get(chatId).postValue(new ArrayList<>(cached));
             }
-            return historyStreams.get(chatId);
+        }
+        else {
+            MutableLiveData<List<MessageDTO>> liveData = new MutableLiveData<>();
+            historyStreams.put(chatId, liveData);
         }
 
-        MutableLiveData<List<MessageDTO>> liveData = new MutableLiveData<>();
-        historyStreams.put(chatId, liveData);
-        userIdsForHistory.put(chatId, userId);
+        MutableLiveData<List<MessageDTO>> liveData = historyStreams.get(chatId);
 
         subscribe(topic, payload -> {
             try {
@@ -159,16 +205,17 @@ public class SubscriptionManager {
 
                 List<MessageDTO> chatHistory = historyCache.getOrDefault(chatId, new ArrayList<>());
                 int currentOffset = historyOffsets.getOrDefault(chatId, chatHistory.size());
+                int nextOffset = currentOffset + messages.size();
 
                 chatHistory.addAll(0, messages);
                 historyCache.put(chatId, chatHistory);
-                liveData.postValue(new ArrayList<>(chatHistory));
-                historyOffsets.put(chatId, currentOffset + messages.size());
+                historyOffsets.put(chatId, nextOffset);
 
-                if (messages.size() == Constants.MESSAGE_LIMIT) {
-                    sendHistoryRequest(chatId, userId, currentOffset + messages.size());
+                if (!messages.isEmpty() && messages.size() == Constants.MESSAGE_LIMIT) {
+                    sendHistoryRequest(chatId, userId, nextOffset);
                 }
 
+                liveData.postValue(chatHistory);
             } catch (Exception e) {
                 Log.e(logTag, "Ошибка при разборе истории", e);
             }
@@ -176,7 +223,6 @@ public class SubscriptionManager {
 
         // Сразу отправим триггер после подписки
         int currentOffset = historyOffsets.getOrDefault(chatId, 0);
-        //sendHistoryRequest(chatId, userId, currentOffset);
         new Handler(Looper.getMainLooper()).postDelayed(() -> sendHistoryRequest(chatId, userId, currentOffset), 150);
 
         return liveData;
@@ -184,6 +230,18 @@ public class SubscriptionManager {
 
     @SuppressLint("CheckResult")
     private void sendHistoryRequest(int chatId, int userId, int offset) {
+        String logTag = Constants.GLOBAL_LOG_TAG + "STOMP CHAT HISTORY";
+        String jsonParams = getHistoryParams(logTag, offset, userId);
+        client.send("/app/history/" + chatId, jsonParams)
+                .subscribe(
+                        () -> Log.d(logTag, "Запрос истории со смещением: " + offset),
+                        throwable -> Log.e(logTag, "Ошибка запроса истории", throwable)
+                );
+    }
+
+    @SuppressLint("CheckResult")
+    public void sendHistoryRequest(int chatId, int userId) {
+        int offset = historyOffsets.getOrDefault(chatId, 0);
         String logTag = Constants.GLOBAL_LOG_TAG + "STOMP CHAT HISTORY";
         String jsonParams = getHistoryParams(logTag, offset, userId);
         client.send("/app/history/" + chatId, jsonParams)
@@ -270,4 +328,95 @@ public class SubscriptionManager {
         return disposable;
     }
 
+    // ===== Специальная подписка на уведомления о прочтении сообщений =====
+
+    private final Map<Integer, MutableLiveData<ReadMessageNotification>> readMessageStreams = new HashMap<>();
+    public LiveData<ReadMessageNotification> subscribeToReadMessages(int chatId) {
+        String topic = "/topic/group_chats/" + chatId + "/read";
+
+        if (readMessageStreams.containsKey(chatId)) {
+            return readMessageStreams.get(chatId);
+        }
+
+        MutableLiveData<ReadMessageNotification> liveData = new MutableLiveData<>();
+        readMessageStreams.put(chatId, liveData);
+
+        subscribe(topic, payload -> {
+            try {
+                ReadMessageNotification notification = objectMapper.readValue(
+                        payload,
+                        new TypeReference<ReadMessageNotification>() {}
+                );
+                Log.i(Constants.GLOBAL_LOG_TAG + "READ MESSAGE", "Прочитано: " + notification);
+                liveData.postValue(notification);
+            } catch (Exception e) {
+                Log.e(Constants.GLOBAL_LOG_TAG + "READ MESSAGE", "Ошибка разбора прочтения", e);
+            }
+        });
+
+        return liveData;
+    }
+
+    // ===== Подписка на обновление онлайн-статуса =====
+    public void subscribeToOnlineStatusUpdates(@NonNull Consumer<OnlineStatusDTO> onUpdate) {
+        String topic = "/topic/online";
+        String logTag = Constants.GLOBAL_LOG_TAG + "STOMP ONLINE STATUS";
+
+        subscribe(topic, payload -> {
+            try {
+                OnlineStatusDTO status = objectMapper.readValue(payload, new TypeReference<OnlineStatusDTO>() {});
+                Log.i(logTag, "Статус обновлён: " + status);
+                onUpdate.accept(status);
+            } catch (Exception e) {
+                Log.e(logTag, "Ошибка при обновлении статуса", e);
+            }
+        });
+    }
+
+    // Временное решение
+    private final Map<Integer, MutableLiveData<List<MessageDTO>>> personalUnreadMessagesStreams = new HashMap<>();
+    public LiveData<List<MessageDTO>> getPersonalUnreadMessages(int chatId, int userId) {
+        if (!personalUnreadMessagesStreams.containsKey(chatId)) {
+            MutableLiveData<List<MessageDTO>> liveData = new MutableLiveData<>();
+            personalUnreadMessagesStreams.put(chatId, liveData);
+            //return personalUnreadMessagesStreams.get(chatId);
+        }
+
+        MutableLiveData<List<MessageDTO>> liveData = personalUnreadMessagesStreams.get(chatId);
+        //personalUnreadMessagesStreams.put(chatId, liveData);
+
+        // Сразу загружаем
+        fetchUnreadMessages(chatId, userId);
+
+        return liveData;
+    }
+
+    private void fetchUnreadMessages(int chatId, int userId) {
+        String logTag = Constants.GLOBAL_LOG_TAG + "GET UNREAD";
+        MessagesRepository messagesRepository = new MessagesRepository(
+                DatingAppApplication.getInstance().getApplicationContext()
+        );
+
+        messagesRepository.fetchPersonalUnreadMessages(chatId, userId, result -> {
+            List<MessageDTO> resultList = new ArrayList<>();
+
+            switch (result.status) {
+                case SUCCESS:
+                    Log.i(logTag, "Получено " + result.data.size() + " непрочитанных сообщений (мной)!");
+                    resultList = result.data;
+                    break;
+                case EMPTY:
+                    Log.i(logTag, "Все сообщения прочитаны (мной)!");
+                    break;
+                case ERROR:
+                    Log.e(logTag, result.error);
+                    break;
+            }
+
+            MutableLiveData<List<MessageDTO>> liveData = personalUnreadMessagesStreams.get(chatId);
+            if (liveData != null) {
+                liveData.postValue(resultList);
+            }
+        });
+    }
 }

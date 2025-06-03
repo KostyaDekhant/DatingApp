@@ -15,10 +15,10 @@
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-            android:background="?attr/colorOnPrimary"
+            android:background="@drawable/border_bottom"
             android:elevation="4dp"
             app:navigationIcon="@drawable/return_arrow"
-            app:popupTheme="@style/ThemeOverlay.AppCompat.Light" />
+            app:title="Выбрать участников" />
 
         <LinearLayout
             android:layout_width="wrap_content"

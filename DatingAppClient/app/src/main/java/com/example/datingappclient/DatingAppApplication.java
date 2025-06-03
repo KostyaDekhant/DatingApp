@@ -31,7 +31,10 @@ public class DatingAppApplication extends Application {
     private ChatMembersViewModel chatMembersViewModel;
     private ChatMembersViewModel contactsViewModel;
     private OnlineStatusViewModel onlineStatusViewModel;
+
     private DialogViewModel dialogViewModel;
+
+    public static boolean isActive;
 
     // Кеш интересов и категорий
     private List<CategoryDTO> cachedCategories;
@@ -74,8 +77,7 @@ public class DatingAppApplication extends Application {
             @Override
             public void onAppForegrounded() {
                 Log.d(logTag, "Приложение на переднем плане");
-                if (chatsViewModel != null)
-                    connect();
+                if (tokenManager.isValid()) connect();
             }
 
             @Override
@@ -84,5 +86,11 @@ public class DatingAppApplication extends Application {
                 disconnect();
             }
         });
+    }
+
+    public void clear() {
+        if (chatsViewModel != null) contactsViewModel.clear();
+        if (chatsViewModel != null) chatsViewModel.clear();
+        if (dialogViewModel != null) dialogViewModel.clear();
     }
 }
