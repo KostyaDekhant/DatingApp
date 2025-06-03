@@ -6,19 +6,26 @@ import static android.view.View.VISIBLE;
 import android.annotation.SuppressLint;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.InputFilter;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Interpolator;
 import android.widget.FrameLayout;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 
+import com.example.datingappclient.DatingAppApplication;
 import com.example.datingappclient.R;
 import com.example.datingappclient.constants.Constants;
 import com.example.datingappclient.model.dto.FormDTO;
@@ -34,6 +41,7 @@ import com.example.datingappclient.retrofit.repository.ImageRepository;
 import com.example.datingappclient.retrofit.repository.LikesRepository;
 import com.example.datingappclient.utils.DateUtils;
 import com.example.datingappclient.utils.ImageUtils;
+import com.google.android.material.textfield.TextInputEditText;
 import com.yuyakaido.android.cardstackview.CardStackLayoutManager;
 import com.yuyakaido.android.cardstackview.CardStackListener;
 import com.yuyakaido.android.cardstackview.CardStackView;
@@ -104,11 +112,117 @@ public class FormsFragment extends Fragment {
         adapter = new ProfileCardAdapter(new ArrayList<>(), requireContext());
 
         setupCardStackView();
+        setupFilterButton();
 
         // Загружаем первую анкету при создании фрагмента
         getForms(() -> progressBar.setVisibility(GONE));
 
         return activityView;
+    }
+
+    private void setupFilterButton() {
+        ImageView filterButton = activityView.findViewById(R.id.filterButton);
+        filterButton.setOnClickListener(view -> showFilterDialog());
+    }
+
+    private void showFilterDialog() {
+        String logTag = Constants.GLOBAL_LOG_TAG + "FILTER FORMS";
+        AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
+        LayoutInflater inflater = requireActivity().getLayoutInflater();
+        View dialogView = inflater.inflate(R.layout.dialog_filter_forms, null);
+
+        ((TextInputEditText) dialogView.findViewById(R.id.inputAgeMin))
+                .setText(String.valueOf(parameters.getAge_min()));
+
+        ((TextInputEditText) dialogView.findViewById(R.id.inputAgeMax))
+                .setText(String.valueOf(parameters.getAge_max()));
+
+        ((TextInputEditText) dialogView.findViewById(R.id.inputHeightMin))
+                .setText(String.valueOf(parameters.getHeight_min()));
+
+        ((TextInputEditText) dialogView.findViewById(R.id.inputHeightMax))
+                .setText(String.valueOf(parameters.getHeight_max()));
+
+        setNumericRange(dialogView.findViewById(R.id.inputAgeMin), 0, 100);
+        setNumericRange(dialogView.findViewById(R.id.inputAgeMax), 0, 100);
+        setNumericRange(dialogView.findViewById(R.id.inputHeightMin), 0, 200);
+        setNumericRange(dialogView.findViewById(R.id.inputHeightMax), 0, 200);
+
+        builder.setTitle("Фильтры")
+                .setView(dialogView)
+                .setPositiveButton("Применить", (dialog, which) -> {
+                    parameters = getParamsFromDialog(dialogView);
+                    Log.d(logTag, "Применены параметры: " + parameters);
+
+                    // TODO: clear cardStackView and load forms+
+                    profiles.clear();
+                    adapter.setProfiles(new ArrayList<>());
+                    cardStackView.setVisibility(View.INVISIBLE);
+                    progressBar.setVisibility(View.VISIBLE);
+
+                    // Загружаем анкеты с новыми параметрами
+                    getForms(() -> progressBar.setVisibility(View.GONE));
+                })
+                .setNegativeButton("Отмена", (dialog, which) -> dialog.dismiss())
+                .create()
+                .show();
+    }
+
+    private FormsParametersDTO getParamsFromDialog(View dialogView) {
+        TextInputEditText inputAgeMin = dialogView.findViewById(R.id.inputAgeMin);
+        TextInputEditText inputAgeMax = dialogView.findViewById(R.id.inputAgeMax);
+        TextInputEditText inputHeightMin = dialogView.findViewById(R.id.inputHeightMin);
+        TextInputEditText inputHeightMax = dialogView.findViewById(R.id.inputHeightMax);
+
+        RadioGroup genderGroup = dialogView.findViewById(R.id.genderRadioGroup);
+        RadioButton radioMale = dialogView.findViewById(R.id.radioMale);
+        RadioButton radioFemale = dialogView.findViewById(R.id.radioFemale);
+
+        FormsParametersDTO params = new FormsParametersDTO(userId, 0, 100, 0, 200, "Both", Constants.FORMS_LIMIT, offset);
+
+        try {
+            params.setAge_min(parseIntSafe(inputAgeMin.getText()));
+            params.setAge_max(parseIntSafe(inputAgeMax.getText()));
+            params.setHeight_min(parseIntSafe(inputHeightMin.getText()));
+            params.setHeight_max(parseIntSafe(inputHeightMax.getText()));
+        } catch (NumberFormatException ignored) {
+        }
+
+        if (radioMale.isChecked()) {
+            params.setGender("Male");
+        } else if (radioFemale.isChecked()) {
+            params.setGender("Female");
+        } else {
+            params.setGender("Both"); // не выбран
+        }
+
+        //params.setUserId(userId);
+        params.setUserId(0);
+
+        offset = 0;
+
+        return params;
+    }
+
+    private int parseIntSafe(Editable text) throws NumberFormatException {
+        return (text != null && !text.toString().isEmpty())
+                ? Integer.parseInt(text.toString())
+                : 0;
+    }
+
+    private void setNumericRange(TextInputEditText editText, int min, int max) {
+        editText.setFilters(new InputFilter[]{
+                (source, start, end, dest, dstart, dend) -> {
+                    try {
+                        String result = dest.subSequence(0, dstart)
+                                + source.toString()
+                                + dest.subSequence(dend, dest.length());
+                        int input = Integer.parseInt(result);
+                        if (input >= min && input <= max) return null;
+                    } catch (NumberFormatException ignored) {}
+                    return "";
+                }
+        });
     }
 
     private void setupRepository() {
@@ -118,17 +232,18 @@ public class FormsFragment extends Fragment {
         bubblesRepository = new BubblesRepository(requireContext());
     }
 
-    interface LoadInterface { void onLoad(); }
-    // TODO: передавать фильтры из отдельной формы
     private int offset = 0;
+    private FormsParametersDTO parameters = new FormsParametersDTO(userId, 0, 100, 0, 200, "Both", Constants.FORMS_LIMIT, offset);
+
+    interface LoadInterface { void onLoad(); }
     private void getForms(LoadInterface callback) {
-        int limit = Constants.FORMS_LIMIT;
         String logTag = Constants.GLOBAL_LOG_TAG + "GET FORMS";
-        FormsParametersDTO params = new FormsParametersDTO(userId, 0, 100, 0, 200, "Both", limit, offset);
-        formsRepository.fetchForms(params, result -> {
+        parameters.setOffset(offset);
+        Log.d(logTag, "Запрос анкет с параметрами: " + parameters.toString());
+        formsRepository.fetchForms(parameters, result -> {
             switch (result.status) {
                 case SUCCESS:
-                    offset += limit;
+                    offset += Constants.FORMS_LIMIT;
                     Log.i(logTag, "Успешно получены анкеты " +  result.data.size());
 
                     List<ProfileCardData> old = adapter.getProfiles();
@@ -142,6 +257,8 @@ public class FormsFragment extends Fragment {
 
                         updated.addAll(newForms);
                         adapter.setProfiles(updated);
+
+                        renderEmptyLabel();
 
                         layoutManager.scrollToPosition(currentPosition);
                         cardStackView.setVisibility(VISIBLE);
@@ -173,7 +290,6 @@ public class FormsFragment extends Fragment {
         }
         return newForms;
     }
-
 
     // Метод отправки лайка на сервер
     private void sendLikeToPoster(int likerId, int posterId) {
