@@ -15,19 +15,28 @@ import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.ListAdapter;
 
+import com.example.datingappclient.DatingAppApplication;
 import com.example.datingappclient.R;
 import com.example.datingappclient.constants.Constants;
 import com.example.datingappclient.model.ReadMessageNotification;
+import com.example.datingappclient.model.UserImage;
 import com.example.datingappclient.model.dto.ChatInfoDTO;
 import com.example.datingappclient.model.dto.ChatMemberDTO;
 import com.example.datingappclient.model.dto.MessageDTO;
+import com.example.datingappclient.recyclerViews.ChatMembersAdapter;
+import com.example.datingappclient.retrofit.repository.ImageRepository;
+import com.example.datingappclient.retrofit.wrapper.Result;
 import com.example.datingappclient.utils.ImageUtils;
 import com.example.datingappclient.websocket.controllers.MessagesController;
 
 import java.text.SimpleDateFormat;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+
+import lombok.Setter;
 
 public class MessagesAdapter extends ListAdapter<MessageDTO, MessagesHolder> {
 
@@ -35,7 +44,10 @@ public class MessagesAdapter extends ListAdapter<MessageDTO, MessagesHolder> {
     ChatInfoDTO chatInfo ;
     List<MessageDTO> unreadMessages;
     Set<Integer> unreadMessageIds = new HashSet<>();
+    private final Map<Integer, Bitmap> membersImages = new HashMap<>();
 
+    @Setter
+    private ChatMembersAdapter.OnMemberClickListener memberClickListener;
 
     public static final int VIEW_TYPE_SENT = 1;
     public static final int VIEW_TYPE_RECEIVED = 2;
@@ -82,16 +94,37 @@ public class MessagesAdapter extends ListAdapter<MessageDTO, MessagesHolder> {
         }
 
         // Установить аватарку отправителя в групповом чате
+        setSenderImage(holder, position);
+    }
+
+    public interface OnMemberClickListener {
+        void onMemberClick(ChatMemberDTO member);
+    }
+
+    private void setSenderImage(@NonNull MessagesHolder holder, int position) {
         if (chatInfo != null && chatInfo.getIsGroup() && getItemViewType(position) == VIEW_TYPE_RECEIVED) {
+            ChatMemberDTO member = chatInfo.findMemberById(getItem(position).getSenderId());
 
-            ChatMemberDTO member = chatInfo.findMemberById(message.getSenderId());
+            if (member == null) return;
 
-            if (member != null && member.getImage() != null) {
-                Bitmap avatar = ImageUtils.convertPrimitiveByteToBitmap(member.getImage());
-                holder.avatarView.setImageBitmap(ImageUtils.getCroppedBitmap(avatar));
+            if (membersImages.containsKey(member.getId()) && membersImages.get(member.getId()) != null) {
+                holder.avatarView.setImageBitmap(ImageUtils.getCroppedBitmap(membersImages.get(member.getId())));
+
             }
-            holder.avatarView.setVisibility(VISIBLE);
+            else {
+                setMemberImage(member.getId(), () -> {
+                    holder.avatarView.setImageBitmap(ImageUtils.getCroppedBitmap(membersImages.get(member.getId())));
+                }) ;
+            }
+
+            holder.avatarView.setOnClickListener(view -> {
+                if (memberClickListener != null) {
+                    memberClickListener.onMemberClick(member);
+                }
+            });
         }
+        else
+            if (holder.avatarView != null) holder.avatarView.setVisibility(GONE);
     }
 
     @Override
@@ -121,11 +154,28 @@ public class MessagesAdapter extends ListAdapter<MessageDTO, MessagesHolder> {
             }
         }
     }
+
     private int findIndexById(int id) {
         for (int i = 0; i < getItemCount(); i++) {
             if (getItem(i).getId() == id) return i;
         }
         return -1;
+    }
+
+    interface ImageCallback {
+        void onLoad();
+    }
+    public void setMemberImage(int memberId, ImageCallback callback) {
+        ImageRepository imageRepository = new ImageRepository(DatingAppApplication.getInstance().getApplicationContext());
+        imageRepository.fetchUserImages(memberId, 1, result -> {
+            if (result.status == Result.Status.SUCCESS) {
+                Log.d(Constants.GLOBAL_LOG_TAG + "MEMBER IMAGE", "Success");
+                List<UserImage> image = ImageUtils.objectListToUserImageList(result.data);
+                membersImages.put(memberId, image.get(0).getImage());
+                callback.onLoad();
+            }
+            else Log.e(Constants.GLOBAL_LOG_TAG + "MEMBER IMAGE", "Wrong or empty");
+        });
     }
 
     private static final DiffUtil.ItemCallback<MessageDTO> DIFF_CALLBACK = new DiffUtil.ItemCallback<>() {

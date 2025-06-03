@@ -16,15 +16,22 @@ import androidx.recyclerview.widget.ListAdapter;
 import com.example.datingappclient.DatingAppApplication;
 import com.example.datingappclient.R;
 import com.example.datingappclient.constants.Constants;
+import com.example.datingappclient.model.UserImage;
 import com.example.datingappclient.model.dto.ChatDTO;
+import com.example.datingappclient.model.dto.ChatMemberDTO;
 import com.example.datingappclient.retrofit.repository.ChatsRepository;
+import com.example.datingappclient.retrofit.repository.FCMRepository;
+import com.example.datingappclient.retrofit.repository.ImageRepository;
+import com.example.datingappclient.retrofit.wrapper.Result;
 import com.example.datingappclient.utils.ImageUtils;
 import com.example.datingappclient.viewmodels.ChatsViewModel;
 import com.example.datingappclient.viewmodels.OnlineStatusViewModel;
 import com.example.datingappclient.websocket.controllers.MessagesController;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 public class ChatsAdapter extends ListAdapter<ChatDTO, ChatsHolder> {
@@ -50,6 +57,7 @@ public class ChatsAdapter extends ListAdapter<ChatDTO, ChatsHolder> {
         chatsRepository = new ChatsRepository(context);
         this.lifecycleOwner = owner;
         onlineStatusViewModel = DatingAppApplication.getInstance().getOnlineStatusViewModel();
+
     }
 
     @NonNull
@@ -94,20 +102,6 @@ public class ChatsAdapter extends ListAdapter<ChatDTO, ChatsHolder> {
         holder.itemView.setOnClickListener(view ->
                 chatClickListener.onChatClicked(chat, view)
         );
-
-       /* messagesController.subscribeToReadMessages(chat.getId())
-                .observe(lifecycleOwner, notification -> {
-                    Log.d(Constants.GLOBAL_LOG_TAG + "HOLDER READ MESSAGE",
-                            "Сейчас непрочитанных сообщений: " + chat.getUnreadCount() +
-                                    "\nПрочитаны сообщения " + notification);
-
-                    if (notification.getUserId() == senderId) {
-                        int newUnreadCount = chat.getUnreadCount() - notification.getMessageIds().size();
-                        chat.setUnreadCount(newUnreadCount); // чтобы не было < 0
-                        holder.setMessageCount(chat.getUnreadCount());
-                    }
-                });*/
-
     }
 
     public void observeOnlineStatus() {
@@ -121,8 +115,6 @@ public class ChatsAdapter extends ListAdapter<ChatDTO, ChatsHolder> {
             }
         });
     }
-
-
 
     @Override
     public void onViewRecycled(@NonNull ChatsHolder holder) {
@@ -140,6 +132,7 @@ public class ChatsAdapter extends ListAdapter<ChatDTO, ChatsHolder> {
             holder.profileImage.setPadding(0, 0, 0, 0); // Убираем паддинги, чтобы не было "обводки"
         }
     }
+
 
     interface ChatImageCallback {
         void onImage();

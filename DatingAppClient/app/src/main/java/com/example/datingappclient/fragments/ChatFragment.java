@@ -54,6 +54,7 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicReference;
 
 import io.reactivex.disposables.Disposable;
@@ -184,6 +185,19 @@ public class ChatFragment extends Fragment {
 
     private void setupMessageAdapter(List<MessageDTO> loaded) {
         messagesAdapter = new MessagesAdapter(userId, chat.getChatInfo(), loaded);
+
+        messagesAdapter.setMemberClickListener(member -> {
+            Fragment profileFragment = ProfileFragment.getInstance(member.getId());
+
+            requireActivity()
+                    .getSupportFragmentManager()
+                    .beginTransaction()
+                    .setReorderingAllowed(true)
+                    .replace(R.id.fragment_container, profileFragment)
+                    .addToBackStack(null)
+                    .commit();
+        });
+
         messagesRecyclerView.setAdapter(messagesAdapter);
 
         enableAutoScrollOnNewMessage();

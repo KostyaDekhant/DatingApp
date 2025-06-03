@@ -28,12 +28,15 @@ import com.example.datingappclient.DatingAppApplication;
 import com.example.datingappclient.activity.ChatActivity;
 import com.example.datingappclient.R;
 import com.example.datingappclient.constants.Constants;
+import com.example.datingappclient.model.UserImage;
 import com.example.datingappclient.model.dto.ChatDTO;
 import com.example.datingappclient.model.dto.ChatInfoDTO;
 import com.example.datingappclient.model.dto.UserDTO;
 import com.example.datingappclient.recyclerViews.chatsList.ChatsAdapter;
 import com.example.datingappclient.retrofit.repository.ChatsRepository;
+import com.example.datingappclient.retrofit.repository.ImageRepository;
 import com.example.datingappclient.retrofit.wrapper.Result;
+import com.example.datingappclient.utils.ImageUtils;
 import com.example.datingappclient.viewmodels.ChatsViewModel;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
@@ -191,11 +194,13 @@ public class ChatListFragment extends Fragment {
             chatsViewModel.getMessageStream(chat.getId())
                     .observe(getViewLifecycleOwner(), message -> {
                         Log.d(Constants.GLOBAL_LOG_TAG + "CATCH MESSAGE", "Отловлено сообщение в чате (список чатов)\n" + message.toString());
+
                         ChatDTO temp = chat.copy();
                         if (message.getSenderId() != user.getId()) {
                             temp.setUnreadCount(temp.getUnreadCount() + 1);
                         }
                         temp.setLastMessage(message);
+
                         chatsViewModel.updateOrAddChatAndMoveTop(temp);
                     });
         }
