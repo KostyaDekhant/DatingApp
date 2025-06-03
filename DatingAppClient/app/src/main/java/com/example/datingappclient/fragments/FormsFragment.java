@@ -181,10 +181,19 @@ public class FormsFragment extends Fragment {
         FormsParametersDTO params = new FormsParametersDTO(userId, 0, 100, 0, 200, "Both", Constants.FORMS_LIMIT, offset);
 
         try {
-            params.setAge_min(parseIntSafe(inputAgeMin.getText()));
-            params.setAge_max(parseIntSafe(inputAgeMax.getText()));
-            params.setHeight_min(parseIntSafe(inputHeightMin.getText()));
-            params.setHeight_max(parseIntSafe(inputHeightMax.getText()));
+            int ageMin = parseIntSafe(inputAgeMin.getText());
+            int ageMax = parseIntSafe(inputAgeMax.getText());
+            int heightMin = parseIntSafe(inputHeightMin.getText());
+            int heightMax = parseIntSafe(inputHeightMax.getText());
+
+            // Корректируем значения
+            if (ageMax < ageMin) ageMax = ageMin;
+            if (heightMax < heightMin) heightMax = heightMin;
+
+            params.setAge_min(ageMin);
+            params.setAge_max(ageMax);
+            params.setHeight_min(heightMin);
+            params.setHeight_max(heightMax);
         } catch (NumberFormatException ignored) {
         }
 
@@ -197,7 +206,7 @@ public class FormsFragment extends Fragment {
         }
 
         //params.setUserId(userId);
-        params.setUserId(0);
+        params.setUserId(userId);
 
         offset = 0;
 
@@ -223,6 +232,16 @@ public class FormsFragment extends Fragment {
                     return "";
                 }
         });
+
+        // значение по умолчанию, если текст не задан
+        editText.setOnFocusChangeListener((v, hasFocus) -> {
+            if (!hasFocus) {
+                String text = editText.getText() != null ? editText.getText().toString() : "";
+                if (text.trim().isEmpty()) {
+                    editText.setText("0");
+                }
+            }
+        });
     }
 
     private void setupRepository() {
@@ -238,6 +257,7 @@ public class FormsFragment extends Fragment {
     interface LoadInterface { void onLoad(); }
     private void getForms(LoadInterface callback) {
         String logTag = Constants.GLOBAL_LOG_TAG + "GET FORMS";
+        parameters.setUserId(userId);
         parameters.setOffset(offset);
         Log.d(logTag, "Запрос анкет с параметрами: " + parameters.toString());
         formsRepository.fetchForms(parameters, result -> {
@@ -313,9 +333,9 @@ public class FormsFragment extends Fragment {
 
         layoutManager.setStackFrom(StackFrom.None);
         layoutManager.setVisibleCount(3);
-        layoutManager.setScaleInterval(0.6f);
-        layoutManager.setSwipeThreshold(0.3f);
-        layoutManager.setMaxDegree(10.0f);
+        layoutManager.setScaleInterval(0.5f);
+        layoutManager.setSwipeThreshold(0.45f);
+        layoutManager.setMaxDegree(15.0f);
         layoutManager.setDirections(Direction.HORIZONTAL);
         layoutManager.setCanScrollVertical(false);
 

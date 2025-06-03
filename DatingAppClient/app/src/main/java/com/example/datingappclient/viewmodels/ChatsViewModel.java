@@ -7,15 +7,14 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
 import com.example.datingappclient.constants.Constants;
-import com.example.datingappclient.model.ChatPayloadInfo;
 import com.example.datingappclient.model.dto.ChatDTO;
 import com.example.datingappclient.model.dto.MessageDTO;
-import com.example.datingappclient.retrofit.wrapper.Result;
 import com.example.datingappclient.retrofit.wrapper.ResultCallback;
 import com.example.datingappclient.websocket.ChatWebSocketService;
 import com.example.datingappclient.websocket.StompClientService;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
@@ -81,7 +80,7 @@ public class ChatsViewModel extends ViewModel {
     }
 
 
-    public void updateOrAddChat(ChatDTO chat) {
+    public void updateOrAddChatAndMoveTop(ChatDTO chat) {
         String logTag = Constants.GLOBAL_LOG_TAG + "UPDATE/ADD CHAT";
         List<ChatDTO> currentList = chats.getValue();
         if (currentList == null) currentList = new ArrayList<>();
@@ -110,7 +109,7 @@ public class ChatsViewModel extends ViewModel {
         chats.setValue(newList);
     }
 
-    /*public void updateOrAddChat(ChatDTO chat) {
+    public void updateOrAddChat(ChatDTO chat) {
         String logTag = Constants.GLOBAL_LOG_TAG + "UPDATE/ADD CHAT";
         List<ChatDTO> currentList = chats.getValue();
         if (currentList == null) currentList = new ArrayList<>();
@@ -134,7 +133,7 @@ public class ChatsViewModel extends ViewModel {
         }
 
         chats.setValue(newList);
-    }*/
+    }
 
     public void moveChatToTop(ChatDTO updatedChat) {
         List<ChatDTO> currentList = chats.getValue();
@@ -193,18 +192,23 @@ public class ChatsViewModel extends ViewModel {
      * Установить (обновить) список чатов
      */
     public void setChats(List<ChatDTO> chatList) {
+
         chats.setValue(chatList);
     }
 
     public void addChats(List<ChatDTO> newChats) {
-        List<ChatDTO> currentList = chats.getValue();
+        Collections.reverse(newChats);
+        for (ChatDTO chat : newChats) {
+            updateOrAddChatAndMoveTop(chat);
+        }
+        /*List<ChatDTO> currentList = chats.getValue();
 
         if (currentList == null || currentList.isEmpty()) {
             chats.setValue(new ArrayList<>(newChats));
         } else {
             currentList.addAll(newChats);
             chats.setValue(currentList);
-        }
+        }*/
     }
 
     public void addChats(ChatDTO chat) {

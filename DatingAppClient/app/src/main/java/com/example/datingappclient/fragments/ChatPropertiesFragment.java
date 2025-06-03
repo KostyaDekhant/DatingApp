@@ -126,8 +126,10 @@ public class ChatPropertiesFragment extends Fragment {
                 setChatName();
 
                 chatsRepository.fetchChatAvatar(userId, chat.getId(), avatarResult -> {
-                    chat.setImage(avatarResult.data.getImage());
-                    setChatImage();
+                    if (result.status == Result.Status.SUCCESS && avatarResult.data != null) {
+                        chat.setImage(avatarResult.data.getImage());
+                        setChatImage();
+                    }
                     // Отписываемся от обновления, если нужно
                     Disposable d = disposableRef.get();
                     if (d != null && !d.isDisposed()) {

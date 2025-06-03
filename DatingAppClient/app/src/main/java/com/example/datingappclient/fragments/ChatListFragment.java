@@ -40,7 +40,6 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Objects;
 import java.util.Set;
 
 public class ChatListFragment extends Fragment {
@@ -161,8 +160,8 @@ public class ChatListFragment extends Fragment {
     private void subscribeToGetChats() {
         LinearLayoutManager layoutManager = (LinearLayoutManager) recyclerView.getLayoutManager();
         chatsViewModel.getChats().observe(getViewLifecycleOwner(), chatList -> {
-            Log.d("chat1", chatsAdapter.getCurrentList().toString());
-            Log.d("chat1", chatList.toString());
+            /*Log.d("chat1", chatsAdapter.getCurrentList().toString());
+            Log.d("chat1", chatList.toString());*/
             if (layoutManager.findFirstVisibleItemPosition() == 0) {
                 chatsAdapter.submitList(chatList, () -> recyclerView.scrollToPosition(0));
             } else {
@@ -177,7 +176,7 @@ public class ChatListFragment extends Fragment {
         chatsViewModel.subscribeToCreateChat(user.getId(), result -> {
             if (result.status == Result.Status.SUCCESS) {
                 getUserChat(result.data, chat -> {
-                    chatsViewModel.updateOrAddChat(chat);
+                    chatsViewModel.updateOrAddChatAndMoveTop(chat);
                     emptyList.setVisibility(GONE);
                 });
             }
@@ -191,12 +190,13 @@ public class ChatListFragment extends Fragment {
             subscribedChatIds.add(chat.getId());
             chatsViewModel.getMessageStream(chat.getId())
                     .observe(getViewLifecycleOwner(), message -> {
+                        Log.d(Constants.GLOBAL_LOG_TAG + "CATCH MESSAGE", "Отловлено сообщение в чате (список чатов)\n" + message.toString());
                         ChatDTO temp = chat.copy();
                         if (message.getSenderId() != user.getId()) {
                             temp.setUnreadCount(temp.getUnreadCount() + 1);
                         }
                         temp.setLastMessage(message);
-                        chatsViewModel.updateOrAddChat(temp);
+                        chatsViewModel.updateOrAddChatAndMoveTop(temp);
                     });
         }
     }
@@ -227,7 +227,6 @@ public class ChatListFragment extends Fragment {
 
     // Предотвращаем повторный вызов загрузки чатов при многократном клике на вкладку списка чатов
     private static boolean isChatsLoading;
-    private boolean isFirstPartLoad;
     private void initChats() {
         if (isChatsLoading) return;
         isChatsLoading = true;

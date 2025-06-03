@@ -7,8 +7,6 @@ import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
@@ -46,7 +44,6 @@ import com.example.datingappclient.viewmodels.DialogViewModel;
 import com.example.datingappclient.viewmodels.OnlineStatusViewModel;
 import com.example.datingappclient.viewmodels.factory.DialogViewModelFactory;
 import com.example.datingappclient.websocket.StompClientService;
-import com.example.datingappclient.websocket.SubscriptionManager;
 import com.example.datingappclient.websocket.controllers.MessagesController;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
@@ -150,14 +147,13 @@ public class ChatFragment extends Fragment {
 
         subscribeToGetReadMessages();
         //getPersonalUnreadMessages(this::sendReadMessages);
-        chatsViewModel.getUnreadMessages(chat.getId(), userId).observe(getViewLifecycleOwner(), messages -> {
-            sendReadMessages(messages);
-        });
+
     }
 
     @Override
     public void onResume() {
         super.onResume();
+        chatsViewModel.getUnreadMessages(chat.getId(), userId).observe(getViewLifecycleOwner(), this::sendReadMessages);
         layout.setVisibility(VISIBLE);
         progressBar.setVisibility(GONE);
     }
@@ -378,7 +374,7 @@ public class ChatFragment extends Fragment {
             if (result.status == Result.Status.SUCCESS) {
                 ChatDTO temp = chat.copy();
                 temp.setUnreadCount(0);
-                chatsViewModel.updateOrAddChat(temp);
+                chatsViewModel.updateOrAddChatAndMoveTop(temp);
             }
             else Log.e(Constants.GLOBAL_LOG_TAG + "READ MESSAGES", result.error);
         });
@@ -418,6 +414,7 @@ public class ChatFragment extends Fragment {
         dialogViewModel.subscribeToHistory(chat.getId(), userId, getViewLifecycleOwner());
 
         dialogViewModel.getMessages().observe(getViewLifecycleOwner(), messages -> {
+            if (messages == null) return;
             Log.d(Constants.GLOBAL_LOG_TAG + "CHAT FRAGMENT", "Observe get new messages! Count: " + messages.size() );
             messagesAdapter.submitList(new ArrayList<>(messages));
             if (!isFirstPartLoad) {
@@ -475,7 +472,12 @@ public class ChatFragment extends Fragment {
 
     private void setupReturnButton() {
         MaterialButton returnButton = activityView.findViewById(R.id.return_button);
-        returnButton.setOnClickListener(view -> requireActivity().finish());
+        returnButton.setOnClickListener(view -> {
+
+            dialogViewModel.clear();
+            requireActivity().finish();
+
+        });
     }
 
     private void renderChatImage() {

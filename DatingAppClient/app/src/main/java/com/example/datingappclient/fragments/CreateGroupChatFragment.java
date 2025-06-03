@@ -186,7 +186,7 @@ public class CreateGroupChatFragment extends Fragment {
         //byte[] chatImage = ImageUtils.convertBitmapToPrimitiveBytes(selectedAvatarBitmap);
 
         // add user to chat members
-        chatMembers.add(new ChatMemberDTO(null, user.getId(), null, false, true));
+        chatMembers.add(new ChatMemberDTO(user.getName(), user.getId(), null, false, true));
 
         // create group chat
         ChatInfoDTO groupChatInfo = new ChatInfoDTO(user.getId(), null, chatMembers, true);

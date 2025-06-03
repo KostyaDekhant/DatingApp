@@ -73,7 +73,7 @@ public class ChatsHolder extends RecyclerView.ViewHolder {
                 ChatDTO chat = chatResult.data;
 
                 chatsRepository.fetchChatAvatar(senderId, chatId, avatarResult -> {
-                    if (avatarResult.status == Result.Status.SUCCESS) {
+                    if (avatarResult.status == Result.Status.SUCCESS && avatarResult.data != null) {
                         chat.setImage(avatarResult.data.getImage());
                     }
 
