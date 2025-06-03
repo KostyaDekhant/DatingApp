@@ -64,6 +64,9 @@ public class UserService {
             log.error("Пользователь с таким логином уже существует!");
             throw new UserAlreadyExistsExceptions("Пользователь с таким логином уже существует!");
         }
+        //временно
+        if(user.getHeight() == -1)
+            user.setHeight(175);
         User savedUser = userRepo.save(user);
         log.debug("Новый пользователь: {}", savedUser);
         return savedUser.getPkUser();

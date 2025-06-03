@@ -81,7 +81,7 @@ public class User {
         this.pkUser = -1;
         this.name = "";
         this.birthday = null;
-        this.height = -1;
+        this.height = 175;
         this.gender = "";
         this.isOnline = false;
         this.lastOnline = new Timestamp(1);
