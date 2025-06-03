@@ -94,7 +94,6 @@ public class MainActivity extends AppCompatActivity {
         ChatsViewModel chatsViewModel = new ViewModelProvider(this).get(ChatsViewModel.class);
         app.setChatsViewModel(chatsViewModel);
 
-
         // get FCM token
         getFCMtoken();
 
@@ -105,7 +104,6 @@ public class MainActivity extends AppCompatActivity {
         fetchCategories();
 
         TokenManager tokenManager = new TokenManager(this);
-        //Log.d("TOKEN", tokenManager.getAccessToken());
         userId = tokenManager.getUserId();
 
         // Получить контакты
@@ -191,21 +189,10 @@ public class MainActivity extends AppCompatActivity {
 
     private void getUserContacts() {
         DatingAppApplication app = (DatingAppApplication) getApplication();
-
-        if (app.getContactsViewModel() == null) {
-            ChatMembersViewModel contacts = new ViewModelProvider(this, new ViewModelProvider.Factory() {
-                @NonNull
-                @Override
-                public <T extends androidx.lifecycle.ViewModel> T create(@NonNull Class<T> modelClass) {
-                    return (T) new ChatMembersViewModel();
-                }
-            }).get(ChatMembersViewModel.class);
-
-            app.setContactsViewModel(contacts);
-            contacts.setChatMembers(new ArrayList<>());
-
-            fetchContacts(contacts);
-        }
+        ChatMembersViewModel contacts =new ViewModelProvider(this).get(ChatMembersViewModel.class);
+        app.setContactsViewModel(contacts);
+        contacts.setChatMembers(new ArrayList<>());
+        fetchContacts(contacts);
     }
 
     private void fetchContacts(ChatMembersViewModel contacts) {
