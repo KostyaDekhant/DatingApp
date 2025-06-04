@@ -3,6 +3,7 @@ package com.datingapp.datingapp.controller;
 import com.datingapp.datingapp.entity.*;
 import com.datingapp.datingapp.exception.UserNotExistsExceptions;
 import com.datingapp.datingapp.services.ChatService;
+import com.datingapp.datingapp.services.MessageService;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,15 +19,17 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ChatController {
     private final ChatService chatService;
+    private final MessageService messageService;
 
     private final SimpMessagingTemplate simpMessagingTemplate;
 
     private static final Logger log = LoggerFactory.getLogger(ChatController.class);
 
     @Autowired
-    public ChatController(SimpMessagingTemplate simpMessagingTemplate, ChatService chatService) {
+    public ChatController(SimpMessagingTemplate simpMessagingTemplate, ChatService chatService, MessageService messageService) {
         this.simpMessagingTemplate = simpMessagingTemplate;
         this.chatService = chatService;
+        this.messageService = messageService;
     }
 
 
@@ -122,5 +125,15 @@ public class ChatController {
     public ResponseEntity<List<MessageDTO>> getAnotherUnreadMessages(@PathVariable int chatId, @RequestParam("userId") int userId) {
         log.info("Попытка отправить непрочитанные сообщения других участников в чате с id " + chatId);
         return ResponseEntity.ok(chatService.getAnotherUnreadMessages(chatId, userId));
+    }
+
+    @GetMapping("/group_chats/{chatId}/history")
+    public List<MessageDTO> getChatHistory(@PathVariable("chatId") int chatId,
+                                           @RequestParam("limit") int limit,
+                                           @RequestParam("offset") int offset) {
+
+        List<MessageDTO> history = messageService.getChatHistory(chatId, limit, offset);
+        log.info("История отправлена " +history);
+        return history;
     }
 }

@@ -95,7 +95,7 @@ public class MessageController {
         }
     }
 
-    @MessageMapping("/history/{chatId}")
+    @MessageMapping("/history/{chatId}/v2")
     public List<MessageDTO> getChatHistory(@DestinationVariable int chatId,
                                @Payload HistoryRequest req) {
 
