@@ -98,7 +98,7 @@ public class AuthController {
             );
         } catch (AuthenticationException ex) {
             return ResponseEntity
-                    .status(401)
+                    .status(409)
                     .body(Map.of("error", "Неверный логин или пароль"));
         } catch (UserNotExistsExceptions | UserAlreadyLoggedInException e) {
             throw new RuntimeException(e);
