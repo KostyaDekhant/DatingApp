@@ -20,6 +20,8 @@ import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.constraintlayout.widget.ConstraintSet;
 import androidx.fragment.app.Fragment;
 
+import android.text.Editable;
+import android.text.InputFilter;
 import android.text.InputType;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -521,6 +523,30 @@ public class UsereditFragment extends Fragment {
         String birthday = DateUtils.localDateToString(user.getBirthday());
         ageInput.setText(birthday);
         heightInput.setText(String.valueOf(user.getHeight()));
+
+        setNumericRange(heightInput, 0, 300);
+    }
+
+    private int parseIntSafe(Editable text) throws NumberFormatException {
+        return (text != null && !text.toString().isEmpty())
+                ? Integer.parseInt(text.toString())
+                : 0;
+    }
+
+    private void setNumericRange(TextInputEditText editText, int min, int max) {
+        editText.setFilters(new InputFilter[]{
+                (source, start, end, dest, dstart, dend) -> {
+                    try {
+                        String result = dest.subSequence(0, dstart)
+                                + source.toString()
+                                + dest.subSequence(dend, dest.length());
+                        int input = Integer.parseInt(result);
+                        if (input >= min && input <= max) return null;
+                    } catch (NumberFormatException ignored) {
+                    }
+                    return "";
+                }
+        });
     }
 
     private void renderUserCompanyInfo() {

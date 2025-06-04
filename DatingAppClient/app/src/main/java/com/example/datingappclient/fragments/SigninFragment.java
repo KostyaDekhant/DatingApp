@@ -77,6 +77,7 @@ public class SigninFragment extends Fragment {
                     }
                     break;
                 case ERROR:
+                    Snackbar.make(activityView, "Ошибка входа, неверный логин или пароль!", Snackbar.LENGTH_LONG).show();
                     Log.e(logTag, result.error);
                     break;
             }

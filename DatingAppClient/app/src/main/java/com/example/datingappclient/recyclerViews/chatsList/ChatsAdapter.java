@@ -105,6 +105,7 @@ public class ChatsAdapter extends ListAdapter<ChatDTO, ChatsHolder> {
     }
 
     public void observeOnlineStatus() {
+        if (onlineStatusViewModel == null) return;
         onlineStatusViewModel.getOnlineStatuses().observe(lifecycleOwner, map -> {
             for (int i = 0; i < getItemCount(); i++) {
                 ChatDTO chat = getItem(i);

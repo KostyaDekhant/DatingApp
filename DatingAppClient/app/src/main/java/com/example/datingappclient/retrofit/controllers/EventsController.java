@@ -17,7 +17,7 @@ public interface EventsController {
     Call<List<EventDTO>> getEvents(@Body EventsParamsDTO params);
 
     @POST("/api/event/create")
-    Call<Void> createEvent(@Body EventDTO event);
+    Call<Integer> createEvent(@Body EventDTO event);
 
     @POST("/api/event/{eventId}/members")
     Call<Void> addMembersToEvent(@Path("eventId") int userId, @Query("memberIds") List<Integer> memberIds);

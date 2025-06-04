@@ -12,6 +12,7 @@ import com.example.datingappclient.DatingAppApplication;
 import com.example.datingappclient.TokenManager;
 import com.example.datingappclient.constants.Constants;
 import com.example.datingappclient.model.ChatPayloadInfo;
+import com.example.datingappclient.model.Event;
 import com.example.datingappclient.model.dto.HistoryDTO;
 import com.example.datingappclient.model.dto.MessageDTO;
 import com.example.datingappclient.retrofit.wrapper.Result;
@@ -39,16 +40,8 @@ public class ChatWebSocketService {
     private final MutableLiveData<Integer> deletedChatIdStream = new MutableLiveData<>();
     private final MutableLiveData<Integer> updatedChatIdStream = new MutableLiveData<>();
 
-    private final Map<Integer, Integer> historyOffsets = new HashMap<>();
-    private final Map<Integer, List<MessageDTO>> historyCache = new HashMap<>();
-
     private final ObjectMapper objectMapper = new ObjectMapper();
 
-    private final Map<Integer, MutableLiveData<MessageDTO>> messageStreams = new HashMap<>();
-    private final Map<Integer, MutableLiveData<List<MessageDTO>>> historyStreams = new HashMap<>();
-
-    private final Map<Integer, Disposable> messageDisposables = new HashMap<>();
-    private final Map<Integer, Disposable> historyDisposables = new HashMap<>();
     private final Map<Integer, Disposable> updatedChatDisposables = new HashMap<>();
     private final Map<Integer, Disposable> deletedChatDisposables = new HashMap<>();
 
@@ -64,40 +57,7 @@ public class ChatWebSocketService {
 
     // =============== MESSAGES
     @SuppressLint("CheckResult")
-    public LiveData<MessageDTO> subscribeToChat(int chatId) {
-        /*// Если уже есть активная подписка — возвращаем существующую LiveData
-        if (messageStreams.containsKey(chatId)) {
-            return messageStreams.get(chatId);
-        }
-
-        MutableLiveData<MessageDTO> liveData = new MutableLiveData<>();
-        messageStreams.put(chatId, liveData);
-
-        String logTag = Constants.GLOBAL_LOG_TAG + "STOMP GET MESSAGE";
-        if (!messageDisposables.containsKey(chatId)) {
-            Disposable disposable = stompClient.topic("/topic/messages/" + chatId)
-                    .subscribeOn(Schedulers.io())
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(topicMessage -> {
-                        try {
-                            MessageDTO message = objectMapper.readValue(topicMessage.getPayload(), new TypeReference<MessageDTO>() {});
-                            Log.i(logTag, message.toString());
-
-                            liveData.postValue(message);
-                            int currentOffset = historyOffsets.getOrDefault(chatId, 0);
-                            historyOffsets.put(chatId, currentOffset + 1);
-
-                            List<MessageDTO> current = historyCache.getOrDefault(chatId, new ArrayList<>());
-                            current.add(message);
-                            historyCache.put(chatId, current);
-                        } catch (Exception e) {
-                            Log.e(logTag, "Ошибка при разборе сообщения", e);
-                        }
-                    }, throwable -> Log.e(logTag, "Ошибка подписки на чат " + chatId, throwable));
-            messageDisposables.put(chatId, disposable);
-        }
-        return liveData;*/
-
+    public LiveData<Event<MessageDTO>> subscribeToChat(int chatId) {
         return StompClientService
                 .getInstance()
                 .getSubscriptionManager()
@@ -112,7 +72,7 @@ public class ChatWebSocketService {
             stompClient.send("/app/send", jsonMessage)
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(() -> Log.d(logTag, "Сообщение отправлено"),
+                    .subscribe(() -> Log.d(logTag, "Сообщение успешно отправлено через сокеты"),
                             throwable -> Log.e(logTag, "Ошибка при отправке", throwable));
 
         } catch (Exception e) {
@@ -208,4 +168,6 @@ public class ChatWebSocketService {
             disposable.dispose();
         }
     }
+
+
 }

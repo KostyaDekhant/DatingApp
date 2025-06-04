@@ -16,6 +16,7 @@ import androidx.lifecycle.MutableLiveData;
 import com.example.datingappclient.DatingAppApplication;
 import com.example.datingappclient.constants.Constants;
 import com.example.datingappclient.fragments.ChatFragment;
+import com.example.datingappclient.model.Event;
 import com.example.datingappclient.model.ReadMessageNotification;
 import com.example.datingappclient.model.dto.ChatDTO;
 import com.example.datingappclient.model.dto.HistoryDTO;
@@ -112,8 +113,9 @@ public class SubscriptionManager {
             int chatId = ChatDTO.selectedChat.getId();
             int userId = DatingAppApplication.getTokenManager().getUserId(); // Или другой способ получить userId
 
-            historyCache.remove(chatId);
-            historyOffsets.put(chatId, 0);
+            Log.d(logTag, "Пользователь в чате! Запрашиваю историю!");
+            //historyCache.remove(chatId);
+            //historyOffsets.put(chatId, 0);
             subscribeToChatHistory(chatId, userId);
             fetchUnreadMessages(chatId, DatingAppApplication.getTokenManager().getUserId());
 
@@ -138,7 +140,7 @@ public class SubscriptionManager {
     // ===== Специальная подписка для сообщений чата =====
 
     private final Map<String, MutableLiveData<MessageDTO>> messageStreams = new HashMap<>();
-    public LiveData<MessageDTO> subscribeToChatMessages(int chatId) {
+    /*public LiveData<MessageDTO> subscribeToChatMessages(int chatId) {
         String topic = "/topic/messages/" + chatId;
 
         // Если уже подписан — возвращаем LiveData
@@ -152,7 +154,7 @@ public class SubscriptionManager {
         subscribe(topic, payload -> {
             try {
                 MessageDTO message = objectMapper.readValue(payload, MessageDTO.class);
-                Log.d(logTag, "Получено сообщение: " + message);
+                Log.i(logTag, "Получено сообщение через сокеты: " + message);
 
                 // === Обновляем кэш ===
                 List<MessageDTO> chatHistory = historyCache.getOrDefault(chatId, new ArrayList<>());
@@ -172,6 +174,44 @@ public class SubscriptionManager {
         });
 
         return liveData;
+    }*/
+
+    private final Map<String, MutableLiveData<Event<MessageDTO>>> messageStreamsev = new HashMap<>();
+
+    public LiveData<Event<MessageDTO>> subscribeToChatMessages(int chatId) {
+        String topic = "/topic/messages/" + chatId;
+
+        // Уже подписаны
+        if (messageStreamsev.containsKey(topic)) {
+            return messageStreamsev.get(topic);
+        }
+
+        MutableLiveData<Event<MessageDTO>> liveData = new MutableLiveData<>();
+        messageStreamsev.put(topic, liveData);
+
+        subscribe(topic, payload -> {
+            try {
+                MessageDTO message = objectMapper.readValue(payload, MessageDTO.class);
+                Log.d(logTag, "(EVENT) Получено сообщение через сокеты: " + message);
+
+                // === Обновляем кэш ===
+                List<MessageDTO> chatHistory = historyCache.getOrDefault(chatId, new ArrayList<>());
+                chatHistory.add(message);
+                historyCache.put(chatId, chatHistory);
+
+                // === Обновляем offset ===
+                int currentOffset = historyOffsets.getOrDefault(chatId, 0);
+                historyOffsets.put(chatId, currentOffset + 1);
+
+                // === Передаём сообщение через Event-обёртку ===
+                liveData.postValue(new Event<>(message));
+
+            } catch (Exception e) {
+                Log.e(logTag, "Ошибка парсинга сообщения для чата " + chatId, e);
+            }
+        });
+
+        return liveData;
     }
 
     // ===== Специальная подписка для истории сообщений чата =====
@@ -181,7 +221,6 @@ public class SubscriptionManager {
     private final Map<Integer, Integer> historyOffsets = new HashMap<>();
     public LiveData<List<MessageDTO>> subscribeToChatHistory(int chatId, int userId) {
         String topic = "/topic/" + userId + "/history/" + chatId;
-
         if (historyStreams.containsKey(chatId)) {
             List<MessageDTO> cached = historyCache.get(chatId);
             if (cached != null && !cached.isEmpty()) {

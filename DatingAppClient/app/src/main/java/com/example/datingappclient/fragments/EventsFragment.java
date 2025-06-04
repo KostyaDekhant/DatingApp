@@ -243,9 +243,10 @@ public class EventsFragment extends Fragment {
             switch (result.status) {
                 case SUCCESS:
                     List<EventDTO> currentList = new ArrayList<>(adapter.getCurrentList());
+                    newEvent.setId(result.data);
                     currentList.add(newEvent);
                     adapter.submitList(currentList);
-                    Log.d(logTag, "Успешно создано мероприятие");
+                    Log.d(logTag, "Успешно создано мероприятие " + result.data);
                     break;
                 case ERROR:
                     Log.e(logTag, result.error);

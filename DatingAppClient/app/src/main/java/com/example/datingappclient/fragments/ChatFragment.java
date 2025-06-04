@@ -46,6 +46,7 @@ import com.example.datingappclient.viewmodels.factory.DialogViewModelFactory;
 import com.example.datingappclient.websocket.StompClientService;
 import com.example.datingappclient.websocket.controllers.MessagesController;
 import com.google.android.material.button.MaterialButton;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.textfield.TextInputEditText;
 
 import java.sql.Timestamp;
@@ -53,8 +54,10 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 
 import io.reactivex.disposables.Disposable;
@@ -77,14 +80,22 @@ public class ChatFragment extends Fragment {
     private ProgressBar progressBar;
     private ImageView onlineStatusView;
 
+    FloatingActionButton fabNewMessages;
+    TextView newMessagesCount;
+
     /* === Other === */
     Integer userId;
     private ChatDTO chat;
+
+
+    private boolean userIsAtBottom = true;
+    private final Set<Integer> unreadMessageIds = new HashSet<>();
 
     /* === View Models === */
     private DialogViewModel dialogViewModel;
     private ChatsViewModel chatsViewModel;
     private ChatMembersViewModel chatMembersViewModel;
+
 
     private ChatFragment() {}
 
@@ -135,6 +146,13 @@ public class ChatFragment extends Fragment {
         setupSendButton();
         setupClickOnChat();
 
+        fabNewMessages = activityView.findViewById(R.id.fabGoDown);
+        fabNewMessages.setOnClickListener(v -> {
+            messagesRecyclerView.scrollToPosition(messagesAdapter.getItemCount() - 1);
+        });
+
+        newMessagesCount = activityView.findViewById(R.id.countUnread);
+
         return activityView;
     }
 
@@ -148,12 +166,16 @@ public class ChatFragment extends Fragment {
 
         subscribeToGetReadMessages();
         //getPersonalUnreadMessages(this::sendReadMessages);
-
     }
 
+    private boolean isHistoryLoading = false;
     @Override
     public void onResume() {
         super.onResume();
+
+        isHistoryLoading = false;
+        dialogViewModel.subscribeToChatHistory(chat.getId());
+
         chatsViewModel.getUnreadMessages(chat.getId(), userId).observe(getViewLifecycleOwner(), this::sendReadMessages);
         layout.setVisibility(VISIBLE);
         progressBar.setVisibility(GONE);
@@ -207,26 +229,6 @@ public class ChatFragment extends Fragment {
     interface UnreadMessagesCallback {
         void onLoaded(List<MessageDTO> messages);
     }
-    private void getPersonalUnreadMessages(UnreadMessagesCallback callback) {
-        String logTag = Constants.GLOBAL_LOG_TAG + "GET UNREAD";
-        messagesRepository.fetchPersonalUnreadMessages(chat.getId(), userId, result -> {
-            switch(result.status) {
-                case SUCCESS:
-                    Log.i(logTag, "Получено " + result.data.size() + " непрочитанных сообщений (мной)!");
-                    callback.onLoaded(result.data);
-                    break;
-                case EMPTY:
-                    Log.i(logTag, "Все сообщения прочитаны (мной)!");
-                    callback.onLoaded(new ArrayList<>());
-                    break;
-                case ERROR:
-                    Log.e(logTag, result.error);
-                    callback.onLoaded(new ArrayList<>());
-                    break;
-            }
-        });
-    }
-
     private void getChatUnreadMessages(UnreadMessagesCallback callback) {
         String logTag = Constants.GLOBAL_LOG_TAG + "GET UNREAD";
         messagesRepository.fetchChatUnreadMessages(chat.getId(), userId, result -> {
@@ -248,9 +250,9 @@ public class ChatFragment extends Fragment {
     }
 
     private void setupOnlineStatusUpdate() {
-        int receiverId = chat.getChatInfo().getPersonalReceiver(userId);
-        if (receiverId != 0) {
+        if (chat != null && chat.getPartnerId() != null) {
             // init render
+            int receiverId = chat.getPartnerId();
             renderOnline(receiverId);
 
             DatingAppApplication app = DatingAppApplication.getInstance();
@@ -264,8 +266,12 @@ public class ChatFragment extends Fragment {
     @Override
     public void onDestroy() {
         super.onDestroy();
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
         chatsViewModel.unsubscribeUpdateChat(chat.getId());         // Отписываеся от обновлений чата
-        dialogViewModel.clear();
         ChatDTO.selectedChat = null;
     }
 
@@ -383,12 +389,15 @@ public class ChatFragment extends Fragment {
         if (unreadMessages.isEmpty()) return;
 
         List<Integer> ids = new ArrayList<>();
-        for (MessageDTO message : unreadMessages) ids.add(message.getId());
+        for (MessageDTO message : unreadMessages)
+            ids.add(message.getId());
+
         messagesController.sendReadMessages(chat.getId(), userId, ids, result -> {
             if (result.status == Result.Status.SUCCESS) {
-                ChatDTO temp = chat.copy();
-                temp.setUnreadCount(0);
-                chatsViewModel.updateOrAddChatAndMoveTop(temp);
+                /*ChatDTO temp = chat.copy();
+                temp.setUnreadCount(0);*/
+                chat.setUnreadCount(0);
+                chatsViewModel.updateOrAddChat(chat);
             }
             else Log.e(Constants.GLOBAL_LOG_TAG + "READ MESSAGES", result.error);
         });
@@ -422,31 +431,55 @@ public class ChatFragment extends Fragment {
                 .commit();
     }
 
-    private boolean isFirstPartLoad;
-
     private void subscribeGetMessage() {
-        dialogViewModel.subscribeToHistory(chat.getId(), userId, getViewLifecycleOwner());
-
         dialogViewModel.getMessages().observe(getViewLifecycleOwner(), messages -> {
             if (messages == null) return;
-            Log.d(Constants.GLOBAL_LOG_TAG + "CHAT FRAGMENT", "Observe get new messages! Count: " + messages.size() );
+            Log.d(Constants.GLOBAL_LOG_TAG + "CHAT FRAGMENT", "Подписка на LivaData отработала в ChatFragment! " + messages.size() + " сообщений получено!");
+
             messagesAdapter.submitList(new ArrayList<>(messages));
-            if (!isFirstPartLoad) {
-                isFirstPartLoad = true;
-                layout.setVisibility(VISIBLE);
-                progressBar.setVisibility(GONE);
-            }
+
+
+            updateFabVisibility();
+            if (userIsAtBottom) markVisibleAsRead(); // сразу читаем, если внизу
         });
 
-        dialogViewModel.subscribeToChat(chat.getId(), getViewLifecycleOwner(), this::sendReadMessage);
-    }
+        //dialogViewModel.subscribeToChat(chat.getId(), getViewLifecycleOwner(), this::sendReadMessage);
 
+        // Важно: новые сообщения!
+        dialogViewModel.subscribeToChat(chat.getId(), getViewLifecycleOwner(), message -> {
+            Log.d(Constants.GLOBAL_LOG_TAG + "MESSAGE", "LiveData отработала в ChatFragment - получено новое сообщение!\n" + message);
+            messagesAdapter.addUnreadMessage(message.getId());
+            if (message.getSenderId() != userId) {
+                unreadMessageIds.add(message.getId());
+            }
+
+            if (userIsAtBottom) {
+                markVisibleAsRead();
+            } else {
+                updateFabVisibility(); // покажи FAB если надо
+            }
+        });
+    }
 
     private void enableAutoScrollOnNewMessage() {
         messagesAdapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
             @Override
             public void onItemRangeInserted(int positionStart, int itemCount) {
-                messagesRecyclerView.scrollToPosition(messagesAdapter.getItemCount() - 1);
+                LinearLayoutManager layoutManager = (LinearLayoutManager) messagesRecyclerView.getLayoutManager();
+                if (layoutManager == null) return;
+
+                int lastVisible = layoutManager.findLastVisibleItemPosition();
+                int totalItems = messagesAdapter.getItemCount();
+
+                // Проверка: если вставка в конец списка
+                boolean isNewMessageInsertedAtBottom = (positionStart >= totalItems - itemCount - 1);
+
+                // Проверка: если пользователь был внизу (или почти)
+                boolean wasNearBottom = (lastVisible >= totalItems - itemCount - 2);
+
+                if (isNewMessageInsertedAtBottom && wasNearBottom) {
+                    messagesRecyclerView.scrollToPosition(messagesAdapter.getItemCount() - 1);
+                }
             }
         });
     }
@@ -456,6 +489,66 @@ public class ChatFragment extends Fragment {
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(requireContext());
         linearLayoutManager.setStackFromEnd(true);
         messagesRecyclerView.setLayoutManager(linearLayoutManager);
+        setupScrollListener();
+    }
+
+    private boolean userIsAtBottom() {
+        LinearLayoutManager layoutManager = (LinearLayoutManager) messagesRecyclerView.getLayoutManager();
+        return layoutManager != null &&
+                layoutManager.findLastVisibleItemPosition() >= messagesAdapter.getItemCount() - 2; // с запасом
+    }
+
+    private void setupScrollListener() {
+        messagesRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
+                updateFabVisibility();
+                markVisibleAsRead();
+            }
+        });
+    }
+
+    private void updateFabVisibility() {
+        LinearLayoutManager layoutManager = (LinearLayoutManager) messagesRecyclerView.getLayoutManager();
+        if (layoutManager == null) return;
+
+        int lastVisible = layoutManager.findLastVisibleItemPosition();
+        int totalItems = messagesAdapter.getItemCount();
+
+        userIsAtBottom = (lastVisible >= totalItems - 1);
+        if (userIsAtBottom) {
+            fabNewMessages.hide();
+            newMessagesCount.setVisibility(GONE);
+        } else {
+            fabNewMessages.show();
+            if (!unreadMessageIds.isEmpty()) {
+                newMessagesCount.setText(String.valueOf(unreadMessageIds.size()));
+                newMessagesCount.setVisibility(VISIBLE);
+            }
+        }
+    }
+
+    private void markVisibleAsRead() {
+        LinearLayoutManager layoutManager = (LinearLayoutManager) messagesRecyclerView.getLayoutManager();
+        if (layoutManager == null) return;
+
+        int first = layoutManager.findFirstVisibleItemPosition();
+        int last = layoutManager.findLastVisibleItemPosition();
+
+        if (first == RecyclerView.NO_POSITION || last == RecyclerView.NO_POSITION) return;
+
+        List<MessageDTO> messages = dialogViewModel.getMessages().getValue();
+        if (messages == null || messages.isEmpty()) return;
+
+        for (int i = first; i <= last && i < messages.size(); i++) {
+            MessageDTO msg = messages.get(i);
+            Log.d("READ MESS DEBUG", msg.toString());
+            if (msg.getSenderId() != userId && unreadMessageIds.contains(msg.getId())) {
+                Log.d("READ MESS DEBUG", "true");
+                sendReadMessage(msg);
+                unreadMessageIds.remove(msg.getId());
+            }
+        }
     }
 
     private void setupSendButton() {
@@ -474,6 +567,7 @@ public class ChatFragment extends Fragment {
                         userId,
                         chat.getId());
                 dialogViewModel.sendMessage(messageDTO);
+
                 messageInput.setText("");
                 Log.i(logTag, messageDTO.toString());
             }
@@ -487,10 +581,8 @@ public class ChatFragment extends Fragment {
     private void setupReturnButton() {
         MaterialButton returnButton = activityView.findViewById(R.id.return_button);
         returnButton.setOnClickListener(view -> {
-
             dialogViewModel.clear();
             requireActivity().finish();
-
         });
     }
 

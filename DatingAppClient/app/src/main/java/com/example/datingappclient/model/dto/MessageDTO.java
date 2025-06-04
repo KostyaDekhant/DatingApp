@@ -8,6 +8,7 @@ import java.sql.Timestamp;
 import java.util.Objects;
 
 
+import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -29,6 +30,7 @@ public class MessageDTO {
     private Timestamp sendtime;
 
     @JsonProperty("pk_user")
+    @SerializedName("pk_user")
     private int senderId;
 
     @JsonProperty("pk_chat")

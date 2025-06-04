@@ -31,6 +31,7 @@ import com.example.datingappclient.constants.Constants;
 import com.example.datingappclient.model.UserImage;
 import com.example.datingappclient.model.dto.ChatDTO;
 import com.example.datingappclient.model.dto.ChatInfoDTO;
+import com.example.datingappclient.model.dto.MessageDTO;
 import com.example.datingappclient.model.dto.UserDTO;
 import com.example.datingappclient.recyclerViews.chatsList.ChatsAdapter;
 import com.example.datingappclient.retrofit.repository.ChatsRepository;
@@ -38,11 +39,13 @@ import com.example.datingappclient.retrofit.repository.ImageRepository;
 import com.example.datingappclient.retrofit.wrapper.Result;
 import com.example.datingappclient.utils.ImageUtils;
 import com.example.datingappclient.viewmodels.ChatsViewModel;
+import com.example.datingappclient.viewmodels.DialogViewModel;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 public class ChatListFragment extends Fragment {
@@ -105,6 +108,7 @@ public class ChatListFragment extends Fragment {
         super.onResume();
         if (!isChatsLoading)
             hideProgressBar();
+        DialogViewModel.isClosing = false;
     }
 
     private void setupCreateChatButton() {
@@ -151,7 +155,7 @@ public class ChatListFragment extends Fragment {
             app.setChatsViewModel(chatsViewModel);
         }
 
-        chatsAdapter = new ChatsAdapter((chat1, view) -> startChatActivity(chat1), chatsViewModel, user.getId(), requireContext(), getViewLifecycleOwner());
+        chatsAdapter = new ChatsAdapter((chat1, view) -> startChatActivity(chat1), chatsViewModel, DatingAppApplication.getTokenManager().getUserId(), requireContext(), getViewLifecycleOwner());
         chatsAdapter.observeOnlineStatus();
 
         recyclerView.setAdapter(chatsAdapter);
@@ -163,8 +167,6 @@ public class ChatListFragment extends Fragment {
     private void subscribeToGetChats() {
         LinearLayoutManager layoutManager = (LinearLayoutManager) recyclerView.getLayoutManager();
         chatsViewModel.getChats().observe(getViewLifecycleOwner(), chatList -> {
-            /*Log.d("chat1", chatsAdapter.getCurrentList().toString());
-            Log.d("chat1", chatList.toString());*/
             if (layoutManager.findFirstVisibleItemPosition() == 0) {
                 chatsAdapter.submitList(chatList, () -> recyclerView.scrollToPosition(0));
             } else {
@@ -190,17 +192,47 @@ public class ChatListFragment extends Fragment {
         for (ChatDTO chat : chatList) {
             if (subscribedChatIds.contains(chat.getId())) continue;
 
+            String logTag = Constants.GLOBAL_LOG_TAG + "CATCH MESSAGE";
             subscribedChatIds.add(chat.getId());
             chatsViewModel.getMessageStream(chat.getId())
-                    .observe(getViewLifecycleOwner(), message -> {
-                        Log.d(Constants.GLOBAL_LOG_TAG + "CATCH MESSAGE", "Отловлено сообщение в чате (список чатов)\n" + message.toString());
+                    .observe(getViewLifecycleOwner(), event -> {
+                        MessageDTO message = event.getContentIfNotHandled();
+                        if (message == null) {
+                            Log.d(logTag, "Сообщение уже было обработано!\n");
+                            return;
+                        }
 
-                        ChatDTO temp = chat.copy();
+                        Log.d(logTag, "Подписка на LiveData сработала в списке чатов!\n" + message);
+
+                        ChatDTO currentChat = chatsViewModel.findChatById(chat.getId());
+                        if (Objects.equals(chat.getLastMessage(), message)) {
+                            Log.d(logTag, "Полученное сообщение уже последнее, пропускаю!\n");
+                            return;
+                        }
+
+                        if (currentChat == null) {
+                            Log.d(logTag, "Актуальный чат не найден! chatId" + chat.getId() );
+                            return;
+                        }
+
+                        Log.d(logTag, "Чат до копирования:\n" + currentChat);
+                        ChatDTO temp = currentChat.copy();
+                        Log.d(logTag, "Чат после копирования:\n" + temp);
                         if (message.getSenderId() != user.getId()) {
-                            temp.setUnreadCount(temp.getUnreadCount() + 1);
+                            Log.d(logTag, "Сообщение написано не юзером, увеличиваю счетчик! " + temp.getUnreadCount() + " + 1");
+                            int incrementCount = temp.getUnreadCount() + 1;
+                            temp.setUnreadCount(incrementCount);
                         }
                         temp.setLastMessage(message);
 
+                        // Попробую не через копию
+                        /*if (message.getSenderId() != user.getId()) {
+                            Log.d(logTag, "Сообщение написано не юзером, увеличиваю счетчик! " + chat.getUnreadCount() + " + 1");
+                            int incrementCount = chat.getUnreadCount() + 1;
+                            chat.setUnreadCount(incrementCount);
+                        }*/
+
+                        Log.d(logTag, "Попытка изменить lastMessage и индикатор!\n" + temp);
                         chatsViewModel.updateOrAddChatAndMoveTop(temp);
                     });
         }

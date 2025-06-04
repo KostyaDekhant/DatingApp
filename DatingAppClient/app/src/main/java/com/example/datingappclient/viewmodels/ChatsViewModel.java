@@ -7,6 +7,7 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
 import com.example.datingappclient.constants.Constants;
+import com.example.datingappclient.model.Event;
 import com.example.datingappclient.model.dto.ChatDTO;
 import com.example.datingappclient.model.dto.MessageDTO;
 import com.example.datingappclient.retrofit.wrapper.ResultCallback;
@@ -79,6 +80,15 @@ public class ChatsViewModel extends ViewModel {
         return webSocketService.subscribeToChatCreatedEvents(userId, callback);
     }
 
+    public ChatDTO findChatById(int chatId) {
+        List<ChatDTO> currentChats = chats.getValue();
+        if (currentChats == null) return null;
+
+        for (ChatDTO chat : currentChats) {
+            if (chat.getId() == chatId) return chat;
+        }
+        return null;
+    }
 
     public void updateOrAddChatAndMoveTop(ChatDTO chat) {
         String logTag = Constants.GLOBAL_LOG_TAG + "UPDATE/ADD CHAT";
@@ -133,6 +143,17 @@ public class ChatsViewModel extends ViewModel {
         }
 
         chats.setValue(newList);
+    }
+
+    private void appendChatIfAbsent(ChatDTO chat) {
+        List<ChatDTO> current = chats.getValue();
+        if (current == null) current = new ArrayList<>();
+
+        boolean exists = current.stream().anyMatch(c -> c.getId().equals(chat.getId()));
+        if (!exists) {
+            current.add(chat); // добавляем В КОНЕЦ
+            chats.setValue(new ArrayList<>(current)); // новая копия — триггер обновления
+        }
     }
 
     public void moveChatToTop(ChatDTO updatedChat) {
@@ -197,9 +218,9 @@ public class ChatsViewModel extends ViewModel {
     }
 
     public void addChats(List<ChatDTO> newChats) {
-        Collections.reverse(newChats);
+        //Collections.reverse(newChats);
         for (ChatDTO chat : newChats) {
-            updateOrAddChatAndMoveTop(chat);
+            appendChatIfAbsent(chat);
         }
         /*List<ChatDTO> currentList = chats.getValue();
 
@@ -225,7 +246,7 @@ public class ChatsViewModel extends ViewModel {
     /**
      * Получить поток входящих сообщений для конкретного чата
      */
-    public LiveData<MessageDTO> getMessageStream(int chatId) {
+    public LiveData<Event<MessageDTO>> getMessageStream(int chatId) {
         return webSocketService.subscribeToChat(chatId);
     }
 

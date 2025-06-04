@@ -42,19 +42,19 @@ public class EventsRepository {
         });
     }
 
-    public void createEvent(EventDTO event, ResultCallback<Void> callback) {
+    public void createEvent(EventDTO event, ResultCallback<Integer> callback) {
         eventsController.createEvent(event).enqueue(new Callback<>() {
             @Override
-            public void onResponse(Call<Void> call, Response<Void> response) {
+            public void onResponse(Call<Integer> call, Response<Integer> response) {
                 if (response.isSuccessful()) {
-                    callback.onResult(Result.success(null));
+                    callback.onResult(Result.success(response.body()));
                 } else {
                     callback.onResult(Result.error("Ошибка создания мероприятия: " + response.message()));
                 }
             }
 
             @Override
-            public void onFailure(Call<Void> call, Throwable throwable) {
+            public void onFailure(Call<Integer> call, Throwable throwable) {
                 callback.onResult(Result.error("Ошибка сети: " + throwable.getMessage()));
             }
         });

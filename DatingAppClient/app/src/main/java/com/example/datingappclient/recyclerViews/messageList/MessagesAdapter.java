@@ -171,7 +171,8 @@ public class MessagesAdapter extends ListAdapter<MessageDTO, MessagesHolder> {
             if (result.status == Result.Status.SUCCESS) {
                 Log.d(Constants.GLOBAL_LOG_TAG + "MEMBER IMAGE", "Success");
                 List<UserImage> image = ImageUtils.objectListToUserImageList(result.data);
-                membersImages.put(memberId, image.get(0).getImage());
+                if (!image.isEmpty() && image.get(0) != null)
+                    membersImages.put(memberId, image.get(0).getImage());
                 callback.onLoad();
             }
             else Log.e(Constants.GLOBAL_LOG_TAG + "MEMBER IMAGE", "Wrong or empty");

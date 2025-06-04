@@ -15,4 +15,7 @@ public interface MessagesController {
 
     @GET("api/group_chats/{chatId}/messages/unread")
     Call<List<MessageDTO>> getChatUnreadMessages(@Path("chatId") int chatId, @Query("userId") int userId);
+
+    @GET("api/group_chats/{chatId}/history")
+    Call<List<MessageDTO>> getHistory(@Path("chatId") int chatId, @Query("limit") int limit, @Query("offset") int offset);
 }

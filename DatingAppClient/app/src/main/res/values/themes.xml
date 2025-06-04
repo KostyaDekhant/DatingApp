@@ -36,6 +36,8 @@
         <!-- -->
         <item name="textEditHeight">55dp</item>
         <item name="buttonHeight">50dp</item>
+        
+        <item name="colorControlHighlight">@color/green</item>
     </style>
 
     <style name="Theme.DatingAppClient.Default" parent="Base.Theme.DatingAppClient">

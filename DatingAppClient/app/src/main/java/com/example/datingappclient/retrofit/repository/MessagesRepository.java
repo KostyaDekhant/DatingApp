@@ -58,4 +58,21 @@ public class MessagesRepository {
         });
     }
 
+    public void fetchHistory(int chatId, int limit, int offset, ResultCallback<List<MessageDTO>> callback) {
+        messagesController.getHistory(chatId, limit, offset).enqueue(new Callback<>() {
+            @Override
+            public void onResponse(Call<List<MessageDTO>> call, Response<List<MessageDTO>> response) {
+                if (response.isSuccessful()) {
+                    if (response.body() != null && !response.body().isEmpty()) callback.onResult(Result.success(response.body()));
+                    else callback.onResult(Result.empty());
+                }
+                else callback.onResult(Result.error("Ошибка при получении истории собщений! " + response.code() + " " + response.message()));
+            }
+
+            @Override
+            public void onFailure(Call<List<MessageDTO>> call, Throwable throwable) {
+                callback.onResult(Result.error("Ошибка сети или данных!" + throwable.getMessage()));
+            }
+        });
+    }
 }

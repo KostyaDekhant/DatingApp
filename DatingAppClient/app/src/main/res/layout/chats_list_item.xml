@@ -31,7 +31,7 @@
         android:textSize="?attr/textSizeSmall"
         android:maxLines="1"
         android:ellipsize="end"
-        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/countUnread"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/username_label" />
