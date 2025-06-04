@@ -60,4 +60,15 @@
             android:layout_weight="1" />
     </LinearLayout>
 
+    <TextView
+        android:id="@+id/emptyContactsView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Контактов еще нет!\nСкорее начинайте общение"
+        android:textAlignment="center"
+        android:layout_gravity="center"
+        android:textSize="?attr/textSizeLarge"
+        android:textStyle="bold"
+        android:visibility="gone"/>
+
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

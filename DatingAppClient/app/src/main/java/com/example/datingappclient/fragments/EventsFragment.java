@@ -1,5 +1,8 @@
 package com.example.datingappclient.fragments;
 
+import static android.view.View.GONE;
+import static android.view.View.VISIBLE;
+
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
 import android.os.Bundle;
@@ -11,6 +14,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.Toolbar;
 
@@ -50,6 +54,8 @@ public class EventsFragment extends Fragment {
     private EventsAdapter adapter;
     private EventsRepository eventsRepository;
 
+    private TextView emptyEventsView;
+
     private EventsFragment() {}
 
     public static Fragment newInstance(UserDTO user) {
@@ -62,6 +68,8 @@ public class EventsFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         activityView = inflater.inflate(R.layout.fragment_events, container, false);
+
+        emptyEventsView = activityView.findViewById(R.id.emptyEventsView);
 
         setupRepository();
         setupToolbar();
@@ -310,6 +318,7 @@ public class EventsFragment extends Fragment {
                     Toast.makeText(getContext(), "Ошибка выхода их мероприятия " + event.getTitle(), Toast.LENGTH_SHORT).show();
                     break;
             }
+            renderEmptyLabel();
         });
     }
 
@@ -332,6 +341,7 @@ public class EventsFragment extends Fragment {
                     Toast.makeText(getContext(), "Ошибка присоеденения к мероприятию " + event.getTitle(), Toast.LENGTH_SHORT).show();
                     break;
             }
+            renderEmptyLabel();
         });
     }
 
@@ -361,7 +371,13 @@ public class EventsFragment extends Fragment {
                     Log.d(logTag, "Мероприятий не найдено!");
                     break;
             }
+            renderEmptyLabel();
         });
+    }
+
+    private void renderEmptyLabel() {
+        if (adapter.getCurrentList().isEmpty()) emptyEventsView.setVisibility(VISIBLE);
+        else emptyEventsView.setVisibility(GONE);
     }
 
     private void loadFakeData() {

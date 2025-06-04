@@ -1,5 +1,8 @@
 package com.example.datingappclient.fragments;
 
+import static android.view.View.GONE;
+import static android.view.View.VISIBLE;
+
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -8,6 +11,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -66,12 +71,24 @@ public class ContactsFragment extends Fragment {
         membersAdapter.setEditMembers(false);
         membersAdapter.observeOnlineStatus(getViewLifecycleOwner());
 
-        if (contacts != null) {
+        TextView emptyLabel = activityView.findViewById(R.id.emptyContactsView);
+        LinearLayout mainContent = activityView.findViewById(R.id.mainContent);
+
+        if (contacts != null && !contacts.getChatMembers().getValue().isEmpty()) {
             membersAdapter.setFullList(contacts.getChatMembers().getValue());
             recyclerView.setAdapter(membersAdapter);
 
-            contacts.getChatMembers().observe(getViewLifecycleOwner(), membersAdapter::submitList);
+            contacts.getChatMembers().observe(getViewLifecycleOwner(), chatMemberDTOS -> {
+                membersAdapter.submitList(chatMemberDTOS);
+                mainContent.setVisibility(VISIBLE);
+                emptyLabel.setVisibility(GONE);
+            });
         }
+        else {
+            mainContent.setVisibility(GONE);
+            emptyLabel.setVisibility(VISIBLE);
+        }
+
         membersAdapter.setMemberClickListener(member -> {
             Fragment profileFragment = Objects.equals(member.getId(), userId) ? UserFragment.getInstance() : ProfileFragment.getInstance(member.getId());
 
