@@ -56,7 +56,7 @@ public class EventService {
     }
 
     @Transactional
-    public void createEvent(EventDTO eventDTO) {
+    public Integer createEvent(EventDTO eventDTO) {
         try{
             log.info("Сохранение ивента " + eventDTO.toString());
             Event event = new Event(eventDTO);
@@ -73,6 +73,7 @@ public class EventService {
                 eventParticipantRepo.save(eventParticipant);
             }
             log.info("Успешно создан ивент");
+            return event.getPkEvent();
         }catch(Exception e){
             throw new RuntimeException("Ошибка при создании мероприятия: " + e.getMessage());
         }

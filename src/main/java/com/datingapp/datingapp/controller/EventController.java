@@ -21,9 +21,9 @@ public class EventController {
     }
 
     @PostMapping("/create")
-    public ResponseEntity<Void> createEvent(@RequestBody EventDTO eventDTO){
-        eventService.createEvent(eventDTO);
-        return ResponseEntity.ok().build();
+    public ResponseEntity<Integer> createEvent(@RequestBody EventDTO eventDTO){
+        Integer id = eventService.createEvent(eventDTO);
+        return ResponseEntity.ok(id);
     }
 
     @PostMapping("/{eventId}/members")
