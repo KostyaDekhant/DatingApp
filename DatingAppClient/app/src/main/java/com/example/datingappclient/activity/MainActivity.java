@@ -33,6 +33,7 @@ import com.example.datingappclient.fragments.EventsFragment;
 import com.example.datingappclient.fragments.GroupChatMembersFragment;
 import com.example.datingappclient.fragments.LikeFragment;
 import com.example.datingappclient.fragments.FormsFragment;
+import com.example.datingappclient.fragments.LikesFragment;
 import com.example.datingappclient.fragments.UserFragment;
 import com.example.datingappclient.model.dto.CategoryDTO;
 import com.example.datingappclient.model.dto.InterestDTO;
@@ -222,7 +223,7 @@ public class MainActivity extends AppCompatActivity {
             if (itemId == R.id.user) {
                 selectedFragment = UserFragment.getInstance();
             } else if (itemId == R.id.like) {
-                selectedFragment = LikeFragment.newInstance(user);
+                selectedFragment = LikesFragment.newInstance(user);
             } else if (itemId == R.id.search) {
                 selectedFragment = FormsFragment.newInstance(userId);
             } else if (itemId == R.id.chat) {

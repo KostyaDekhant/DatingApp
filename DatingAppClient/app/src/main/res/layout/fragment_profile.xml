@@ -135,6 +135,7 @@
                 android:layout_marginTop="24dp"
                 android:layout_marginStart="16dp"
                 android:text="В КОМПАНИИ"
+                android:visibility="gone"
                 android:textColor="?attr/textColorMainReverse"
                 android:textSize="?attr/textSizeMedium"/>
 
@@ -146,6 +147,7 @@
                 android:layout_marginTop="8dp"
                 android:layout_marginStart="16dp"
                 android:layout_marginEnd="16dp"
+                android:visibility="gone"
                 android:text="Должность"
                 android:textColor="?attr/textColorMainReverse"
                 android:textSize="?attr/textSizeSmall" />
@@ -158,6 +160,7 @@
                 android:layout_marginTop="4dp"
                 android:layout_marginStart="16dp"
                 android:layout_marginEnd="16dp"
+                android:visibility="gone"
                 android:text="Компания"
                 android:textColor="?attr/textColorMainReverse"
                 android:textSize="?attr/textSizeSmall" />
@@ -170,6 +173,7 @@
                 android:layout_marginTop="4dp"
                 android:layout_marginStart="16dp"
                 android:layout_marginEnd="16dp"
+                android:visibility="gone"
                 android:text="Отдел"
                 android:textColor="?attr/textColorMainReverse"
                 android:textSize="?attr/textSizeSmall" />
@@ -182,6 +186,7 @@
                 android:layout_marginTop="4dp"
                 android:layout_marginStart="16dp"
                 android:layout_marginEnd="16dp"
+                android:visibility="gone"
                 android:text="Офис"
                 android:textColor="?attr/textColorMainReverse"
                 android:textSize="?attr/textSizeSmall" />

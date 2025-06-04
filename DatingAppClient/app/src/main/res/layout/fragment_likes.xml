@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/mainContent"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <androidx.cardview.widget.CardView
+            android:id="@+id/cardView"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintBottom_toTopOf="@id/bottomActions"
+            android:layout_margin="16dp"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="8dp">
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <!-- Изображение пользователя -->
+                <ImageView
+                    android:id="@+id/user_image"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:scaleType="centerCrop"
+                    android:contentDescription="User photo" />
+
+                <!-- Градиент поверх изображения -->
+                <View
+                    android:id="@+id/gradientOverlay"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_gravity="bottom"
+                    android:background="@drawable/bottom_gradient" />
+
+                <!-- Имя пользователя -->
+                <TextView
+                    android:id="@+id/username_label"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="16dp"
+                    android:text="ИМЯ,"
+                    android:textStyle="bold"
+                    android:textSize="?attr/textSizeLarge"
+                    android:textColor="?attr/textColorMainReverse"
+                    app:layout_constraintBottom_toTopOf="@+id/interests_container"
+                    app:layout_constraintStart_toStartOf="parent" />
+
+                <!-- Возраст -->
+                <TextView
+                    android:id="@+id/age_label"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="5dp"
+                    android:text="ВОЗРАСТ"
+                    android:textStyle="bold"
+                    android:textSize="?attr/textSizeLarge"
+                    android:textColor="?attr/textColorMainReverse"
+                    app:layout_constraintBottom_toTopOf="@+id/interests_container"
+                    app:layout_constraintStart_toEndOf="@+id/username_label" />
+
+                <!-- Баблы интересов -->
+                <com.google.android.flexbox.FlexboxLayout
+                    android:id="@+id/interests_container"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginHorizontal="16dp"
+                    android:paddingTop="5dp"
+                    app:flexWrap="wrap"
+                    app:justifyContent="flex_start"
+                    app:layout_constraintBottom_toTopOf="@id/description_label"
+                    app:layout_constraintStart_toStartOf="parent" />
+
+                <!-- Описание -->
+                <TextView
+                    android:id="@+id/description_label"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="16dp"
+                    android:layout_marginEnd="16dp"
+                    android:layout_marginBottom="16dp"
+                    android:text="ОПИСАНИЕ"
+                    android:textSize="?attr/textSizeMedium"
+                    android:textColor="?attr/textColorMainReverse"
+                    android:maxLines="2"
+                    android:ellipsize="end"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent" />
+            </androidx.constraintlayout.widget.ConstraintLayout>
+        </androidx.cardview.widget.CardView>
+
+        <!-- Нижние кнопки с FAB -->
+        <LinearLayout
+            android:id="@+id/bottomActions"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:gravity="center"
+            android:orientation="horizontal"
+            android:padding="16dp">
+
+            <!-- Пропустить -->
+            <com.google.android.material.floatingactionbutton.FloatingActionButton
+                android:id="@+id/btnSkip"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="8dp"
+                android:contentDescription="Skip"
+                app:backgroundTint="@color/white"
+                app:srcCompat="@drawable/ic_arrow_drop_down" />
+
+            <!-- Дизлайк -->
+            <com.google.android.material.floatingactionbutton.FloatingActionButton
+                android:id="@+id/btnDislike"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="8dp"
+                android:contentDescription="Dislike"
+                app:backgroundTint="@color/white"
+                app:srcCompat="@drawable/ic_dislike"
+                app:tint="@color/red"/>
+
+            <!-- Лайк -->
+            <com.google.android.material.floatingactionbutton.FloatingActionButton
+                android:id="@+id/btnLike"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="8dp"
+                android:contentDescription="Like"
+                app:backgroundTint="@color/white"
+                app:srcCompat="@drawable/ic_like"
+                app:tint="@color/green"/>
+        </LinearLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <TextView
+        android:id="@+id/noLikes_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Пока вашу анкету никто не лайкнул."
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:textAlignment="center"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
+
+    <ProgressBar
+        android:id="@+id/progressBar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:visibility="gone"/>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

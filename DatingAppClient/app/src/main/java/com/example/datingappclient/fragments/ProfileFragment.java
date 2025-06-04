@@ -80,13 +80,13 @@ public class ProfileFragment extends Fragment {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        postponeEnterTransition();
+        /*postponeEnterTransition();
 
         Transition transition = TransitionInflater.from(requireContext())
                 .inflateTransition(android.R.transition.move);
 
         setSharedElementEnterTransition(transition);
-        setSharedElementReturnTransition(transition);
+        setSharedElementReturnTransition(transition);*/
     }
 
     @Nullable
@@ -123,7 +123,6 @@ public class ProfileFragment extends Fragment {
         getUserImages(user.getId());
         getUserCompanyInfo(user.getId());
         getUserBubbles();
-
 
         return activityView;
     }
@@ -212,7 +211,6 @@ public class ProfileFragment extends Fragment {
             switch (result.status) {
                 case SUCCESS:
                     user.setCompanyInfo(result.data);
-                    setCompanyInfoUI();
                     Log.i(logTag, result.data.toString());
                     break;
                 case ERROR:
@@ -222,17 +220,43 @@ public class ProfileFragment extends Fragment {
                     Log.i(logTag, "Информация о компании не найдена для юзера id=" + userId);
                     break;
             }
+            setCompanyInfoUI();
         });
     }
 
     private void setCompanyInfoUI() {
         CompanyInfoDTO company = user.getCompanyInfo();
-        if (company == null) return;
+        boolean flag = true;
+        if (company == null) {
+            ((TextView) activityView.findViewById(R.id.usercompany_label)).setVisibility(GONE);
+            return;
+        }
 
-        ((TextView) activityView.findViewById(R.id.role_value)).setText("Должность: " + company.getRole());
-        ((TextView) activityView.findViewById(R.id.company_value)).setText("Компания: " + company.getCompanyName());
-        ((TextView) activityView.findViewById(R.id.department_value)).setText("Отдел: " + company.getDepartment());
-        ((TextView) activityView.findViewById(R.id.office_value)).setText("Офис:" + company.getOffice());
+        if (company.getRole() != null && !company.getRole().isEmpty()) {
+            ((TextView) activityView.findViewById(R.id.role_value)).setText("Должность: " + company.getRole());
+            ((TextView) activityView.findViewById(R.id.role_value)).setVisibility(VISIBLE);
+        }
+        else flag = false;
+
+        if (company.getCompanyName() != null && !company.getCompanyName().isEmpty()) {
+            ((TextView) activityView.findViewById(R.id.company_value)).setText("Компания: " + company.getCompanyName());
+            ((TextView) activityView.findViewById(R.id.company_value)).setVisibility(VISIBLE);
+        }
+        else flag = false;
+
+        if (company.getDepartment() != null && !company.getDepartment().isEmpty()) {
+            ((TextView) activityView.findViewById(R.id.department_value)).setText("Отдел: " + company.getDepartment());
+            ((TextView) activityView.findViewById(R.id.department_value)).setVisibility(VISIBLE);
+        }
+        else flag = false;
+
+        if (company.getOffice() != null && !company.getOffice().isEmpty()) {
+            ((TextView) activityView.findViewById(R.id.office_value)).setText("Офис:" + company.getOffice());
+            ((TextView) activityView.findViewById(R.id.office_value)).setVisibility(VISIBLE);
+        }
+        else flag = false;
+
+        if (flag) ((TextView) activityView.findViewById(R.id.usercompany_label)).setVisibility(GONE);
     }
 
     private void getUserImages(int userId) {

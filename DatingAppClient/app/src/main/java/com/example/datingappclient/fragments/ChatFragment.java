@@ -424,8 +424,8 @@ public class ChatFragment extends Fragment {
     private void openFragment(Fragment fragment) {
         getParentFragmentManager()
                 .beginTransaction()
-                .setReorderingAllowed(true)
-                .addSharedElement(profileImage, "profile_photo")
+                //.setReorderingAllowed(true)
+                //.addSharedElement(profileImage, "profile_photo")
                 .replace(R.id.fragment_container, fragment)
                 .addToBackStack(null)
                 .commit();
@@ -437,7 +437,6 @@ public class ChatFragment extends Fragment {
             Log.d(Constants.GLOBAL_LOG_TAG + "CHAT FRAGMENT", "Подписка на LivaData отработала в ChatFragment! " + messages.size() + " сообщений получено!");
 
             messagesAdapter.submitList(new ArrayList<>(messages));
-
 
             updateFabVisibility();
             if (userIsAtBottom) markVisibleAsRead(); // сразу читаем, если внизу
