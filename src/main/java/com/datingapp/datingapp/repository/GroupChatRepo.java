@@ -179,6 +179,10 @@ gc.pk_group_chat       AS chat_id,
 WHEN gc.is_group THEN gc.name
 ELSE other_user.name
 END                     AS chat_name,
+     CASE
+       WHEN NOT gc.is_group THEN other_user.user_id
+       ELSE NULL
+     END AS partner_id, 
 lm.pk_message              AS last_message,
   COALESCE(lm.time, gc.created_at)            AS last_time
 FROM
@@ -198,7 +202,7 @@ LEFT JOIN LATERAL (
 ) lm ON TRUE
 
 LEFT JOIN LATERAL (
-        SELECT u.name
+        SELECT u.name, u.pk_user AS user_id
                 FROM chat_member cm2
                 JOIN "user" u
                 ON u.pk_user = cm2.user_id
