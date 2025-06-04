@@ -147,7 +147,9 @@ public class UserService {
         }
         Optional<UserCompanyInfo> userCompanyInfo = userCompanyRepo.findByPkUser(id);
         if(userCompanyInfo.isEmpty()) {
-            throw new UserCompanyInfoNotExistsException("Нет информации о компании для пользователя с id " + id);
+            log.info("Нет информации о компании для пользователя с id " + id);
+            return null;
+            //throw new UserCompanyInfoNotExistsException();
         }
         return new UserCompanyInfoDto(userCompanyInfo.get());
     }
