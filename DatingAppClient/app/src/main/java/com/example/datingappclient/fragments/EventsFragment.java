@@ -349,7 +349,7 @@ public class EventsFragment extends Fragment {
         EventsParamsDTO params = new EventsParamsDTO(
                 Timestamp.valueOf("2025-01-01 00:00:00"),   // start_time
                 Timestamp.valueOf("2025-12-31 23:59:59"), // end_time
-                50,     // capacity
+                50000,     // capacity
                 20,     // limit: сколько элементов хотим получить
                 0       // offset: с какого по счёту (0 — с начала)
         );

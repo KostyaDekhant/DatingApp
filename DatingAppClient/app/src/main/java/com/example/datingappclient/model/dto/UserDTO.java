@@ -69,10 +69,11 @@ public class UserDTO
         this.id = id;
     }
 
-    public UserDTO(int id, String name, LocalDate birthday) {
+    public UserDTO(int id, String name, LocalDate birthday, String gender) {
         this.id = id;
         this.name = name;
         this.birthday = birthday;
+        this.gender = gender;
     }
 
     public void copyFrom(UserDTO other) {

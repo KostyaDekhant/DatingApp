@@ -7,6 +7,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.RadioGroup;
 import android.widget.Toast;
 import android.app.DatePickerDialog;
 import android.text.InputType;
@@ -28,6 +29,8 @@ import com.example.datingappclient.R;
 
 import java.text.SimpleDateFormat;
 import java.util.Locale;
+import java.util.Objects;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class SignupFragment extends Fragment {
 
@@ -42,7 +45,7 @@ public class SignupFragment extends Fragment {
     private TextInputEditText inputName;
 
     /* === Other === */
-    private String login, pass, name, birthday;
+    private String login, pass, name, birthday, gender;
 
     public SignupFragment() {
         // Required empty public constructor
@@ -122,8 +125,17 @@ public class SignupFragment extends Fragment {
             name = inputName.getText().toString();
             birthday = inputBirthday.getText().toString();
 
+            RadioGroup genderRadioGroup = activityView.findViewById(R.id.gender_radioGroup);
+            genderRadioGroup.setOnCheckedChangeListener((group, checkedId) -> {
+                if (checkedId == R.id.male_radio) {
+                    gender = "Male";
+                } else if (checkedId == R.id.female_radio) {
+                    gender = "Female";
+                }
+            });
+
             // !!! Проверка на пустые поля
-            if (login.isEmpty() || pass.isEmpty() || name.isEmpty() || birthday.isEmpty()) {
+            if (login.isEmpty() || pass.isEmpty() || name.isEmpty() || birthday.isEmpty() || gender == null || gender.isEmpty()) {
                 Snackbar.make(view, "Все поля должны быть заполнены", Snackbar.LENGTH_LONG).show();
                 return;
             }
@@ -158,7 +170,7 @@ public class SignupFragment extends Fragment {
     }
 
     private void updateUser(AuthResponse authResponse) {
-        UserDTO userDTO = new UserDTO(authResponse.getUserId(), name, DateUtils.stringToLocalDate(birthday));
+        UserDTO userDTO = new UserDTO(authResponse.getUserId(), name, DateUtils.stringToLocalDate(birthday), gender);
         String logTag = Constants.GLOBAL_LOG_TAG + "SIGNUP. Update user";
         Log.d(logTag, userDTO.toString());
 
