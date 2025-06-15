@@ -15,7 +15,7 @@ public class ServerConfig implements WebServerFactoryCustomizer<TomcatServletWeb
 
     private Connector createHttpConnector() {
         Connector connector = new Connector(TomcatServletWebServerFactory.DEFAULT_PROTOCOL);
-        connector.setPort(8080); // HTTP порт для тестов
+        connector.setPort(8082); // HTTP порт для тестов
         return connector;
     }
 }
