@@ -216,6 +216,7 @@ public class LikesFragment extends Fragment {
                     chatsRepository.fetchChat(chatId, user.getId(), result1 -> {
                         if (result1.status == Result.Status.SUCCESS) {
                             result1.data.setPartnerId(like.getLikerId());
+                            result1.data.setImage(like.getImage());
                             startChatActivity(result1.data);
                         }
                     });
@@ -241,6 +242,7 @@ public class LikesFragment extends Fragment {
         intent.putExtra("userId", user.getId());
         ChatDTO.selectedChat = data;
         startActivity(intent);
+        renderLikes();
     }
 
     private ChatDTO getGroupChatFromLike(LikeDTO like) {
