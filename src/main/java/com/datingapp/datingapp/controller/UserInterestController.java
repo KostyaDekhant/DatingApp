@@ -14,10 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -117,6 +114,30 @@ public class UserInterestController {
         }
         return ResponseEntity.ok(userInterestsDto);
 
+    }
+
+    @GetMapping("/users/{userId}/interestsByCategories")
+    public ResponseEntity<Map<Integer, List<UserInterestDto>>> listUserInterestByCategories(@PathVariable("userId") int userId){
+        log.info("начало");
+        Map<Integer, List<UserInterestDto>> res = new LinkedHashMap<>();
+        for(int i = 1; i <= categoryInterests.size(); i++) {
+            List<UserInterest> userInterests =
+                    userInterestService.userListInterestByIdCategory(userId, i, interests);
+            List<UserInterestDto> userInterestsDto = new ArrayList<>();
+            for (UserInterest userInterest : userInterests) {
+                Integer interestId = userInterest.getId().getInterestId();
+                String name = interestMap.get(interestId);
+                Integer weight = userInterest.getWeight();
+                String description = userInterest.getDescription();
+
+                UserInterestDto userInterestDto = new UserInterestDto(
+                        interestId, name, weight, description);
+                userInterestsDto.add(userInterestDto);
+            }
+            res.put(i, userInterestsDto);
+        }
+        log.info("конец");
+        return ResponseEntity.ok(res);
     }
 
 
