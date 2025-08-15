@@ -70,6 +70,7 @@ public class SecurityConfig {
                         ).permitAll()  // эндпойнты логина/регистрации
                         .requestMatchers(HttpMethod.GET, "/datingapp").permitAll()     // <— handshake
                         .requestMatchers(HttpMethod.GET, "/datingapp/**").permitAll()
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .userDetailsService(userDetailsService)
@@ -82,11 +83,12 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfiguretionSource() {
         CorsConfiguration config = new CorsConfiguration();
-        config.setAllowedOriginPatterns(List.of("http://localhost:*",
-                                                 "http://45.12.255.26:*"));
-        config.setAllowedMethods(List.of("GET", "POST", "PATCH", "PUT", "DELETE", "OPTIONS"));
+        config.setAllowedOriginPatterns(List.of("*"));
+        config.setAllowedMethods(List.of("*"));
         config.setAllowedHeaders(List.of("*"));
         config.setAllowCredentials(true);
+
+        log.info("CORS config loaded: {}", config);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", config);
