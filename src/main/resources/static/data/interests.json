@@ -2,686 +2,686 @@
   {
     "pk_interest": 1,
     "pk_category": 1,
-    "name": "Компьютерные игры"
+    "name": "\uD83D\uDD79 Компьютерные игры"
   },
   {
     "pk_interest": 2,
     "pk_category": 1,
-    "name": "Мода и красота"
+    "name": "\uD83D\uDC5C Мода и красота"
   },
   {
     "pk_interest": 3,
     "pk_category": 1,
-    "name": "Автомобили"
+    "name": "\uD83D\uDE97 Автомобили"
   },
   {
     "pk_interest": 4,
     "pk_category": 1,
-    "name": "IT и технологии"
+    "name": "\uD83E\uDD16 IT и технологии"
   },
   {
     "pk_interest": 5,
     "pk_category": 1,
-    "name": "Психология"
+    "name": "\uD83E\uDDE0 Психология"
   },
   {
     "pk_interest": 6,
     "pk_category": 1,
-    "name": "Астрология"
+    "name": "\uD83D\uDD2E Астрология"
   },
   {
     "pk_interest": 7,
     "pk_category": 1,
-    "name": "Медитации"
+    "name": "☯\uFE0F Медитации"
   },
   {
     "pk_interest": 8,
     "pk_category": 1,
-    "name": "Комиксы"
+    "name": "\uD83E\uDDB8 Комиксы"
   },
   {
     "pk_interest": 9,
     "pk_category": 1,
-    "name": "Манга"
+    "name": "\uD83E\uDDD9\u200D♀\uFE0F Манга"
   },
   {
     "pk_interest": 10,
     "pk_category": 1,
-    "name": "Фанфики"
+    "name": "\uD83D\uDD8B Фанфики"
   },
   {
     "pk_interest": 11,
     "pk_category": 1,
-    "name": "Коллекционирование"
+    "name": "\uD83D\uDCE6 Коллекционирование"
   },
   {
     "pk_interest": 12,
     "pk_category": 1,
-    "name": "Изучение языков"
+    "name": "\uD83C\uDF0F Изучение языков"
   },
   {
     "pk_interest": 13,
     "pk_category": 1,
-    "name": "Стриминги"
+    "name": "\uD83D\uDEDC Стриминги"
   },
   {
     "pk_interest": 14,
     "pk_category": 1,
-    "name": "Игры на приставке"
+    "name": "\uD83C\uDFAE Игры на приставке"
   },
   {
     "pk_interest": 15,
     "pk_category": 2,
-    "name": "Кинотеатры"
+    "name": "\uD83C\uDF7F Кинотеатры"
   },
   {
     "pk_interest": 16,
     "pk_category": 2,
-    "name": "Концерты и шоу"
+    "name": "\uD83C\uDF86 Концерты и шоу"
   },
   {
     "pk_interest": 17,
     "pk_category": 2,
-    "name": "Музеи и галереи"
+    "name": "\uD83C\uDFDB Музеи и галереи"
   },
   {
     "pk_interest": 18,
     "pk_category": 2,
-    "name": "Театры"
+    "name": "\uD83C\uDFAD Театры"
   },
   {
     "pk_interest": 19,
     "pk_category": 2,
-    "name": "Отдых на природе"
+    "name": "\uD83C\uDFD5 Отдых на природе"
   },
   {
     "pk_interest": 20,
     "pk_category": 2,
-    "name": "Фестивали"
+    "name": "\uD83C\uDFA1 Фестивали"
   },
   {
     "pk_interest": 21,
     "pk_category": 2,
-    "name": "Тусовки и клубы"
+    "name": "\uD83E\uDEA9 Тусовки и клубы"
   },
   {
     "pk_interest": 22,
     "pk_category": 2,
-    "name": "Рестораны"
+    "name": "\uD83C\uDF7D Рестораны"
   },
   {
     "pk_interest": 23,
     "pk_category": 2,
-    "name": "Путешествия"
+    "name": "✈\uFE0F Путешествия"
   },
   {
     "pk_interest": 24,
     "pk_category": 2,
-    "name": "Шопинг"
+    "name": "\uD83D\uDECD Шопинг"
   },
   {
     "pk_interest": 25,
     "pk_category": 2,
-    "name": "Встречи с друзьями"
+    "name": "\uD83E\uDD1D Встречи с друзьями"
   },
   {
     "pk_interest": 26,
     "pk_category": 2,
-    "name": "Искусство"
+    "name": "\uD83D\uDDBC Искусство"
   },
   {
     "pk_interest": 27,
     "pk_category": 2,
-    "name": "Активный отдых"
+    "name": "\uD83C\uDFAF Активный отдых"
   },
   {
     "pk_interest": 28,
     "pk_category": 2,
-    "name": "Мастер-классы"
+    "name": "\uD83E\uDDE9 Мастер-классы"
   },
   {
     "pk_interest": 29,
     "pk_category": 2,
-    "name": "Караоке"
+    "name": "\uD83C\uDFA4 Караоке"
   },
   {
     "pk_interest": 30,
     "pk_category": 2,
-    "name": "Квизы"
+    "name": "\uD83C\uDF93 Квизы"
   },
   {
     "pk_interest": 31,
     "pk_category": 3,
-    "name": "Фотография"
+    "name": "\uD83D\uDCF7 Фотография"
   },
   {
     "pk_interest": 32,
     "pk_category": 3,
-    "name": "Видеосъёмка"
+    "name": "\uD83D\uDCF9 Видеосъёмка"
   },
   {
     "pk_interest": 33,
     "pk_category": 3,
-    "name": "Дизайн"
+    "name": "\uD83D\uDD8C Дизайн"
   },
   {
     "pk_interest": 34,
     "pk_category": 3,
-    "name": "Макияж"
+    "name": "\uD83D\uDC84 Макияж"
   },
   {
     "pk_interest": 35,
     "pk_category": 3,
-    "name": "Рукоделие"
+    "name": "\uD83E\uDDF5 Рукоделие"
   },
   {
     "pk_interest": 36,
     "pk_category": 3,
-    "name": "Танцы"
+    "name": "\uD83D\uDD7A Танцы"
   },
   {
     "pk_interest": 37,
     "pk_category": 3,
-    "name": "Пение"
+    "name": "\uD83D\uDDE3 Пение"
   },
   {
     "pk_interest": 38,
     "pk_category": 3,
-    "name": "Музыка"
+    "name": "\uD83C\uDFBC Музыка"
   },
   {
     "pk_interest": 39,
     "pk_category": 3,
-    "name": "Ведение блога"
+    "name": "\uD83E\uDD33 Ведение блога"
   },
   {
     "pk_interest": 40,
     "pk_category": 3,
-    "name": "Рисование"
+    "name": "\uD83D\uDC68\u200D\uD83C\uDFA8 Рисование"
   },
   {
     "pk_interest": 41,
     "pk_category": 3,
-    "name": "Стрит-арт"
+    "name": "\uD83C\uDFA8 Стрит-арт"
   },
   {
     "pk_interest": 42,
     "pk_category": 3,
-    "name": "Флористика"
+    "name": "\uD83D\uDC90 Флористика"
   },
   {
     "pk_interest": 43,
     "pk_category": 3,
-    "name": "Косплей"
+    "name": "\uD83C\uDF8E Косплей"
   },
   {
     "pk_interest": 44,
     "pk_category": 4,
-    "name": "Бег"
+    "name": "\uD83C\uDFC3 Бег"
   },
   {
     "pk_interest": 45,
     "pk_category": 4,
-    "name": "Фитнес"
+    "name": "\uD83D\uDCAA Фитнес"
   },
   {
     "pk_interest": 46,
     "pk_category": 4,
-    "name": "Велосипед"
+    "name": "\uD83D\uDEB2 Велосипед"
   },
   {
     "pk_interest": 47,
     "pk_category": 4,
-    "name": "Верховая езда"
+    "name": "\uD83C\uDFC7 Верховая езда"
   },
   {
     "pk_interest": 48,
     "pk_category": 4,
-    "name": "Лыжи"
+    "name": "\uD83C\uDFBF Лыжи"
   },
   {
     "pk_interest": 49,
     "pk_category": 4,
-    "name": "Йога"
+    "name": "\uD83E\uDDD8\u200D♀\uFE0F Йога"
   },
   {
     "pk_interest": 50,
     "pk_category": 4,
-    "name": "Пилатес"
+    "name": "\uD83E\uDDD8\u200D♂\uFE0F Пилатес"
   },
   {
     "pk_interest": 51,
     "pk_category": 4,
-    "name": "Сноуборд"
+    "name": "\uD83C\uDFC2 Сноуборд"
   },
   {
     "pk_interest": 52,
     "pk_category": 4,
-    "name": "Ролики"
+    "name": "\uD83D\uDEFC Ролики"
   },
   {
     "pk_interest": 53,
     "pk_category": 4,
-    "name": "Скейтборд"
+    "name": "\uD83D\uDEF9 Скейтборд"
   },
   {
     "pk_interest": 54,
     "pk_category": 4,
-    "name": "Самокат"
+    "name": "\uD83D\uDEF4 Самокат"
   },
   {
     "pk_interest": 55,
     "pk_category": 4,
-    "name": "Прогулки"
+    "name": "\uD83D\uDEB6\u200D♀\uFE0F Прогулки"
   },
   {
     "pk_interest": 56,
     "pk_category": 4,
-    "name": "Альпинизм"
+    "name": "\uD83E\uDDD7\u200D♀\uFE0F Альпинизм"
   },
   {
     "pk_interest": 57,
     "pk_category": 5,
-    "name": "Пицца"
+    "name": "\uD83C\uDF55 Пицца"
   },
   {
     "pk_interest": 58,
     "pk_category": 5,
-    "name": "Суши"
+    "name": "\uD83C\uDF63 Суши"
   },
   {
     "pk_interest": 59,
     "pk_category": 5,
-    "name": "Бургеры"
+    "name": "\uD83C\uDF54 Бургеры"
   },
   {
     "pk_interest": 60,
     "pk_category": 5,
-    "name": "Здоровое питание"
+    "name": "\uD83E\uDD66 Здоровое питание"
   },
   {
     "pk_interest": 61,
     "pk_category": 5,
-    "name": "Веганство"
+    "name": "\uD83E\uDD57 Веганство"
   },
   {
     "pk_interest": 62,
     "pk_category": 5,
-    "name": "Вегетарианство"
+    "name": "\uD83E\uDD51 Вегетарианство"
   },
   {
     "pk_interest": 63,
     "pk_category": 5,
-    "name": "Кофе"
+    "name": "☕\uFE0F Кофе"
   },
   {
     "pk_interest": 64,
     "pk_category": 5,
-    "name": "Чай"
+    "name": "\uD83E\uDED6 Чай"
   },
   {
     "pk_interest": 65,
     "pk_category": 5,
-    "name": "Выпечка"
+    "name": "\uD83E\uDD67 Выпечка"
   },
   {
     "pk_interest": 66,
     "pk_category": 5,
-    "name": "Сладости"
+    "name": "\uD83C\uDF6B Сладости"
   },
   {
     "pk_interest": 67,
     "pk_category": 5,
-    "name": "Домашняя кухня"
+    "name": "\uD83E\uDD5F Домашняя кухня"
   },
   {
     "pk_interest": 68,
     "pk_category": 5,
-    "name": "Бабл-ти"
+    "name": "\uD83E\uDDCB Бабл-ти"
   },
   {
     "pk_interest": 69,
     "pk_category": 5,
-    "name": "Паста"
+    "name": "\uD83C\uDF5D Паста"
   },
   {
     "pk_interest": 70,
     "pk_category": 5,
-    "name": "Шаурма"
+    "name": "\uD83C\uDF2F Шаурма"
   },
   {
     "pk_interest": 71,
     "pk_category": 6,
-    "name": "Футбол"
+    "name": "⚽\uFE0F Футбол"
   },
   {
     "pk_interest": 72,
     "pk_category": 6,
-    "name": "Плавание"
+    "name": "\uD83C\uDFCA\u200D♂\uFE0F Плавание"
   },
   {
     "pk_interest": 73,
     "pk_category": 6,
-    "name": "Волейбол"
+    "name": "\uD83C\uDFD0 Волейбол"
   },
   {
     "pk_interest": 74,
     "pk_category": 6,
-    "name": "Баскетбол"
+    "name": "\uD83C\uDFC0 Баскетбол"
   },
   {
     "pk_interest": 75,
     "pk_category": 6,
-    "name": "Хоккей"
+    "name": "\uD83C\uDFD2 Хоккей"
   },
   {
     "pk_interest": 76,
     "pk_category": 6,
-    "name": "Тяжёлая атлетика"
+    "name": "\uD83C\uDFCB\uFE0F Тяжёлая атлетика"
   },
   {
     "pk_interest": 77,
     "pk_category": 6,
-    "name": "Бокс"
+    "name": "\uD83E\uDD4A Бокс"
   },
   {
     "pk_interest": 78,
     "pk_category": 6,
-    "name": "Киберспорт"
+    "name": "\uD83D\uDDA5 Киберспорт"
   },
   {
     "pk_interest": 79,
     "pk_category": 6,
-    "name": "Единоборства"
+    "name": "\uD83E\uDD4B Единоборства"
   },
   {
     "pk_interest": 80,
     "pk_category": 6,
-    "name": "Теннис"
+    "name": "\uD83C\uDFBE Теннис"
   },
   {
     "pk_interest": 81,
     "pk_category": 7,
-    "name": "Кулинария"
+    "name": "\uD83E\uDDD1\u200D\uD83C\uDF73 Кулинария"
   },
   {
     "pk_interest": 82,
     "pk_category": 7,
-    "name": "Настольные игры"
+    "name": "\uD83C\uDFB2 Настольные игры"
   },
   {
     "pk_interest": 83,
     "pk_category": 7,
-    "name": "Кино и сериалы"
+    "name": "\uD83C\uDFAC Кино и сериалы"
   },
   {
     "pk_interest": 84,
     "pk_category": 7,
-    "name": "Садоводство"
+    "name": "\uD83E\uDEB4 Садоводство"
   },
   {
     "pk_interest": 85,
     "pk_category": 7,
-    "name": "Книги"
+    "name": "\uD83D\uDCD6 Книги"
   },
   {
     "pk_interest": 86,
     "pk_category": 7,
-    "name": "Саморазвитие"
+    "name": "\uD83D\uDCA1 Саморазвитие"
   },
   {
     "pk_interest": 87,
     "pk_category": 7,
-    "name": "Онлайн-обучение"
+    "name": "\uD83D\uDCBB Онлайн-обучение"
   },
   {
     "pk_interest": 88,
     "pk_category": 7,
-    "name": "Просмотр шоу"
+    "name": "\uD83D\uDCFA Просмотр шоу"
   },
   {
     "pk_interest": 89,
     "pk_category": 7,
-    "name": "Подкасты"
+    "name": "\uD83D\uDCAC Подкасты"
   },
   {
     "pk_interest": 90,
     "pk_category": 8,
-    "name": "Загородные поездки"
+    "name": "\uD83C\uDF33 Загородные поездки"
   },
   {
     "pk_interest": 91,
     "pk_category": 8,
-    "name": "Турпоходы"
+    "name": "\uD83E\uDDED Турпоходы"
   },
   {
     "pk_interest": 92,
     "pk_category": 8,
-    "name": "Экскурсии"
+    "name": "\uD83D\uDCCD Экскурсии"
   },
   {
     "pk_interest": 93,
     "pk_category": 8,
-    "name": "Пляжный отдых"
+    "name": "\uD83C\uDFD6 Пляжный отдых"
   },
   {
     "pk_interest": 94,
     "pk_category": 8,
-    "name": "Охота и рыбалка"
+    "name": "\uD83C\uDFA3 Охота и рыбалка"
   },
   {
     "pk_interest": 95,
     "pk_category": 8,
-    "name": "Круизы"
+    "name": "\uD83D\uDEF3 Круизы"
   },
   {
     "pk_interest": 96,
     "pk_category": 8,
-    "name": "Горы"
+    "name": "\uD83C\uDFD4 Горы"
   },
   {
     "pk_interest": 97,
     "pk_category": 8,
-    "name": "Мероприятия и концерты"
+    "name": "\uD83C\uDF9F Мероприятия и концерты"
   },
   {
     "pk_interest": 98,
     "pk_category": 8,
-    "name": "Путешествия за границей"
+    "name": "\uD83C\uDFE8 Путешествия за границей"
   },
   {
     "pk_interest": 99,
     "pk_category": 8,
-    "name": "Экстрим"
+    "name": "\uD83D\uDE81 Экстрим"
   },
   {
     "pk_interest": 100,
     "pk_category": 8,
-    "name": "Путешествия по России"
+    "name": "\uD83E\uDE86 Путешествия по России"
   },
   {
     "pk_interest": 101,
     "pk_category": 9,
-    "name": "Кошки"
+    "name": "\uD83D\uDC31 Кошки"
   },
   {
     "pk_interest": 102,
     "pk_category": 9,
-    "name": "Собаки"
+    "name": "\uD83D\uDC36 Собаки"
   },
   {
     "pk_interest": 103,
     "pk_category": 9,
-    "name": "Птицы"
+    "name": "\uD83D\uDC26 Птицы"
   },
   {
     "pk_interest": 104,
     "pk_category": 9,
-    "name": "Рыбки"
+    "name": "\uD83D\uDC20 Рыбки"
   },
   {
     "pk_interest": 105,
     "pk_category": 9,
-    "name": "Кролики"
+    "name": "\uD83D\uDC30 Кролики"
   },
   {
     "pk_interest": 106,
     "pk_category": 9,
-    "name": "Черепахи"
+    "name": "\uD83D\uDC22 Черепахи"
   },
   {
     "pk_interest": 107,
     "pk_category": 9,
-    "name": "Змеи"
+    "name": "\uD83D\uDC0D Змеи"
   },
   {
     "pk_interest": 108,
     "pk_category": 9,
-    "name": "Ящерицы"
+    "name": "\uD83E\uDD8E Ящерицы"
   },
   {
     "pk_interest": 109,
     "pk_category": 9,
-    "name": "Хомяки"
+    "name": "\uD83D\uDC39 Хомяки"
   },
   {
     "pk_interest": 110,
     "pk_category": 10,
-    "name": "Комедии"
+    "name": "\uD83D\uDE05 Комедии"
   },
   {
     "pk_interest": 111,
     "pk_category": 10,
-    "name": "Мультфильмы"
+    "name": "\uD83C\uDF88 Мультфильмы"
   },
   {
     "pk_interest": 112,
     "pk_category": 10,
-    "name": "Исторические"
+    "name": "\uD83D\uDDFF Исторические"
   },
   {
     "pk_interest": 113,
     "pk_category": 10,
-    "name": "Детективы"
+    "name": "\uD83D\uDD75\uFE0F Детективы"
   },
   {
     "pk_interest": 114,
     "pk_category": 10,
-    "name": "Приключения"
+    "name": "\uD83D\uDE82 Приключения"
   },
   {
     "pk_interest": 115,
     "pk_category": 10,
-    "name": "Ужасы"
+    "name": "\uD83D\uDC7B Ужасы"
   },
   {
     "pk_interest": 116,
     "pk_category": 10,
-    "name": "Драмы"
+    "name": "\uD83E\uDD79 Драмы"
   },
   {
     "pk_interest": 117,
     "pk_category": 10,
-    "name": "Мелодрамы"
+    "name": "\uD83E\uDEF6 Мелодрамы"
   },
   {
     "pk_interest": 118,
     "pk_category": 10,
-    "name": "Триллеры"
+    "name": "\uD83D\uDD2B Триллеры"
   },
   {
     "pk_interest": 119,
     "pk_category": 10,
-    "name": "Боевики"
+    "name": "\uD83D\uDCA5 Боевики"
   },
   {
     "pk_interest": 120,
     "pk_category": 10,
-    "name": "Аниме"
+    "name": "\uD83E\uDDDA\u200D♀\uFE0F Аниме"
   },
   {
     "pk_interest": 121,
     "pk_category": 10,
-    "name": "Тру-крайм"
+    "name": "\uD83D\uDD26 Тру-крайм"
   },
   {
     "pk_interest": 122,
     "pk_category": 10,
-    "name": "Документальное кино"
+    "name": "\uD83D\uDD0D Документальное кино"
   },
   {
     "pk_interest": 123,
     "pk_category": 10,
-    "name": "Развлекательные шоу"
+    "name": "\uD83E\uDD39 Развлекательные шоу"
   },
   {
     "pk_interest": 124,
     "pk_category": 10,
-    "name": "Стендап"
+    "name": "\uD83C\uDF99 Стендап"
   },
   {
     "pk_interest": 125,
     "pk_category": 10,
-    "name": "Дорамы"
+    "name": "⛩ Дорамы"
   },
   {
     "pk_interest": 126,
     "pk_category": 10,
-    "name": "Фантастика"
+    "name": "\uD83D\uDC7D Фантастика"
   },
   {
     "pk_interest": 127,
     "pk_category": 11,
-    "name": "Поп-музыка"
+    "name": "\uD83C\uDF6D Поп-музыка"
   },
   {
     "pk_interest": 128,
     "pk_category": 11,
-    "name": "Хип-хоп"
+    "name": "\uD83D\uDC8E Хип-хоп"
   },
   {
     "pk_interest": 129,
     "pk_category": 11,
-    "name": "Электроника"
+    "name": "\uD83C\uDFBC Электроника"
   },
   {
     "pk_interest": 130,
     "pk_category": 11,
-    "name": "Рок"
+    "name": "\uD83C\uDFB8 Рок"
   },
   {
     "pk_interest": 131,
     "pk_category": 11,
-    "name": "Рэп"
+    "name": "\uD83D\uDDD2 Рэп"
   },
   {
     "pk_interest": 132,
     "pk_category": 11,
-    "name": "Классическая музыка"
+    "name": "\uD83C\uDFBB Классическая музыка"
   },
   {
     "pk_interest": 133,
     "pk_category": 11,
-    "name": "Метал"
+    "name": "⛓\uFE0F Метал"
   },
   {
     "pk_interest": 134,
     "pk_category": 11,
-    "name": "Техно"
+    "name": "\uD83C\uDFB9 Техно"
   },
   {
     "pk_interest": 135,
     "pk_category": 11,
-    "name": "Блюз"
+    "name": "\uD83C\uDFB7 Блюз"
   },
   {
     "pk_interest": 136,
     "pk_category": 11,
-    "name": "Меломан"
+    "name": "\uD83C\uDFA7 Меломан"
   },
   {
     "pk_interest": 137,
     "pk_category": 11,
-    "name": "K-pop"
+    "name": "\uD83D\uDD09 K-pop"
   }
 ]
