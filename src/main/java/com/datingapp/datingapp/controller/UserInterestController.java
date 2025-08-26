@@ -118,11 +118,14 @@ public class UserInterestController {
 
     @GetMapping("/users/{userId}/interestsByCategories")
     public ResponseEntity<Map<Integer, List<UserInterestDto>>> listUserInterestByCategories(@PathVariable("userId") int userId){
-        log.info("начало");
         Map<Integer, List<UserInterestDto>> res = new LinkedHashMap<>();
         for(int i = 1; i <= categoryInterests.size(); i++) {
             List<UserInterest> userInterests =
-                    userInterestService.userListInterestByIdCategory(userId, i, interests);
+            userInterestService.userListInterestByIdCategory(userId, i, interests);
+            if (userInterests == null) {
+                userInterests = new ArrayList<>();
+            }
+
             List<UserInterestDto> userInterestsDto = new ArrayList<>();
             for (UserInterest userInterest : userInterests) {
                 Integer interestId = userInterest.getId().getInterestId();
@@ -136,10 +139,18 @@ public class UserInterestController {
             }
             res.put(i, userInterestsDto);
         }
-        log.info("конец");
         return ResponseEntity.ok(res);
     }
 
+    @GetMapping("/interestsWithCategories")
+    public ResponseEntity<Map<Integer, List<InterestDto>>> listInterestsByCategories(){
+        Map<Integer, List<InterestDto>> res = new LinkedHashMap<>();
+        for(int i = 1; i <= categoryInterests.size(); i++) {
+            List<InterestDto> userInterests = listInterestById(i).getBody();
+            res.put(i, userInterests);
+        }
+        return ResponseEntity.ok(res);
+    }
 
     @PostMapping("/users/{userId}/interests")
     public ResponseEntity<Void> addUserInterest(@PathVariable("userId") int userId,
