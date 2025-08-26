@@ -81,7 +81,7 @@ public class AuthController {
             );
             Integer userId = userService.getPkUserByLogin(login);
             Boolean isOnline = userService.getUserById(userId).getIsOnline();
-            if (isOnline && refreshTokenService.existsByUserId(userId)) {
+            if (false && isOnline && refreshTokenService.existsByUserId(userId)) {
 //                RefreshToken token = refreshTokenService.getTokenByUserId(userId);
 //                if(token != null && refreshTokenService.verifyExpiration(token) != null)
                   throw new UserAlreadyLoggedInException("Пользователь уже вошёл");
